@@ -294,42 +294,45 @@ function Index() {
                     className="pointer-events-none absolute -inset-x-4 -top-16 h-24 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-60"
                     style={{ background: c.accent }}
                   />
-                  <svg
-                    viewBox="0 0 80 80"
-                    className="h-14 w-14 shrink-0 drop-shadow-sm"
-                    role="img"
-                    aria-label={L(c.name)}
-                  >
-                    <defs>
-                      <linearGradient id={`cg-${i}`} x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stopColor={c.accent} stopOpacity="0.95" />
-                        <stop offset="100%" stopColor={c.accent} stopOpacity="0.55" />
-                      </linearGradient>
-                    </defs>
-                    <rect x="2" y="2" width="76" height="76" rx="18" fill={`url(#cg-${i})`} />
-                    <rect
-                      x="2"
-                      y="2"
-                      width="76"
-                      height="76"
-                      rx="18"
-                      fill="none"
-                      stroke="rgba(255,255,255,0.35)"
-                      strokeWidth="1.5"
+                  {c.logo_url ? (
+                    <img
+                      src={c.logo_url}
+                      alt={L(c.name)}
+                      loading="lazy"
+                      decoding="async"
+                      width={112}
+                      height={112}
+                      className="h-14 w-14 shrink-0 object-contain drop-shadow-sm"
                     />
-                    <text
-                      x="40"
-                      y="47"
-                      textAnchor="middle"
-                      fontSize={c.monogram.length > 2 ? "22" : "28"}
-                      fontWeight="800"
-                      fontFamily="ui-sans-serif, system-ui, sans-serif"
-                      fill="#fff"
-                      letterSpacing="1"
+                  ) : (
+                    <svg
+                      viewBox="0 0 80 80"
+                      className="h-14 w-14 shrink-0 drop-shadow-sm"
+                      role="img"
+                      aria-label={L(c.name)}
                     >
-                      {c.monogram}
-                    </text>
-                  </svg>
+                      <defs>
+                        <linearGradient id={`cg-${i}`} x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stopColor={c.accent} stopOpacity="0.95" />
+                          <stop offset="100%" stopColor={c.accent} stopOpacity="0.55" />
+                        </linearGradient>
+                      </defs>
+                      <rect x="2" y="2" width="76" height="76" rx="18" fill={`url(#cg-${i})`} />
+                      <rect x="2" y="2" width="76" height="76" rx="18" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" />
+                      <text
+                        x="40"
+                        y="47"
+                        textAnchor="middle"
+                        fontSize={c.monogram.length > 2 ? "22" : "28"}
+                        fontWeight="800"
+                        fontFamily="ui-sans-serif, system-ui, sans-serif"
+                        fill="#fff"
+                        letterSpacing="1"
+                      >
+                        {c.monogram}
+                      </text>
+                    </svg>
+                  )}
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-foreground" title={L(c.name)}>
                       {L(c.name)}
@@ -337,7 +340,11 @@ function Index() {
                     <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                       {L(c.sector)}
                     </p>
+                    {c.description && L(c.description) && (
+                      <p className="mt-2 line-clamp-2 text-[11px] text-muted-foreground/80">{L(c.description)}</p>
+                    )}
                   </div>
+
                 </li>
               </Reveal>
             ))}
