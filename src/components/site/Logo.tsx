@@ -7,7 +7,7 @@ import { useBranding } from "@/hooks/useBranding";
  * when present; falls back to the bundled monogram SVG otherwise.
  * The `light` prop forces the white variant (used on dark surfaces like the footer).
  */
-export function Logo({ className, light = false }: { className?: string; light?: boolean }) {
+export function Logo({ className, light = false, size }: { className?: string; light?: boolean; size?: string }) {
   const { data } = useBranding();
   const customLight = data?.logo_light_url?.trim();
   const customDark = data?.logo_dark_url?.trim();
@@ -17,7 +17,8 @@ export function Logo({ className, light = false }: { className?: string; light?:
   const darkSrc = customDark || fallback;
 
   // Responsive height: mobile 48px, tablet 60px, desktop 72px. Retina-crisp SVG.
-  const sizing = "h-16 sm:h-20 lg:h-24 xl:h-28 w-auto max-w-[320px] object-contain select-none";
+  const sizing = size ?? "h-16 sm:h-20 lg:h-24 xl:h-28 w-auto max-w-[320px] object-contain select-none";
+
 
 
   if (light) {

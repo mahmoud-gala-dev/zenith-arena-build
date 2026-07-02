@@ -12,6 +12,8 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LanguageProvider } from "../i18n/LanguageProvider";
+import { SmoothScroll } from "../components/site/SmoothScroll";
+
 
 import "@fontsource/sora/400.css";
 import "@fontsource/sora/600.css";
@@ -92,7 +94,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       {
         title: "Egytic — Sports Construction & Infrastructure",
       },
@@ -111,7 +113,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#0b0f19" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "Egytic" },
     ],
+
 
 
     links: [
@@ -151,9 +158,11 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
+        <SmoothScroll />
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
       </LanguageProvider>
     </QueryClientProvider>
   );
 }
+

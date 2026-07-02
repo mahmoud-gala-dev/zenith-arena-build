@@ -39,11 +39,13 @@ export function Header() {
     <header
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-300",
+        "hidden md:block",
         scrolled
           ? "border-b border-border/70 bg-background/85 backdrop-blur-lg shadow-soft text-foreground"
           : "bg-transparent text-white",
       )}
     >
+
       <div className="mx-auto flex h-24 max-w-7xl items-center justify-between gap-4 px-4 sm:h-28 sm:px-6 lg:h-32 xl:h-36 lg:px-8">
         <Link to="/" aria-label="Egytic home">
           <Logo light={!scrolled} />

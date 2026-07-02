@@ -1,13 +1,23 @@
 {
-  "name": "APEX — Sports Construction & Infrastructure",
-  "short_name": "APEX",
+  "name": "Egytic Sports — Sports Construction & Infrastructure",
+  "short_name": "Egytic",
   "description": "Turnkey sports infrastructure: FIFA-grade pitches, World Athletics tracks, courts, aquatic centers.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
   "background_color": "#0b0f19",
   "theme_color": "#0b0f19",
+  "categories": ["business", "sports", "productivity"],
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     { "src": "/favicon.ico", "sizes": "48x48", "type": "image/x-icon" }
+  ],
+  "shortcuts": [
+    { "name": "Projects", "url": "/projects", "short_name": "Projects" },
+    { "name": "Products", "url": "/products", "short_name": "Products" },
+    { "name": "Request a quote", "url": "/quote", "short_name": "Quote" }
   ]
 }
