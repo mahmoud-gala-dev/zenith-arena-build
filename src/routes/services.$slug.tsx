@@ -1,50 +1,24 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Download, MessageCircle, CheckCircle2 } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowLeft, ArrowRight, Download, MessageCircle, Loader2 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Icon } from "@/components/site/Icon";
-import { ProjectCard } from "@/components/site/Cards";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ShareButtons } from "@/components/site/ShareButtons";
-import { GallerySection } from "@/components/site/GallerySection";
 import { Button } from "@/components/ui/button";
-import { useLang, useLocalized } from "@/i18n/LanguageProvider";
-import { projects, services, products } from "@/lib/site-data";
+import { useLang } from "@/i18n/LanguageProvider";
+import { useServiceBySlug } from "@/hooks/useServiceContent";
 
 export const Route = createFileRoute("/services/$slug")({
-  loader: ({ params }) => {
-    const service = services.find((item) => item.id === params.slug);
-    if (!service) throw notFound();
-    return { slug: params.slug };
-  },
+  loader: ({ params }) => ({ slug: params.slug }),
   head: ({ params }) => {
-    const service = services.find((item) => item.id === params.slug);
-    if (!service) {
-      return { meta: [{ title: "Service not found — Egytic" }, { name: "robots", content: "noindex" }] };
-    }
-    const title = `${service.title.en} — Sports Construction Services | Egytic`;
-    const titleAr = `${service.title.ar} — خدمات إنشاء المنشآت الرياضية | إيجيتيك`;
-    const desc = service.description.en;
-    const descAr = service.description.ar;
-    const alt = `${service.title.en} — ${service.title.ar}`;
+    const title = `Service — Egytic Sports`;
     return {
       meta: [
         { title },
-        { name: "description", content: desc },
+        { name: "description", content: "Turnkey sports construction services by Egytic Sports." },
         { property: "og:title", content: title },
-        { property: "og:description", content: desc },
         { property: "og:type", content: "website" },
         { property: "og:url", content: `/services/${params.slug}` },
-        { property: "og:image", content: service.image },
-        { property: "og:image:alt", content: alt },
-        { property: "og:locale", content: "en_US" },
-        { property: "og:locale:alternate", content: "ar_AR" },
-        { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:title", content: title },
-        { name: "twitter:description", content: desc },
-        { name: "twitter:image", content: service.image },
-        { name: "twitter:image:alt", content: alt },
-        { name: "description:ar", content: descAr },
-        { name: "title:ar", content: titleAr },
       ],
       links: [
         { rel: "canonical", href: `/services/${params.slug}` },
@@ -52,31 +26,6 @@ export const Route = createFileRoute("/services/$slug")({
         { rel: "alternate", hrefLang: "ar", href: `/services/${params.slug}` },
         { rel: "alternate", hrefLang: "x-default", href: `/services/${params.slug}` },
       ],
-      scripts: [{
-        type: "application/ld+json",
-        children: JSON.stringify([
-          {
-            "@context": "https://schema.org",
-            "@type": "Service",
-            name: service.title.en,
-            description: service.description.en,
-            serviceType: service.title.en,
-            image: service.image,
-            url: `/services/${params.slug}`,
-            provider: { "@type": "Organization", name: "Egytic Sports" },
-            areaServed: { "@type": "Place", name: "GCC & MENA" },
-          },
-          {
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            itemListElement: [
-              { "@type": "ListItem", position: 1, name: "Home", item: "/" },
-              { "@type": "ListItem", position: 2, name: "Services", item: "/services" },
-              { "@type": "ListItem", position: 3, name: service.title.en, item: `/services/${params.slug}` },
-            ],
-          },
-        ]),
-      }],
     };
   },
   component: ServiceDetailPage,
@@ -85,65 +34,65 @@ export const Route = createFileRoute("/services/$slug")({
 function ServiceDetailPage() {
   const { slug } = Route.useLoaderData();
   const { lang, t } = useLang();
-  const L = useLocalized();
-  const service = services.find((item) => item.id === slug)!;
+  const { data: service, loading } = useServiceBySlug(slug);
   const ar = lang === "ar";
 
   const copy = ar
-    ? {
-        back: "العودة للخدمات",
-        overview: "نظرة عامة",
-        benefits: "الفوائد الرئيسية",
-        specs: "المواصفات الفنية",
-        steps: "خطوات التنفيذ",
-        materials: "المواد المستخدمة",
-        gallery: "معرض الخدمة",
-        relatedProducts: "منتجات ذات صلة",
-        relatedProjects: "مشاريع ذات صلة",
-        faq: "أسئلة شائعة",
-        brochure: "تحميل البروشور",
-        whatsapp: "واتساب",
-        quote: "اطلب عرض سعر",
-        specRows: ["دراسة الموقع والتربة", "تصريف وري حسب نوع المنشأة", "مواد معتمدة للأداء والسلامة", "اختبار وتسليم موثق"],
-        stepRows: ["استشارة وتحديد نطاق العمل", "تصميم ومخططات تنفيذية", "أعمال مدنية وبنية تحتية", "تركيب السطح والمعدات", "اختبارات وتسليم وصيانة"],
-        materialRows: ["طبقات قاعدة هندسية", "سطح رياضي متخصص", "إضاءة وتجهيزات", "أنظمة حماية وتصريف"],
-      }
-    : {
-        back: "Back to services",
-        overview: "Overview",
-        benefits: "Key benefits",
-        specs: "Technical specifications",
-        steps: "Construction steps",
-        materials: "Materials used",
-        gallery: "Service gallery",
-        relatedProducts: "Related products",
-        relatedProjects: "Related projects",
-        faq: "FAQs",
-        brochure: "Download brochure",
-        whatsapp: "WhatsApp",
-        quote: "Request quote",
-        specRows: ["Site and soil assessment", "Drainage and irrigation matched to facility type", "Certified materials for performance and safety", "Documented testing and handover"],
-        stepRows: ["Consultation and scope definition", "Design and shop drawings", "Civil works and infrastructure", "Surface and equipment installation", "Testing, handover and maintenance"],
-        materialRows: ["Engineered base layers", "Specialized sports surface", "Lighting and equipment", "Protection and drainage systems"],
-      };
+    ? { back: "العودة للخدمات", overview: "نظرة عامة", gallery: "معرض الخدمة", brochure: "تحميل البروشور", whatsapp: "واتساب", quote: "اطلب عرض سعر", notFound: "لم يتم العثور على الخدمة" }
+    : { back: "Back to services", overview: "Overview", gallery: "Service gallery", brochure: "Download brochure", whatsapp: "WhatsApp", quote: "Request quote", notFound: "Service not found" };
+
+  if (loading) {
+    return <SiteLayout><div className="grid min-h-[60vh] place-items-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div></SiteLayout>;
+  }
+  if (!service) {
+    return (
+      <SiteLayout>
+        <div className="mx-auto max-w-3xl px-4 py-24 text-center">
+          <h1 className="text-3xl font-bold">{copy.notFound}</h1>
+          <Button asChild className="mt-6"><Link to="/services">{copy.back}</Link></Button>
+        </div>
+      </SiteLayout>
+    );
+  }
+
+  const title = (ar ? service.title_ar : service.title_en) || service.title_en;
+  const desc = (ar ? service.description_ar : service.description_en) || service.description_en || "";
+  const alt_en = service.alt_en || service.title_en;
+  const alt_ar = service.alt_ar || service.title_ar || service.title_en;
+  const currentAlt = ar ? alt_ar : alt_en;
+  const gallery = service.gallery_images;
 
   return (
     <SiteLayout>
       <section className="relative overflow-hidden bg-ink pt-32 pb-16 text-white">
-        <img src={service.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />
+        {service.header_image ? (
+          <img
+            src={service.header_image}
+            alt={currentAlt}
+            aria-label={`${alt_en} — ${alt_ar}`}
+            width={1920}
+            height={820}
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+            className="absolute inset-0 h-full w-full object-cover opacity-40"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-ink via-ink/80 to-primary/40" aria-hidden />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/40" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Breadcrumbs items={[{ label: t.nav.services, to: "/services" }, { label: L(service.title) }]} />
+          <Breadcrumbs items={[{ label: t.nav.services, to: "/services" }, { label: title }]} />
           <Link to="/services" className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white">
             <ArrowLeft className="h-4 w-4 rtl:rotate-180" /> {copy.back}
           </Link>
           <div className="mt-8 flex max-w-4xl flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-gold text-gold-foreground">
-                <Icon name={service.icon} className="h-7 w-7" />
+                <Icon name={service.icon || "Goal"} className="h-7 w-7" />
               </div>
-              <h1 className="mt-6 text-4xl font-bold sm:text-5xl">{L(service.title)}</h1>
-              <p className="mt-4 max-w-3xl text-lg text-white/72">{L(service.description)}</p>
+              <h1 className="mt-6 text-4xl font-bold sm:text-5xl">{title}</h1>
+              {desc && <p className="mt-4 max-w-3xl text-lg text-white/72">{desc}</p>}
             </div>
             <div className="flex flex-wrap gap-3">
               <Button asChild variant="gold"><Link to="/quote">{copy.quote}</Link></Button>
@@ -155,14 +104,31 @@ function ServiceDetailPage() {
 
       <section className="py-16">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-3 lg:px-8">
-          <div className="space-y-12 lg:col-span-2">
-            <Block title={copy.overview}><p className="leading-relaxed text-muted-foreground">{L(service.description)}</p></Block>
-            <Block title={copy.benefits}><List items={service.features.map((item) => L(item))} /></Block>
-            <Block title={copy.specs}><List items={copy.specRows} /></Block>
-            <Block title={copy.steps}><List items={copy.stepRows} ordered /></Block>
-            <Block title={copy.materials}><List items={copy.materialRows} /></Block>
+          <div className="space-y-8 lg:col-span-2">
+            <section>
+              <h2 className="text-2xl font-bold text-foreground">{copy.overview}</h2>
+              {desc && <p className="mt-4 leading-relaxed text-muted-foreground">{desc}</p>}
+            </section>
+
+            {service.cover_image && (
+              <figure className="overflow-hidden rounded-2xl border border-border shadow-soft">
+                <img
+                  src={service.cover_image}
+                  alt={currentAlt}
+                  aria-label={`${alt_en} — ${alt_ar}`}
+                  width={1200}
+                  height={750}
+                  loading="lazy"
+                  decoding="async"
+                  sizes="(min-width: 1024px) 66vw, 100vw"
+                  className="aspect-[16/10] w-full object-cover"
+                />
+                <figcaption className="sr-only">{alt_en} — {alt_ar}</figcaption>
+              </figure>
+            )}
+
             <div className="border-t border-border pt-6">
-              <ShareButtons title={L(service.title)} path={`/services/${slug}`} />
+              <ShareButtons title={title} path={`/services/${slug}`} />
             </div>
           </div>
           <aside className="h-fit space-y-4 rounded-2xl border border-border bg-card p-6 shadow-soft">
@@ -174,32 +140,30 @@ function ServiceDetailPage() {
         </div>
       </section>
 
-      <section className="bg-secondary/50 py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-foreground">{copy.relatedProducts}</h2>
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
-            {products.slice(0, 3).map((product) => (
-              <Link key={product.id} to="/products/$slug" params={{ slug: product.id }} className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition hover:-translate-y-1 hover:shadow-elegant">
-                <img src={product.image} alt={L(product.title)} className="aspect-[16/10] w-full object-cover" loading="lazy" />
-                <div className="p-5"><p className="text-xs font-semibold uppercase text-primary">{L(product.category)}</p><h3 className="mt-2 font-semibold text-foreground">{L(product.title)}</h3></div>
-              </Link>
-            ))}
+      {gallery.length > 0 && (
+        <section className="bg-secondary/40 py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-bold text-foreground">{copy.gallery}</h2>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {gallery.map((url, i) => (
+                <figure key={`${url}-${i}`} className="overflow-hidden rounded-xl border border-border bg-card shadow-soft">
+                  <img
+                    src={url}
+                    alt={`${currentAlt} — ${i + 1}`}
+                    aria-label={`${alt_en} — ${alt_ar} — ${i + 1}`}
+                    width={1200}
+                    height={900}
+                    loading="lazy"
+                    decoding="async"
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    className="aspect-[4/3] w-full object-cover transition-transform duration-500 hover:scale-105"
+                  />
+                </figure>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
-
-      <section className="py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-foreground">{copy.relatedProjects}</h2>
-          <div className="mt-8 grid gap-6 md:grid-cols-3">{projects.slice(0, 3).map((project) => <ProjectCard key={project.slug} project={project} />)}</div>
-        </div>
-      </section>
-
-      <GallerySection
-        image={service.image}
-        title={L(service.title)}
-        source="services"
-      />
+        </section>
+      )}
 
       <section className="bg-hero py-16 text-white">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
@@ -209,23 +173,5 @@ function ServiceDetailPage() {
         </div>
       </section>
     </SiteLayout>
-  );
-}
-
-function Block({ title, children }: { title: string; children: React.ReactNode }) {
-  return <section><h2 className="text-2xl font-bold text-foreground">{title}</h2><div className="mt-5">{children}</div></section>;
-}
-
-function List({ items, ordered = false }: { items: string[]; ordered?: boolean }) {
-  const Comp = ordered ? "ol" : "ul";
-  return (
-    <Comp className="grid gap-3 sm:grid-cols-2">
-      {items.map((item, index) => (
-        <li key={item} className="flex items-start gap-3 rounded-xl border border-border bg-card p-4 text-sm text-foreground shadow-soft">
-          {ordered ? <span className="font-bold text-primary">{String(index + 1).padStart(2, "0")}</span> : <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />}
-          <span>{item}</span>
-        </li>
-      ))}
-    </Comp>
   );
 }
