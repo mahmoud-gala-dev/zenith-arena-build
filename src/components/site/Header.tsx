@@ -23,7 +23,7 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const ar = t.nav.home === "الرئيسية";
+  const ar = lang === "ar";
   const links = [
     { to: "/", label: t.nav.home },
     { to: "/services", label: t.nav.services },
