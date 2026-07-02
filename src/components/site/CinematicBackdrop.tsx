@@ -71,8 +71,6 @@ function CinematicBackdropImpl({
     };
   }, [mx, my, reduce, lowEnd]);
 
-  if (!mounted) return null;
-
   // Clamp intensities.
   const f = Math.max(0, Math.min(1, fog));
   const s = Math.max(0, Math.min(1, spotlights));
@@ -80,98 +78,81 @@ function CinematicBackdropImpl({
 
   const animateSlow = !reduce && !lowEnd;
 
+  // Memoise all derived style objects and animate configs keyed on intensities
+  // so dragging sliders in the admin preview doesn't rebuild them per frame.
+  const styles = useMemo(() => ({
+    vignette: {
+      background: `radial-gradient(ellipse at 50% 40%, transparent 40%, rgba(0,0,0,${0.55 * v}) 100%)`,
+    },
+    spotLeftBg: `conic-gradient(from 200deg at 50% 0%, transparent 0deg, rgba(201,168,76,${0.18 * s}) 12deg, rgba(201,168,76,${0.05 * s}) 24deg, transparent 36deg)`,
+    spotRightBg: `conic-gradient(from 160deg at 50% 0%, transparent 0deg, rgba(180,210,255,${0.14 * s}) 10deg, rgba(180,210,255,${0.04 * s}) 22deg, transparent 32deg)`,
+    roamingBg: `radial-gradient(circle, rgba(255,240,200,${0.10 * s}) 0%, transparent 60%)`,
+    fogBottom: {
+      background: `linear-gradient(to top, rgba(15,20,30,${0.7 * f}) 0%, rgba(15,20,30,${0.25 * f}) 40%, transparent 100%)`,
+    },
+    fogDrift: {
+      backgroundImage: `radial-gradient(ellipse at 20% 90%, rgba(255,255,255,${0.06 * f}) 0%, transparent 40%), radial-gradient(ellipse at 80% 85%, rgba(255,255,255,${0.05 * f}) 0%, transparent 45%)`,
+      filter: "blur(8px)",
+    },
+  }), [f, s, v]);
+
+  const grainStyle = useMemo(() => ({
+    backgroundImage:
+      "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.7'/></svg>\")",
+  }), []);
+
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-      {/* Vignette for depth */}
-      {v > 0 && (
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `radial-gradient(ellipse at 50% 40%, transparent 40%, rgba(0,0,0,${0.55 * v}) 100%)`,
-          }}
-        />
-      )}
+      {v > 0 && <div className="absolute inset-0" style={styles.vignette} />}
 
-      {/* Volumetric spotlight — left (gold) */}
       {s > 0 && (
         <motion.div
           className="absolute -top-40 left-[10%] h-[140vh] w-[45vw] origin-top"
-          style={{
-            x: px,
-            y: scrollShift,
-            opacity: scrollFade,
-            background: `conic-gradient(from 200deg at 50% 0%, transparent 0deg, rgba(201,168,76,${0.18 * s}) 12deg, rgba(201,168,76,${0.05 * s}) 24deg, transparent 36deg)`,
-            filter: "blur(14px)",
-            transform: "rotate(8deg)",
-          }}
+          style={{ x: px, y: scrollShift, opacity: scrollFade, background: styles.spotLeftBg, filter: "blur(14px)", transform: "rotate(8deg)" }}
           animate={animateSlow ? { rotate: [6, 12, 6] } : undefined}
           transition={animateSlow ? { duration: 18, repeat: Infinity, ease: "easeInOut" } : undefined}
         />
       )}
 
-      {/* Volumetric spotlight — right (cool white) */}
       {s > 0 && (
         <motion.div
           className="absolute -top-40 right-[8%] h-[140vh] w-[42vw] origin-top"
-          style={{
-            x: py,
-            y: scrollShift,
-            opacity: scrollFade,
-            background: `conic-gradient(from 160deg at 50% 0%, transparent 0deg, rgba(180,210,255,${0.14 * s}) 10deg, rgba(180,210,255,${0.04 * s}) 22deg, transparent 32deg)`,
-            filter: "blur(16px)",
-            transform: "rotate(-6deg)",
-          }}
+          style={{ x: py, y: scrollShift, opacity: scrollFade, background: styles.spotRightBg, filter: "blur(16px)", transform: "rotate(-6deg)" }}
           animate={animateSlow ? { rotate: [-4, -10, -4] } : undefined}
           transition={animateSlow ? { duration: 22, repeat: Infinity, ease: "easeInOut" } : undefined}
         />
       )}
 
-      {/* Roaming spot */}
       {s > 0 && !lowEnd && (
         <motion.div
           className="absolute top-1/4 h-[60vh] w-[60vh] rounded-full"
-          style={{
-            left: "30%",
-            background: `radial-gradient(circle, rgba(255,240,200,${0.10 * s}) 0%, transparent 60%)`,
-            filter: "blur(30px)",
-          }}
+          style={{ left: "30%", background: styles.roamingBg, filter: "blur(30px)" }}
           animate={animateSlow ? { x: ["-10%", "30%", "-10%"], opacity: [0.5, 0.9, 0.5] } : undefined}
           transition={animateSlow ? { duration: 20, repeat: Infinity, ease: "easeInOut" } : undefined}
         />
       )}
 
-      {/* Fog layer — bottom gradient */}
-      {f > 0 && (
-        <div
-          className="absolute inset-x-0 bottom-0 h-1/2"
-          style={{
-            background: `linear-gradient(to top, rgba(15,20,30,${0.7 * f}) 0%, rgba(15,20,30,${0.25 * f}) 40%, transparent 100%)`,
-          }}
-        />
-      )}
-      {/* Fog layer — drifting radial */}
+      {f > 0 && <div className="absolute inset-x-0 bottom-0 h-1/2" style={styles.fogBottom} />}
       {f > 0 && !lowEnd && (
         <motion.div
           className="absolute inset-0"
-          style={{
-            backgroundImage: `radial-gradient(ellipse at 20% 90%, rgba(255,255,255,${0.06 * f}) 0%, transparent 40%), radial-gradient(ellipse at 80% 85%, rgba(255,255,255,${0.05 * f}) 0%, transparent 45%)`,
-            filter: "blur(8px)",
-          }}
+          style={styles.fogDrift}
           animate={animateSlow ? { x: [0, 30, 0], opacity: [0.6, 1, 0.6] } : undefined}
           transition={animateSlow ? { duration: 24, repeat: Infinity, ease: "easeInOut" } : undefined}
         />
       )}
 
-      {/* Grain — skip on low-end for GPU savings */}
-      {!lowEnd && (
-        <div
-          className="absolute inset-0 opacity-[0.06] mix-blend-overlay"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.7'/></svg>\")",
-          }}
-        />
-      )}
+      {!lowEnd && <div className="absolute inset-0 opacity-[0.06] mix-blend-overlay" style={grainStyle} />}
     </div>
   );
 }
+
+// Bail out of re-renders when intensity props are unchanged (rounded to 2dp),
+// which keeps the hero preview smooth as admin sliders drag through many values.
+export const CinematicBackdrop = memo(CinematicBackdropImpl, (prev, next) => {
+  const r = (n?: number) => Math.round((n ?? 0.6) * 100) / 100;
+  return r(prev.fog) === r(next.fog)
+    && r(prev.spotlights) === r(next.spotlights)
+    && r(prev.vignette) === r(next.vignette);
+});
+
