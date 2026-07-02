@@ -42,13 +42,27 @@ export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
   const count = slides?.length ?? 0;
   const [paused, setPaused] = useState(false);
 
+  const prevIndexRef = useRef(0);
   useEffect(() => {
     if (count < 2 || paused) return;
-    const t = setInterval(() => setIndex((i) => (i + 1) % count), AUTOPLAY_MS);
+    const t = setInterval(() => {
+      setIndex((i) => {
+        const next = (i + 1) % count;
+        const from = slides?.[i];
+        const to = slides?.[next];
+        if (to) trackEvent({ name: "hero_slide_change", from: i, to: next, slide_id: to.id, via: "autoplay" });
+        return next;
+      });
+    }, AUTOPLAY_MS);
     return () => clearInterval(t);
-  }, [count, paused]);
+  }, [count, paused, slides]);
 
   const current = useMemo(() => (slides && count > 0 ? slides[index % count] : null), [slides, index, count]);
+
+  useEffect(() => {
+    if (current) trackEvent({ name: "hero_slide_view", index, slide_id: current.id, total: count });
+    prevIndexRef.current = index;
+  }, [current, index, count]);
 
   if (slides === null) {
     return (
