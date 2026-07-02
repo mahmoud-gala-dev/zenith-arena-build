@@ -35,7 +35,7 @@ function GovernoratesPage() {
 
   async function load() {
     setLoading(true);
-    const { data, error } = await supabase.from("governorates" as never).select("*").order("sort_order");
+    const { data, error } = await supabase.from("governorates").select("*").order("sort_order");
     if (error) toast.error(error.message);
     setRows((data ?? []) as unknown as Gov[]);
     setLoading(false);
@@ -51,15 +51,15 @@ function GovernoratesPage() {
       logo_url: editing.logo_url || null, sort_order: Number(editing.sort_order) || 0, active: !!editing.active,
     };
     const { error } = editing.id
-      ? await supabase.from("governorates" as never).update(payload).eq("id", editing.id)
-      : await supabase.from("governorates" as never).insert(payload);
+      ? await supabase.from("governorates").update(payload).eq("id", editing.id)
+      : await supabase.from("governorates").insert(payload);
     if (error) return toast.error(error.message);
     toast.success("Saved"); setEditing(null); load();
   }
 
   async function remove(id: string) {
     if (!confirm("Delete this governorate? Assigned projects will be unlinked.")) return;
-    const { error } = await supabase.from("governorates" as never).delete().eq("id", id);
+    const { error } = await supabase.from("governorates").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted"); load();
   }
