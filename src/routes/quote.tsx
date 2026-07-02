@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckCircle2, Sparkles, Clock, Award } from "lucide-react";
+import { CheckCircle2, Sparkles, Clock, Award, Loader2 } from "lucide-react";
+import { z } from "zod";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { services } from "@/lib/site-data";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/quote")({
   head: () => ({
