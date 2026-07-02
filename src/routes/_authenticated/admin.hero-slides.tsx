@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -30,7 +31,8 @@ const empty: SlideInput = {
   image_url: "",
   overlay: "dark", align: "left",
   is_active: true, sort_order: 0,
-};
+  fog_intensity: 0.6, spotlight_intensity: 0.6, vignette_intensity: 0.6,
+} as SlideInput;
 
 function AdminHeroSlides() {
   const [slides, setSlides] = useState<Slide[]>([]);
@@ -233,6 +235,30 @@ function AdminHeroSlides() {
                 <div><Label>Sort order</Label><Input type="number" value={editing.sort_order ?? 0} onChange={(e) => set("sort_order", Number(e.target.value))} /></div>
                 <div className="flex items-end gap-2"><Switch checked={editing.is_active ?? true} onCheckedChange={(v) => set("is_active", v)} /><span className="text-sm">Active</span></div>
                 <div className="flex items-end gap-2"><Switch checked={(editing as any).hide_cta ?? false} onCheckedChange={(v) => set("hide_cta" as any, v)} /><span className="text-sm">Hide CTA buttons</span></div>
+              </div>
+
+              <div className="rounded-lg border bg-secondary/30 p-3">
+                <p className="mb-3 text-sm font-semibold">Cinematic backdrop intensity</p>
+                <p className="mb-4 text-xs text-muted-foreground">Fine-tune fog density, volumetric spotlights, and the vignette per slide. Set to 0 to disable an effect.</p>
+                {(["fog_intensity", "spotlight_intensity", "vignette_intensity"] as const).map((key) => {
+                  const label = key === "fog_intensity" ? "Fog" : key === "spotlight_intensity" ? "Spotlights" : "Vignette";
+                  const val = ((editing as any)[key] ?? 0.6) as number;
+                  return (
+                    <div key={key} className="mb-3">
+                      <div className="mb-1 flex items-center justify-between text-sm">
+                        <Label>{label}</Label>
+                        <span className="tabular-nums text-muted-foreground">{val.toFixed(2)}</span>
+                      </div>
+                      <Slider
+                        value={[val]}
+                        min={0}
+                        max={1}
+                        step={0.05}
+                        onValueChange={(v) => set(key as any, v[0] as any)}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

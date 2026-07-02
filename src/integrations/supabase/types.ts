@@ -420,6 +420,7 @@ export type Database = {
           created_at: string
           eyebrow_ar: string | null
           eyebrow_en: string | null
+          fog_intensity: number
           hide_cta: boolean
           id: string
           image_url: string
@@ -432,17 +433,20 @@ export type Database = {
           secondary_label_ar: string | null
           secondary_label_en: string | null
           sort_order: number
+          spotlight_intensity: number
           subtitle_ar: string | null
           subtitle_en: string | null
           title_ar: string | null
           title_en: string
           updated_at: string
+          vignette_intensity: number
         }
         Insert: {
           align?: string
           created_at?: string
           eyebrow_ar?: string | null
           eyebrow_en?: string | null
+          fog_intensity?: number
           hide_cta?: boolean
           id?: string
           image_url: string
@@ -455,17 +459,20 @@ export type Database = {
           secondary_label_ar?: string | null
           secondary_label_en?: string | null
           sort_order?: number
+          spotlight_intensity?: number
           subtitle_ar?: string | null
           subtitle_en?: string | null
           title_ar?: string | null
           title_en: string
           updated_at?: string
+          vignette_intensity?: number
         }
         Update: {
           align?: string
           created_at?: string
           eyebrow_ar?: string | null
           eyebrow_en?: string | null
+          fog_intensity?: number
           hide_cta?: boolean
           id?: string
           image_url?: string
@@ -478,11 +485,13 @@ export type Database = {
           secondary_label_ar?: string | null
           secondary_label_en?: string | null
           sort_order?: number
+          spotlight_intensity?: number
           subtitle_ar?: string | null
           subtitle_en?: string | null
           title_ar?: string | null
           title_en?: string
           updated_at?: string
+          vignette_intensity?: number
         }
         Relationships: []
       }
