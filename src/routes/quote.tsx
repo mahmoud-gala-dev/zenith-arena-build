@@ -175,63 +175,50 @@ function QuotePage() {
                 </Button>
               </div>
             ) : (
-              <form
-                className="grid gap-5 sm:grid-cols-2"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setSent(true);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-              >
+              <form className="grid gap-5 sm:grid-cols-2" onSubmit={onSubmit}>
                 <div className="space-y-2">
                   <Label htmlFor="q-name">{tx.name}*</Label>
-                  <Input id="q-name" required maxLength={100} />
+                  <Input id="q-name" name="name" required maxLength={100} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="q-company">{tx.company}</Label>
-                  <Input id="q-company" maxLength={120} />
+                  <Input id="q-company" name="company" maxLength={120} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="q-email">{tx.email}*</Label>
-                  <Input id="q-email" type="email" required maxLength={255} />
+                  <Input id="q-email" name="email" type="email" required maxLength={255} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="q-phone">{tx.phone}*</Label>
-                  <Input id="q-phone" type="tel" required maxLength={30} />
+                  <Input id="q-phone" name="phone" type="tel" required maxLength={30} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="q-country">{tx.country}</Label>
-                  <Input id="q-country" maxLength={60} />
+                  <Input id="q-country" name="country" maxLength={60} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="q-city">{tx.city}</Label>
-                  <Input id="q-city" maxLength={60} />
+                  <Input id="q-city" name="city" maxLength={60} />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label>{tx.service}*</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder={tx.service} />
-                    </SelectTrigger>
+                  <Select value={serviceValue} onValueChange={setServiceValue}>
+                    <SelectTrigger><SelectValue placeholder={tx.service} /></SelectTrigger>
                     <SelectContent>
                       {services.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>
-                          {L(s.title)}
-                        </SelectItem>
+                        <SelectItem key={s.id} value={s.id}>{L(s.title)}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="q-area">{tx.area}</Label>
-                  <Input id="q-area" type="number" min={0} />
+                  <Input id="q-area" name="area" type="number" min={0} />
                 </div>
                 <div className="space-y-2">
                   <Label>{tx.budget}</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder={tx.budget} />
-                    </SelectTrigger>
+                  <Select value={budgetValue} onValueChange={setBudgetValue}>
+                    <SelectTrigger><SelectValue placeholder={tx.budget} /></SelectTrigger>
                     <SelectContent>
                       {budgetRanges.map((b) => (
                         <SelectItem key={b} value={b}>{b}</SelectItem>
@@ -241,15 +228,15 @@ function QuotePage() {
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="q-start">{tx.start}</Label>
-                  <Input id="q-start" type="date" />
+                  <Input id="q-start" name="start" type="date" />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="q-message">{tx.message}</Label>
-                  <Textarea id="q-message" rows={5} maxLength={2000} />
+                  <Textarea id="q-message" name="message" rows={5} maxLength={2000} />
                 </div>
                 <div className="space-y-3 sm:col-span-2">
                   <Label>{tx.contactMethod}</Label>
-                  <RadioGroup defaultValue="email" className="flex flex-wrap gap-4">
+                  <RadioGroup value={contactMethod} onValueChange={setContactMethod} className="flex flex-wrap gap-4">
                     {(["email", "phone", "whatsapp"] as const).map((m) => (
                       <label key={m} className="flex cursor-pointer items-center gap-2 rounded-full border border-border bg-secondary/50 px-4 py-2 text-sm">
                         <RadioGroupItem value={m} id={`m-${m}`} />
@@ -259,8 +246,8 @@ function QuotePage() {
                   </RadioGroup>
                 </div>
                 <div className="sm:col-span-2">
-                  <Button type="submit" variant="hero" size="lg" className="w-full">
-                    {tx.submit}
+                  <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
+                    {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : tx.submit}
                   </Button>
                 </div>
               </form>
