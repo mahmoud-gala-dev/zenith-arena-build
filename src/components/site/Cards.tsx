@@ -23,8 +23,8 @@ export function ServiceCard({ service }: { service: Service }) {
         ))}
       </ul>
       <Link
-        to="/services"
-        hash={service.id}
+        to="/services/$slug"
+        params={{ slug: service.id }}
         className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-primary"
       >
         {t.cta.learnMore}

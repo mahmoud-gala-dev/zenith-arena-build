@@ -1,21 +1,58 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Inbox, FolderKanban, Image as ImageIcon, LogOut, ExternalLink } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  Award,
+  BookOpen,
+  Building2,
+  Download,
+  ExternalLink,
+  FileText,
+  FolderKanban,
+  Image as ImageIcon,
+  Images,
+  Inbox,
+  LayoutDashboard,
+  Layers,
+  LogOut,
+  MessageSquareQuote,
+  Package,
+  Search,
+  Settings,
+  Tags,
+  Users,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 const nav: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
+  { to: "/admin/pages", label: "Pages", icon: FileText },
+  { to: "/admin/services", label: "Services", icon: Layers },
+  { to: "/admin/products", label: "Products", icon: Package },
   { to: "/admin/leads", label: "Leads", icon: Inbox },
   { to: "/admin/projects", label: "Projects", icon: FolderKanban },
+  { to: "/admin/blog", label: "Blog", icon: BookOpen },
+  { to: "/admin/categories", label: "Categories", icon: Tags },
+  { to: "/admin/downloads", label: "Downloads", icon: Download },
+  { to: "/admin/clients", label: "Clients", icon: Building2 },
+  { to: "/admin/certificates", label: "Certificates", icon: Award },
+  { to: "/admin/gallery", label: "Gallery", icon: Images },
+  { to: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
+  { to: "/admin/seo", label: "SEO Manager", icon: Search },
   { to: "/admin/media", label: "Media Library", icon: ImageIcon },
+  { to: "/admin/settings", label: "Settings", icon: Settings },
+  { to: "/admin/users", label: "Users & Roles", icon: Users },
 ];
 
 export function AdminShell({ children, title }: { children: React.ReactNode; title: string }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   async function signOut() {
+    await queryClient.cancelQueries();
+    queryClient.clear();
     await supabase.auth.signOut();
     toast.success("Signed out");
     navigate({ to: "/auth", replace: true });
@@ -30,7 +67,7 @@ export function AdminShell({ children, title }: { children: React.ReactNode; tit
             <span className="text-sm text-muted-foreground">Admin</span>
           </Link>
         </div>
-        <nav className="flex-1 space-y-1 p-4">
+        <nav className="flex-1 space-y-1 overflow-y-auto p-4">
           {nav.map((item) => {
             const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
             return (
@@ -62,9 +99,19 @@ export function AdminShell({ children, title }: { children: React.ReactNode; tit
       <main className="lg:pl-64">
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-card/80 px-6 py-4 backdrop-blur">
           <h1 className="text-xl font-bold text-foreground">{title}</h1>
-          <Button variant="outline" size="sm" onClick={signOut} className="lg:hidden">
-            <LogOut className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-2 lg:hidden">
+            <select
+              aria-label="Admin section"
+              className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+              value={pathname.startsWith("/admin/") ? pathname : "/admin"}
+              onChange={(event) => navigate({ to: event.target.value as "/admin" })}
+            >
+              {nav.map((item) => <option key={item.to} value={item.to}>{item.label}</option>)}
+            </select>
+            <Button variant="outline" size="sm" onClick={signOut}>
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
         </header>
         <div className="p-6">{children}</div>
       </main>

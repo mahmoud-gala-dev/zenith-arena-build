@@ -36,7 +36,7 @@ function ProductsPage() {
                     <h3 className="mt-2 text-lg font-semibold text-foreground">{L(p.title)}</h3>
                     <p className="mt-2 flex-1 text-sm text-muted-foreground">{L(p.description)}</p>
                     <Button asChild variant="outline" size="sm" className="mt-5 w-full">
-                      <Link to="/contact">{t.cta.quote}</Link>
+                      <Link to="/products/$slug" params={{ slug: p.id }}>{t.cta.learnMore}</Link>
                     </Button>
                   </div>
                 </div>

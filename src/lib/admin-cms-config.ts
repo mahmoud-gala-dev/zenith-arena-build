@@ -1,0 +1,399 @@
+import type { CmsCollectionConfig, CmsField } from "@/components/admin/CmsCollectionPage";
+
+const statusOptions = [
+  { value: "published", label: "Published" },
+  { value: "draft", label: "Draft" },
+  { value: "archived", label: "Archived" },
+];
+
+const legacyStatusOptions = [
+  { value: "published", label: "Published" },
+  { value: "draft", label: "Draft" },
+];
+
+const bilingualTitleFields: CmsField[] = [
+  { name: "slug_en", label: "English slug", required: true, maxLength: 140 },
+  { name: "slug_ar", label: "Arabic slug", dir: "rtl", maxLength: 140 },
+  { name: "title_en", label: "English title", required: true, maxLength: 160 },
+  { name: "title_ar", label: "Arabic title", dir: "rtl", maxLength: 160 },
+];
+
+const publicationFields: CmsField[] = [
+  { name: "status", label: "Status", type: "select", options: statusOptions, required: true },
+  { name: "featured", label: "Featured", type: "switch" },
+  { name: "sort_order", label: "Sort order", type: "number" },
+];
+
+const legacyPublicationFields: CmsField[] = [
+  { name: "status", label: "Status", type: "select", options: legacyStatusOptions, required: true },
+  { name: "featured", label: "Featured", type: "switch" },
+  { name: "sort_order", label: "Sort order", type: "number" },
+];
+
+const commonColumns = [
+  { key: "title_en", label: "Title" },
+  { key: "slug_en", label: "Slug" },
+  { key: "status", label: "Status" },
+  { key: "featured", label: "Featured", type: "boolean" as const },
+  { key: "updated_at", label: "Updated", type: "date" as const },
+];
+
+const categoryColumns = [
+  { key: "title_en", label: "Title" },
+  { key: "slug_en", label: "Slug" },
+  { key: "status", label: "Status" },
+  { key: "sort_order", label: "Order" },
+  { key: "updated_at", label: "Updated", type: "date" as const },
+];
+
+export const serviceConfig: CmsCollectionConfig = {
+  table: "services",
+  title: "Services",
+  singular: "service",
+  description: "Manage public service pages, categories, featured status and bilingual descriptions.",
+  columns: commonColumns,
+  searchFields: ["title_en", "title_ar", "slug_en", "category"],
+  orderBy: "sort_order",
+  orderAscending: true,
+  filters: [{ key: "status", label: "Status", values: ["published", "draft"] }, { key: "category", label: "Category", values: ["Sports Courts", "Stadiums", "Sports Flooring", "Swimming Pools", "Playgrounds", "Maintenance"] }],
+  initialValues: { slug_en: "", slug_ar: "", title_en: "", title_ar: "", description_en: "", description_ar: "", category: "Sports Courts", icon: "Goal", cover_image: "", status: "published", featured: false, sort_order: 0 },
+  fields: [
+    ...bilingualTitleFields,
+    { name: "category", label: "Category", required: true },
+    { name: "icon", label: "Icon" },
+    { name: "cover_image", label: "Cover image URL", type: "url", fullWidth: true },
+    { name: "description_en", label: "English description", type: "textarea", maxLength: 2500 },
+    { name: "description_ar", label: "Arabic description", type: "textarea", dir: "rtl", maxLength: 2500 },
+    ...legacyPublicationFields,
+  ],
+};
+
+export const productConfig: CmsCollectionConfig = {
+  table: "products",
+  title: "Products",
+  singular: "product",
+  description: "Manage product catalog items, specifications, applications, SEO fields and featured products.",
+  columns: [{ key: "image_url", label: "Image", type: "image" }, ...commonColumns],
+  searchFields: ["title_en", "title_ar", "slug_en", "seo_keywords"],
+  orderBy: "sort_order",
+  orderAscending: true,
+  filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }],
+  initialValues: { slug_en: "", slug_ar: "", title_en: "", title_ar: "", description_en: "", description_ar: "", content_en: "", content_ar: "", image_url: "", features_en: "", features_ar: "", applications_en: "", applications_ar: "", certifications: "", specifications: "{}", seo_title_en: "", seo_description_en: "", seo_keywords: "", status: "published", featured: false, sort_order: 0 },
+  fields: [
+    ...bilingualTitleFields,
+    { name: "image_url", label: "Main image URL", type: "url", fullWidth: true },
+    { name: "description_en", label: "English summary", type: "textarea", maxLength: 2500 },
+    { name: "description_ar", label: "Arabic summary", type: "textarea", dir: "rtl", maxLength: 2500 },
+    { name: "content_en", label: "English content", type: "textarea", maxLength: 5000 },
+    { name: "content_ar", label: "Arabic content", type: "textarea", dir: "rtl", maxLength: 5000 },
+    { name: "features_en", label: "English features", type: "tags", placeholder: "Comma-separated" },
+    { name: "features_ar", label: "Arabic features", type: "tags", dir: "rtl", placeholder: "Comma-separated" },
+    { name: "applications_en", label: "English applications", type: "tags", placeholder: "Comma-separated" },
+    { name: "applications_ar", label: "Arabic applications", type: "tags", dir: "rtl", placeholder: "Comma-separated" },
+    { name: "certifications", label: "Certifications", type: "tags", placeholder: "FIFA, ISO 9001" },
+    { name: "specifications", label: "Specifications JSON", type: "json" },
+    { name: "seo_title_en", label: "SEO title" },
+    { name: "seo_description_en", label: "SEO description", type: "textarea", maxLength: 300 },
+    { name: "seo_keywords", label: "SEO keywords" },
+    ...publicationFields,
+  ],
+};
+
+export const blogConfig: CmsCollectionConfig = {
+  table: "blog_posts",
+  title: "Blog Articles",
+  singular: "article",
+  description: "Manage SEO-focused knowledge center articles with bilingual content, tags and publishing status.",
+  columns: [{ key: "featured_image", label: "Image", type: "image" }, ...commonColumns, { key: "reading_time", label: "Read time" }],
+  searchFields: ["title_en", "title_ar", "slug_en", "excerpt_en", "seo_keywords"],
+  orderBy: "published_at",
+  filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }],
+  initialValues: { slug_en: "", slug_ar: "", title_en: "", title_ar: "", excerpt_en: "", excerpt_ar: "", content_en: "", content_ar: "", featured_image: "", author_name: "Apex Technical Team", reading_time: 5, tags: "", seo_title_en: "", seo_description_en: "", seo_keywords: "", status: "published", featured: false },
+  fields: [
+    ...bilingualTitleFields,
+    { name: "featured_image", label: "Featured image URL", type: "url", fullWidth: true },
+    { name: "excerpt_en", label: "English excerpt", type: "textarea", maxLength: 500 },
+    { name: "excerpt_ar", label: "Arabic excerpt", type: "textarea", dir: "rtl", maxLength: 500 },
+    { name: "content_en", label: "English content", type: "textarea", maxLength: 10000 },
+    { name: "content_ar", label: "Arabic content", type: "textarea", dir: "rtl", maxLength: 10000 },
+    { name: "author_name", label: "Author" },
+    { name: "reading_time", label: "Reading time", type: "number" },
+    { name: "tags", label: "Tags", type: "tags", placeholder: "construction, football, cost" },
+    { name: "seo_title_en", label: "SEO title" },
+    { name: "seo_description_en", label: "SEO description", type: "textarea", maxLength: 300 },
+    { name: "seo_keywords", label: "SEO keywords" },
+    ...publicationFields,
+  ],
+};
+
+export const downloadsConfig: CmsCollectionConfig = {
+  table: "downloads",
+  title: "Downloads",
+  singular: "download",
+  description: "Manage catalog files, datasheets, certificates and lead-capture downloads.",
+  columns: [{ key: "preview_image", label: "Preview", type: "image" }, ...commonColumns, { key: "category", label: "Category", type: "badge" }, { key: "requires_lead_capture", label: "Lead gate", type: "boolean" }],
+  searchFields: ["title_en", "title_ar", "slug_en", "category"],
+  orderBy: "sort_order",
+  orderAscending: true,
+  filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }, { key: "category", label: "Category", values: ["Company Profile", "Product Catalog", "Technical Datasheet", "Brochure", "Maintenance Guide"] }],
+  initialValues: { slug_en: "", slug_ar: "", title_en: "", title_ar: "", category: "Product Catalog", description_en: "", description_ar: "", file_url: "#", preview_image: "", requires_lead_capture: false, status: "published", featured: false, sort_order: 0 },
+  fields: [
+    ...bilingualTitleFields,
+    { name: "category", label: "Category", required: true },
+    { name: "file_url", label: "File URL", fullWidth: true },
+    { name: "preview_image", label: "Preview image URL", type: "url", fullWidth: true },
+    { name: "description_en", label: "English description", type: "textarea", maxLength: 1500 },
+    { name: "description_ar", label: "Arabic description", type: "textarea", dir: "rtl", maxLength: 1500 },
+    { name: "requires_lead_capture", label: "Require lead before download", type: "switch" },
+    ...publicationFields,
+  ],
+};
+
+export const clientsConfig: CmsCollectionConfig = {
+  table: "clients",
+  title: "Clients",
+  singular: "client",
+  description: "Manage client logos, industries and featured client list.",
+  columns: [{ key: "name_en", label: "Client" }, { key: "industry", label: "Industry", type: "badge" }, { key: "country", label: "Country" }, { key: "status", label: "Status" }, { key: "featured", label: "Featured", type: "boolean" }, { key: "updated_at", label: "Updated", type: "date" }],
+  searchFields: ["name_en", "name_ar", "industry", "country"],
+  orderBy: "sort_order",
+  orderAscending: true,
+  filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }, { key: "country", label: "Country", values: ["Saudi Arabia", "UAE", "Qatar", "Kuwait", "Bahrain", "Oman"] }],
+  initialValues: { name_en: "", name_ar: "", logo_url: "", industry: "Sports Club", country: "Saudi Arabia", website: "", status: "published", featured: false, sort_order: 0 },
+  fields: [
+    { name: "name_en", label: "English name", required: true },
+    { name: "name_ar", label: "Arabic name", required: true, dir: "rtl" },
+    { name: "logo_url", label: "Logo URL", type: "url", fullWidth: true },
+    { name: "industry", label: "Industry" },
+    { name: "country", label: "Country" },
+    { name: "website", label: "Website", type: "url" },
+    ...publicationFields,
+  ],
+};
+
+export const certificatesConfig: CmsCollectionConfig = {
+  table: "certificates",
+  title: "Certificates",
+  singular: "certificate",
+  description: "Manage quality, safety, environmental and sports-standard certifications.",
+  columns: [{ key: "title_en", label: "Certificate" }, { key: "issuer_en", label: "Issuer" }, { key: "certificate_number", label: "Number" }, { key: "status", label: "Status" }, { key: "featured", label: "Featured", type: "boolean" }, { key: "updated_at", label: "Updated", type: "date" }],
+  searchFields: ["title_en", "title_ar", "issuer_en", "certificate_number"],
+  orderBy: "sort_order",
+  orderAscending: true,
+  filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }],
+  initialValues: { title_en: "", title_ar: "", issuer_en: "", issuer_ar: "", certificate_number: "", issued_at: "", expires_at: "", image_url: "", file_url: "", status: "published", featured: false, sort_order: 0 },
+  fields: [
+    { name: "title_en", label: "English title", required: true },
+    { name: "title_ar", label: "Arabic title", required: true, dir: "rtl" },
+    { name: "issuer_en", label: "English issuer" },
+    { name: "issuer_ar", label: "Arabic issuer", dir: "rtl" },
+    { name: "certificate_number", label: "Certificate number" },
+    { name: "issued_at", label: "Issue date", type: "date" },
+    { name: "expires_at", label: "Expiry date", type: "date" },
+    { name: "image_url", label: "Image URL", type: "url", fullWidth: true },
+    { name: "file_url", label: "File URL", fullWidth: true },
+    ...publicationFields,
+  ],
+};
+
+export const galleryConfig: CmsCollectionConfig = {
+  table: "gallery",
+  title: "Gallery",
+  singular: "image",
+  description: "Manage visual gallery images, categories, alt text and featured media.",
+  columns: [{ key: "image_url", label: "Image", type: "image" }, { key: "title_en", label: "Title" }, { key: "category", label: "Category", type: "badge" }, { key: "status", label: "Status" }, { key: "featured", label: "Featured", type: "boolean" }, { key: "updated_at", label: "Updated", type: "date" }],
+  searchFields: ["title_en", "title_ar", "category", "alt_en"],
+  orderBy: "sort_order",
+  orderAscending: true,
+  filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }, { key: "category", label: "Category", values: ["football", "stadium", "track", "tennis", "padel", "aquatics", "playground", "indoor", "lighting"] }],
+  initialValues: { title_en: "", title_ar: "", description_en: "", description_ar: "", image_url: "", alt_en: "", alt_ar: "", category: "football", status: "published", featured: false, sort_order: 0 },
+  fields: [
+    { name: "title_en", label: "English title", required: true },
+    { name: "title_ar", label: "Arabic title", required: true, dir: "rtl" },
+    { name: "image_url", label: "Image URL", type: "url", required: true, fullWidth: true },
+    { name: "category", label: "Category" },
+    { name: "alt_en", label: "English alt text" },
+    { name: "alt_ar", label: "Arabic alt text", dir: "rtl" },
+    { name: "description_en", label: "English description", type: "textarea", maxLength: 1500 },
+    { name: "description_ar", label: "Arabic description", type: "textarea", dir: "rtl", maxLength: 1500 },
+    ...publicationFields,
+  ],
+};
+
+export const pagesConfig: CmsCollectionConfig = {
+  table: "pages",
+  title: "Pages",
+  singular: "page",
+  description: "Manage editable website pages and page body copy.",
+  columns: commonColumns,
+  searchFields: ["title_en", "title_ar", "slug_en", "template"],
+  orderBy: "sort_order",
+  orderAscending: true,
+  filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }, { key: "template", label: "Template", values: ["home", "about", "listing", "standard"] }],
+  initialValues: { slug_en: "", slug_ar: "", title_en: "", title_ar: "", content_en: "", content_ar: "", template: "standard", status: "published", featured: false, sort_order: 0 },
+  fields: [
+    ...bilingualTitleFields,
+    { name: "template", label: "Template" },
+    { name: "content_en", label: "English content", type: "textarea", maxLength: 10000 },
+    { name: "content_ar", label: "Arabic content", type: "textarea", dir: "rtl", maxLength: 10000 },
+    ...publicationFields,
+  ],
+};
+
+export const testimonialsConfig: CmsCollectionConfig = {
+  table: "testimonials",
+  title: "Testimonials",
+  singular: "testimonial",
+  description: "Manage client quotes, ratings and featured testimonials.",
+  columns: [{ key: "name_en", label: "Name" }, { key: "company_en", label: "Company" }, { key: "rating", label: "Rating" }, { key: "status", label: "Status" }, { key: "featured", label: "Featured", type: "boolean" }, { key: "updated_at", label: "Updated", type: "date" }],
+  searchFields: ["name_en", "name_ar", "company_en", "quote_en"],
+  orderBy: "sort_order",
+  orderAscending: true,
+  filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }],
+  initialValues: { name_en: "", name_ar: "", role_en: "", role_ar: "", company_en: "", company_ar: "", quote_en: "", quote_ar: "", avatar_url: "", rating: 5, status: "published", featured: false, sort_order: 0 },
+  fields: [
+    { name: "name_en", label: "English name", required: true },
+    { name: "name_ar", label: "Arabic name", required: true, dir: "rtl" },
+    { name: "role_en", label: "English role" },
+    { name: "role_ar", label: "Arabic role", dir: "rtl" },
+    { name: "company_en", label: "English company" },
+    { name: "company_ar", label: "Arabic company", dir: "rtl" },
+    { name: "quote_en", label: "English quote", type: "textarea", required: true, maxLength: 2000 },
+    { name: "quote_ar", label: "Arabic quote", type: "textarea", required: true, dir: "rtl", maxLength: 2000 },
+    { name: "avatar_url", label: "Avatar URL", type: "url", fullWidth: true },
+    { name: "rating", label: "Rating", type: "number" },
+    ...publicationFields,
+  ],
+};
+
+export const seoConfig: CmsCollectionConfig = {
+  table: "seo_settings",
+  title: "SEO Settings",
+  singular: "SEO record",
+  description: "Manage metadata, OpenGraph, robots and schema settings per route or CMS entity.",
+  columns: [{ key: "route_path", label: "Route" }, { key: "entity_type", label: "Type", type: "badge" }, { key: "meta_title_en", label: "Meta title" }, { key: "schema_type", label: "Schema" }, { key: "status", label: "Status" }, { key: "updated_at", label: "Updated", type: "date" }],
+  searchFields: ["route_path", "entity_type", "meta_title_en", "keywords"],
+  orderBy: "updated_at",
+  filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }, { key: "schema_type", label: "Schema", values: ["WebPage", "Organization", "Service", "Product", "Article", "FAQPage"] }],
+  initialValues: { entity_type: "route", route_path: "/", meta_title_en: "", meta_title_ar: "", meta_description_en: "", meta_description_ar: "", keywords: "", canonical_url: "", og_title_en: "", og_description_en: "", og_image: "", twitter_image: "", robots_index: true, robots_follow: true, schema_type: "WebPage", status: "published" },
+  fields: [
+    { name: "entity_type", label: "Entity type", required: true },
+    { name: "route_path", label: "Route path" },
+    { name: "meta_title_en", label: "English meta title", maxLength: 70 },
+    { name: "meta_title_ar", label: "Arabic meta title", dir: "rtl", maxLength: 70 },
+    { name: "meta_description_en", label: "English meta description", type: "textarea", maxLength: 180 },
+    { name: "meta_description_ar", label: "Arabic meta description", type: "textarea", dir: "rtl", maxLength: 180 },
+    { name: "keywords", label: "Keywords" },
+    { name: "canonical_url", label: "Canonical URL" },
+    { name: "og_title_en", label: "OpenGraph title" },
+    { name: "og_description_en", label: "OpenGraph description", type: "textarea", maxLength: 220 },
+    { name: "og_image", label: "OpenGraph image URL", type: "url", fullWidth: true },
+    { name: "twitter_image", label: "Twitter image URL", type: "url", fullWidth: true },
+    { name: "schema_type", label: "Schema type" },
+    { name: "robots_index", label: "Robots index", type: "switch" },
+    { name: "robots_follow", label: "Robots follow", type: "switch" },
+    ...publicationFields.slice(0, 1),
+  ],
+};
+
+export const settingsConfig: CmsCollectionConfig = {
+  table: "settings",
+  title: "Settings",
+  singular: "setting",
+  description: "Manage public site identity, social links and internal configuration values.",
+  columns: [{ key: "key", label: "Key" }, { key: "is_public", label: "Public", type: "boolean" }, { key: "updated_at", label: "Updated", type: "date" }],
+  searchFields: ["key"],
+  orderBy: "updated_at",
+  initialValues: { key: "", value: "{}", is_public: false },
+  fields: [
+    { name: "key", label: "Key", required: true, maxLength: 120 },
+    { name: "is_public", label: "Publicly readable", type: "switch" },
+    { name: "value", label: "Value JSON", type: "json" },
+  ],
+};
+
+export const menusConfig: CmsCollectionConfig = {
+  table: "menus",
+  title: "Menus",
+  singular: "menu item",
+  description: "Manage header and footer menu labels, links and ordering.",
+  columns: [{ key: "label_en", label: "Label" }, { key: "location", label: "Location", type: "badge" }, { key: "href", label: "Link" }, { key: "status", label: "Status" }, { key: "updated_at", label: "Updated", type: "date" }],
+  searchFields: ["label_en", "label_ar", "href", "location"],
+  orderBy: "sort_order",
+  orderAscending: true,
+  filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }, { key: "location", label: "Location", values: ["header", "footer"] }],
+  initialValues: { location: "header", label_en: "", label_ar: "", href: "/", sort_order: 0, status: "published" },
+  fields: [
+    { name: "location", label: "Location", required: true },
+    { name: "label_en", label: "English label", required: true },
+    { name: "label_ar", label: "Arabic label", required: true, dir: "rtl" },
+    { name: "href", label: "Link", required: true },
+    { name: "sort_order", label: "Sort order", type: "number" },
+    { name: "status", label: "Status", type: "select", options: statusOptions, required: true },
+  ],
+};
+
+export const homepageConfig: CmsCollectionConfig = {
+  table: "homepage_sections",
+  title: "Homepage Sections",
+  singular: "section",
+  description: "Manage configurable homepage section copy and structured content blocks.",
+  columns: [{ key: "section_key", label: "Section" }, { key: "title_en", label: "Title" }, { key: "status", label: "Status" }, { key: "sort_order", label: "Order" }, { key: "updated_at", label: "Updated", type: "date" }],
+  searchFields: ["section_key", "title_en", "title_ar"],
+  orderBy: "sort_order",
+  orderAscending: true,
+  filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }],
+  initialValues: { section_key: "", title_en: "", title_ar: "", subtitle_en: "", subtitle_ar: "", content: "{}", sort_order: 0, status: "published" },
+  fields: [
+    { name: "section_key", label: "Section key", required: true },
+    { name: "title_en", label: "English title" },
+    { name: "title_ar", label: "Arabic title", dir: "rtl" },
+    { name: "subtitle_en", label: "English subtitle", type: "textarea" },
+    { name: "subtitle_ar", label: "Arabic subtitle", type: "textarea", dir: "rtl" },
+    { name: "content", label: "Content JSON", type: "json" },
+    { name: "sort_order", label: "Sort order", type: "number" },
+    { name: "status", label: "Status", type: "select", options: statusOptions, required: true },
+  ],
+};
+
+export const categoryConfigs: CmsCollectionConfig[] = [
+  {
+    table: "service_categories",
+    title: "Service Categories",
+    singular: "category",
+    description: "Manage service category labels and ordering.",
+    columns: categoryColumns,
+    searchFields: ["title_en", "title_ar", "slug_en"],
+    orderBy: "sort_order",
+    orderAscending: true,
+    filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }],
+    initialValues: { slug_en: "", slug_ar: "", title_en: "", title_ar: "", description_en: "", description_ar: "", icon: "", status: "published", sort_order: 0 },
+    fields: [...bilingualTitleFields, { name: "icon", label: "Icon" }, { name: "description_en", label: "English description", type: "textarea" }, { name: "description_ar", label: "Arabic description", type: "textarea", dir: "rtl" }, ...publicationFields.filter((field) => field.name !== "featured")],
+  },
+  {
+    table: "product_categories",
+    title: "Product Categories",
+    singular: "category",
+    description: "Manage product category labels and ordering.",
+    columns: categoryColumns,
+    searchFields: ["title_en", "title_ar", "slug_en"],
+    orderBy: "sort_order",
+    orderAscending: true,
+    filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }],
+    initialValues: { slug_en: "", slug_ar: "", title_en: "", title_ar: "", description_en: "", description_ar: "", icon: "", status: "published", sort_order: 0 },
+    fields: [...bilingualTitleFields, { name: "icon", label: "Icon" }, { name: "description_en", label: "English description", type: "textarea" }, { name: "description_ar", label: "Arabic description", type: "textarea", dir: "rtl" }, ...publicationFields.filter((field) => field.name !== "featured")],
+  },
+  {
+    table: "blog_categories",
+    title: "Blog Categories",
+    singular: "category",
+    description: "Manage knowledge center category labels and ordering.",
+    columns: categoryColumns,
+    searchFields: ["title_en", "title_ar", "slug_en"],
+    orderBy: "sort_order",
+    orderAscending: true,
+    filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }],
+    initialValues: { slug_en: "", slug_ar: "", title_en: "", title_ar: "", description_en: "", description_ar: "", status: "published", sort_order: 0 },
+    fields: [...bilingualTitleFields, { name: "description_en", label: "English description", type: "textarea" }, { name: "description_ar", label: "Arabic description", type: "textarea", dir: "rtl" }, ...publicationFields.filter((field) => field.name !== "featured")],
+  },
+];
