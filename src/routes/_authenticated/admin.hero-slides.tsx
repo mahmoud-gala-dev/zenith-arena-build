@@ -251,26 +251,60 @@ function AdminHeroSlides() {
 
               <div className="rounded-lg border bg-secondary/30 p-3">
                 <p className="mb-3 text-sm font-semibold">Cinematic backdrop intensity</p>
-                <p className="mb-4 text-xs text-muted-foreground">Fine-tune fog density, volumetric spotlights, and the vignette per slide. Set to 0 to disable an effect.</p>
-                {(["fog_intensity", "spotlight_intensity", "vignette_intensity"] as const).map((key) => {
-                  const label = key === "fog_intensity" ? "Fog" : key === "spotlight_intensity" ? "Spotlights" : "Vignette";
-                  const val = ((editing as any)[key] ?? 0.6) as number;
-                  return (
-                    <div key={key} className="mb-3">
-                      <div className="mb-1 flex items-center justify-between text-sm">
-                        <Label>{label}</Label>
-                        <span className="tabular-nums text-muted-foreground">{val.toFixed(2)}</span>
-                      </div>
-                      <Slider
-                        value={[val]}
-                        min={0}
-                        max={1}
-                        step={0.05}
-                        onValueChange={(v) => set(key as any, v[0] as any)}
+                <p className="mb-4 text-xs text-muted-foreground">Fine-tune fog density, volumetric spotlights, and the vignette per slide. Values are clamped to 0–1. Set to 0 to disable an effect.</p>
+
+                <div className="grid gap-4 md:grid-cols-[1fr,240px]">
+                  <div>
+                    {(["fog_intensity", "spotlight_intensity", "vignette_intensity"] as const).map((key) => {
+                      const label = key === "fog_intensity" ? "Fog" : key === "spotlight_intensity" ? "Spotlights" : "Vignette";
+                      const val = clamp01((editing as any)[key] ?? 0.6);
+                      return (
+                        <div key={key} className="mb-3">
+                          <div className="mb-1 flex items-center justify-between text-sm">
+                            <Label>{label}</Label>
+                            <span className="tabular-nums text-muted-foreground">{val.toFixed(2)}</span>
+                          </div>
+                          <Slider
+                            value={[val]}
+                            min={0}
+                            max={1}
+                            step={0.05}
+                            onValueChange={(v) => set(key as any, clamp01(v[0]) as any)}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="min-w-0">
+                    <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Live preview</p>
+                    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-md border bg-ink">
+                      {editing.image_url ? (
+                        <img src={editing.image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-60" />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-950" />
+                      )}
+                      <div
+                        aria-hidden
+                        className={
+                          editing.overlay === "light"
+                            ? "absolute inset-0 bg-gradient-to-b from-white/30 via-white/10 to-ink/60"
+                            : editing.overlay === "none"
+                            ? "absolute inset-0 bg-ink/20"
+                            : "absolute inset-0 bg-gradient-to-b from-ink/70 via-ink/50 to-ink"
+                        }
                       />
+                      <CinematicBackdrop
+                        fog={clamp01((editing as any).fog_intensity ?? 0.6)}
+                        spotlights={clamp01((editing as any).spotlight_intensity ?? 0.6)}
+                        vignette={clamp01((editing as any).vignette_intensity ?? 0.6)}
+                      />
+                      <div className="absolute inset-x-2 bottom-2 text-[10px] text-white/70">
+                        Fog {clamp01((editing as any).fog_intensity ?? 0.6).toFixed(2)} · Spot {clamp01((editing as any).spotlight_intensity ?? 0.6).toFixed(2)} · Vig {clamp01((editing as any).vignette_intensity ?? 0.6).toFixed(2)}
+                      </div>
                     </div>
-                  );
-                })}
+                  </div>
+                </div>
               </div>
             </div>
           )}
