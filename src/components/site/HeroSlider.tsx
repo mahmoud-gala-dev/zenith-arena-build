@@ -7,6 +7,7 @@ import { useLang } from "@/i18n/LanguageProvider";
 import type { Database } from "@/integrations/supabase/types";
 
 import { CinematicBackdrop } from "./CinematicBackdrop";
+import { Logo } from "./Logo";
 import { trackEvent } from "@/lib/analytics";
 
 type Slide = Database["public"]["Tables"]["hero_slides"]["Row"] & {
