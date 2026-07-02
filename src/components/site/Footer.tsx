@@ -83,12 +83,12 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white">{t.footer.explore}</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-white/60">
-              <li><Link to="/services" className="hover:text-white">{t.nav.services}</Link></li>
-              <li><Link to="/projects" className="hover:text-white">{t.nav.projects}</Link></li>
-              <li><Link to="/products" className="hover:text-white">{t.nav.products}</Link></li>
-              <li><Link to="/knowledge" className="hover:text-white">{t.nav.knowledge}</Link></li>
-              <li><Link to="/about" className="hover:text-white">{t.nav.about}</Link></li>
-              <li><Link to="/contact" className="hover:text-white">{t.nav.contact}</Link></li>
+              <li><Link to="/services" className="inline-block py-1 hover:text-white">{t.nav.services}</Link></li>
+              <li><Link to="/projects" className="inline-block py-1 hover:text-white">{t.nav.projects}</Link></li>
+              <li><Link to="/products" className="inline-block py-1 hover:text-white">{t.nav.products}</Link></li>
+              <li><Link to="/knowledge" className="inline-block py-1 hover:text-white">{t.nav.knowledge}</Link></li>
+              <li><Link to="/about" className="inline-block py-1 hover:text-white">{t.nav.about}</Link></li>
+              <li><Link to="/contact" className="inline-block py-1 hover:text-white">{t.nav.contact}</Link></li>
             </ul>
           </div>
 
@@ -98,10 +98,10 @@ export function Footer() {
             </h4>
             <ul className="mt-4 space-y-2.5 text-sm text-white/60">
               {resources.map((r) => (
-                <li key={r.to}><Link to={r.to} className="hover:text-white">{r.label}</Link></li>
+                <li key={r.to}><Link to={r.to} className="inline-block py-1 hover:text-white">{r.label}</Link></li>
               ))}
-              <li><Link to="/quote" className="hover:text-white">{t.cta.quote}</Link></li>
-              <li><Link to="/auth" className="hover:text-white">{ar ? "دخول الإدارة" : "Admin"}</Link></li>
+              <li><Link to="/quote" className="inline-block py-1 hover:text-white">{t.cta.quote}</Link></li>
+              <li><Link to="/auth" className="inline-block py-1 hover:text-white">{ar ? "دخول الإدارة" : "Admin"}</Link></li>
             </ul>
           </div>
 
@@ -121,7 +121,7 @@ export function Footer() {
             </form>
             <ul className="mt-6 flex flex-wrap gap-x-4 gap-y-2 text-xs text-white/50">
               {legal.map((l) => (
-                <li key={l.to}><Link to={l.to} className="hover:text-white">{l.label}</Link></li>
+                <li key={l.to}><Link to={l.to} className="inline-block py-1 hover:text-white">{l.label}</Link></li>
               ))}
             </ul>
           </div>
