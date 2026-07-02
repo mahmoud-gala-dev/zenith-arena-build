@@ -185,7 +185,7 @@ function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAni
       <div className="absolute inset-0 grid-texture opacity-30" aria-hidden />
 
       <motion.div style={{ y: contentY, opacity: contentOpacity }} className="relative mx-auto w-full max-w-7xl px-4 py-28 sm:px-6 lg:px-8">
-        <HeroLogoBadge className="mb-6 hidden sm:block" />
+        
         <div
           role="group"
           aria-roledescription="slide"
