@@ -139,6 +139,8 @@ function ArticleDetail() {
         </section>
       </article>
 
+      <GallerySection image={article.image} title={L(article.title)} source="knowledge" />
+
       <section className="bg-secondary/50 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold text-foreground">{t.knowledge.related}</h2>
