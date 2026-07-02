@@ -23,15 +23,6 @@ import {
   type ClientLogo,
 } from "@/lib/site-data";
 
-type DbClient = {
-  id: string;
-  name_en: string;
-  name_ar: string;
-  logo_url: string | null;
-  industry: string | null;
-  description_en: string | null;
-  description_ar: string | null;
-};
 
 type TrustClient = ClientLogo & { logo_url?: string | null; description?: { en: string; ar: string } };
 
