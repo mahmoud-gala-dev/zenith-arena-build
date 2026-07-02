@@ -25,18 +25,19 @@ export const Route = createFileRoute("/sitemap.xml")({
         const dynamic: string[] = [];
         try {
           const [services, projects, products, blog] = await Promise.all([
-            supabase.from("services").select("slug"),
-            supabase.from("projects").select("slug"),
-            supabase.from("products").select("slug"),
-            supabase.from("blog_posts").select("slug"),
+            supabase.from("services").select("slug_en"),
+            supabase.from("projects").select("slug_en"),
+            supabase.from("products").select("slug_en"),
+            supabase.from("blog_posts").select("slug_en"),
           ]);
-          services.data?.forEach((r) => r.slug && dynamic.push(`/services/${r.slug}`));
-          projects.data?.forEach((r) => r.slug && dynamic.push(`/projects/${r.slug}`));
-          products.data?.forEach((r) => r.slug && dynamic.push(`/products/${r.slug}`));
-          blog.data?.forEach((r) => r.slug && dynamic.push(`/knowledge/${r.slug}`));
+          services.data?.forEach((r) => r.slug_en && dynamic.push(`/services/${r.slug_en}`));
+          projects.data?.forEach((r) => r.slug_en && dynamic.push(`/projects/${r.slug_en}`));
+          products.data?.forEach((r) => r.slug_en && dynamic.push(`/products/${r.slug_en}`));
+          blog.data?.forEach((r) => r.slug_en && dynamic.push(`/knowledge/${r.slug_en}`));
         } catch {
           // fall back to static-only sitemap if DB unreachable
         }
+
 
         const paths = [...STATIC_PATHS, ...dynamic];
         const urls = paths.map(
