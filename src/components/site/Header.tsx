@@ -64,15 +64,18 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-2 lg:flex">
+          <ThemeToggle />
           <LangToggle />
           <Button asChild variant="hero" size="sm">
             <Link to="/quote">{t.nav.quote}</Link>
           </Button>
         </div>
 
-        <div className="flex items-center gap-2 lg:hidden">
+        <div className="flex items-center gap-1 lg:hidden">
+          <ThemeToggle />
           <LangToggle />
+
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" aria-label="Open menu">
