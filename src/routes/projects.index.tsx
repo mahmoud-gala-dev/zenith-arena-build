@@ -263,8 +263,10 @@ function ProjectsPage() {
                         </div>
                       </Link>
                     </Reveal>
-                  ))}
-                </div>
+                    )}
+                    className="mt-0"
+                  />
+                </PerfProfiler>
               )}
             </div>
           ) : (
