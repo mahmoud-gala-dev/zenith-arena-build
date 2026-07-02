@@ -9,19 +9,38 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as QuoteRouteImport } from './routes/quote'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as ProductsRouteImport } from './routes/products'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as KnowledgeRouteImport } from './routes/knowledge'
+import { Route as GalleryRouteImport } from './routes/gallery'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as DownloadsRouteImport } from './routes/downloads'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ClientsRouteImport } from './routes/clients'
+import { Route as CertificatesRouteImport } from './routes/certificates'
+import { Route as CareersRouteImport } from './routes/careers'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as KnowledgeSlugRouteImport } from './routes/knowledge.$slug'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuoteRoute = QuoteRouteImport.update({
+  id: '/quote',
+  path: '/quote',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsRoute = ProjectsRouteImport.update({
@@ -34,14 +53,49 @@ const ProductsRoute = ProductsRouteImport.update({
   path: '/products',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const KnowledgeRoute = KnowledgeRouteImport.update({
   id: '/knowledge',
   path: '/knowledge',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GalleryRoute = GalleryRouteImport.update({
+  id: '/gallery',
+  path: '/gallery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadsRoute = DownloadsRouteImport.update({
+  id: '/downloads',
+  path: '/downloads',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientsRoute = ClientsRouteImport.update({
+  id: '/clients',
+  path: '/clients',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CertificatesRoute = CertificatesRouteImport.update({
+  id: '/certificates',
+  path: '/certificates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersRoute = CareersRouteImport.update({
+  id: '/careers',
+  path: '/careers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -68,22 +122,40 @@ const KnowledgeSlugRoute = KnowledgeSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/careers': typeof CareersRoute
+  '/certificates': typeof CertificatesRoute
+  '/clients': typeof ClientsRoute
   '/contact': typeof ContactRoute
+  '/downloads': typeof DownloadsRoute
+  '/faq': typeof FaqRoute
+  '/gallery': typeof GalleryRoute
   '/knowledge': typeof KnowledgeRouteWithChildren
+  '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRoute
   '/projects': typeof ProjectsRouteWithChildren
+  '/quote': typeof QuoteRoute
   '/services': typeof ServicesRoute
+  '/terms': typeof TermsRoute
   '/knowledge/$slug': typeof KnowledgeSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/careers': typeof CareersRoute
+  '/certificates': typeof CertificatesRoute
+  '/clients': typeof ClientsRoute
   '/contact': typeof ContactRoute
+  '/downloads': typeof DownloadsRoute
+  '/faq': typeof FaqRoute
+  '/gallery': typeof GalleryRoute
   '/knowledge': typeof KnowledgeRouteWithChildren
+  '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRoute
   '/projects': typeof ProjectsRouteWithChildren
+  '/quote': typeof QuoteRoute
   '/services': typeof ServicesRoute
+  '/terms': typeof TermsRoute
   '/knowledge/$slug': typeof KnowledgeSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
 }
@@ -91,11 +163,20 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/careers': typeof CareersRoute
+  '/certificates': typeof CertificatesRoute
+  '/clients': typeof ClientsRoute
   '/contact': typeof ContactRoute
+  '/downloads': typeof DownloadsRoute
+  '/faq': typeof FaqRoute
+  '/gallery': typeof GalleryRoute
   '/knowledge': typeof KnowledgeRouteWithChildren
+  '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRoute
   '/projects': typeof ProjectsRouteWithChildren
+  '/quote': typeof QuoteRoute
   '/services': typeof ServicesRoute
+  '/terms': typeof TermsRoute
   '/knowledge/$slug': typeof KnowledgeSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
 }
@@ -104,33 +185,60 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/careers'
+    | '/certificates'
+    | '/clients'
     | '/contact'
+    | '/downloads'
+    | '/faq'
+    | '/gallery'
     | '/knowledge'
+    | '/privacy'
     | '/products'
     | '/projects'
+    | '/quote'
     | '/services'
+    | '/terms'
     | '/knowledge/$slug'
     | '/projects/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/careers'
+    | '/certificates'
+    | '/clients'
     | '/contact'
+    | '/downloads'
+    | '/faq'
+    | '/gallery'
     | '/knowledge'
+    | '/privacy'
     | '/products'
     | '/projects'
+    | '/quote'
     | '/services'
+    | '/terms'
     | '/knowledge/$slug'
     | '/projects/$slug'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/careers'
+    | '/certificates'
+    | '/clients'
     | '/contact'
+    | '/downloads'
+    | '/faq'
+    | '/gallery'
     | '/knowledge'
+    | '/privacy'
     | '/products'
     | '/projects'
+    | '/quote'
     | '/services'
+    | '/terms'
     | '/knowledge/$slug'
     | '/projects/$slug'
   fileRoutesById: FileRoutesById
@@ -138,20 +246,43 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  CareersRoute: typeof CareersRoute
+  CertificatesRoute: typeof CertificatesRoute
+  ClientsRoute: typeof ClientsRoute
   ContactRoute: typeof ContactRoute
+  DownloadsRoute: typeof DownloadsRoute
+  FaqRoute: typeof FaqRoute
+  GalleryRoute: typeof GalleryRoute
   KnowledgeRoute: typeof KnowledgeRouteWithChildren
+  PrivacyRoute: typeof PrivacyRoute
   ProductsRoute: typeof ProductsRoute
   ProjectsRoute: typeof ProjectsRouteWithChildren
+  QuoteRoute: typeof QuoteRoute
   ServicesRoute: typeof ServicesRoute
+  TermsRoute: typeof TermsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/services': {
       id: '/services'
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quote': {
+      id: '/quote'
+      path: '/quote'
+      fullPath: '/quote'
+      preLoaderRoute: typeof QuoteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects': {
@@ -168,6 +299,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/knowledge': {
       id: '/knowledge'
       path: '/knowledge'
@@ -175,11 +313,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KnowledgeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/gallery': {
+      id: '/gallery'
+      path: '/gallery'
+      fullPath: '/gallery'
+      preLoaderRoute: typeof GalleryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/downloads': {
+      id: '/downloads'
+      path: '/downloads'
+      fullPath: '/downloads'
+      preLoaderRoute: typeof DownloadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clients': {
+      id: '/clients'
+      path: '/clients'
+      fullPath: '/clients'
+      preLoaderRoute: typeof ClientsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/certificates': {
+      id: '/certificates'
+      path: '/certificates'
+      fullPath: '/certificates'
+      preLoaderRoute: typeof CertificatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers': {
+      id: '/careers'
+      path: '/careers'
+      fullPath: '/careers'
+      preLoaderRoute: typeof CareersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -240,22 +420,21 @@ const ProjectsRouteWithChildren = ProjectsRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  CareersRoute: CareersRoute,
+  CertificatesRoute: CertificatesRoute,
+  ClientsRoute: ClientsRoute,
   ContactRoute: ContactRoute,
+  DownloadsRoute: DownloadsRoute,
+  FaqRoute: FaqRoute,
+  GalleryRoute: GalleryRoute,
   KnowledgeRoute: KnowledgeRouteWithChildren,
+  PrivacyRoute: PrivacyRoute,
   ProductsRoute: ProductsRoute,
   ProjectsRoute: ProjectsRouteWithChildren,
+  QuoteRoute: QuoteRoute,
   ServicesRoute: ServicesRoute,
+  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

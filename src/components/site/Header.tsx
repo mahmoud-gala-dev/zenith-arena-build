@@ -65,7 +65,7 @@ export function Header() {
         <div className="hidden items-center gap-3 lg:flex">
           <LangToggle />
           <Button asChild variant="hero" size="sm">
-            <Link to="/contact">{t.nav.quote}</Link>
+            <Link to="/quote">{t.nav.quote}</Link>
           </Button>
         </div>
 
@@ -93,7 +93,7 @@ export function Header() {
                   </Link>
                 ))}
                 <Button asChild variant="hero" className="mt-4">
-                  <Link to="/contact" onClick={() => setOpen(false)}>
+                  <Link to="/quote" onClick={() => setOpen(false)}>
                     {t.nav.quote}
                   </Link>
                 </Button>
