@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { ImageVariantsManifest } from "@/hooks/useSignedImage";
 
 export type ServiceRow = {
   id: string;
@@ -14,6 +15,9 @@ export type ServiceRow = {
   cover_image: string | null;
   header_image: string | null;
   og_image: string | null;
+  cover_image_variants: ImageVariantsManifest | null;
+  header_image_variants: ImageVariantsManifest | null;
+  og_image_variants: ImageVariantsManifest | null;
   alt_en: string | null;
   alt_ar: string | null;
   gallery_images: string[];
@@ -25,6 +29,7 @@ export type ServiceRow = {
   featured: boolean;
   sort_order: number;
 };
+
 
 function normalizeGallery(value: unknown): string[] {
   if (Array.isArray(value)) return value.filter((v): v is string => typeof v === "string" && !!v);

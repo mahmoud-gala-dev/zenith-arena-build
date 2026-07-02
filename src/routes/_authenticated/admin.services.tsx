@@ -16,6 +16,9 @@ import { toast } from "sonner";
 import { StrictImageUrlField } from "@/components/admin/StrictImageUrlField";
 import { GalleryOrderEditor } from "@/components/admin/GalleryOrderEditor";
 import { ServiceLivePreview } from "@/components/admin/ServiceLivePreview";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import type { ImageVariantsManifest } from "@/hooks/useSignedImage";
+
 
 export const Route = createFileRoute("/_authenticated/admin/services")({
   component: AdminServicesPage,
@@ -34,6 +37,9 @@ type ServiceRow = {
   cover_image: string | null;
   header_image: string | null;
   og_image: string | null;
+  cover_image_variants: ImageVariantsManifest | null;
+  header_image_variants: ImageVariantsManifest | null;
+  og_image_variants: ImageVariantsManifest | null;
   alt_en: string | null;
   alt_ar: string | null;
   gallery_images: string[];
@@ -52,12 +58,14 @@ const EMPTY: ServiceRow = {
   category: "Sports Courts", icon: "Goal",
   description_en: "", description_ar: "",
   cover_image: "", header_image: "", og_image: "",
+  cover_image_variants: null, header_image_variants: null, og_image_variants: null,
   alt_en: "", alt_ar: "",
   gallery_images: [],
   seo_title_en: "", seo_title_ar: "",
   seo_description_en: "", seo_description_ar: "",
   status: "published", featured: false, sort_order: 0,
 };
+
 
 function toArray(g: unknown): string[] {
   if (Array.isArray(g)) return g.filter((v): v is string => typeof v === "string");
@@ -191,34 +199,56 @@ function AdminServicesPage() {
                 <Field label="Arabic description"><Textarea dir="rtl" rows={3} value={editing.description_ar ?? ""} onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} maxLength={2500} /></Field>
 
                 <div className="rounded-lg border border-border bg-secondary/30 p-3">
-                  <StrictImageUrlField
-                    label="Cover image (card thumbnail)"
-                    value={editing.cover_image ?? ""}
-                    onChange={(v) => setEditing({ ...editing, cover_image: v })}
-                    aspect="aspect-[16/10]"
-                    options={{ minWidth: 600, minHeight: 375 }}
-                    help="Recommended 1200×750 · JPEG/WebP · ≤ 3MB"
-                  />
-                </div>
-                <div className="rounded-lg border border-border bg-secondary/30 p-3">
-                  <StrictImageUrlField
-                    label="Header image (page hero)"
-                    value={editing.header_image ?? ""}
-                    onChange={(v) => setEditing({ ...editing, header_image: v })}
-                    aspect="aspect-[21/9]"
-                    options={{ minWidth: 1200, minHeight: 500 }}
-                    help="Recommended 1920×820 · JPEG/WebP · ≤ 3MB"
-                  />
-                </div>
-                <div className="rounded-lg border border-border bg-secondary/30 p-3">
-                  <StrictImageUrlField
-                    label="Social share image (og:image)"
-                    value={editing.og_image ?? ""}
-                    onChange={(v) => setEditing({ ...editing, og_image: v })}
-                    aspect="aspect-[1200/630]"
-                    options={{ minWidth: 1200, minHeight: 630 }}
-                    help="Facebook/Twitter card — 1200×630 recommended"
-                  />
+                  <p className="mb-3 text-sm font-medium">Images — pick a tab, then Upload &amp; Crop or paste a URL.</p>
+                  <Tabs defaultValue="cover">
+                    <TabsList className="mb-3">
+                      <TabsTrigger value="cover">Cover (16:10)</TabsTrigger>
+                      <TabsTrigger value="header">Header (21:9)</TabsTrigger>
+                      <TabsTrigger value="og">Social (1.91:1)</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="cover" className="mt-0">
+                      <StrictImageUrlField
+                        label="Cover image (card thumbnail)"
+                        value={editing.cover_image ?? ""}
+                        onChange={(v) => setEditing({ ...editing, cover_image: v })}
+                        variants={editing.cover_image_variants}
+                        onVariantsChange={(m) => setEditing({ ...editing, cover_image_variants: m })}
+                        aspect="aspect-[16/10]"
+                        aspectRatio={16 / 10}
+                        options={{ minWidth: 600, minHeight: 375 }}
+                        help="Recommended 1200×750 · WebP variants auto-generated · ≤ 8MB"
+                        folder="services/cover"
+                      />
+                    </TabsContent>
+                    <TabsContent value="header" className="mt-0">
+                      <StrictImageUrlField
+                        label="Header image (page hero)"
+                        value={editing.header_image ?? ""}
+                        onChange={(v) => setEditing({ ...editing, header_image: v })}
+                        variants={editing.header_image_variants}
+                        onVariantsChange={(m) => setEditing({ ...editing, header_image_variants: m })}
+                        aspect="aspect-[21/9]"
+                        aspectRatio={21 / 9}
+                        options={{ minWidth: 1200, minHeight: 500 }}
+                        help="Recommended 1920×820 · WebP variants auto-generated · ≤ 8MB"
+                        folder="services/header"
+                      />
+                    </TabsContent>
+                    <TabsContent value="og" className="mt-0">
+                      <StrictImageUrlField
+                        label="Social share image (og:image)"
+                        value={editing.og_image ?? ""}
+                        onChange={(v) => setEditing({ ...editing, og_image: v })}
+                        variants={editing.og_image_variants}
+                        onVariantsChange={(m) => setEditing({ ...editing, og_image_variants: m })}
+                        aspect="aspect-[1200/630]"
+                        aspectRatio={1200 / 630}
+                        options={{ minWidth: 1200, minHeight: 630 }}
+                        help="Facebook/Twitter card — 1200×630 recommended"
+                        folder="services/og"
+                      />
+                    </TabsContent>
+                  </Tabs>
                 </div>
 
                 <div className="rounded-lg border border-border bg-secondary/30 p-3">
@@ -228,6 +258,7 @@ function AdminServicesPage() {
                     onChange={(v) => setEditing({ ...editing, gallery_images: v })}
                   />
                 </div>
+
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   <Field label="SEO title (EN)"><Input value={editing.seo_title_en ?? ""} onChange={(e) => setEditing({ ...editing, seo_title_en: e.target.value })} maxLength={70} /></Field>

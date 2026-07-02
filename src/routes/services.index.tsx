@@ -9,6 +9,8 @@ import { ServiceRowSkeleton } from "@/components/site/Skeletons";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import { useServicesList } from "@/hooks/useServiceContent";
+import { ResponsiveImage } from "@/components/site/ResponsiveImage";
+
 
 
 export const Route = createFileRoute("/services/")({
@@ -112,20 +114,18 @@ function ServicesPage() {
                   </div>
                   <div className="relative overflow-hidden rounded-3xl shadow-elegant">
                     {s.cover_image ? (
-                      <img
+                      <ResponsiveImage
                         src={s.cover_image}
+                        variants={s.cover_image_variants}
                         alt={alt}
-                        aria-label={s.alt_ar && s.alt_en ? `${s.alt_en} — ${s.alt_ar}` : undefined}
                         width={1200}
                         height={900}
-                        loading="lazy"
-                        decoding="async"
                         sizes="(min-width: 1024px) 50vw, 100vw"
                         className="aspect-[4/3] w-full object-cover transition-transform duration-700 hover:scale-105"
                         onError={(e) => {
                           const img = e.currentTarget;
                           img.style.display = "none";
-                          const ph = img.nextElementSibling as HTMLElement | null;
+                          const ph = (img.closest("picture")?.nextElementSibling ?? img.nextElementSibling) as HTMLElement | null;
                           if (ph) ph.style.display = "flex";
                         }}
                       />
@@ -144,6 +144,7 @@ function ServicesPage() {
                       <Icon name={s.icon || "Goal"} className="h-6 w-6" />
                     </div>
                   </div>
+
 
                 </div>
               </Reveal>
