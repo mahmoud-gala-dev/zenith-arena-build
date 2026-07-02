@@ -51,6 +51,10 @@ const ACCENTS = ["#c9a84c", "#0f766e", "#1e40af", "#b91c1c", "#7c3aed", "#0369a1
 
 export const Route = createFileRoute("/")({
   component: Index,
+  loader: ({ context: { queryClient } }) => {
+    void queryClient.ensureQueryData(heroSlidesActiveQueryOptions);
+    void queryClient.ensureQueryData(homeClientsQueryOptions);
+  },
   head: () => ({
     meta: [
       { property: "og:image", content: ogImage.url },
@@ -79,20 +83,7 @@ function Index() {
   const { t } = useLang();
   const L = useLocalized();
 
-  const { data: dbClients } = useQuery({
-    queryKey: ["home-clients"],
-    queryFn: async (): Promise<DbClient[]> => {
-      const { data, error } = await supabase
-        .from("clients")
-        .select("id,name_en,name_ar,logo_url,industry,description_en,description_ar")
-        .eq("status", "published")
-        .order("sort_order", { ascending: true })
-        .limit(18);
-      if (error) throw error;
-      return (data ?? []) as DbClient[];
-    },
-    staleTime: 5 * 60 * 1000,
-  });
+  const { data: dbClients } = useQuery<HomeClient[]>(homeClientsQueryOptions);
 
   const clients: TrustClient[] =
     dbClients && dbClients.length > 0
