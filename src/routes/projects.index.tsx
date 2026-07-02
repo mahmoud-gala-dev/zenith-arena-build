@@ -153,6 +153,13 @@ function ProjectsPage() {
               <div className="text-sm font-medium text-foreground">{lang === "ar" ? "كل المحافظات" : "All governorates"}</div>
               <div className="text-xs text-muted-foreground">{dbProjects.length} {lang === "ar" ? "مشروع" : "projects"}</div>
             </button>
+            {govs.length === 0 && Array.from({ length: 11 }).map((_, i) => (
+              <div key={`sk-${i}`} className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4">
+                <div className="h-14 w-14 rounded-full bg-secondary" />
+                <div className="h-4 w-16 rounded bg-secondary" />
+                <div className="h-3 w-12 rounded bg-secondary/70" />
+              </div>
+            ))}
             {govs.map((g) => {
               const count = govCounts.get(g.id) ?? 0;
               const active = gov === g.slug;
@@ -165,16 +172,25 @@ function ProjectsPage() {
                     active ? "border-primary bg-primary/5" : "border-border bg-card hover:bg-accent",
                   )}
                 >
-                  {g.logo_url ? (
-                    <img src={g.logo_url} alt={lang === "ar" ? g.name_ar : g.name_en} className="h-14 w-14 rounded-full bg-secondary object-contain p-1" loading="lazy" />
-                  ) : (
-                    <div className="h-14 w-14 rounded-full bg-secondary" />
-                  )}
+                  <div className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full bg-secondary">
+                    {g.logo_url ? (
+                      <img
+                        src={g.logo_url}
+                        alt={lang === "ar" ? g.name_ar : g.name_en}
+                        width={56}
+                        height={56}
+                        className="h-full w-full object-contain p-1"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : null}
+                  </div>
                   <div className="text-sm font-medium text-foreground">{lang === "ar" ? g.name_ar : g.name_en}</div>
                   <div className="text-xs text-muted-foreground">{count} {lang === "ar" ? "مشروع" : "projects"}</div>
                 </button>
               );
             })}
+
           </div>
         </div>
       </section>
