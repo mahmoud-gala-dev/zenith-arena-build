@@ -3,6 +3,7 @@ import { ArrowLeft, MapPin, Calendar, Layers } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Reveal } from "@/components/site/Reveal";
 import { ProjectCard } from "@/components/site/Cards";
+import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { projects } from "@/lib/site-data";
@@ -12,6 +13,39 @@ export const Route = createFileRoute("/projects/$slug")({
     const project = projects.find((p) => p.slug === params.slug);
     if (!project) throw notFound();
     return { slug: params.slug };
+  },
+  head: ({ params }) => {
+    const project = projects.find((p) => p.slug === params.slug);
+    if (!project) {
+      return { meta: [{ title: "Project not found — APEX" }, { name: "robots", content: "noindex" }] };
+    }
+    const title = `${project.title.en} — ${project.location.en} | APEX Projects`;
+    const desc = project.overview.en;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "article" },
+        { property: "og:url", content: `/projects/${params.slug}` },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: desc },
+      ],
+      links: [{ rel: "canonical", href: `/projects/${params.slug}` }],
+      scripts: [{
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CreativeWork",
+          name: project.title.en,
+          description: desc,
+          locationCreated: project.location.en,
+          dateCreated: project.year,
+        }),
+      }],
+    };
   },
   component: ProjectDetail,
   notFoundComponent: () => (
