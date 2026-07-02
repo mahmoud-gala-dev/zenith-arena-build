@@ -5,7 +5,12 @@ export type ImageValidationOptions = {
   maxWidth?: number;
   maxHeight?: number;
   allowedTypes?: string[];   // e.g. ["image/jpeg","image/png","image/webp","image/svg+xml"]
+  /** Expected aspect ratio (width / height). When set the image must match within `aspectTolerance`. */
+  expectedAspect?: number;
+  /** Fractional tolerance around expectedAspect. Default 0.08 (≈ ±8%). */
+  aspectTolerance?: number;
 };
+
 
 export type ImageValidationResult =
   | { ok: true; width: number; height: number; bytes?: number; type?: string }
