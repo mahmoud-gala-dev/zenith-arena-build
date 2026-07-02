@@ -11,7 +11,7 @@ import { useLang } from "@/i18n/LanguageProvider";
 import { cn } from "@/lib/utils";
 
 export function Header() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
