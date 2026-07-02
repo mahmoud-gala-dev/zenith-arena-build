@@ -5,7 +5,9 @@ export type LogoMotionConfig = {
   enabled: boolean;
   intensity: number; // 0..100
   speed: number; // 0..100 (higher = faster)
+  reduced_motion_safe?: boolean; // per-language override; falls back to top-level
 };
+
 
 export type Branding = {
   logo_light_url: string;
