@@ -10,6 +10,8 @@ import { HeroSlider } from "@/components/site/HeroSlider";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
 import ogImage from "@/assets/apex-og.jpg.asset.json";
+import ctaLandmark from "@/assets/cta-landmark.jpg.asset.json";
+
 import {
   services,
   projects,
