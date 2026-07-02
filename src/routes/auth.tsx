@@ -13,7 +13,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Admin Sign In — APEX Sports Infrastructure" },
+      { title: "Admin Sign In — Egytic Sports" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

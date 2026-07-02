@@ -9,16 +9,16 @@ import { useLang } from "@/i18n/LanguageProvider";
 export const Route = createFileRoute("/clients")({
   head: () => ({
     meta: [
-      { title: "Our Clients — APEX Sports Infrastructure" },
+      { title: "Our Clients — Egytic Sports" },
       {
         name: "description",
         content:
-          "Federations, ministries, universities and clubs across the Middle East and North Africa trust APEX to deliver world-class sports infrastructure.",
+          "Federations, ministries, universities and clubs across the Middle East and North Africa trust Egytic to deliver world-class sports infrastructure.",
       },
-      { property: "og:title", content: "Our Clients — APEX" },
+      { property: "og:title", content: "Our Clients — Egytic" },
       {
         property: "og:description",
-        content: "Federations, ministries, universities and clubs trust APEX.",
+        content: "Federations, ministries, universities and clubs trust Egytic.",
       },
     ],
   }),
@@ -41,7 +41,7 @@ function ClientsPage() {
     : {
         eyebrow: "Clients",
         title: "Partners we're proud to serve",
-        sub: "Federations, ministries, universities and leading clubs across the region trust APEX.",
+        sub: "Federations, ministries, universities and leading clubs across the region trust Egytic.",
         testimonialsTitle: "What our clients say",
         cta: "Join our roster of clients",
         ctaBtn: "Start your project",
@@ -69,8 +69,8 @@ function ClientsPage() {
   const testimonials = [
     {
       quote: {
-        en: "APEX delivered a FIFA-quality pitch on an aggressive timeline without compromising a single specification. World-class execution.",
-        ar: "سلّمت أبيكس ملعبًا بمعايير الفيفا في جدول زمني ضاغط دون التنازل عن أي مواصفة. تنفيذ من الطراز العالمي.",
+        en: "Egytic delivered a FIFA-quality pitch on an aggressive timeline without compromising a single specification. World-class execution.",
+        ar: "سلّمت إيجيتك ملعبًا بمعايير الفيفا في جدول زمني ضاغط دون التنازل عن أي مواصفة. تنفيذ من الطراز العالمي.",
       },
       name: { en: "Eng. Faisal Al-Otaibi", ar: "م. فيصل العتيبي" },
       role: { en: "Head of Facilities, National Football Federation", ar: "رئيس المرافق، الاتحاد الوطني لكرة القدم" },

@@ -9,13 +9,13 @@ import { useLang } from "@/i18n/LanguageProvider";
 export const Route = createFileRoute("/faq")({
   head: () => ({
     meta: [
-      { title: "Frequently Asked Questions — APEX Sports Infrastructure" },
+      { title: "Frequently Asked Questions — Egytic Sports" },
       {
         name: "description",
         content:
           "Answers to common questions about football pitch construction, running tracks, court surfaces, timelines, budgets, certifications and maintenance.",
       },
-      { property: "og:title", content: "Frequently Asked Questions — APEX" },
+      { property: "og:title", content: "Frequently Asked Questions — Egytic" },
       {
         property: "og:description",
         content: "Timelines, budgets, certifications, maintenance and more.",

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { BadgeCheck, Download } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
+import heroImg from "@/assets/hero-products.jpg";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
@@ -17,7 +18,7 @@ function ProductsPage() {
 
   return (
     <SiteLayout>
-      <PageHero eyebrow={t.nav.products} title={t.sections.productsTitle} subtitle={t.sections.productsSub} />
+      <PageHero eyebrow={t.nav.products} title={t.sections.productsTitle} subtitle={t.sections.productsSub} bgImage={heroImg} />
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

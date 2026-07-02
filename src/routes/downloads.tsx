@@ -9,13 +9,13 @@ import { useLang } from "@/i18n/LanguageProvider";
 export const Route = createFileRoute("/downloads")({
   head: () => ({
     meta: [
-      { title: "Catalogs & Technical Downloads — APEX Sports Infrastructure" },
+      { title: "Catalogs & Technical Downloads — Egytic Sports" },
       {
         name: "description",
         content:
-          "Download the APEX company profile, product catalogs, technical datasheets, certificates and maintenance guides for sports construction projects.",
+          "Download the Egytic company profile, product catalogs, technical datasheets, certificates and maintenance guides for sports construction projects.",
       },
-      { property: "og:title", content: "Catalogs & Technical Downloads — APEX" },
+      { property: "og:title", content: "Catalogs & Technical Downloads — Egytic" },
       {
         property: "og:description",
         content: "Company profile, product catalogs, datasheets and maintenance guides.",
@@ -65,7 +65,7 @@ function DownloadsPage() {
     {
       cat: "profile",
       icon: Building2,
-      title: { en: "APEX Company Profile 2026", ar: "ملف شركة أبيكس 2026" },
+      title: { en: "Egytic Company Profile 2026", ar: "ملف شركة إيجيتك 2026" },
       desc: {
         en: "A complete overview of our capabilities, methodology, teams and signature projects.",
         ar: "نظرة كاملة على قدراتنا ومنهجيتنا وفرقنا ومشاريعنا المميزة.",
@@ -109,7 +109,7 @@ function DownloadsPage() {
     {
       cat: "datasheet",
       icon: FileText,
-      title: { en: "ApexTurf Hybrid 60 — Datasheet", ar: "أبيكس تيرف هايبرد 60 — بيانات فنية" },
+      title: { en: "ApexTurf Hybrid 60 — Datasheet", ar: "إيجيتك تيرف هايبرد 60 — بيانات فنية" },
       desc: {
         en: "Fiber composition, gauge, tuft density and FIFA test results.",
         ar: "تركيب الألياف والقياس والكثافة ونتائج اختبارات الفيفا.",
@@ -120,7 +120,7 @@ function DownloadsPage() {
     {
       cat: "datasheet",
       icon: FileText,
-      title: { en: "ApexRun Sandwich PU — Datasheet", ar: "أبيكس ران ساندويتش PU — بيانات فنية" },
+      title: { en: "ApexRun Sandwich PU — Datasheet", ar: "إيجيتك ران ساندويتش PU — بيانات فنية" },
       desc: {
         en: "Layer specifications and World Athletics test data.",
         ar: "مواصفات الطبقات وبيانات اختبار الاتحاد الدولي.",

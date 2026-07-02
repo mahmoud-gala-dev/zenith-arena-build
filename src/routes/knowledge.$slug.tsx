@@ -1,50 +1,99 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Clock, User } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Reveal } from "@/components/site/Reveal";
-import { ArticleCard } from "@/components/site/Cards";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ShareButtons } from "@/components/site/ShareButtons";
 import { GallerySection } from "@/components/site/GallerySection";
 import { Button } from "@/components/ui/button";
-import { useLang, useLocalized } from "@/i18n/LanguageProvider";
-import { articles } from "@/lib/site-data";
+import { useLang } from "@/i18n/LanguageProvider";
+import { supabase } from "@/integrations/supabase/client";
+
+interface BlogPost {
+  id: string;
+  slug_en: string;
+  title_en: string;
+  title_ar: string;
+  excerpt_en: string | null;
+  excerpt_ar: string | null;
+  content_en: string | null;
+  content_ar: string | null;
+  featured_image: string | null;
+  author_name: string;
+  reading_time: number;
+  published_at: string | null;
+  seo_title_en: string | null;
+  seo_title_ar: string | null;
+  seo_description_en: string | null;
+  seo_description_ar: string | null;
+  seo_keywords: string | null;
+  og_image: string | null;
+  tags: string[];
+}
+
+async function fetchPost(slug: string): Promise<BlogPost | null> {
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("*")
+    .eq("slug_en", slug)
+    .eq("status", "published")
+    .maybeSingle();
+  if (error) throw error;
+  return data as BlogPost | null;
+}
 
 export const Route = createFileRoute("/knowledge/$slug")({
-  loader: ({ params }) => {
-    const article = articles.find((a) => a.slug === params.slug);
-    if (!article) throw notFound();
-    return { slug: params.slug };
+  loader: async ({ params }) => {
+    const post = await fetchPost(params.slug);
+    if (!post) throw notFound();
+    return { post };
   },
-  head: ({ params }) => {
-    const article = articles.find((a) => a.slug === params.slug);
-    if (!article) {
-      return { meta: [{ title: "Article not found — APEX" }, { name: "robots", content: "noindex" }] };
+  head: ({ loaderData }) => {
+    const p = loaderData?.post;
+    if (!p) {
+      return { meta: [{ title: "Article not found — Egytic" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${article.title.en} | APEX Knowledge Center`;
-    const desc = article.excerpt.en;
+    const title = p.seo_title_en?.trim() || `${p.title_en} | Egytic Knowledge Center`;
+    const titleAr = p.seo_title_ar?.trim() || p.title_ar;
+    const desc = p.seo_description_en?.trim() || p.excerpt_en || p.title_en;
+    const descAr = p.seo_description_ar?.trim() || p.excerpt_ar || p.title_ar;
+    const image = p.og_image?.trim() || p.featured_image || undefined;
+    const path = `/knowledge/${p.slug_en}`;
+
+    const meta: Array<Record<string, string>> = [
+      { title },
+      { name: "description", content: desc },
+      { name: "author", content: p.author_name },
+      { property: "og:title", content: title },
+      { property: "og:description", content: desc },
+      { property: "og:type", content: "article" },
+      { property: "og:url", content: path },
+      { property: "og:locale", content: "en_US" },
+      { property: "og:locale:alternate", content: "ar_EG" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: desc },
+    ];
+    if (p.seo_keywords) meta.push({ name: "keywords", content: p.seo_keywords });
+    if (p.published_at) {
+      meta.push({ property: "article:published_time", content: p.published_at });
+    }
+    if (image) {
+      meta.push({ property: "og:image", content: image });
+      meta.push({ name: "twitter:image", content: image });
+    }
+    // Arabic overrides via property:lang
+    meta.push({ property: "og:title:ar", content: titleAr });
+    meta.push({ property: "og:description:ar", content: descAr });
+
     return {
-      meta: [
-        { title },
-        { name: "description", content: desc },
-        { name: "author", content: article.author },
-        { property: "og:title", content: title },
-        { property: "og:description", content: desc },
-        { property: "og:type", content: "article" },
-        { property: "og:url", content: `/knowledge/${params.slug}` },
-        { property: "article:published_time", content: article.date },
-        { property: "article:author", content: article.author },
-        { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:title", content: title },
-        { name: "twitter:description", content: desc },
-        { property: "og:image", content: article.image },
-        { name: "twitter:image", content: article.image },
-      ],
+      meta,
       links: [
-        { rel: "canonical", href: `/knowledge/${params.slug}` },
-        { rel: "alternate", hrefLang: "en", href: `/knowledge/${params.slug}` },
-        { rel: "alternate", hrefLang: "ar", href: `/knowledge/${params.slug}` },
-        { rel: "alternate", hrefLang: "x-default", href: `/knowledge/${params.slug}` },
+        { rel: "canonical", href: path },
+        { rel: "alternate", hrefLang: "en", href: path },
+        { rel: "alternate", hrefLang: "ar", href: path },
+        { rel: "alternate", hrefLang: "x-default", href: path },
       ],
       scripts: [{
         type: "application/ld+json",
@@ -52,14 +101,16 @@ export const Route = createFileRoute("/knowledge/$slug")({
           {
             "@context": "https://schema.org",
             "@type": "Article",
-            headline: article.title.en,
+            headline: p.title_en,
             description: desc,
-            image: article.image,
-            url: `/knowledge/${params.slug}`,
-            author: { "@type": "Person", name: article.author },
-            publisher: { "@type": "Organization", name: "APEX Sports" },
-            datePublished: article.date,
-            articleSection: article.category.en,
+            image: image ? [image] : undefined,
+            url: path,
+            keywords: p.seo_keywords || undefined,
+            author: { "@type": "Person", name: p.author_name },
+            publisher: { "@type": "Organization", name: "Egytic Sports" },
+            datePublished: p.published_at,
+            dateModified: p.published_at,
+            inLanguage: ["en", "ar"],
           },
           {
             "@context": "https://schema.org",
@@ -67,7 +118,7 @@ export const Route = createFileRoute("/knowledge/$slug")({
             itemListElement: [
               { "@type": "ListItem", position: 1, name: "Home", item: "/" },
               { "@type": "ListItem", position: 2, name: "Knowledge", item: "/knowledge" },
-              { "@type": "ListItem", position: 3, name: article.title.en, item: `/knowledge/${params.slug}` },
+              { "@type": "ListItem", position: 3, name: p.title_en, item: path },
             ],
           },
         ]),
@@ -88,46 +139,63 @@ export const Route = createFileRoute("/knowledge/$slug")({
 });
 
 function ArticleDetail() {
-  const { slug } = Route.useLoaderData();
+  const { post } = Route.useLoaderData();
   const { t, lang } = useLang();
-  const L = useLocalized();
-  const article = articles.find((a) => a.slug === slug)!;
-  const related = articles.filter((a) => a.slug !== slug).slice(0, 3);
+  const ar = lang === "ar";
+
+  const { data: related = [] } = useQuery({
+    queryKey: ["blog_related", post.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("blog_posts")
+        .select("id,slug_en,title_en,title_ar,excerpt_en,excerpt_ar,featured_image")
+        .eq("status", "published")
+        .neq("id", post.id)
+        .limit(3);
+      return data ?? [];
+    },
+  });
+
+  const title = ar ? post.title_ar : post.title_en;
+  const excerpt = ar ? post.excerpt_ar : post.excerpt_en;
+  const content = ar ? post.content_ar : post.content_en;
+  const paragraphs = (content || "").split(/\n\n+/).filter(Boolean);
 
   return (
     <SiteLayout>
       <article>
         <section className="relative overflow-hidden bg-ink pt-32 pb-14 text-white">
-          <img src={article.image} alt={L(article.title)} className="absolute inset-0 h-full w-full object-cover opacity-30" />
+          {post.featured_image && (
+            <img src={post.featured_image} alt={title} className="absolute inset-0 h-full w-full object-cover opacity-30" />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/40" />
           <div className="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-            <Breadcrumbs items={[{ label: t.nav.knowledge, to: "/knowledge" }, { label: L(article.category) }]} />
+            <Breadcrumbs items={[{ label: t.nav.knowledge, to: "/knowledge" }, { label: title }]} />
             <Link to="/knowledge" className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white">
               <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
               {t.knowledge.backToList}
             </Link>
-            <span className="mt-6 inline-block rounded-full bg-gradient-gold px-3 py-1 text-xs font-semibold text-gold-foreground">
-              {L(article.category)}
-            </span>
-            <h1 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl">{L(article.title)}</h1>
+            <h1 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl">{title}</h1>
             <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-white/70">
-              <span className="inline-flex items-center gap-1.5"><User className="h-4 w-4" /> {article.author}</span>
-              <span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4" /> {article.readTime} {t.knowledge.readTime}</span>
-              <span>{new Date(article.date).toLocaleDateString(lang === "ar" ? "ar" : "en", { year: "numeric", month: "long", day: "numeric" })}</span>
+              <span className="inline-flex items-center gap-1.5"><User className="h-4 w-4" /> {post.author_name}</span>
+              <span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4" /> {post.reading_time} {t.knowledge.readTime}</span>
+              {post.published_at && (
+                <span>{new Date(post.published_at).toLocaleDateString(ar ? "ar" : "en", { year: "numeric", month: "long", day: "numeric" })}</span>
+              )}
             </div>
           </div>
         </section>
 
         <section className="py-14">
           <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-            <p className="text-lg font-medium leading-relaxed text-foreground">{L(article.excerpt)}</p>
+            {excerpt && <p className="text-lg font-medium leading-relaxed text-foreground">{excerpt}</p>}
             <div className="mt-6 space-y-6">
-              {article.body.map((p, i) => (
-                <p key={i} className="leading-relaxed text-muted-foreground">{L(p)}</p>
+              {paragraphs.map((p: string, i: number) => (
+                <p key={i} className="leading-relaxed text-muted-foreground whitespace-pre-line">{p}</p>
               ))}
             </div>
             <div className="mt-10 border-t border-border pt-6">
-              <ShareButtons title={L(article.title)} path={`/knowledge/${slug}`} />
+              <ShareButtons title={title} path={`/knowledge/${post.slug_en}`} />
             </div>
             <div className="mt-12 rounded-2xl bg-hero px-8 py-10 text-center">
               <h3 className="text-xl font-bold text-white">{t.sections.ctaTitle}</h3>
@@ -140,20 +208,38 @@ function ArticleDetail() {
         </section>
       </article>
 
-      <GallerySection image={article.image} title={L(article.title)} source="knowledge" />
+      {post.featured_image && (
+        <GallerySection image={post.featured_image} title={title} source="knowledge" />
+      )}
 
-      <section className="bg-secondary/50 py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-foreground">{t.knowledge.related}</h2>
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
-            {related.map((a, i) => (
-              <Reveal key={a.slug} delay={i * 60}>
-                <ArticleCard article={a} />
-              </Reveal>
-            ))}
+      {related.length > 0 && (
+        <section className="bg-secondary/50 py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-bold text-foreground">{t.knowledge.related}</h2>
+            <div className="mt-8 grid gap-6 md:grid-cols-3">
+              {related.map((a, i) => (
+                <Reveal key={a.id} delay={i * 60}>
+                  <Link
+                    to="/knowledge/$slug"
+                    params={{ slug: a.slug_en }}
+                    className="group block overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition hover:-translate-y-1 hover:shadow-elegant"
+                  >
+                    {a.featured_image && (
+                      <div className="aspect-[16/10] overflow-hidden">
+                        <img src={a.featured_image} alt={ar ? a.title_ar : a.title_en} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                      </div>
+                    )}
+                    <div className="p-5">
+                      <h3 className="font-semibold text-foreground group-hover:text-primary">{ar ? a.title_ar : a.title_en}</h3>
+                      <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{ar ? a.excerpt_ar : a.excerpt_en}</p>
+                    </div>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </SiteLayout>
   );
 }

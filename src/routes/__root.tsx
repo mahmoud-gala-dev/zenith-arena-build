@@ -94,7 +94,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       {
-        title: "APEX — Sports Construction & Infrastructure",
+        title: "Egytic — Sports Construction & Infrastructure",
       },
       {
         name: "description",
@@ -102,7 +102,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Apex designs and builds FIFA-grade football pitches, World Athletics tracks, indoor arenas, courts and aquatic centers. Turnkey sports infrastructure engineered to last.",
       },
       { name: "author", content: "Apex Sports Infrastructure" },
-      { property: "og:title", content: "APEX — Sports Construction & Infrastructure" },
+      { property: "og:title", content: "Egytic — Sports Construction & Infrastructure" },
       {
         property: "og:description",
         content:

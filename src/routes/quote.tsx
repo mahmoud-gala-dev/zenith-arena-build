@@ -18,13 +18,13 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/quote")({
   head: () => ({
     meta: [
-      { title: "Request a Quote — APEX Sports Infrastructure" },
+      { title: "Request a Quote — Egytic Sports" },
       {
         name: "description",
         content:
           "Request a detailed quote for football pitches, running tracks, courts, pools and sports flooring. Our engineers respond within 48 hours.",
       },
-      { property: "og:title", content: "Request a Quote — APEX" },
+      { property: "og:title", content: "Request a Quote — Egytic" },
       {
         property: "og:description",
         content: "Detailed proposals from FIFA & World Athletics-certified engineers within 48 hours.",

@@ -3,7 +3,7 @@ export type Lang = "en" | "ar";
 export const translations = {
   en: {
     dir: "ltr",
-    brand: "APEX",
+    brand: "Egytic",
     brandFull: "Apex Sports Infrastructure",
     nav: {
       home: "Home",
@@ -122,8 +122,8 @@ export const translations = {
   },
   ar: {
     dir: "rtl",
-    brand: "أبيكس",
-    brandFull: "أبيكس للإنشاءات الرياضية",
+    brand: "إيجيتك",
+    brandFull: "إيجيتك للإنشاءات الرياضية",
     nav: {
       home: "الرئيسية",
       services: "الخدمات",
@@ -164,7 +164,7 @@ export const translations = {
       projectsSub: "محفظة أعمال تثق بها الاتحادات والأندية والمدارس والحكومات.",
       productsTitle: "الأنظمة والمنتجات",
       productsSub: "أسطح وهياكل ومعدات معتمدة مصممة للأداء النخبوي.",
-      whyTitle: "لماذا أبيكس",
+      whyTitle: "لماذا إيجيتك",
       whySub: "المعيار الذي تقيس عليه الصناعة نفسها.",
       processTitle: "منهجية العمل",
       processSub: "مسار منضبط وشفّاف من الرؤية حتى يوم الافتتاح.",

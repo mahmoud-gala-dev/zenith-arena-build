@@ -6,13 +6,13 @@ import { useLang } from "@/i18n/LanguageProvider";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy — APEX Sports Infrastructure" },
+      { title: "Privacy Policy — Egytic Sports" },
       {
         name: "description",
         content:
-          "How APEX collects, uses and protects personal information submitted through our website and services.",
+          "How Egytic collects, uses and protects personal information submitted through our website and services.",
       },
-      { property: "og:title", content: "Privacy Policy — APEX" },
+      { property: "og:title", content: "Privacy Policy — Egytic" },
       { property: "og:description", content: "How we handle your personal information." },
     ],
   }),

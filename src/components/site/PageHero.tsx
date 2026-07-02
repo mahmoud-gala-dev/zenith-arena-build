@@ -1,19 +1,33 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 export function PageHero({
   eyebrow,
   title,
   subtitle,
   children,
+  bgImage,
 }: {
   eyebrow?: string;
   title: string;
   subtitle?: string;
   children?: ReactNode;
+  bgImage?: string;
 }) {
   return (
-    <section className="relative overflow-hidden bg-hero pt-32 pb-16 text-white">
-      <div className="absolute inset-0 grid-texture opacity-20" />
+    <section className={cn("relative overflow-hidden bg-hero pt-32 pb-16 text-white", bgImage && "bg-ink")}>
+      {bgImage && (
+        <>
+          <img
+            src={bgImage}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 h-full w-full object-cover opacity-40"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/80 to-ink/40" />
+        </>
+      )}
+      {!bgImage && <div className="absolute inset-0 grid-texture opacity-20" />}
       <div className="absolute -left-20 top-10 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {eyebrow && (
@@ -29,7 +43,7 @@ export function PageHero({
           {title}
         </h1>
         {subtitle && (
-          <p className="mt-5 max-w-2xl text-lg text-white/70" style={{ animation: "fade-up 0.7s ease-out 0.1s both" }}>
+          <p className="mt-5 max-w-2xl text-lg text-white/80" style={{ animation: "fade-up 0.7s ease-out 0.1s both" }}>
             {subtitle}
           </p>
         )}

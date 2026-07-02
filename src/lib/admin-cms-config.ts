@@ -108,7 +108,7 @@ export const blogConfig: CmsCollectionConfig = {
   searchFields: ["title_en", "title_ar", "slug_en", "excerpt_en", "seo_keywords"],
   orderBy: "published_at",
   filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }],
-  initialValues: { slug_en: "", slug_ar: "", title_en: "", title_ar: "", excerpt_en: "", excerpt_ar: "", content_en: "", content_ar: "", featured_image: "", author_name: "Apex Technical Team", reading_time: 5, tags: "", seo_title_en: "", seo_description_en: "", seo_keywords: "", status: "published", featured: false },
+  initialValues: { slug_en: "", slug_ar: "", title_en: "", title_ar: "", excerpt_en: "", excerpt_ar: "", content_en: "", content_ar: "", featured_image: "", author_name: "Egytic Editorial Team", reading_time: 5, tags: "", seo_title_en: "", seo_title_ar: "", seo_description_en: "", seo_description_ar: "", seo_keywords: "", og_image: "", status: "published", featured: false },
   fields: [
     ...bilingualTitleFields,
     { name: "featured_image", label: "Featured image URL", type: "url", fullWidth: true },
@@ -119,12 +119,16 @@ export const blogConfig: CmsCollectionConfig = {
     { name: "author_name", label: "Author" },
     { name: "reading_time", label: "Reading time", type: "number" },
     { name: "tags", label: "Tags", type: "tags", placeholder: "construction, football, cost" },
-    { name: "seo_title_en", label: "SEO title" },
-    { name: "seo_description_en", label: "SEO description", type: "textarea", maxLength: 300 },
+    { name: "seo_title_en", label: "SEO title (EN)", maxLength: 70 },
+    { name: "seo_title_ar", label: "SEO title (AR)", dir: "rtl", maxLength: 70 },
+    { name: "seo_description_en", label: "SEO description (EN)", type: "textarea", maxLength: 300 },
+    { name: "seo_description_ar", label: "SEO description (AR)", type: "textarea", dir: "rtl", maxLength: 300 },
     { name: "seo_keywords", label: "SEO keywords" },
+    { name: "og_image", label: "Social share image URL (og:image)", type: "url", fullWidth: true },
     ...publicationFields,
   ],
 };
+
 
 export const downloadsConfig: CmsCollectionConfig = {
   table: "downloads",

@@ -8,13 +8,13 @@ import { useLang } from "@/i18n/LanguageProvider";
 export const Route = createFileRoute("/certificates")({
   head: () => ({
     meta: [
-      { title: "Certifications & Standards — APEX Sports Infrastructure" },
+      { title: "Certifications & Standards — Egytic Sports" },
       {
         name: "description",
         content:
-          "APEX holds FIFA Quality, World Athletics, ITF, FINA and ISO 9001/14001/45001 certifications for sports construction and infrastructure.",
+          "Egytic holds FIFA Quality, World Athletics, ITF, FINA and ISO 9001/14001/45001 certifications for sports construction and infrastructure.",
       },
-      { property: "og:title", content: "Certifications & Standards — APEX" },
+      { property: "og:title", content: "Certifications & Standards — Egytic" },
       {
         property: "og:description",
         content: "FIFA, World Athletics, ITF, FINA and ISO certifications.",

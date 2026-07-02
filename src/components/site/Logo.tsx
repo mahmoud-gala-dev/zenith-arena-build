@@ -25,7 +25,7 @@ export function Logo({ className, light = false }: { className?: string; light?:
       <span className={cn("inline-flex items-center", className)}>
         <img
           src={lightSrc}
-          alt="APEX Sports"
+          alt="Egytic Sports"
           className={cn(sizing, !customLight && "brightness-0 invert")}
           draggable={false}
         />
@@ -38,14 +38,14 @@ export function Logo({ className, light = false }: { className?: string; light?:
       {/* Light theme */}
       <img
         src={darkSrc}
-        alt="APEX Sports"
+        alt="Egytic Sports"
         className={cn(sizing, "block dark:hidden")}
         draggable={false}
       />
       {/* Dark theme */}
       <img
         src={lightSrc}
-        alt="APEX Sports"
+        alt="Egytic Sports"
         className={cn(sizing, "hidden dark:block", !customLight && "brightness-0 invert")}
         draggable={false}
       />

@@ -9,13 +9,13 @@ import { useLang } from "@/i18n/LanguageProvider";
 export const Route = createFileRoute("/careers")({
   head: () => ({
     meta: [
-      { title: "Careers at APEX — Build the World's Best Sports Facilities" },
+      { title: "Careers at Egytic — Build the World's Best Sports Facilities" },
       {
         name: "description",
         content:
-          "Join APEX and help build FIFA-grade pitches, Olympic tracks and world-class arenas across the Middle East and North Africa. Open roles in engineering, project management and operations.",
+          "Join Egytic and help build FIFA-grade pitches, Olympic tracks and world-class arenas across the Middle East and North Africa. Open roles in engineering, project management and operations.",
       },
-      { property: "og:title", content: "Careers at APEX Sports Infrastructure" },
+      { property: "og:title", content: "Careers at Egytic Sports" },
       {
         property: "og:description",
         content: "Open roles in engineering, project management and operations.",
@@ -32,9 +32,9 @@ function CareersPage() {
   const tx = ar
     ? {
         eyebrow: "الوظائف",
-        title: "ابنِ مسيرتك مع أبيكس",
+        title: "ابنِ مسيرتك مع إيجيتك",
         sub: "انضم إلى فريق يصمم وينفّذ أرقى المنشآت الرياضية في المنطقة.",
-        whyTitle: "لماذا أبيكس",
+        whyTitle: "لماذا إيجيتك",
         openTitle: "الوظائف المتاحة",
         apply: "قدّم الآن",
         noJobsTitle: "لا ترى وظيفتك المناسبة؟",
@@ -43,9 +43,9 @@ function CareersPage() {
       }
     : {
         eyebrow: "Careers",
-        title: "Build your career with APEX",
+        title: "Build your career with Egytic",
         sub: "Join a team designing and delivering the finest sports facilities in the region.",
-        whyTitle: "Why APEX",
+        whyTitle: "Why Egytic",
         openTitle: "Open positions",
         apply: "Apply now",
         noJobsTitle: "Don't see the right role?",

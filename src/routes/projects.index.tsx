@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Search, X } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
+import heroImg from "@/assets/hero-projects.jpg";
 import { Reveal } from "@/components/site/Reveal";
 import { ProjectCard } from "@/components/site/Cards";
 import { cn } from "@/lib/utils";
@@ -101,7 +102,7 @@ function ProjectsPage() {
 
   return (
     <SiteLayout>
-      <PageHero eyebrow={t.nav.projects} title={t.sections.projectsTitle} subtitle={t.sections.projectsSub} />
+      <PageHero eyebrow={t.nav.projects} title={t.sections.projectsTitle} subtitle={t.sections.projectsSub} bgImage={heroImg} />
 
       <section className="py-8">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

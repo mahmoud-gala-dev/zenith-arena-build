@@ -25,10 +25,10 @@ export function ShareButtons({ title, path, summary }: ShareButtonsProps) {
   const waMessage = (url: string) => {
     if (ar) {
       const intro = summary ? `${title} — ${summary}` : title;
-      return `${intro}\nاطلع على التفاصيل عبر APEX:\n${url}`;
+      return `${intro}\nاطلع على التفاصيل عبر Egytic:\n${url}`;
     }
     const intro = summary ? `${title} — ${summary}` : title;
-    return `${intro}\nRead more on APEX:\n${url}`;
+    return `${intro}\nRead more on Egytic:\n${url}`;
   };
 
   const open = (href: string) => {

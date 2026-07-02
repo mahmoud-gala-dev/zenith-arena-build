@@ -21,16 +21,16 @@ export const Route = createFileRoute("/gallery")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Project Gallery — APEX Sports Infrastructure" },
+      { title: "Project Gallery — Egytic Sports" },
       {
         name: "description",
         content:
-          "A visual gallery of football pitches, athletics tracks, indoor arenas, tennis and padel courts, and aquatic centers delivered by APEX.",
+          "A visual gallery of football pitches, athletics tracks, indoor arenas, tennis and padel courts, and aquatic centers delivered by Egytic.",
       },
-      { property: "og:title", content: "Project Gallery — APEX" },
+      { property: "og:title", content: "Project Gallery — Egytic" },
       {
         property: "og:description",
-        content: "A visual gallery of world-class sports facilities delivered by APEX.",
+        content: "A visual gallery of world-class sports facilities delivered by Egytic.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "/gallery" },
@@ -47,9 +47,9 @@ export const Route = createFileRoute("/gallery")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "ImageGallery",
-          name: "APEX Project Gallery",
+          name: "Egytic Project Gallery",
           description:
-            "Visual portfolio of sports infrastructure projects, services and technical articles by APEX Sports.",
+            "Visual portfolio of sports infrastructure projects, services and technical articles by Egytic Sports.",
           associatedMedia: projects.slice(0, 12).map((p) => ({
             "@type": "ImageObject",
             contentUrl: p.image,
