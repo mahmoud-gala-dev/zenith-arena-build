@@ -25,8 +25,13 @@ function ServicesPage() {
       <section className="py-20">
         <div className="mx-auto max-w-7xl space-y-20 px-4 sm:px-6 lg:px-8">
           {loading ? (
-            <div className="grid place-items-center py-16 text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin" /></div>
+            <div className="space-y-20">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <ServiceRowSkeleton key={i} reverse={i % 2 === 1} />
+              ))}
+            </div>
           ) : data.length === 0 ? (
+
             <p className="text-center text-muted-foreground">{ar ? "لا توجد خدمات منشورة بعد." : "No services published yet."}</p>
           ) : data.map((s, i) => {
             const title = (ar ? s.title_ar : s.title_en) || s.title_en;
