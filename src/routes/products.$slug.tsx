@@ -1,11 +1,14 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, BadgeCheck, CheckCircle2, Download } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft, ArrowRight, BadgeCheck, BookOpen, CheckCircle2, Download } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { ProjectCard } from "@/components/site/Cards";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
+import { supabase } from "@/integrations/supabase/client";
 import { products, projects, services } from "@/lib/site-data";
+
 
 export const Route = createFileRoute("/products/$slug")({
   loader: ({ params }) => {
@@ -57,8 +60,27 @@ function ProductDetailPage() {
   const product = products.find((item) => item.id === slug)!;
   const ar = lang === "ar";
   const tx = ar
-    ? { back: "العودة للمنتجات", features: "المزايا", specs: "المواصفات", variants: "الخيارات المتاحة", applications: "الاستخدامات", certs: "الاعتمادات", downloads: "التحميلات", inquiry: "طلب استفسار", relatedServices: "خدمات ذات صلة", relatedProjects: "مشاريع ذات صلة" }
-    : { back: "Back to products", features: "Features", specs: "Specifications", variants: "Available variants", applications: "Applications", certs: "Certifications", downloads: "Downloads", inquiry: "Send inquiry", relatedServices: "Related services", relatedProjects: "Related projects" };
+    ? { back: "العودة للمنتجات", features: "المزايا", specs: "المواصفات", variants: "الخيارات المتاحة", applications: "الاستخدامات", certs: "الاعتمادات", downloads: "التحميلات", inquiry: "طلب استفسار", relatedServices: "خدمات ذات صلة", relatedProjects: "مشاريع ذات صلة", relatedKnowledge: "مقالات معرفية ذات صلة", readArticle: "قراءة المقال" }
+    : { back: "Back to products", features: "Features", specs: "Specifications", variants: "Available variants", applications: "Applications", certs: "Certifications", downloads: "Downloads", inquiry: "Send inquiry", relatedServices: "Related services", relatedProjects: "Related projects", relatedKnowledge: "Related knowledge articles", readArticle: "Read article" };
+
+  const { data: relatedKnowledge = [] } = useQuery({
+    queryKey: ["product_related_knowledge", product.id],
+    queryFn: async () => {
+      const cat = product.category.en.toLowerCase();
+      const { data } = await supabase
+        .from("blog_posts")
+        .select("id,slug_en,title_en,title_ar,excerpt_en,excerpt_ar,featured_image")
+        .eq("status", "published")
+        .limit(20);
+      const rows = data ?? [];
+      // pick posts whose title/excerpt mentions the product category, else fallback to first 3
+      const matched = rows.filter((r) =>
+        `${r.title_en} ${r.excerpt_en ?? ""}`.toLowerCase().includes(cat.split(" ")[0]),
+      );
+      return (matched.length ? matched : rows).slice(0, 3);
+    },
+  });
+
 
   const features = ar ? ["أداء ثابت طويل الأمد", "متوافق مع المنشآت الاحترافية", "خيارات ألوان ومواصفات متعددة", "دعم فني أثناء التصميم والتركيب"] : ["Long-term performance", "Professional facility compatibility", "Multiple color and specification options", "Technical support during design and installation"];
   const specs = ar ? [["الفئة", L(product.category)], ["الاعتماد", product.certified], ["الاستخدام", "ملاعب ومنشآت رياضية"], ["الصيانة", "منخفضة إلى متوسطة حسب الاستخدام"]] : [["Category", L(product.category)], ["Certification", product.certified], ["Use", "Sports fields and facilities"], ["Maintenance", "Low to medium depending on usage"]];
