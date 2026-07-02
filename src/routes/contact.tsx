@@ -105,50 +105,42 @@ function ContactPage() {
                 </Button>
               </div>
             ) : (
-              <form
-                className="grid gap-5 sm:grid-cols-2"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setSent(true);
-                }}
-              >
+              <form className="grid gap-5 sm:grid-cols-2" onSubmit={onSubmit}>
                 <div className="space-y-2">
                   <Label htmlFor="name">{t.contact.name}</Label>
-                  <Input id="name" required />
+                  <Input id="name" name="name" required maxLength={100} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">{t.contact.email}</Label>
-                  <Input id="email" type="email" required />
+                  <Input id="email" name="email" type="email" required maxLength={255} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">{t.contact.phone}</Label>
-                  <Input id="phone" type="tel" />
+                  <Input id="phone" name="phone" type="tel" maxLength={30} />
                 </div>
                 <div className="space-y-2">
                   <Label>{t.contact.projectType}</Label>
-                  <Select>
+                  <Select value={projectType} onValueChange={setProjectType}>
                     <SelectTrigger>
                       <SelectValue placeholder={t.contact.projectType} />
                     </SelectTrigger>
                     <SelectContent>
                       {services.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>
-                          {L(s.title)}
-                        </SelectItem>
+                        <SelectItem key={s.id} value={s.id}>{L(s.title)}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="budget">{t.contact.budget}</Label>
-                  <Input id="budget" />
+                  <Input id="budget" name="budget" maxLength={60} />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="message">{t.contact.message}</Label>
-                  <Textarea id="message" rows={5} required />
+                  <Textarea id="message" name="message" rows={5} required maxLength={2000} />
                 </div>
                 <div className="sm:col-span-2">
-                  <Button type="submit" variant="hero" size="lg" className="w-full">
+                  <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
                     {t.cta.send}
                   </Button>
                 </div>
