@@ -4,8 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { useBranding } from "@/hooks/useBranding";
+import { useBranding, DEFAULT_LOGO_MOTION, type LogoMotionConfig } from "@/hooks/useBranding";
 import { useQueryClient } from "@tanstack/react-query";
 
 function LogoField({
