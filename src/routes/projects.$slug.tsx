@@ -6,6 +6,7 @@ import { ProjectCard } from "@/components/site/Cards";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ShareButtons } from "@/components/site/ShareButtons";
 import { GallerySection } from "@/components/site/GallerySection";
+import { DetailPageSkeleton } from "@/components/site/Skeletons";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { projects } from "@/lib/site-data";
@@ -71,6 +72,8 @@ export const Route = createFileRoute("/projects/$slug")({
     };
   },
   component: ProjectDetail,
+  pendingComponent: () => (<SiteLayout><DetailPageSkeleton /></SiteLayout>),
+  pendingMs: 200,
   notFoundComponent: () => (
     <SiteLayout>
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 pt-24 text-center">

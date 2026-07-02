@@ -6,6 +6,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ShareButtons } from "@/components/site/ShareButtons";
 import { GallerySection } from "@/components/site/GallerySection";
+import { DetailPageSkeleton } from "@/components/site/Skeletons";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -126,6 +127,8 @@ export const Route = createFileRoute("/knowledge/$slug")({
     };
   },
   component: ArticleDetail,
+  pendingComponent: () => (<SiteLayout><DetailPageSkeleton /></SiteLayout>),
+  pendingMs: 200,
   notFoundComponent: () => (
     <SiteLayout>
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 pt-24 text-center">

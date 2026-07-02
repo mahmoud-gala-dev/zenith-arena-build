@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { TableRowsSkeleton } from "@/components/site/Skeletons";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
@@ -143,7 +144,7 @@ function AdminServicesPage() {
             </thead>
             <tbody className="divide-y divide-border">
               {loading ? (
-                <tr><td colSpan={6} className="px-4 py-16 text-center text-muted-foreground"><Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin" /> Loading…</td></tr>
+                <TableRowsSkeleton rows={5} columns={5} />
               ) : rows.length === 0 ? (
                 <tr><td colSpan={6} className="px-4 py-16 text-center text-muted-foreground">No services yet.</td></tr>
               ) : rows.map((row) => (
