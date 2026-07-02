@@ -123,43 +123,8 @@ export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
 
       {count > 1 && (
         <>
-          <div className="absolute inset-x-0 bottom-6 z-10 flex items-center justify-center gap-4 px-4">
-            <button
-              type="button"
-              aria-label="Previous slide"
-              onClick={goPrev}
-              className="rounded-full border border-white/25 bg-white/5 p-2 text-white backdrop-blur transition hover:bg-white/15"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <div className="flex items-center gap-2">
-              {slides.map((s, i) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  aria-label={`Go to slide ${i + 1}`}
-                  onClick={() => setIndex(i)}
-                  className={`h-1.5 rounded-full transition-all ${i === index ? "w-8 bg-white" : "w-3 bg-white/40 hover:bg-white/70"}`}
-                />
-              ))}
-            </div>
-            <button
-              type="button"
-              aria-label="Next slide"
-              onClick={goNext}
-              className="rounded-full border border-white/25 bg-white/5 p-2 text-white backdrop-blur transition hover:bg-white/15"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              aria-label={playing ? "Pause" : "Play"}
-              onClick={() => setPlaying((p) => !p)}
-              className="rounded-full border border-white/25 bg-white/5 p-2 text-white backdrop-blur transition hover:bg-white/15"
-            >
-              {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-            </button>
-          </div>
+          <div className="sr-only" aria-hidden="true" />
+
           <motion.div
             key={current.id + "-bar"}
             initial={{ width: "0%" }}
