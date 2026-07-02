@@ -45,10 +45,16 @@ function ServicesPage() {
                     </Link>
                   </Button>
                 </div>
-                <div className="relative overflow-hidden rounded-3xl bg-secondary/60 p-10">
-                  <div className="grid-texture absolute inset-0 opacity-[0.06]" />
-                  <div className="relative flex aspect-[4/3] items-center justify-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-elegant">
-                    <Icon name={s.icon} className="h-24 w-24 opacity-90" />
+                <div className="relative overflow-hidden rounded-3xl shadow-elegant">
+                  <img
+                    src={s.image}
+                    alt={L(s.title)}
+                    loading="lazy"
+                    className="aspect-[4/3] w-full object-cover transition-transform duration-700 hover:scale-105"
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
+                  <div className="absolute left-5 top-5 flex h-12 w-12 items-center justify-center rounded-xl bg-white/90 text-primary shadow-soft backdrop-blur">
+                    <Icon name={s.icon} className="h-6 w-6" />
                   </div>
                 </div>
               </div>
