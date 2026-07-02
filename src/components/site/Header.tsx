@@ -38,17 +38,29 @@ export function Header() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
+        "fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-out",
         "hidden md:block",
         scrolled
-          ? "border-b border-border/70 bg-background/85 backdrop-blur-lg shadow-soft text-foreground"
-          : "bg-transparent text-white",
+          ? "border-b border-border/60 bg-background/70 backdrop-blur-xl backdrop-saturate-150 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.25)] text-foreground"
+          : "bg-gradient-to-b from-black/40 via-black/10 to-transparent text-white",
       )}
     >
 
-      <div className="mx-auto flex h-24 max-w-7xl items-center justify-between gap-4 px-4 sm:h-28 sm:px-6 lg:h-32 xl:h-36 lg:px-8">
-        <Link to="/" aria-label="Egytic home">
-          <Logo light={!scrolled} />
+      <div
+        className={cn(
+          "mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 transition-all duration-500 ease-out",
+          scrolled ? "h-20 sm:h-24 lg:h-24" : "h-24 sm:h-28 lg:h-32 xl:h-36",
+        )}
+      >
+        <Link to="/" aria-label="Egytic home" className="inline-flex items-center">
+          <span
+            className={cn(
+              "inline-block transition-transform duration-500 ease-out will-change-transform",
+              scrolled ? "scale-90" : "scale-105",
+            )}
+          >
+            <Logo light={!scrolled} />
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
