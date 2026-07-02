@@ -94,7 +94,7 @@ function ProjectsPage() {
   }, [dbProjects, selectedGov, qLower]);
 
   const setSearch = (patch: Partial<{ gov: string; category: string; q: string }>) =>
-    navigate({ search: (prev) => ({ ...prev, ...patch }) });
+    navigate({ search: (prev: { gov: string; category: string; q: string }) => ({ ...prev, ...patch }) });
 
   const showingGov = gov !== "all";
   const hasAny = gov !== "all" || category !== "all" || q !== "";
