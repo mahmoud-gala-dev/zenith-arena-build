@@ -418,3 +418,15 @@ function AdminServicesPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <div className="space-y-1.5"><Label>{label}</Label>{children}</div>;
 }
+
+function StatusDot({ s }: { s?: FieldStatus }) {
+  const color =
+    s === "ok" ? "bg-emerald-500"
+    : s === "uploading" ? "bg-amber-500 animate-pulse"
+    : s === "error" ? "bg-destructive"
+    : "bg-muted-foreground/40";
+  const title =
+    s === "ok" ? "Image set" : s === "uploading" ? "Uploading…" : s === "error" ? "Invalid" : "Empty";
+  return <span aria-label={title} title={title} className={`inline-block h-2 w-2 rounded-full ${color}`} />;
+}
+
