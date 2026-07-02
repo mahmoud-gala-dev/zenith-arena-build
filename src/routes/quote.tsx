@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckCircle2, Sparkles, Clock, Award } from "lucide-react";
+import { CheckCircle2, Sparkles, Clock, Award, Loader2 } from "lucide-react";
+import { z } from "zod";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { services } from "@/lib/site-data";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/quote")({
   head: () => ({
@@ -36,6 +39,44 @@ function QuotePage() {
   const L = useLocalized();
   const ar = lang === "ar";
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [serviceValue, setServiceValue] = useState("");
+  const [budgetValue, setBudgetValue] = useState("");
+  const [contactMethod, setContactMethod] = useState("email");
+
+  const submitSchema = z.object({
+    name: z.string().trim().min(1).max(100),
+    email: z.string().trim().email().max(255),
+    phone: z.string().trim().min(1).max(30),
+  });
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const payload = {
+      type: "quote" as const,
+      name: String(fd.get("name") ?? ""),
+      company: String(fd.get("company") ?? "") || null,
+      email: String(fd.get("email") ?? ""),
+      phone: String(fd.get("phone") ?? "") || null,
+      country: String(fd.get("country") ?? "") || null,
+      city: String(fd.get("city") ?? "") || null,
+      service: serviceValue || null,
+      project_area: String(fd.get("area") ?? "") || null,
+      budget_range: budgetValue || null,
+      start_date: String(fd.get("start") ?? "") || null,
+      message: String(fd.get("message") ?? "") || null,
+      preferred_contact: contactMethod,
+    };
+    const check = submitSchema.safeParse(payload);
+    if (!check.success) return toast.error(check.error.issues[0].message);
+    setSubmitting(true);
+    const { error } = await supabase.from("leads").insert(payload as never);
+    setSubmitting(false);
+    if (error) return toast.error(error.message);
+    setSent(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   const tx = ar
     ? {
@@ -134,63 +175,50 @@ function QuotePage() {
                 </Button>
               </div>
             ) : (
-              <form
-                className="grid gap-5 sm:grid-cols-2"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setSent(true);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-              >
+              <form className="grid gap-5 sm:grid-cols-2" onSubmit={onSubmit}>
                 <div className="space-y-2">
                   <Label htmlFor="q-name">{tx.name}*</Label>
-                  <Input id="q-name" required maxLength={100} />
+                  <Input id="q-name" name="name" required maxLength={100} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="q-company">{tx.company}</Label>
-                  <Input id="q-company" maxLength={120} />
+                  <Input id="q-company" name="company" maxLength={120} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="q-email">{tx.email}*</Label>
-                  <Input id="q-email" type="email" required maxLength={255} />
+                  <Input id="q-email" name="email" type="email" required maxLength={255} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="q-phone">{tx.phone}*</Label>
-                  <Input id="q-phone" type="tel" required maxLength={30} />
+                  <Input id="q-phone" name="phone" type="tel" required maxLength={30} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="q-country">{tx.country}</Label>
-                  <Input id="q-country" maxLength={60} />
+                  <Input id="q-country" name="country" maxLength={60} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="q-city">{tx.city}</Label>
-                  <Input id="q-city" maxLength={60} />
+                  <Input id="q-city" name="city" maxLength={60} />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label>{tx.service}*</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder={tx.service} />
-                    </SelectTrigger>
+                  <Select value={serviceValue} onValueChange={setServiceValue}>
+                    <SelectTrigger><SelectValue placeholder={tx.service} /></SelectTrigger>
                     <SelectContent>
                       {services.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>
-                          {L(s.title)}
-                        </SelectItem>
+                        <SelectItem key={s.id} value={s.id}>{L(s.title)}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="q-area">{tx.area}</Label>
-                  <Input id="q-area" type="number" min={0} />
+                  <Input id="q-area" name="area" type="number" min={0} />
                 </div>
                 <div className="space-y-2">
                   <Label>{tx.budget}</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder={tx.budget} />
-                    </SelectTrigger>
+                  <Select value={budgetValue} onValueChange={setBudgetValue}>
+                    <SelectTrigger><SelectValue placeholder={tx.budget} /></SelectTrigger>
                     <SelectContent>
                       {budgetRanges.map((b) => (
                         <SelectItem key={b} value={b}>{b}</SelectItem>
@@ -200,15 +228,15 @@ function QuotePage() {
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="q-start">{tx.start}</Label>
-                  <Input id="q-start" type="date" />
+                  <Input id="q-start" name="start" type="date" />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="q-message">{tx.message}</Label>
-                  <Textarea id="q-message" rows={5} maxLength={2000} />
+                  <Textarea id="q-message" name="message" rows={5} maxLength={2000} />
                 </div>
                 <div className="space-y-3 sm:col-span-2">
                   <Label>{tx.contactMethod}</Label>
-                  <RadioGroup defaultValue="email" className="flex flex-wrap gap-4">
+                  <RadioGroup value={contactMethod} onValueChange={setContactMethod} className="flex flex-wrap gap-4">
                     {(["email", "phone", "whatsapp"] as const).map((m) => (
                       <label key={m} className="flex cursor-pointer items-center gap-2 rounded-full border border-border bg-secondary/50 px-4 py-2 text-sm">
                         <RadioGroupItem value={m} id={`m-${m}`} />
@@ -218,8 +246,8 @@ function QuotePage() {
                   </RadioGroup>
                 </div>
                 <div className="sm:col-span-2">
-                  <Button type="submit" variant="hero" size="lg" className="w-full">
-                    {tx.submit}
+                  <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
+                    {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : tx.submit}
                   </Button>
                 </div>
               </form>

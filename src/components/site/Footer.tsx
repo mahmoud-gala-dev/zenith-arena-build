@@ -79,6 +79,7 @@ export function Footer() {
                 <li key={r.to}><Link to={r.to} className="hover:text-white">{r.label}</Link></li>
               ))}
               <li><Link to="/quote" className="hover:text-white">{t.cta.quote}</Link></li>
+              <li><Link to="/auth" className="hover:text-white">{ar ? "دخول الإدارة" : "Admin"}</Link></li>
             </ul>
           </div>
 
