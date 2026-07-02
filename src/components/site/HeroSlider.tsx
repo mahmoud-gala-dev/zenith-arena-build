@@ -186,7 +186,10 @@ function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAni
       <div className="absolute inset-0 grid-texture opacity-30" aria-hidden />
 
       <motion.div style={{ y: contentY, opacity: contentOpacity }} className="relative mx-auto w-full max-w-7xl px-4 py-28 sm:px-6 lg:px-8">
-        
+        <Logo
+          light
+          className="mb-8 hidden sm:block [&_img]:!h-40 md:[&_img]:!h-56 lg:[&_img]:!h-64 xl:[&_img]:!h-72"
+        />
         <div
           role="group"
           aria-roledescription="slide"
