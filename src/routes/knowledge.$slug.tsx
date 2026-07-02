@@ -78,7 +78,8 @@ function ArticleDetail() {
           <img src={article.image} alt={L(article.title)} className="absolute inset-0 h-full w-full object-cover opacity-30" />
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/40" />
           <div className="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-            <Link to="/knowledge" className="inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white">
+            <Breadcrumbs items={[{ label: t.nav.knowledge, to: "/knowledge" }, { label: L(article.category) }]} />
+            <Link to="/knowledge" className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white">
               <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
               {t.knowledge.backToList}
             </Link>
