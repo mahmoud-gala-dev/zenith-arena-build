@@ -11,7 +11,13 @@ export type AnalyticsEvent =
   | { name: "hero_slide_view"; index: number; slide_id: string; total: number }
   | { name: "hero_slide_change"; from: number; to: number; slide_id: string; via: "autoplay" | "dot_click" | "keyboard" }
   | { name: "hero_dot_click"; index: number; slide_id: string }
-  | { name: "hero_keyboard_nav"; key: string; index: number; slide_id: string };
+  | { name: "hero_keyboard_nav"; key: string; index: number; slide_id: string }
+  | { name: "gallery_search"; query: string; results: number }
+  | { name: "gallery_filter"; filter_type: "type" | "category"; value: string; results: number }
+  | { name: "gallery_lightbox_open"; index: number; total: number; item_title: string; item_type: string }
+  | { name: "gallery_lightbox_close"; index: number; item_title: string }
+  | { name: "gallery_lightbox_nav"; from: number; to: number; via: "keyboard" | "button" };
+
 
 type AnyEvent = AnalyticsEvent & { [k: string]: unknown };
 
