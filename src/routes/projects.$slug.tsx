@@ -103,6 +103,9 @@ function ProjectDetail() {
                 </div>
               ))}
             </div>
+            <div className="mt-8">
+              <ShareButtons title={L(project.title)} path={`/projects/${slug}`} />
+            </div>
           </div>
 
           <aside className="h-fit rounded-2xl border border-border bg-card p-6 shadow-soft">
