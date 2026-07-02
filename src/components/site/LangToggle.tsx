@@ -8,7 +8,7 @@ export function LangToggle({ light = false }: { light?: boolean }) {
     <button
       onClick={toggleLang}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
+        "inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 py-2 text-xs font-semibold transition-colors",
         light
           ? "border-white/25 text-white hover:bg-white/10"
           : "border-border text-foreground hover:bg-accent",
