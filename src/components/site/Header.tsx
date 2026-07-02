@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import { Logo } from "./Logo";
 import { LangToggle } from "./LangToggle";
 import { ThemeToggle } from "./ThemeToggle";
+import { ServicesStrip } from "./ServicesStrip";
 import { useBranding, DEFAULT_LOGO_MOTION } from "@/hooks/useBranding";
 
 import { useLang } from "@/i18n/LanguageProvider";
@@ -222,7 +223,13 @@ export function Header() {
           </Sheet>
         </div>
       </div>
+      {scrolled && (
+        <div className="hidden lg:block">
+          <ServicesStrip />
+        </div>
+      )}
     </header>
   );
 }
+
 

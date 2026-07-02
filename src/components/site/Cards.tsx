@@ -14,6 +14,8 @@ export function ServiceCard({ service }: { service: Service }) {
           src={service.image}
           alt={L(service.title)}
           loading="lazy"
+          decoding="async"
+          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-transparent" />
