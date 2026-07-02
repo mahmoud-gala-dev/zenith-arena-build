@@ -243,7 +243,7 @@ function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAni
                         aria-selected={selected}
                         aria-label={`Slide ${i + 1} of ${count}`}
                         tabIndex={selected ? 0 : -1}
-                        onClick={() => setIndex(i)}
+                        onClick={() => onDotClick(i)}
                         className={`h-2.5 min-h-[16px] min-w-[16px] rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink ${selected ? "w-10 bg-white" : "w-4 bg-white/40 hover:bg-white/70"}`}
                       />
                     );
