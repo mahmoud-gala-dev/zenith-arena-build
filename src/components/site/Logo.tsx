@@ -17,7 +17,7 @@ export function Logo({ className, light = false }: { className?: string; light?:
   const darkSrc = customDark || fallback;
 
   // Responsive height: mobile 48px, tablet 60px, desktop 72px. Retina-crisp SVG.
-  const sizing = "h-12 sm:h-[60px] lg:h-[72px] w-auto max-w-[220px] object-contain select-none";
+  const sizing = "h-16 sm:h-20 lg:h-24 xl:h-28 w-auto max-w-[320px] object-contain select-none";
 
 
   if (light) {
