@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
+import { Search, X } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
@@ -9,7 +12,14 @@ import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { projects, projectCategories } from "@/lib/site-data";
 import { supabase } from "@/integrations/supabase/client";
 
+const searchSchema = z.object({
+  gov: fallback(z.string(), "all").default("all"),
+  category: fallback(z.string(), "all").default("all"),
+  q: fallback(z.string(), "").default(""),
+});
+
 export const Route = createFileRoute("/projects/")({
+  validateSearch: zodValidator(searchSchema),
   component: ProjectsPage,
 });
 
@@ -41,10 +51,13 @@ type DbProject = {
 function ProjectsPage() {
   const { t, lang } = useLang();
   const L = useLocalized();
-  const [filter, setFilter] = useState<string>("all");
-  const [gov, setGov] = useState<string>("all");
+  const { gov, category, q } = Route.useSearch();
+  const navigate = useNavigate({ from: "/projects/" });
+  const [qInput, setQInput] = useState(q);
   const [govs, setGovs] = useState<Gov[]>([]);
   const [dbProjects, setDbProjects] = useState<DbProject[]>([]);
+
+  useEffect(() => { setQInput(q); }, [q]);
 
   useEffect(() => {
     (async () => {
@@ -63,23 +76,73 @@ function ProjectsPage() {
     return m;
   }, [dbProjects]);
 
-  const staticFiltered = filter === "all" ? projects : projects.filter((p) => p.category === filter);
-  const dbFiltered = dbProjects.filter((p) => (gov === "all" ? true : p.governorate_id === gov));
+  const govBySlug = useMemo(() => new Map(govs.map((g) => [g.slug, g])), [govs]);
+  const govById = useMemo(() => new Map(govs.map((g) => [g.id, g])), [govs]);
+  const selectedGov = gov !== "all" ? govBySlug.get(gov) ?? null : null;
+  const qLower = q.trim().toLowerCase();
+
+  const staticFiltered = useMemo(() => {
+    let list = category === "all" ? projects : projects.filter((p) => p.category === category);
+    if (qLower) list = list.filter((p) => `${p.title.en} ${p.title.ar} ${p.location.en} ${p.location.ar}`.toLowerCase().includes(qLower));
+    return list;
+  }, [category, qLower]);
+
+  const dbFiltered = useMemo(() => {
+    let list = selectedGov ? dbProjects.filter((p) => p.governorate_id === selectedGov.id) : dbProjects;
+    if (qLower) list = list.filter((p) => `${p.title_en} ${p.title_ar ?? ""} ${p.location ?? ""} ${p.sport_type ?? ""}`.toLowerCase().includes(qLower));
+    return list;
+  }, [dbProjects, selectedGov, qLower]);
+
+  const setSearch = (patch: Partial<{ gov: string; category: string; q: string }>) =>
+    navigate({ search: (prev) => ({ ...prev, ...patch }) });
 
   const showingGov = gov !== "all";
+  const hasAny = gov !== "all" || category !== "all" || q !== "";
 
   return (
     <SiteLayout>
       <PageHero eyebrow={t.nav.projects} title={t.sections.projectsTitle} subtitle={t.sections.projectsSub} />
 
-      <section className="py-12">
+      <section className="py-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <form
+            onSubmit={(e) => { e.preventDefault(); setSearch({ q: qInput.trim() }); }}
+            className="flex flex-col gap-3 sm:flex-row sm:items-center"
+          >
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="search"
+                value={qInput}
+                onChange={(e) => setQInput(e.target.value)}
+                placeholder={lang === "ar" ? "ابحث بالاسم، الموقع، أو الرياضة…" : "Search by title, location, or sport…"}
+                className="h-11 w-full rounded-full border border-border bg-card ps-10 pe-4 text-sm text-foreground shadow-soft outline-none placeholder:text-muted-foreground focus:border-primary"
+              />
+            </div>
+            <button type="submit" className="h-11 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-soft hover:opacity-90">
+              {lang === "ar" ? "بحث" : "Search"}
+            </button>
+            {hasAny && (
+              <button
+                type="button"
+                onClick={() => { setQInput(""); navigate({ search: { gov: "all", category: "all", q: "" } }); }}
+                className="inline-flex h-11 items-center gap-1.5 rounded-full border border-border px-4 text-sm text-foreground hover:bg-accent"
+              >
+                <X className="h-4 w-4" /> {lang === "ar" ? "مسح" : "Reset"}
+              </button>
+            )}
+          </form>
+        </div>
+      </section>
+
+      <section className="pb-8">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-lg font-semibold text-foreground">
             {lang === "ar" ? "تصفح المشاريع حسب المحافظة" : "Browse projects by governorate"}
           </h2>
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             <button
-              onClick={() => setGov("all")}
+              onClick={() => setSearch({ gov: "all" })}
               className={cn(
                 "flex flex-col items-center gap-2 rounded-2xl border p-4 text-center transition-colors",
                 gov === "all" ? "border-primary bg-primary/5" : "border-border bg-card hover:bg-accent",
@@ -91,11 +154,11 @@ function ProjectsPage() {
             </button>
             {govs.map((g) => {
               const count = govCounts.get(g.id) ?? 0;
-              const active = gov === g.id;
+              const active = gov === g.slug;
               return (
                 <button
                   key={g.id}
-                  onClick={() => setGov(g.id)}
+                  onClick={() => setSearch({ gov: g.slug })}
                   className={cn(
                     "flex flex-col items-center gap-2 rounded-2xl border p-4 text-center transition-colors",
                     active ? "border-primary bg-primary/5" : "border-border bg-card hover:bg-accent",
@@ -120,10 +183,10 @@ function ProjectsPage() {
           {!showingGov && (
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => setFilter("all")}
+                onClick={() => setSearch({ category: "all" })}
                 className={cn(
                   "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-                  filter === "all" ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:bg-accent",
+                  category === "all" ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:bg-accent",
                 )}
               >
                 {t.projects.filterAll}
@@ -131,10 +194,10 @@ function ProjectsPage() {
               {projectCategories.map((c) => (
                 <button
                   key={c.id}
-                  onClick={() => setFilter(c.id)}
+                  onClick={() => setSearch({ category: c.id })}
                   className={cn(
                     "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-                    filter === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:bg-accent",
+                    category === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:bg-accent",
                   )}
                 >
                   {L(c.label)}
@@ -145,17 +208,22 @@ function ProjectsPage() {
 
           {showingGov ? (
             <div className="mt-6">
-              <div className="mb-6 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-foreground">
-                  {lang === "ar" ? "مشاريع في" : "Projects in"} {(() => { const g = govs.find((x) => x.id === gov); return g ? (lang === "ar" ? g.name_ar : g.name_en) : ""; })()}
-                </h3>
-                <button onClick={() => setGov("all")} className="text-sm text-primary hover:underline">
-                  {lang === "ar" ? "إعادة تعيين" : "Reset"}
-                </button>
+              <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  {selectedGov?.logo_url && <img src={selectedGov.logo_url} alt="" className="h-10 w-10 rounded-full bg-secondary object-contain p-1" />}
+                  <h3 className="text-lg font-semibold text-foreground">
+                    {lang === "ar" ? "مشاريع في" : "Projects in"} {selectedGov ? (lang === "ar" ? selectedGov.name_ar : selectedGov.name_en) : ""}
+                  </h3>
+                </div>
+                {selectedGov && (
+                  <Link to="/governorates/$slug" params={{ slug: selectedGov.slug }} className="text-sm font-medium text-primary hover:underline">
+                    {lang === "ar" ? "فتح صفحة المحافظة ←" : "Open governorate page →"}
+                  </Link>
+                )}
               </div>
               {dbFiltered.length === 0 ? (
                 <p className="rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground">
-                  {lang === "ar" ? "لا توجد مشاريع منشورة في هذه المحافظة بعد." : "No published projects in this governorate yet."}
+                  {lang === "ar" ? "لا توجد مشاريع منشورة مطابقة." : "No published projects match."}
                 </p>
               ) : (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -170,7 +238,12 @@ function ProjectsPage() {
                         <div className="p-5">
                           <div className="text-xs uppercase tracking-wide text-muted-foreground">{p.sport_type ?? p.service_category}</div>
                           <div className="mt-1 text-base font-semibold text-foreground">{lang === "ar" ? p.title_ar ?? p.title_en : p.title_en}</div>
-                          <div className="mt-1 text-sm text-muted-foreground">{p.location}{p.year ? ` · ${p.year}` : ""}</div>
+                          <div className="mt-1 text-sm text-muted-foreground">
+                            {p.location}{p.year ? ` · ${p.year}` : ""}
+                            {p.governorate_id && govById.get(p.governorate_id) && (
+                              <span className="ms-1">· {lang === "ar" ? govById.get(p.governorate_id)!.name_ar : govById.get(p.governorate_id)!.name_en}</span>
+                            )}
+                          </div>
                         </div>
                       </Link>
                     </Reveal>
@@ -180,7 +253,11 @@ function ProjectsPage() {
             </div>
           ) : (
             <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {staticFiltered.map((p, i) => (
+              {staticFiltered.length === 0 ? (
+                <p className="col-span-full rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground">
+                  {lang === "ar" ? "لا توجد نتائج مطابقة." : "No matching results."}
+                </p>
+              ) : staticFiltered.map((p, i) => (
                 <Reveal key={p.slug} delay={i * 50}>
                   <ProjectCard project={p} />
                 </Reveal>
