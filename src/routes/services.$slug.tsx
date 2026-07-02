@@ -8,7 +8,7 @@ import { ShareButtons } from "@/components/site/ShareButtons";
 import { GallerySection } from "@/components/site/GallerySection";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
-import { projects, services, products, heroImg } from "@/lib/site-data";
+import { projects, services, products } from "@/lib/site-data";
 
 export const Route = createFileRoute("/services/$slug")({
   loader: ({ params }) => {
