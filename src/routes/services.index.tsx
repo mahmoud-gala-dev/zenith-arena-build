@@ -6,7 +6,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { Icon } from "@/components/site/Icon";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
-import { services } from "@/lib/site-data";
+import { services, servicesHero } from "@/lib/site-data";
 
 export const Route = createFileRoute("/services/")({
   component: ServicesPage,
