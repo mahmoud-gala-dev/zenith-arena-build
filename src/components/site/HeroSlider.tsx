@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,23 +23,22 @@ const AUTOPLAY_MS = 6500;
 export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
   const { lang, isRTL } = useLang();
   const reduceMotion = useReducedMotion();
-  const [slides, setSlides] = useState<Slide[] | null>(null);
+  const { data: slides = null, isLoading } = useQuery<Slide[]>({
+    queryKey: ["hero_slides", "active"],
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("hero_slides")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return (data as Slide[]) ?? [];
+    },
+  });
   const [index, setIndex] = useState(0);
 
-  useEffect(() => {
-    let mounted = true;
-    supabase
-      .from("hero_slides")
-      .select("*")
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true })
-      .then(({ data }) => {
-        if (mounted) setSlides((data as Slide[]) ?? []);
-      });
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   const count = slides?.length ?? 0;
   const [paused, setPaused] = useState(false);
@@ -65,13 +65,14 @@ export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
     prevIndexRef.current = index;
   }, [current, index, count]);
 
-  if (slides === null) {
+  if (slides === null || isLoading) {
     return (
       <section className="relative flex min-h-[92vh] items-center overflow-hidden bg-ink" aria-label="Loading hero" aria-busy="true">
         <div className="absolute inset-0 animate-pulse bg-ink" />
       </section>
     );
   }
+
 
   if (count === 0) return <>{fallback}</>;
   if (!current) return null;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { ImageVariantsManifest } from "@/hooks/useSignedImage";
 
@@ -30,7 +30,6 @@ export type ServiceRow = {
   sort_order: number;
 };
 
-
 function normalizeGallery(value: unknown): string[] {
   if (Array.isArray(value)) return value.filter((v): v is string => typeof v === "string" && !!v);
   if (typeof value === "string" && value.trim()) {
@@ -48,42 +47,41 @@ function normalize(row: Record<string, unknown>): ServiceRow {
   return { ...(row as ServiceRow), gallery_images: normalizeGallery((row as { gallery_images?: unknown }).gallery_images) };
 }
 
+const FIVE_MIN = 5 * 60 * 1000;
+
 export function useServicesList() {
-  const [data, setData] = useState<ServiceRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    let cancel = false;
-    (async () => {
-      const { data: rows } = await supabase
+  const q = useQuery({
+    queryKey: ["services", "published"],
+    staleTime: FIVE_MIN,
+    gcTime: 30 * 60 * 1000,
+    queryFn: async () => {
+      const { data: rows, error } = await supabase
         .from("services")
         .select("*")
         .eq("status", "published")
         .order("sort_order", { ascending: true });
-      if (cancel) return;
-      setData((rows ?? []).map((r) => normalize(r as Record<string, unknown>)));
-      setLoading(false);
-    })();
-    return () => { cancel = true; };
-  }, []);
-  return { data, loading };
+      if (error) throw error;
+      return (rows ?? []).map((r) => normalize(r as Record<string, unknown>));
+    },
+  });
+  return { data: q.data ?? [], loading: q.isLoading };
 }
 
 export function useServiceBySlug(slug: string) {
-  const [data, setData] = useState<ServiceRow | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    let cancel = false;
-    (async () => {
-      const { data: row } = await supabase
+  const q = useQuery({
+    queryKey: ["services", "by-slug", slug],
+    staleTime: FIVE_MIN,
+    gcTime: 30 * 60 * 1000,
+    enabled: !!slug,
+    queryFn: async () => {
+      const { data: row, error } = await supabase
         .from("services")
         .select("*")
         .eq("slug_en", slug)
         .maybeSingle();
-      if (cancel) return;
-      setData(row ? normalize(row as Record<string, unknown>) : null);
-      setLoading(false);
-    })();
-    return () => { cancel = true; };
-  }, [slug]);
-  return { data, loading };
+      if (error) throw error;
+      return row ? normalize(row as Record<string, unknown>) : null;
+    },
+  });
+  return { data: q.data ?? null, loading: q.isLoading };
 }
