@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,12 @@ import type { Database } from "@/integrations/supabase/types";
 import { HeroLogoBadge } from "./HeroLogoBadge";
 import { CinematicBackdrop } from "./CinematicBackdrop";
 
-type Slide = Database["public"]["Tables"]["hero_slides"]["Row"] & { hide_cta?: boolean | null };
+type Slide = Database["public"]["Tables"]["hero_slides"]["Row"] & {
+  hide_cta?: boolean | null;
+  fog_intensity?: number | null;
+  spotlight_intensity?: number | null;
+  vignette_intensity?: number | null;
+};
 
 const AUTOPLAY_MS = 6500;
 
