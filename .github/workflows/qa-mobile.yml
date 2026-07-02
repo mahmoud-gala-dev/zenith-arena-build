@@ -53,6 +53,11 @@ jobs:
           BRANCH: ${{ github.ref_name }}
         run: python scripts/qa-mobile.py
 
+      - name: HeroSlider a11y regression checks (BLOCKING)
+        env:
+          BASE_URL: http://127.0.0.1:8080
+        run: python scripts/hero-a11y.py
+
       - name: Upload QA artifacts
         if: always()
         uses: actions/upload-artifact@v4
