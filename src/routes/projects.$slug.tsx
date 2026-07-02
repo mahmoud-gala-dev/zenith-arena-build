@@ -42,14 +42,28 @@ export const Route = createFileRoute("/projects/$slug")({
       ],
       scripts: [{
         type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "CreativeWork",
-          name: project.title.en,
-          description: desc,
-          locationCreated: project.location.en,
-          dateCreated: project.year,
-        }),
+        children: JSON.stringify([
+          {
+            "@context": "https://schema.org",
+            "@type": "CreativeWork",
+            name: project.title.en,
+            description: desc,
+            image: project.image,
+            url: `/projects/${params.slug}`,
+            locationCreated: project.location.en,
+            dateCreated: project.year,
+            creator: { "@type": "Organization", name: "APEX Sports" },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "/" },
+              { "@type": "ListItem", position: 2, name: "Projects", item: "/projects" },
+              { "@type": "ListItem", position: 3, name: project.title.en, item: `/projects/${params.slug}` },
+            ],
+          },
+        ]),
       }],
     };
   },
