@@ -247,23 +247,38 @@ function GalleryPage() {
       <section className="py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Reveal>
-            <div className="mb-4 flex flex-wrap gap-2">
-              {typeChips.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setType(c.id)}
-                  className={cn(
-                    "rounded-full border px-4 py-2 text-sm font-semibold transition-all",
-                    activeType === c.id
-                      ? "border-primary bg-primary text-primary-foreground shadow-soft"
-                      : "border-border bg-card hover:border-primary/40",
-                  )}
-                >
-                  {c.label}
-                </button>
-              ))}
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap gap-2">
+                {typeChips.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => setType(c.id)}
+                    aria-pressed={activeType === c.id}
+                    className={cn(
+                      "rounded-full border px-4 py-2 text-sm font-semibold transition-all",
+                      activeType === c.id
+                        ? "border-primary bg-primary text-primary-foreground shadow-soft"
+                        : "border-border bg-card hover:border-primary/40",
+                    )}
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+              <label className="relative block w-full sm:w-72">
+                <span className="sr-only">{tx.searchPh}</span>
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground rtl:left-auto rtl:right-3" aria-hidden />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={tx.searchPh}
+                  className="w-full rounded-full border border-border bg-card py-2 pl-9 pr-4 text-sm shadow-soft outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 rtl:pl-4 rtl:pr-9"
+                />
+              </label>
             </div>
           </Reveal>
+
 
           {activeType === "projects" && (
             <Reveal>
