@@ -599,11 +599,29 @@ export function BrandingPanel() {
             </div>
           </>
         )}
-        <div className="flex justify-end">
+              <ExportImportPanel
+                motionEn={motionEn}
+                motionAr={motionAr}
+                reducedMotionSafe={reducedMotionSafe}
+                onImport={(en, ar, rms) => {
+                  setMotionEn(en);
+                  setMotionAr(ar);
+                  setReducedMotionSafe(rms);
+                }}
+              />
+            </div>
+          </>
+        )}
+        <div className="flex items-center justify-between gap-2">
+          <label className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Switch checked={livePreview} onCheckedChange={setLivePreview} />
+            Live-preview on this page
+          </label>
           <Button onClick={save} disabled={saving} variant="hero">
             {saving ? "Saving…" : "Save branding"}
           </Button>
         </div>
+
       </CardContent>
     </Card>
   );
