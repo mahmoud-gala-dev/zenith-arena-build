@@ -1,0 +1,1 @@
+ALTER TABLE public.hero_slides ADD COLUMN IF NOT EXISTS hide_cta boolean NOT NULL DEFAULT false;
