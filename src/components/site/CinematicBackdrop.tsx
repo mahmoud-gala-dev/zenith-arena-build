@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 
 /**
@@ -9,8 +9,9 @@ import { motion, useReducedMotion, useScroll, useTransform, useMotionValue, useS
  * automatically throttles / disables parallax on low-end devices.
  *
  * Intensity props are 0..1 multipliers, editable per slide from the Admin.
+ * Style objects are memoised so admin live-preview slider drags stay smooth.
  */
-export function CinematicBackdrop({
+function CinematicBackdropImpl({
   fog = 0.6,
   spotlights = 0.6,
   vignette = 0.6,
