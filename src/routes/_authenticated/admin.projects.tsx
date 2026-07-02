@@ -152,6 +152,12 @@ function ProjectsPage() {
               <Field label="Country"><Input value={editing.country ?? ""} onChange={(e) => setEditing({ ...editing, country: e.target.value })} /></Field>
               <Field label="City"><Input value={editing.city ?? ""} onChange={(e) => setEditing({ ...editing, city: e.target.value })} /></Field>
               <Field label="Location (display)"><Input value={editing.location ?? ""} onChange={(e) => setEditing({ ...editing, location: e.target.value })} /></Field>
+              <Field label="Governorate">
+                <select value={editing.governorate_id ?? ""} onChange={(e) => setEditing({ ...editing, governorate_id: e.target.value || null })} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+                  <option value="">— None —</option>
+                  {govs.map((g) => (<option key={g.id} value={g.id}>{g.name_en} — {g.name_ar}</option>))}
+                </select>
+              </Field>
               <Field label="Cover image URL"><Input value={editing.cover_image ?? ""} onChange={(e) => setEditing({ ...editing, cover_image: e.target.value })} /></Field>
               <div className="sm:col-span-2"><Field label="Description (EN)"><Textarea rows={3} value={editing.description_en ?? ""} onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} /></Field></div>
               <div className="sm:col-span-2"><Field label="Description (AR)"><Textarea rows={3} dir="rtl" value={editing.description_ar ?? ""} onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} /></Field></div>
