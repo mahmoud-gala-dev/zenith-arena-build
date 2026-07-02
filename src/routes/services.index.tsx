@@ -1,12 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Icon } from "@/components/site/Icon";
+import { ServiceRowSkeleton } from "@/components/site/Skeletons";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import { useServicesList } from "@/hooks/useServiceContent";
+
 
 export const Route = createFileRoute("/services/")({
   component: ServicesPage,
