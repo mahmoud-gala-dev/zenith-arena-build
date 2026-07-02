@@ -460,6 +460,22 @@ export function BrandingPanel() {
     }
   }, [data]);
 
+  // Live preview: push current in-panel values into the branding query cache
+  // so any <Header /> mounted on the page reflects changes instantly (without saving).
+  const [livePreview, setLivePreview] = useState(true);
+  useEffect(() => {
+    if (!data || !livePreview) return;
+    qc.setQueryData(["settings", "branding"], {
+      ...data,
+      logo_light_url: light,
+      logo_dark_url: dark,
+      logo_motion: { en: motionEn, ar: motionAr, reduced_motion_safe: reducedMotionSafe },
+    });
+  }, [data, livePreview, qc, light, dark, motionEn, motionAr, reducedMotionSafe]);
+
+  // On unmount, invalidate so cache re-syncs with DB (drops unsaved preview).
+  useEffect(() => () => { qc.invalidateQueries({ queryKey: ["settings", "branding"] }); }, [qc]);
+
   const systemReduce = useMemo(
     () =>
       typeof window !== "undefined" &&
@@ -467,11 +483,12 @@ export function BrandingPanel() {
     [],
   );
 
-  const applySuggested = (n: number) => {
-    setMotionEn((m) => ({ ...m, intensity: n }));
-    setMotionAr((m) => ({ ...m, intensity: n }));
-    toast.success(`Applied suggested intensity ${n}% to both languages`);
+  const applySuggested = (intensity: number, speed: number) => {
+    setMotionEn((m) => ({ ...m, intensity, speed }));
+    setMotionAr((m) => ({ ...m, intensity, speed }));
+    toast.success(`Applied suggested intensity ${intensity}% / speed ${speed}% to both languages`);
   };
+
 
   const save = async () => {
     setSaving(true);
