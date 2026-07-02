@@ -74,6 +74,7 @@ function ProjectsPage() {
       cover_image: editing.cover_image || null, status: editing.status || "published",
       featured: !!editing.featured,
       governorate_id: editing.governorate_id || null,
+    };
     const { error } = editing.id
       ? await supabase.from("projects").update(payload).eq("id", editing.id)
       : await supabase.from("projects").insert(payload);
