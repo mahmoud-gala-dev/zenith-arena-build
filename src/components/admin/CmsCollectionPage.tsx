@@ -317,7 +317,6 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
             {loading ? (
               <TableRowsSkeleton rows={6} columns={config.columns.length} />
             ) : error ? (
-            ) : error ? (
               <tr><td colSpan={config.columns.length + 2} className="px-4 py-16 text-center text-destructive">{error}</td></tr>
             ) : visibleRows.length === 0 ? (
               <tr><td colSpan={config.columns.length + 2} className="px-4 py-16 text-center text-muted-foreground">No {config.title.toLowerCase()} found.</td></tr>
