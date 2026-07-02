@@ -44,6 +44,7 @@ const nav: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exac
   { to: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
   { to: "/admin/seo", label: "SEO Manager", icon: Search },
   { to: "/admin/social-cache", label: "Social cache", icon: RefreshCw },
+  { to: "/admin/qa-reports", label: "QA Reports", icon: LayoutDashboard },
   { to: "/admin/media", label: "Media Library", icon: ImageIcon },
   { to: "/admin/settings", label: "Settings", icon: Settings },
   { to: "/admin/users", label: "Users & Roles", icon: Users },
