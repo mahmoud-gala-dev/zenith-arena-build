@@ -406,7 +406,7 @@ function GalleryPage() {
               {filtered.map((it, i) => (
                 <button
                   key={i}
-                  onClick={() => setLightbox(i)}
+                  onClick={(e) => openLightbox(i, e)}
                   className={cn(
                     "group relative overflow-hidden rounded-xl bg-secondary shadow-soft",
                     it.span,
