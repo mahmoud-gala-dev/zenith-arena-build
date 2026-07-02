@@ -54,8 +54,33 @@ export const Route = createFileRoute("/contact")({
       { rel: "alternate", hrefLang: "x-default", href: "/contact" },
       { rel: "preload", as: "image", href: heroContact.url, fetchpriority: "high" },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ContactPage",
+          name: "Contact Egytic Sports",
+          mainEntity: {
+            "@type": "Organization",
+            name: "Egytic Sports",
+            email: "hello@apexsports.co",
+            areaServed: ["EG", "SA", "AE", "QA"],
+            contactPoint: [
+              {
+                "@type": "ContactPoint",
+                contactType: "sales",
+                email: "hello@apexsports.co",
+                availableLanguage: ["en", "ar"],
+              },
+            ],
+          },
+        }),
+      },
+    ],
   }),
 });
+
 
 function ContactPage() {
   const { t } = useLang();

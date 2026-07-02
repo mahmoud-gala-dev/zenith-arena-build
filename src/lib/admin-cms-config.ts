@@ -182,16 +182,19 @@ export const clientsConfig: CmsCollectionConfig = {
   orderBy: "sort_order",
   orderAscending: true,
   filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }, { key: "country", label: "Country", values: ["Saudi Arabia", "UAE", "Qatar", "Kuwait", "Bahrain", "Oman"] }],
-  initialValues: { name_en: "", name_ar: "", logo_url: "", industry: "Sports Club", country: "Saudi Arabia", website: "", status: "published", featured: false, sort_order: 0 },
+  initialValues: { name_en: "", name_ar: "", logo_url: "", industry: "Sports Club", country: "Saudi Arabia", website: "", description_en: "", description_ar: "", status: "published", featured: false, sort_order: 0 },
   fields: [
     { name: "name_en", label: "English name", required: true },
     { name: "name_ar", label: "Arabic name", required: true, dir: "rtl" },
-    { name: "logo_url", label: "Logo URL", type: "url", fullWidth: true },
-    { name: "industry", label: "Industry" },
+    { name: "logo_url", label: "Logo URL (SVG or PNG, transparent bg)", type: "url", fullWidth: true },
+    { name: "industry", label: "Sector / Industry" },
     { name: "country", label: "Country" },
     { name: "website", label: "Website", type: "url" },
+    { name: "description_en", label: "English description", type: "textarea", fullWidth: true },
+    { name: "description_ar", label: "Arabic description", type: "textarea", fullWidth: true, dir: "rtl" },
     ...publicationFields,
   ],
+
 };
 
 export const certificatesConfig: CmsCollectionConfig = {

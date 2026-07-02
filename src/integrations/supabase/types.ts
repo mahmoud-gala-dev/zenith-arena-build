@@ -212,6 +212,8 @@ export type Database = {
         Row: {
           country: string | null
           created_at: string
+          description_ar: string | null
+          description_en: string | null
           featured: boolean
           id: string
           industry: string | null
@@ -226,6 +228,8 @@ export type Database = {
         Insert: {
           country?: string | null
           created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
           featured?: boolean
           id?: string
           industry?: string | null
@@ -240,6 +244,8 @@ export type Database = {
         Update: {
           country?: string | null
           created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
           featured?: boolean
           id?: string
           industry?: string | null

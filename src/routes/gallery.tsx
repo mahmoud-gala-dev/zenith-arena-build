@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { X, ChevronLeft, ChevronRight, ArrowRight, Search, ZoomIn, ZoomOut } from "lucide-react";
 import { z } from "zod";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -9,6 +9,8 @@ import { Reveal } from "@/components/site/Reveal";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { projects, projectCategories, articles, services, type L as Localized } from "@/lib/site-data";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/analytics";
+
 
 type SourceType = "all" | "projects" | "services" | "knowledge";
 
@@ -195,6 +197,8 @@ function GalleryPage() {
     setActiveType(t);
     if (t !== "projects") setActiveCategory("all");
     navigate({ search: { type: t === "all" ? undefined : t, category: undefined }, replace: true });
+    const results = allItems.filter((it) => t === "all" || it.type === t).length;
+    trackEvent({ name: "gallery_filter", filter_type: "type", value: t, results });
   };
   const setCategory = (c: string) => {
     setActiveCategory(c);
@@ -205,31 +209,114 @@ function GalleryPage() {
       },
       replace: true,
     });
+    const results = allItems.filter(
+      (it) => (activeType === "all" || it.type === activeType) && (c === "all" || it.category === c),
+    ).length;
+    trackEvent({ name: "gallery_filter", filter_type: "category", value: c, results });
   };
+
+  // Debounced gallery search analytics
+  useEffect(() => {
+    const q = query.trim();
+    if (!q) return;
+    const id = window.setTimeout(() => {
+      trackEvent({ name: "gallery_search", query: q, results: filtered.length });
+    }, 500);
+    return () => window.clearTimeout(id);
+  }, [query, filtered.length]);
 
   // Reset zoom whenever slide changes / closes
   useEffect(() => {
     setZoomed(false);
   }, [lightbox]);
 
-  // Lightbox keyboard nav + body scroll lock
+  // Focus restoration + focus trap refs
+  const lastTriggerRef = useRef<HTMLElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const closeBtnRef = useRef<HTMLButtonElement | null>(null);
+  const prefersReducedMotion =
+    typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+  const openLightbox = (i: number, ev?: React.MouseEvent<HTMLButtonElement>) => {
+    lastTriggerRef.current = (ev?.currentTarget as HTMLElement) ?? (document.activeElement as HTMLElement);
+    setLightbox(i);
+    const item = filtered[i];
+    if (item) {
+      trackEvent({
+        name: "gallery_lightbox_open",
+        index: i,
+        total: filtered.length,
+        item_title: item.title.en,
+        item_type: item.type,
+      });
+    }
+  };
+
+  const closeLightbox = () => {
+    if (lightbox !== null) {
+      const item = filtered[lightbox];
+      trackEvent({
+        name: "gallery_lightbox_close",
+        index: lightbox,
+        item_title: item?.title.en ?? "",
+      });
+    }
+    setLightbox(null);
+    // return focus after paint
+    window.setTimeout(() => lastTriggerRef.current?.focus?.(), 0);
+  };
+
+  const navLightbox = (dir: 1 | -1, via: "keyboard" | "button") => {
+    setLightbox((i) => {
+      if (i === null) return null;
+      const next = (i + dir + filtered.length) % filtered.length;
+      trackEvent({ name: "gallery_lightbox_nav", from: i, to: next, via });
+      return next;
+    });
+  };
+
+  // Lightbox keyboard nav + body scroll lock + focus trap
   useEffect(() => {
     if (lightbox === null) return;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    // move initial focus to close button
+    window.setTimeout(() => closeBtnRef.current?.focus?.(), 0);
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setLightbox(null);
-      if (e.key === "ArrowRight") setLightbox((i) => (i === null ? null : (i + 1) % filtered.length));
-      if (e.key === "ArrowLeft")
-        setLightbox((i) => (i === null ? null : (i - 1 + filtered.length) % filtered.length));
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeLightbox();
+        return;
+      }
+      if (e.key === "ArrowRight") navLightbox(1, "keyboard");
+      if (e.key === "ArrowLeft") navLightbox(-1, "keyboard");
       if (e.key === " " || e.key === "z") setZoomed((z) => !z);
+      if (e.key === "Tab") {
+        const root = dialogRef.current;
+        if (!root) return;
+        const focusables = root.querySelectorAll<HTMLElement>(
+          'button, [href], input, [tabindex]:not([tabindex="-1"])',
+        );
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lightbox, filtered.length]);
+
 
   const typeChips: { id: SourceType; label: string }[] = [
     { id: "all", label: tx.all },
@@ -319,7 +406,7 @@ function GalleryPage() {
               {filtered.map((it, i) => (
                 <button
                   key={i}
-                  onClick={() => setLightbox(i)}
+                  onClick={(e) => openLightbox(i, e)}
                   className={cn(
                     "group relative overflow-hidden rounded-xl bg-secondary shadow-soft",
                     it.span,
@@ -348,18 +435,20 @@ function GalleryPage() {
 
       {current && (
         <div
+          ref={dialogRef}
           className="fixed inset-0 z-[80] flex items-center justify-center bg-ink/95 p-3 sm:p-8"
-          onClick={() => setLightbox(null)}
+          onClick={closeLightbox}
           role="dialog"
           aria-modal="true"
           aria-label={L(current.title)}
           style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top))" }}
         >
           <button
+            ref={closeBtnRef}
             aria-label={tx.close}
             onClick={(e) => {
               e.stopPropagation();
-              setLightbox(null);
+              closeLightbox();
             }}
             className="absolute right-3 top-3 grid h-12 w-12 place-items-center rounded-full bg-white/15 text-white shadow-lg backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white active:scale-95 sm:right-4 sm:top-4 rtl:left-3 rtl:right-auto sm:rtl:left-4"
           >
@@ -379,7 +468,7 @@ function GalleryPage() {
             aria-label={tx.prev}
             onClick={(e) => {
               e.stopPropagation();
-              setLightbox((i) => (i === null ? null : (i - 1 + filtered.length) % filtered.length));
+              navLightbox(-1, "button");
             }}
             className="absolute left-2 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/15 text-white backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white active:scale-95 sm:left-4"
           >
@@ -389,7 +478,7 @@ function GalleryPage() {
             aria-label={tx.next}
             onClick={(e) => {
               e.stopPropagation();
-              setLightbox((i) => (i === null ? null : (i + 1) % filtered.length));
+              navLightbox(1, "button");
             }}
             className="absolute right-2 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/15 text-white backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white active:scale-95 sm:right-4"
           >
@@ -411,12 +500,14 @@ function GalleryPage() {
                 src={current.image}
                 alt={L(current.title)}
                 className={cn(
-                  "mx-auto h-auto rounded-2xl object-contain shadow-elegant transition-transform duration-300",
+                  "mx-auto h-auto rounded-2xl object-contain shadow-elegant",
+                  prefersReducedMotion ? "" : "transition-transform duration-300",
                   zoomed ? "max-w-none scale-[1.8] origin-center" : "max-h-[75vh] w-auto max-w-full",
                 )}
                 draggable={false}
               />
             </div>
+
 
             <div className="w-full rounded-2xl bg-white/5 p-4 text-center backdrop-blur">
               <p className="text-lg font-semibold text-white">{L(current.title)}</p>

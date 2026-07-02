@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Award, ShieldCheck, Cpu, Wrench } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { SectionHeader } from "@/components/site/SectionHeader";
@@ -7,16 +8,44 @@ import { Reveal } from "@/components/site/Reveal";
 import { ServiceCard, ProjectCard, ArticleCard } from "@/components/site/Cards";
 import { HeroSlider } from "@/components/site/HeroSlider";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
+import { supabase } from "@/integrations/supabase/client";
 import ogImage from "@/assets/apex-og.jpg.asset.json";
 import {
   services,
   projects,
   articles,
   testimonials,
-  clients,
+  clients as fallbackClients,
   heroStats,
   heroImg,
+  type ClientLogo,
 } from "@/lib/site-data";
+
+type DbClient = {
+  id: string;
+  name_en: string;
+  name_ar: string;
+  logo_url: string | null;
+  industry: string | null;
+  description_en: string | null;
+  description_ar: string | null;
+};
+
+type TrustClient = ClientLogo & { logo_url?: string | null; description?: { en: string; ar: string } };
+
+function monogramFor(name: string): string {
+  return name
+    .replace(/[^A-Za-z\u0600-\u06FF ]/g, "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase() || name.slice(0, 2).toUpperCase();
+}
+
+const ACCENTS = ["#c9a84c", "#0f766e", "#1e40af", "#b91c1c", "#7c3aed", "#0369a1", "#a16207", "#065f46"];
+
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -39,6 +68,35 @@ const whyIcons = [ShieldCheck, Cpu, Wrench, Award];
 function Index() {
   const { t } = useLang();
   const L = useLocalized();
+
+  const { data: dbClients } = useQuery({
+    queryKey: ["home-clients"],
+    queryFn: async (): Promise<DbClient[]> => {
+      const { data, error } = await supabase
+        .from("clients")
+        .select("id,name_en,name_ar,logo_url,industry,description_en,description_ar")
+        .eq("status", "published")
+        .order("sort_order", { ascending: true })
+        .limit(18);
+      if (error) throw error;
+      return (data ?? []) as DbClient[];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const clients: TrustClient[] =
+    dbClients && dbClients.length > 0
+      ? dbClients.map((c, i) => ({
+          name: { en: c.name_en, ar: c.name_ar },
+          sector: { en: c.industry ?? "Client", ar: c.industry ?? "عميل" },
+          monogram: monogramFor(c.name_en),
+          accent: ACCENTS[i % ACCENTS.length],
+          logo_url: c.logo_url,
+          description: { en: c.description_en ?? "", ar: c.description_ar ?? "" },
+        }))
+      : fallbackClients;
+
+
 
   return (
     <SiteLayout>
@@ -236,42 +294,45 @@ function Index() {
                     className="pointer-events-none absolute -inset-x-4 -top-16 h-24 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-60"
                     style={{ background: c.accent }}
                   />
-                  <svg
-                    viewBox="0 0 80 80"
-                    className="h-14 w-14 shrink-0 drop-shadow-sm"
-                    role="img"
-                    aria-label={L(c.name)}
-                  >
-                    <defs>
-                      <linearGradient id={`cg-${i}`} x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stopColor={c.accent} stopOpacity="0.95" />
-                        <stop offset="100%" stopColor={c.accent} stopOpacity="0.55" />
-                      </linearGradient>
-                    </defs>
-                    <rect x="2" y="2" width="76" height="76" rx="18" fill={`url(#cg-${i})`} />
-                    <rect
-                      x="2"
-                      y="2"
-                      width="76"
-                      height="76"
-                      rx="18"
-                      fill="none"
-                      stroke="rgba(255,255,255,0.35)"
-                      strokeWidth="1.5"
+                  {c.logo_url ? (
+                    <img
+                      src={c.logo_url}
+                      alt={L(c.name)}
+                      loading="lazy"
+                      decoding="async"
+                      width={112}
+                      height={112}
+                      className="h-14 w-14 shrink-0 object-contain drop-shadow-sm"
                     />
-                    <text
-                      x="40"
-                      y="47"
-                      textAnchor="middle"
-                      fontSize={c.monogram.length > 2 ? "22" : "28"}
-                      fontWeight="800"
-                      fontFamily="ui-sans-serif, system-ui, sans-serif"
-                      fill="#fff"
-                      letterSpacing="1"
+                  ) : (
+                    <svg
+                      viewBox="0 0 80 80"
+                      className="h-14 w-14 shrink-0 drop-shadow-sm"
+                      role="img"
+                      aria-label={L(c.name)}
                     >
-                      {c.monogram}
-                    </text>
-                  </svg>
+                      <defs>
+                        <linearGradient id={`cg-${i}`} x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stopColor={c.accent} stopOpacity="0.95" />
+                          <stop offset="100%" stopColor={c.accent} stopOpacity="0.55" />
+                        </linearGradient>
+                      </defs>
+                      <rect x="2" y="2" width="76" height="76" rx="18" fill={`url(#cg-${i})`} />
+                      <rect x="2" y="2" width="76" height="76" rx="18" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" />
+                      <text
+                        x="40"
+                        y="47"
+                        textAnchor="middle"
+                        fontSize={c.monogram.length > 2 ? "22" : "28"}
+                        fontWeight="800"
+                        fontFamily="ui-sans-serif, system-ui, sans-serif"
+                        fill="#fff"
+                        letterSpacing="1"
+                      >
+                        {c.monogram}
+                      </text>
+                    </svg>
+                  )}
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-foreground" title={L(c.name)}>
                       {L(c.name)}
@@ -279,7 +340,11 @@ function Index() {
                     <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                       {L(c.sector)}
                     </p>
+                    {c.description && L(c.description) && (
+                      <p className="mt-2 line-clamp-2 text-[11px] text-muted-foreground/80">{L(c.description)}</p>
+                    )}
                   </div>
+
                 </li>
               </Reveal>
             ))}
