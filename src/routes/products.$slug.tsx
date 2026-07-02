@@ -1,11 +1,14 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, BadgeCheck, CheckCircle2, Download } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft, ArrowRight, BadgeCheck, BookOpen, CheckCircle2, Download } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { ProjectCard } from "@/components/site/Cards";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
+import { supabase } from "@/integrations/supabase/client";
 import { products, projects, services } from "@/lib/site-data";
+
 
 export const Route = createFileRoute("/products/$slug")({
   loader: ({ params }) => {
@@ -57,8 +60,27 @@ function ProductDetailPage() {
   const product = products.find((item) => item.id === slug)!;
   const ar = lang === "ar";
   const tx = ar
-    ? { back: "العودة للمنتجات", features: "المزايا", specs: "المواصفات", variants: "الخيارات المتاحة", applications: "الاستخدامات", certs: "الاعتمادات", downloads: "التحميلات", inquiry: "طلب استفسار", relatedServices: "خدمات ذات صلة", relatedProjects: "مشاريع ذات صلة" }
-    : { back: "Back to products", features: "Features", specs: "Specifications", variants: "Available variants", applications: "Applications", certs: "Certifications", downloads: "Downloads", inquiry: "Send inquiry", relatedServices: "Related services", relatedProjects: "Related projects" };
+    ? { back: "العودة للمنتجات", features: "المزايا", specs: "المواصفات", variants: "الخيارات المتاحة", applications: "الاستخدامات", certs: "الاعتمادات", downloads: "التحميلات", inquiry: "طلب استفسار", relatedServices: "خدمات ذات صلة", relatedProjects: "مشاريع ذات صلة", relatedKnowledge: "مقالات معرفية ذات صلة", readArticle: "قراءة المقال" }
+    : { back: "Back to products", features: "Features", specs: "Specifications", variants: "Available variants", applications: "Applications", certs: "Certifications", downloads: "Downloads", inquiry: "Send inquiry", relatedServices: "Related services", relatedProjects: "Related projects", relatedKnowledge: "Related knowledge articles", readArticle: "Read article" };
+
+  const { data: relatedKnowledge = [] } = useQuery({
+    queryKey: ["product_related_knowledge", product.id],
+    queryFn: async () => {
+      const cat = product.category.en.toLowerCase();
+      const { data } = await supabase
+        .from("blog_posts")
+        .select("id,slug_en,title_en,title_ar,excerpt_en,excerpt_ar,featured_image")
+        .eq("status", "published")
+        .limit(20);
+      const rows = data ?? [];
+      // pick posts whose title/excerpt mentions the product category, else fallback to first 3
+      const matched = rows.filter((r) =>
+        `${r.title_en} ${r.excerpt_en ?? ""}`.toLowerCase().includes(cat.split(" ")[0]),
+      );
+      return (matched.length ? matched : rows).slice(0, 3);
+    },
+  });
+
 
   const features = ar ? ["أداء ثابت طويل الأمد", "متوافق مع المنشآت الاحترافية", "خيارات ألوان ومواصفات متعددة", "دعم فني أثناء التصميم والتركيب"] : ["Long-term performance", "Professional facility compatibility", "Multiple color and specification options", "Technical support during design and installation"];
   const specs = ar ? [["الفئة", L(product.category)], ["الاعتماد", product.certified], ["الاستخدام", "ملاعب ومنشآت رياضية"], ["الصيانة", "منخفضة إلى متوسطة حسب الاستخدام"]] : [["Category", L(product.category)], ["Certification", product.certified], ["Use", "Sports fields and facilities"], ["Maintenance", "Low to medium depending on usage"]];
@@ -124,6 +146,42 @@ function ProductDetailPage() {
           <div className="mt-8 grid gap-6 md:grid-cols-3">{projects.slice(0, 3).map((project) => <ProjectCard key={project.slug} project={project} />)}</div>
         </div>
       </section>
+
+      {relatedKnowledge.length > 0 && (
+        <section className="bg-secondary/50 py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center gap-3">
+              <BookOpen className="h-5 w-5 text-primary" />
+              <h2 className="text-2xl font-bold text-foreground">{tx.relatedKnowledge}</h2>
+            </div>
+            <div className="mt-8 grid gap-6 md:grid-cols-3">
+              {relatedKnowledge.map((k) => (
+                <Link
+                  key={k.id}
+                  to="/knowledge/$slug"
+                  params={{ slug: k.slug_en }}
+                  className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition hover:-translate-y-1 hover:shadow-elegant"
+                >
+                  {k.featured_image && (
+                    <div className="aspect-[16/10] overflow-hidden">
+                      <img src={k.featured_image} alt={ar ? k.title_ar : k.title_en} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    </div>
+                  )}
+                  <div className="flex flex-1 flex-col p-5">
+                    <h3 className="font-semibold text-foreground group-hover:text-primary">{ar ? k.title_ar : k.title_en}</h3>
+                    <p className="mt-2 flex-1 text-sm text-muted-foreground line-clamp-2">{ar ? k.excerpt_ar : k.excerpt_en}</p>
+                    <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                      {tx.readArticle} <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+
 
       <section className="bg-hero py-16 text-white">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8"><h2 className="text-3xl font-bold">{t.sections.ctaTitle}</h2><p className="mx-auto mt-3 max-w-xl text-white/70">{t.sections.ctaSub}</p><Button asChild variant="gold" size="lg" className="mt-7"><Link to="/quote">{tx.inquiry}</Link></Button></div>
