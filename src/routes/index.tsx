@@ -6,6 +6,7 @@ import { SectionHeader } from "@/components/site/SectionHeader";
 import { Reveal } from "@/components/site/Reveal";
 import { ServiceCard, ProjectCard, ArticleCard } from "@/components/site/Cards";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
+import ogImage from "@/assets/apex-og.jpg.asset.json";
 import {
   services,
   projects,
@@ -18,7 +19,19 @@ import {
 
 export const Route = createFileRoute("/")({
   component: Index,
+  head: () => ({
+    meta: [
+      { property: "og:image", content: ogImage.url },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "APEX Sports — Sports Construction & Infrastructure" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: ogImage.url },
+      { name: "twitter:image:alt", content: "APEX Sports" },
+    ],
+  }),
 });
+
 
 const whyIcons = [ShieldCheck, Cpu, Wrench, Award];
 
