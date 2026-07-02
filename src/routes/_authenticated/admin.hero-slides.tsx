@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowDown, ArrowUp, Loader2, Pencil, Plus, Trash2, Upload } from "lucide-react";
+import { ArrowDown, ArrowUp, GripVertical, Loader2, Pencil, Plus, Trash2, Upload } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,11 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { CinematicBackdrop } from "@/components/site/CinematicBackdrop";
+
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8 MB
+const MIN_IMAGE_WIDTH = 1200;
+const MIN_IMAGE_HEIGHT = 600;
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 
 const clamp01 = (n: unknown): number => {
   const v = typeof n === "number" ? n : Number(n);
@@ -49,6 +54,14 @@ function AdminHeroSlides() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const localPreviewRef = useRef<string | null>(null);
+
+  useEffect(() => () => {
+    if (localPreviewRef.current) URL.revokeObjectURL(localPreviewRef.current);
+  }, []);
 
   async function load() {
     setLoading(true);
@@ -59,18 +72,57 @@ function AdminHeroSlides() {
   }
   useEffect(() => { load(); }, []);
 
+  function clearLocalPreview() {
+    if (localPreviewRef.current) URL.revokeObjectURL(localPreviewRef.current);
+    localPreviewRef.current = null;
+    setLocalPreview(null);
+  }
+
   function startNew() {
+    clearLocalPreview();
     setEditingId(null);
     setEditing({ ...empty, sort_order: (slides.at(-1)?.sort_order ?? 0) + 1 });
   }
   function startEdit(s: Slide) {
+    clearLocalPreview();
     setEditingId(s.id);
     setEditing({ ...s });
+  }
+
+  function validateImage(file: File): Promise<{ width: number; height: number; url: string }> {
+    return new Promise((resolve, reject) => {
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        return reject(new Error("Use JPG, PNG, WEBP or AVIF"));
+      }
+      if (file.size > MAX_IMAGE_BYTES) {
+        return reject(new Error(`Image must be under ${MAX_IMAGE_BYTES / 1024 / 1024} MB`));
+      }
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        if (img.naturalWidth < MIN_IMAGE_WIDTH || img.naturalHeight < MIN_IMAGE_HEIGHT) {
+          URL.revokeObjectURL(url);
+          return reject(new Error(`Minimum size ${MIN_IMAGE_WIDTH}×${MIN_IMAGE_HEIGHT}px`));
+        }
+        resolve({ width: img.naturalWidth, height: img.naturalHeight, url });
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error("Could not read image"));
+      };
+      img.src = url;
+    });
   }
 
   async function upload(file: File) {
     setUploading(true);
     try {
+      const { url: previewUrl } = await validateImage(file);
+      // Immediate local preview via object URL — swaps to the CDN URL once uploaded.
+      if (localPreviewRef.current) URL.revokeObjectURL(localPreviewRef.current);
+      localPreviewRef.current = previewUrl;
+      setLocalPreview(previewUrl);
+
       const ext = file.name.split(".").pop() ?? "jpg";
       const path = `hero/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
       const { error } = await supabase.storage.from("media").upload(path, file, { upsert: false, contentType: file.type });
@@ -117,14 +169,30 @@ function AdminHeroSlides() {
 
   async function reorder(id: string, dir: -1 | 1) {
     const idx = slides.findIndex((s) => s.id === id);
-    const swap = slides[idx + dir];
-    if (!swap) return;
-    const a = slides[idx];
-    await Promise.all([
-      supabase.from("hero_slides").update({ sort_order: swap.sort_order }).eq("id", a.id),
-      supabase.from("hero_slides").update({ sort_order: a.sort_order }).eq("id", swap.id),
-    ]);
-    load();
+    const target = idx + dir;
+    if (target < 0 || target >= slides.length) return;
+    await moveTo(idx, target);
+  }
+
+  // Reorders locally, then rewrites sort_order for every affected slide.
+  // Used by both drag-and-drop and the up/down arrow buttons.
+  async function moveTo(from: number, to: number) {
+    if (from === to) return;
+    const next = slides.slice();
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    // Optimistic update with fresh sort_order values.
+    const withOrder = next.map((s, i) => ({ ...s, sort_order: i + 1 }));
+    setSlides(withOrder);
+    const updates = withOrder.map((s) =>
+      supabase.from("hero_slides").update({ sort_order: s.sort_order }).eq("id", s.id),
+    );
+    const results = await Promise.all(updates);
+    const err = results.find((r) => r.error)?.error;
+    if (err) {
+      toast.error(err.message);
+      load();
+    }
   }
 
   async function toggleActive(s: Slide) {
@@ -137,7 +205,7 @@ function AdminHeroSlides() {
   return (
     <AdminShell title="Hero Slides">
       <div className="mb-6 flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">Animated homepage banner. Drag order with arrows. Everything shown to visitors is fully editable.</p>
+        <p className="text-sm text-muted-foreground">Animated homepage banner. Drag the handle to reorder, or use the arrows. Everything shown to visitors is fully editable.</p>
         <Button onClick={startNew}><Plus className="mr-2 h-4 w-4" />New slide</Button>
       </div>
 
@@ -147,26 +215,62 @@ function AdminHeroSlides() {
         <div className="rounded-lg border border-dashed p-10 text-center text-muted-foreground">No slides yet. Create the first one.</div>
       ) : (
         <div className="grid gap-4">
-          {slides.map((s, i) => (
-            <div key={s.id} className="flex items-center gap-4 rounded-lg border bg-card p-3">
-              <img src={s.image_url} alt="" className="h-20 w-32 flex-none rounded object-cover" />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-muted-foreground">#{s.sort_order}</span>
-                  <h3 className="truncate font-semibold">{s.title_en}</h3>
-                  {!s.is_active && <span className="rounded bg-muted px-2 py-0.5 text-xs">Hidden</span>}
+          {slides.map((s, i) => {
+            const isDragging = dragId === s.id;
+            const isOver = dragOverId === s.id && dragId !== s.id;
+            return (
+              <div
+                key={s.id}
+                draggable
+                onDragStart={(e) => {
+                  setDragId(s.id);
+                  e.dataTransfer.effectAllowed = "move";
+                  e.dataTransfer.setData("text/plain", s.id);
+                }}
+                onDragEnter={() => setDragOverId(s.id)}
+                onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
+                onDragLeave={(e) => {
+                  // Only clear when we actually leave the row, not a child.
+                  if (e.currentTarget === e.target) setDragOverId((cur) => (cur === s.id ? null : cur));
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const from = slides.findIndex((x) => x.id === dragId);
+                  const to = slides.findIndex((x) => x.id === s.id);
+                  setDragId(null);
+                  setDragOverId(null);
+                  if (from >= 0 && to >= 0) moveTo(from, to);
+                }}
+                onDragEnd={() => { setDragId(null); setDragOverId(null); }}
+                className={`flex items-center gap-4 rounded-lg border bg-card p-3 transition ${isDragging ? "opacity-40" : ""} ${isOver ? "border-primary ring-2 ring-primary/30" : ""}`}
+              >
+                <button
+                  type="button"
+                  aria-label="Drag to reorder"
+                  className="flex-none cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
+                  <GripVertical className="h-5 w-5" />
+                </button>
+                <img src={s.image_url} alt="" className="h-20 w-32 flex-none rounded object-cover" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono text-muted-foreground">#{s.sort_order}</span>
+                    <h3 className="truncate font-semibold">{s.title_en}</h3>
+                    {!s.is_active && <span className="rounded bg-muted px-2 py-0.5 text-xs">Hidden</span>}
+                  </div>
+                  <p className="line-clamp-1 text-sm text-muted-foreground">{s.subtitle_en}</p>
                 </div>
-                <p className="line-clamp-1 text-sm text-muted-foreground">{s.subtitle_en}</p>
+                <div className="flex items-center gap-1">
+                  <Switch checked={s.is_active} onCheckedChange={() => toggleActive(s)} />
+                  <Button size="icon" variant="ghost" disabled={i === 0} onClick={() => reorder(s.id, -1)}><ArrowUp className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" disabled={i === slides.length - 1} onClick={() => reorder(s.id, 1)}><ArrowDown className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" onClick={() => startEdit(s)}><Pencil className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" onClick={() => setDeleteId(s.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Switch checked={s.is_active} onCheckedChange={() => toggleActive(s)} />
-                <Button size="icon" variant="ghost" disabled={i === 0} onClick={() => reorder(s.id, -1)}><ArrowUp className="h-4 w-4" /></Button>
-                <Button size="icon" variant="ghost" disabled={i === slides.length - 1} onClick={() => reorder(s.id, 1)}><ArrowDown className="h-4 w-4" /></Button>
-                <Button size="icon" variant="ghost" onClick={() => startEdit(s)}><Pencil className="h-4 w-4" /></Button>
-                <Button size="icon" variant="ghost" onClick={() => setDeleteId(s.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -177,19 +281,37 @@ function AdminHeroSlides() {
             <div className="grid gap-4">
               <div>
                 <Label>Image</Label>
-                {editing.image_url ? (
-                  <div className="mt-2 flex items-center gap-3">
-                    <img src={editing.image_url} alt="" className="h-24 w-40 rounded object-cover" />
-                    <Button variant="outline" size="sm" onClick={() => set("image_url", "")}>Replace</Button>
+                {editing.image_url || localPreview ? (
+                  <div className="mt-2 flex items-start gap-3">
+                    <div className="relative">
+                      <img
+                        src={localPreview ?? editing.image_url ?? ""}
+                        alt=""
+                        className="h-24 w-40 rounded object-cover ring-1 ring-border"
+                      />
+                      {/* 16:9 crop-safe overlay so admins see what will be visible on the hero */}
+                      <div className="pointer-events-none absolute inset-0 rounded ring-1 ring-inset ring-white/60 mix-blend-overlay" />
+                      {uploading && (
+                        <div className="absolute inset-0 flex items-center justify-center rounded bg-black/40 text-white">
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+                      <p>Preview shows the safe 16:9 crop area.</p>
+                      <Button variant="outline" size="sm" onClick={() => { clearLocalPreview(); set("image_url", ""); }}>
+                        Replace
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <label className="mt-2 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed p-6 text-sm text-muted-foreground hover:bg-secondary/40">
                     {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                    {uploading ? "Uploading…" : "Click to upload image"}
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+                    {uploading ? "Uploading…" : `Upload JPG/PNG/WEBP · ≥ ${MIN_IMAGE_WIDTH}×${MIN_IMAGE_HEIGHT}px · ≤ ${MAX_IMAGE_BYTES / 1024 / 1024} MB`}
+                    <input type="file" accept={ALLOWED_IMAGE_TYPES.join(",")} className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
                   </label>
                 )}
-                <Input className="mt-2" placeholder="…or paste image URL" value={editing.image_url ?? ""} onChange={(e) => set("image_url", e.target.value)} />
+                <Input className="mt-2" placeholder="…or paste image URL" value={editing.image_url ?? ""} onChange={(e) => { clearLocalPreview(); set("image_url", e.target.value); }} />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
