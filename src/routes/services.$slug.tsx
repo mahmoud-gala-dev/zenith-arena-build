@@ -184,7 +184,7 @@ function ServiceDetailPage() {
       </section>
 
       <GallerySection
-        image={projects[0]?.image ?? heroImg}
+        image={service.image}
         title={L(service.title)}
         source="services"
       />
