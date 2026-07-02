@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { Search, X } from "lucide-react";
@@ -51,29 +52,44 @@ type DbProject = {
   governorate_id: string | null;
 };
 
+const FIVE_MIN = 5 * 60 * 1000;
+
 function ProjectsPage() {
   const { t, lang } = useLang();
   const L = useLocalized();
   const { gov, category, q } = Route.useSearch();
   const navigate = useNavigate({ from: "/projects/" });
   const [qInput, setQInput] = useState(q);
-  const [govs, setGovs] = useState<Gov[]>([]);
-  const [dbProjects, setDbProjects] = useState<DbProject[]>([]);
-  const [dbLoading, setDbLoading] = useState(true);
 
   useEffect(() => { setQInput(q); }, [q]);
 
-  useEffect(() => {
-    (async () => {
-      const [{ data: g }, { data: p }] = await Promise.all([
-        supabase.from("governorates").select("*").eq("active", true).order("sort_order"),
-        supabase.from("projects").select("id,slug_en,title_en,title_ar,description_en,description_ar,location,year,sport_type,service_category,cover_image,governorate_id").eq("status", "published"),
-      ]);
-      setGovs((g ?? []) as Gov[]);
-      setDbProjects((p ?? []) as DbProject[]);
-      setDbLoading(false);
-    })();
-  }, []);
+  const govsQuery = useQuery<Gov[]>({
+    queryKey: ["governorates", "active"],
+    staleTime: FIVE_MIN,
+    gcTime: 30 * 60 * 1000,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("governorates").select("*").eq("active", true).order("sort_order");
+      if (error) throw error;
+      return (data ?? []) as Gov[];
+    },
+  });
+  const projectsQuery = useQuery<DbProject[]>({
+    queryKey: ["projects", "published-list"],
+    staleTime: FIVE_MIN,
+    gcTime: 30 * 60 * 1000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("id,slug_en,title_en,title_ar,description_en,description_ar,location,year,sport_type,service_category,cover_image,governorate_id")
+        .eq("status", "published");
+      if (error) throw error;
+      return (data ?? []) as DbProject[];
+    },
+  });
+  const govs = govsQuery.data ?? [];
+  const dbProjects = projectsQuery.data ?? [];
+  const dbLoading = govsQuery.isLoading || projectsQuery.isLoading;
+
 
 
   const govCounts = useMemo(() => {
