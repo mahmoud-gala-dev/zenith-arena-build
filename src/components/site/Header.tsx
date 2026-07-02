@@ -74,60 +74,69 @@ export function Header() {
       >
         <Link to="/" aria-label="Egytic home" className="group relative inline-flex items-center">
           <motion.span
-            initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.6, rotate: -12, filter: "blur(10px)" }}
-            animate={reduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1, rotate: 0, filter: "blur(0px)" }}
+            initial={motionOn ? { opacity: 0, scale: 0.6, rotate: -12, filter: "blur(10px)" } : { opacity: 0 }}
+            animate={motionOn ? { opacity: 1, scale: 1, rotate: 0, filter: "blur(0px)" } : { opacity: 1 }}
             transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-            whileHover={reduceMotion ? undefined : { scale: 1.08 }}
+            whileHover={motionOn ? { scale: 1.1 } : undefined}
             className={cn(
-              "relative inline-flex items-center justify-center will-change-transform",
+              "group/logo relative inline-flex items-center justify-center will-change-transform",
               scrolled ? "scale-100" : "scale-110",
               "[&_img]:!h-20 sm:[&_img]:!h-24 lg:[&_img]:!h-28 xl:[&_img]:!h-32",
             )}
           >
-            {/* Rotating conic aura ring */}
-            {!reduceMotion && (
+            {/* Rotating conic aura ring — brand gold */}
+            {motionOn && (
               <motion.span
                 aria-hidden
-                className="pointer-events-none absolute inset-[-18%] -z-10 rounded-full opacity-70"
+                className="pointer-events-none absolute inset-[-18%] -z-10 rounded-full transition-[filter,opacity] duration-500 ease-out group-hover/logo:opacity-100"
                 style={{
+                  opacity: auraOpacity,
                   background:
-                    "conic-gradient(from 0deg, transparent 0deg, hsl(var(--primary)/0.85) 60deg, transparent 140deg, hsl(var(--primary)/0.55) 220deg, transparent 320deg)",
-                  filter: "blur(14px)",
+                    "conic-gradient(from 0deg, transparent 0deg, color-mix(in oklab, var(--gold) 85%, transparent) 60deg, transparent 140deg, color-mix(in oklab, var(--gold) 55%, transparent) 220deg, transparent 320deg)",
+                  filter: `blur(${outerBlur}px)`,
                 }}
                 animate={{ rotate: 360 }}
-                transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+                transition={{ duration: 14 * speedFactor, repeat: Infinity, ease: "linear" }}
+                whileHover={{ scale: 1.06 }}
               />
             )}
-            {/* Counter-rotating inner ring */}
-            {!reduceMotion && (
+            {/* Counter-rotating inner ring — brand primary emerald tint */}
+            {motionOn && !lowPower && (
               <motion.span
                 aria-hidden
-                className="pointer-events-none absolute inset-[-6%] -z-10 rounded-full opacity-60"
+                className="pointer-events-none absolute inset-[-6%] -z-10 rounded-full"
                 style={{
+                  opacity: 0.35 + 0.35 * intensity,
                   background:
-                    "conic-gradient(from 180deg, transparent 0deg, hsl(45 90% 60% / 0.7) 90deg, transparent 200deg, hsl(45 90% 60% / 0.5) 280deg, transparent 360deg)",
-                  filter: "blur(8px)",
+                    "conic-gradient(from 180deg, transparent 0deg, color-mix(in oklab, var(--gold) 65%, white) 90deg, transparent 200deg, color-mix(in oklab, var(--primary) 55%, transparent) 280deg, transparent 360deg)",
+                  filter: `blur(${innerBlur}px)`,
                 }}
                 animate={{ rotate: -360 }}
-                transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+                transition={{ duration: 22 * speedFactor, repeat: Infinity, ease: "linear" }}
               />
             )}
-            {/* Floating logo with subtle bob */}
+            {/* Floating logo — subtle bob + luxurious hover lift */}
             <motion.span
-              className="relative inline-flex"
-              animate={reduceMotion ? undefined : { y: [0, -4, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+              className="relative inline-flex transition-[filter] duration-500 ease-out group-hover/logo:drop-shadow-[0_8px_24px_color-mix(in_oklab,var(--gold)_55%,transparent)]"
+              animate={motionOn ? { y: [0, -4, 0] } : undefined}
+              transition={{ duration: 6 * speedFactor, repeat: Infinity, ease: "easeInOut" }}
+              whileHover={motionOn ? { y: -3 } : undefined}
             >
               <Logo light={!scrolled} />
             </motion.span>
-            {/* Orbiting spark */}
-            {!reduceMotion && (
+            {/* Orbiting spark — skipped on low-power */}
+            {motionOn && !lowPower && (
               <motion.span
                 aria-hidden
-                className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_12px_4px_hsl(var(--primary)/0.7)]"
-                style={{ transformOrigin: "0 0" }}
+                className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-1.5 w-1.5 rounded-full"
+                style={{
+                  transformOrigin: "0 0",
+                  background: "var(--gold)",
+                  boxShadow: "0 0 10px 3px color-mix(in oklab, var(--gold) 70%, transparent)",
+                  opacity: 0.5 + 0.4 * intensity,
+                }}
                 animate={{ rotate: 360 }}
-                transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                transition={{ duration: 7 * speedFactor, repeat: Infinity, ease: "linear" }}
               >
                 <span className="absolute -left-[60px] -top-[2px] block h-1.5 w-1.5" />
               </motion.span>
