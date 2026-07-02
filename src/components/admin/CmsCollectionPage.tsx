@@ -181,9 +181,34 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
     }
 
     toast.success(`${config.singular} saved`);
+
+    // Auto-refresh social cache for Knowledge articles.
+    if (config.table === "blog_posts" && typeof window !== "undefined") {
+      const slug = (payload as AnyRow).slug_en as string | undefined;
+      const status = (payload as AnyRow).status as string | undefined;
+      if (slug && status === "published") {
+        const url = `${window.location.origin}/knowledge/${slug}`;
+        fetch(`https://graph.facebook.com/?id=${encodeURIComponent(url)}&scrape=true`, { method: "POST" })
+          .then((r) => {
+            if (r.ok) toast.success("Social preview cache refreshed", { description: url });
+            else toast.message("Refresh cache manually", {
+              description: "Open Admin → Social preview cache",
+              action: { label: "Open", onClick: () => window.open("/admin/social-cache", "_self") },
+            });
+          })
+          .catch(() => {
+            toast.message("Refresh cache manually", {
+              description: "Open Admin → Social preview cache",
+              action: { label: "Open", onClick: () => window.open("/admin/social-cache", "_self") },
+            });
+          });
+      }
+    }
+
     setEditing(null);
     load();
   }
+
 
   async function confirmDelete() {
     if (!deleteIds?.length) return;
