@@ -13,11 +13,11 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       <Header />
       <MobileShell />
       <main
-        className="min-h-screen pt-14 md:pt-0"
-        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 4.75rem)" }}
+        className="min-h-screen pt-14 pb-[calc(env(safe-area-inset-bottom)+4.75rem)] md:pt-0 md:pb-0"
       >
         <PageTransition>{children}</PageTransition>
       </main>
+
       <Footer />
       <WhatsAppButton />
     </>
