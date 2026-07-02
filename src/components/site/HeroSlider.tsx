@@ -138,7 +138,7 @@ function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAni
 
             {count > 1 && (
               <div className="mt-10 flex items-center gap-2" role="tablist" aria-label="Hero slides">
-                {slides!.map((s, i) => (
+                {slides!.map((s: Slide, i: number) => (
                   <button
                     key={s.id}
                     type="button"
