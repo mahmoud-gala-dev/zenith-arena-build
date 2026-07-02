@@ -22,8 +22,12 @@ export function PageHero({
             src={bgImage}
             alt=""
             aria-hidden
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
             className="absolute inset-0 h-full w-full object-cover opacity-40"
           />
+
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/80 to-ink/40" />
         </>
       )}
