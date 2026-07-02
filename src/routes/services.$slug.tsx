@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Download, MessageCircle } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { DetailPageSkeleton } from "@/components/site/Skeletons";
+
 import { Icon } from "@/components/site/Icon";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ShareButtons } from "@/components/site/ShareButtons";
