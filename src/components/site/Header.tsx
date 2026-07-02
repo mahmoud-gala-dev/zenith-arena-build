@@ -45,7 +45,7 @@ export function Header() {
       )}
     >
       <div className="mx-auto flex h-24 max-w-7xl items-center justify-between gap-4 px-4 sm:h-28 sm:px-6 lg:h-32 xl:h-36 lg:px-8">
-        <Link to="/" aria-label="APEX home">
+        <Link to="/" aria-label="Egytic home">
           <Logo light={!scrolled} />
         </Link>
 

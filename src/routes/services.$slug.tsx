@@ -19,9 +19,9 @@ export const Route = createFileRoute("/services/$slug")({
   head: ({ params }) => {
     const service = services.find((item) => item.id === params.slug);
     if (!service) {
-      return { meta: [{ title: "Service not found — APEX" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Service not found — Egytic" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${service.title.en} — Sports Construction Services | APEX`;
+    const title = `${service.title.en} — Sports Construction Services | Egytic`;
     const desc = service.description.en;
     return {
       meta: [
@@ -51,7 +51,7 @@ export const Route = createFileRoute("/services/$slug")({
             description: service.description.en,
             serviceType: service.title.en,
             url: `/services/${params.slug}`,
-            provider: { "@type": "Organization", name: "APEX Sports" },
+            provider: { "@type": "Organization", name: "Egytic Sports" },
             areaServed: { "@type": "Place", name: "GCC & MENA" },
           },
           {

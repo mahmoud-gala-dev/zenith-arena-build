@@ -19,9 +19,9 @@ export const Route = createFileRoute("/projects/$slug")({
   head: ({ params }) => {
     const project = projects.find((p) => p.slug === params.slug);
     if (!project) {
-      return { meta: [{ title: "Project not found — APEX" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Project not found — Egytic" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${project.title.en} — ${project.location.en} | APEX Projects`;
+    const title = `${project.title.en} — ${project.location.en} | Egytic Projects`;
     const desc = project.overview.en;
     return {
       meta: [
@@ -55,7 +55,7 @@ export const Route = createFileRoute("/projects/$slug")({
             url: `/projects/${params.slug}`,
             locationCreated: project.location.en,
             dateCreated: project.year,
-            creator: { "@type": "Organization", name: "APEX Sports" },
+            creator: { "@type": "Organization", name: "Egytic Sports" },
           },
           {
             "@context": "https://schema.org",

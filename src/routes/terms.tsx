@@ -6,13 +6,13 @@ import { useLang } from "@/i18n/LanguageProvider";
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
-      { title: "Terms & Conditions — APEX Sports Infrastructure" },
+      { title: "Terms & Conditions — Egytic Sports" },
       {
         name: "description",
         content:
-          "Terms and conditions governing the use of the APEX Sports Infrastructure website and services.",
+          "Terms and conditions governing the use of the Egytic Sports website and services.",
       },
-      { property: "og:title", content: "Terms & Conditions — APEX" },
+      { property: "og:title", content: "Terms & Conditions — Egytic" },
       { property: "og:description", content: "Terms governing the use of our website and services." },
     ],
   }),
@@ -31,7 +31,7 @@ function TermsPage() {
         sections: [
           { h: "قبول الشروط", p: "باستخدامك لهذا الموقع فإنك توافق على الالتزام بهذه الشروط. إذا كنت لا توافق، يُرجى عدم استخدام الموقع." },
           { h: "استخدام الموقع", p: "يُتاح المحتوى للاستخدام الشخصي والتجاري المشروع. يُحظر أي استخدام يخالف القوانين المعمول بها أو يسيء إلى الخدمة." },
-          { h: "الملكية الفكرية", p: "جميع النصوص والصور والعلامات التجارية والشعارات ملك لأبيكس أو مرخّصة لها ومحمية بموجب قوانين الملكية الفكرية." },
+          { h: "الملكية الفكرية", p: "جميع النصوص والصور والعلامات التجارية والشعارات ملك لإيجيتك أو مرخّصة لها ومحمية بموجب قوانين الملكية الفكرية." },
           { h: "المحتوى المُقدَّم", p: "بإرسالك أي معلومات (مثل طلبات عروض الأسعار)، تؤكد أنها دقيقة وأنك مخوّل بتقديمها." },
           { h: "إخلاء المسؤولية", p: "يُقدَّم هذا الموقع كما هو دون ضمانات. لا نتحمّل مسؤولية أي أضرار غير مباشرة ناتجة عن استخدامه." },
           { h: "القانون المعمول به", p: "تخضع هذه الشروط لقوانين المملكة العربية السعودية، وأي نزاع يخضع للاختصاص الحصري لمحاكمها." },
@@ -45,7 +45,7 @@ function TermsPage() {
         sections: [
           { h: "Acceptance", p: "By using this website you agree to be bound by these terms. If you do not agree, please do not use the site." },
           { h: "Use of the site", p: "Content is made available for legitimate personal and business use. Any use that violates applicable law or interferes with the service is prohibited." },
-          { h: "Intellectual property", p: "All text, images, marks, and logos are owned by or licensed to APEX and are protected by intellectual property laws." },
+          { h: "Intellectual property", p: "All text, images, marks, and logos are owned by or licensed to Egytic and are protected by intellectual property laws." },
           { h: "Submitted content", p: "By submitting any information (such as a quote request), you confirm it is accurate and that you are authorised to submit it." },
           { h: "Disclaimer", p: "This site is provided \"as is\" without warranties. We are not liable for any indirect damages arising from its use." },
           { h: "Governing law", p: "These terms are governed by the laws of the Kingdom of Saudi Arabia, and any dispute is subject to the exclusive jurisdiction of its courts." },

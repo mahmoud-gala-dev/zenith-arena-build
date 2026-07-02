@@ -65,7 +65,7 @@ export function AdminShell({ children, title }: { children: React.ReactNode; tit
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-border bg-card lg:flex">
         <div className="border-b border-border px-6 py-5">
           <Link to="/" className="flex items-center gap-2 font-bold text-foreground">
-            <span className="rounded-lg bg-gradient-primary px-2 py-1 text-primary-foreground">APEX</span>
+            <span className="rounded-lg bg-gradient-primary px-2 py-1 text-primary-foreground">Egytic</span>
             <span className="text-sm text-muted-foreground">Admin</span>
           </Link>
         </div>

@@ -19,9 +19,9 @@ export const Route = createFileRoute("/knowledge/$slug")({
   head: ({ params }) => {
     const article = articles.find((a) => a.slug === params.slug);
     if (!article) {
-      return { meta: [{ title: "Article not found — APEX" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Article not found — Egytic" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${article.title.en} | APEX Knowledge Center`;
+    const title = `${article.title.en} | Egytic Knowledge Center`;
     const desc = article.excerpt.en;
     return {
       meta: [
@@ -57,7 +57,7 @@ export const Route = createFileRoute("/knowledge/$slug")({
             image: article.image,
             url: `/knowledge/${params.slug}`,
             author: { "@type": "Person", name: article.author },
-            publisher: { "@type": "Organization", name: "APEX Sports" },
+            publisher: { "@type": "Organization", name: "Egytic Sports" },
             datePublished: article.date,
             articleSection: article.category.en,
           },

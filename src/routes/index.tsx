@@ -24,10 +24,10 @@ export const Route = createFileRoute("/")({
       { property: "og:image", content: ogImage.url },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
-      { property: "og:image:alt", content: "APEX Sports — Sports Construction & Infrastructure" },
+      { property: "og:image:alt", content: "Egytic Sports — Sports Construction & Infrastructure" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: ogImage.url },
-      { name: "twitter:image:alt", content: "APEX Sports" },
+      { name: "twitter:image:alt", content: "Egytic Sports" },
     ],
   }),
 });

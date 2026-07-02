@@ -16,9 +16,9 @@ export const Route = createFileRoute("/products/$slug")({
   head: ({ params }) => {
     const product = products.find((item) => item.id === params.slug);
     if (!product) {
-      return { meta: [{ title: "Product not found — APEX" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Product not found — Egytic" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${product.title.en} — ${product.certified} | APEX Products`;
+    const title = `${product.title.en} — ${product.certified} | Egytic Products`;
     const desc = product.description.en;
     return {
       meta: [
@@ -41,7 +41,7 @@ export const Route = createFileRoute("/products/$slug")({
           name: product.title.en,
           description: product.description.en,
           category: product.category.en,
-          brand: { "@type": "Brand", name: "APEX" },
+          brand: { "@type": "Brand", name: "Egytic" },
           award: product.certified,
         }),
       }],
