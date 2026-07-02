@@ -283,11 +283,17 @@ function AdminServicesPage() {
                   <p className="mb-3 text-sm font-medium">Images — pick a tab, then Upload &amp; Crop or paste a URL.</p>
                   <Tabs defaultValue="cover">
                     <TabsList className="mb-3">
-                      <TabsTrigger value="cover">Cover (16:10)</TabsTrigger>
-                      <TabsTrigger value="header">Header (21:9)</TabsTrigger>
-                      <TabsTrigger value="og">Social (1.91:1)</TabsTrigger>
+                      <TabsTrigger value="cover" className="gap-1.5"><StatusDot s={tabStatus.cover} /> Cover (16:10)</TabsTrigger>
+                      <TabsTrigger value="header" className="gap-1.5"><StatusDot s={tabStatus.header} /> Header (21:9)</TabsTrigger>
+                      <TabsTrigger value="og" className="gap-1.5"><StatusDot s={tabStatus.og} /> Social (1.91:1)</TabsTrigger>
                     </TabsList>
-                    <TabsContent value="cover" className="mt-0">
+                    <TabsContent value="cover" className="mt-0 space-y-2">
+                      <div className="flex justify-end">
+                        <ImageHistoryButton
+                          entityTable="services" entityId={editing.id} field="cover_image"
+                          onRevert={(v) => setEditing({ ...editing, cover_image: v.url ?? "", cover_image_variants: v.variants })}
+                        />
+                      </div>
                       <StrictImageUrlField
                         label="Cover image (card thumbnail)"
                         value={editing.cover_image ?? ""}
@@ -297,11 +303,18 @@ function AdminServicesPage() {
                         aspect="aspect-[16/10]"
                         aspectRatio={16 / 10}
                         options={{ minWidth: 600, minHeight: 375 }}
-                        help="Recommended 1200×750 · WebP variants auto-generated · ≤ 8MB"
+                        help="Recommended 1200×750 · WebP variants auto-generated · ≤ 8MB · aspect enforced ±8%"
                         folder="services/cover"
+                        onStatusChange={(s) => setTabStatus((p) => ({ ...p, cover: s }))}
                       />
                     </TabsContent>
-                    <TabsContent value="header" className="mt-0">
+                    <TabsContent value="header" className="mt-0 space-y-2">
+                      <div className="flex justify-end">
+                        <ImageHistoryButton
+                          entityTable="services" entityId={editing.id} field="header_image"
+                          onRevert={(v) => setEditing({ ...editing, header_image: v.url ?? "", header_image_variants: v.variants })}
+                        />
+                      </div>
                       <StrictImageUrlField
                         label="Header image (page hero)"
                         value={editing.header_image ?? ""}
@@ -311,11 +324,18 @@ function AdminServicesPage() {
                         aspect="aspect-[21/9]"
                         aspectRatio={21 / 9}
                         options={{ minWidth: 1200, minHeight: 500 }}
-                        help="Recommended 1920×820 · WebP variants auto-generated · ≤ 8MB"
+                        help="Recommended 1920×820 · WebP variants auto-generated · ≤ 8MB · aspect enforced ±8%"
                         folder="services/header"
+                        onStatusChange={(s) => setTabStatus((p) => ({ ...p, header: s }))}
                       />
                     </TabsContent>
-                    <TabsContent value="og" className="mt-0">
+                    <TabsContent value="og" className="mt-0 space-y-2">
+                      <div className="flex justify-end">
+                        <ImageHistoryButton
+                          entityTable="services" entityId={editing.id} field="og_image"
+                          onRevert={(v) => setEditing({ ...editing, og_image: v.url ?? "", og_image_variants: v.variants })}
+                        />
+                      </div>
                       <StrictImageUrlField
                         label="Social share image (og:image)"
                         value={editing.og_image ?? ""}
@@ -325,9 +345,11 @@ function AdminServicesPage() {
                         aspect="aspect-[1200/630]"
                         aspectRatio={1200 / 630}
                         options={{ minWidth: 1200, minHeight: 630 }}
-                        help="Facebook/Twitter card — 1200×630 recommended"
+                        help="Facebook/Twitter card — 1200×630 recommended · aspect enforced ±8%"
                         folder="services/og"
+                        onStatusChange={(s) => setTabStatus((p) => ({ ...p, og: s }))}
                       />
+
                     </TabsContent>
                   </Tabs>
                 </div>
