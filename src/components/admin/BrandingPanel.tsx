@@ -245,47 +245,61 @@ function MotionControls({
   );
 }
 
-/** Measures average FPS by animating an off-screen blurred conic-gradient for ~1s. */
+/** Measures average FPS over several samples and shows before/after deltas. */
 function PerfTester({
   onSuggestion,
 }: {
-  onSuggestion: (suggestedIntensity: number, fps: number) => void;
+  onSuggestion: (intensity: number, speed: number, fps: number) => void;
 }) {
   const [running, setRunning] = useState(false);
+  const [baseline, setBaseline] = useState<number | null>(null);
+  const [after, setAfter] = useState<number | null>(null);
   const [fps, setFps] = useState<number | null>(null);
-  const [suggested, setSuggested] = useState<number | null>(null);
+  const [suggested, setSuggested] = useState<{ intensity: number; speed: number } | null>(null);
   const boxRef = useRef<HTMLDivElement>(null);
 
-  const run = () => {
+  const measureOnce = () =>
+    new Promise<number>((resolve) => {
+      let frames = 0;
+      const start = performance.now();
+      const tick = (now: number) => {
+        frames++;
+        if (now - start < 700) requestAnimationFrame(tick);
+        else resolve(Math.round((frames * 1000) / (now - start)));
+      };
+      requestAnimationFrame(tick);
+    });
+
+  const run = async () => {
     if (!boxRef.current) return;
     setRunning(true);
     setFps(null);
     setSuggested(null);
     const el = boxRef.current;
     el.style.animation = "spin 2s linear infinite";
-    let frames = 0;
-    const start = performance.now();
-    const duration = 1000;
-    const tick = (now: number) => {
-      frames++;
-      if (now - start < duration) {
-        requestAnimationFrame(tick);
-      } else {
-        const measured = Math.round((frames * 1000) / (now - start));
-        const s = measured >= 55 ? 85 : measured >= 40 ? 60 : measured >= 25 ? 35 : 15;
-        setFps(measured);
-        setSuggested(s);
-        onSuggestion(s, measured);
-        el.style.animation = "";
-        setRunning(false);
-      }
-    };
-    requestAnimationFrame(tick);
+    const samples: number[] = [];
+    for (let i = 0; i < 4; i++) samples.push(await measureOnce());
+    el.style.animation = "";
+    samples.sort((a, b) => a - b);
+    const trimmed = samples.slice(1, -1); // drop outliers
+    const avg = Math.round(trimmed.reduce((s, n) => s + n, 0) / trimmed.length);
+    // Recommend intensity + speed together for smoother result on this device.
+    const rec =
+      avg >= 58 ? { intensity: 85, speed: 65 }
+      : avg >= 45 ? { intensity: 65, speed: 55 }
+      : avg >= 28 ? { intensity: 40, speed: 40 }
+      : { intensity: 15, speed: 25 };
+    setFps(avg);
+    setSuggested(rec);
+    if (baseline == null) setBaseline(avg); else setAfter(avg);
+    onSuggestion(rec.intensity, rec.speed, avg);
+    setRunning(false);
   };
 
   const badge = fps == null
     ? "—"
     : fps >= 55 ? "Excellent" : fps >= 40 ? "Good" : fps >= 25 ? "Fair" : "Low";
+  const delta = baseline != null && after != null ? after - baseline : null;
 
   return (
     <div className="space-y-3 rounded-lg border border-dashed border-border p-4">
@@ -295,27 +309,50 @@ function PerfTester({
             <Gauge className="h-4 w-4" /> Performance test
           </p>
           <p className="text-xs text-muted-foreground">
-            Runs a 1-second blur+rotation stress and suggests an intensity that stays smooth on this device.
+            Averages 4 samples of a blur + rotation stress. Re-run after tuning to compare FPS.
           </p>
         </div>
-        <Button type="button" size="sm" variant="outline" onClick={run} disabled={running}>
-          {running ? "Testing…" : "Run test"}
-        </Button>
+        <div className="flex gap-2">
+          <Button type="button" size="sm" variant="outline" onClick={run} disabled={running}>
+            {running ? "Testing…" : baseline == null ? "Run baseline" : "Re-run"}
+          </Button>
+          {baseline != null && (
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => { setBaseline(null); setAfter(null); setFps(null); setSuggested(null); }}
+            >
+              Clear
+            </Button>
+          )}
+        </div>
       </div>
-      <div className="grid grid-cols-3 gap-3 text-center text-xs">
+      <div className="grid grid-cols-4 gap-2 text-center text-xs">
         <div className="rounded bg-muted/40 p-2">
-          <div className="text-muted-foreground">FPS</div>
-          <div className="text-lg font-semibold">{fps ?? "—"}</div>
+          <div className="text-muted-foreground">Baseline</div>
+          <div className="text-base font-semibold">{baseline ?? "—"}</div>
+        </div>
+        <div className="rounded bg-muted/40 p-2">
+          <div className="text-muted-foreground">After</div>
+          <div className="text-base font-semibold">{after ?? "—"}</div>
+        </div>
+        <div className="rounded bg-muted/40 p-2">
+          <div className="text-muted-foreground">Δ FPS</div>
+          <div className={"text-base font-semibold " + (delta == null ? "" : delta >= 0 ? "text-emerald-500" : "text-red-500")}>
+            {delta == null ? "—" : `${delta > 0 ? "+" : ""}${delta}`}
+          </div>
         </div>
         <div className="rounded bg-muted/40 p-2">
           <div className="text-muted-foreground">Rating</div>
-          <div className="text-lg font-semibold">{badge}</div>
-        </div>
-        <div className="rounded bg-muted/40 p-2">
-          <div className="text-muted-foreground">Suggested</div>
-          <div className="text-lg font-semibold">{suggested != null ? `${suggested}%` : "—"}</div>
+          <div className="text-base font-semibold">{badge}</div>
         </div>
       </div>
+      {suggested && (
+        <div className="rounded bg-muted/20 p-2 text-xs text-muted-foreground">
+          Suggested: intensity <b>{suggested.intensity}%</b> · speed <b>{suggested.speed}%</b> — applied to both languages.
+        </div>
+      )}
       <div
         ref={boxRef}
         aria-hidden
@@ -329,6 +366,79 @@ function PerfTester({
     </div>
   );
 }
+
+/** Export / import logo_motion settings as JSON. */
+function ExportImportPanel({
+  motionEn,
+  motionAr,
+  reducedMotionSafe,
+  onImport,
+}: {
+  motionEn: LogoMotionConfig;
+  motionAr: LogoMotionConfig;
+  reducedMotionSafe: boolean;
+  onImport: (en: LogoMotionConfig, ar: LogoMotionConfig, rms: boolean) => void;
+}) {
+  const [text, setText] = useState("");
+  const payload = useMemo(
+    () => JSON.stringify({ en: motionEn, ar: motionAr, reduced_motion_safe: reducedMotionSafe }, null, 2),
+    [motionEn, motionAr, reducedMotionSafe],
+  );
+
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(payload); toast.success("Copied JSON to clipboard"); }
+    catch { toast.error("Copy failed"); }
+  };
+
+  const doImport = () => {
+    try {
+      const parsed = JSON.parse(text);
+      const norm = (m: Partial<LogoMotionConfig> | undefined): LogoMotionConfig => ({
+        ...DEFAULT_LOGO_MOTION,
+        ...(m ?? {}),
+      });
+      onImport(norm(parsed.en), norm(parsed.ar), Boolean(parsed.reduced_motion_safe ?? true));
+      toast.success("Imported settings — preview updated");
+      setText("");
+    } catch {
+      toast.error("Invalid JSON");
+    }
+  };
+
+  return (
+    <div className="space-y-3 rounded-lg border border-border p-4">
+      <div>
+        <p className="text-sm font-semibold">Export / Import (JSON)</p>
+        <p className="text-xs text-muted-foreground">Move logo motion presets between languages or environments.</p>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <div className="space-y-2">
+          <Label className="text-xs">Current settings</Label>
+          <textarea
+            readOnly
+            value={payload}
+            className="h-40 w-full rounded-md border border-border bg-muted/30 p-2 font-mono text-[11px]"
+          />
+          <Button type="button" size="sm" variant="outline" onClick={copy}>Copy JSON</Button>
+        </div>
+        <div className="space-y-2">
+          <Label className="text-xs">Paste to import</Label>
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder='{"en":{...},"ar":{...},"reduced_motion_safe":true}'
+            className="h-40 w-full rounded-md border border-border bg-background p-2 font-mono text-[11px]"
+          />
+          <Button type="button" size="sm" variant="outline" onClick={doImport} disabled={!text.trim()}>
+            Import JSON
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 
 export function BrandingPanel() {
   const { data, isLoading } = useBranding();
