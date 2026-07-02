@@ -1,0 +1,129 @@
+import { useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { Mail, MapPin, Phone, Clock, CheckCircle2, MessageCircle } from "lucide-react";
+import { SiteLayout } from "@/components/site/SiteLayout";
+import { PageHero } from "@/components/site/PageHero";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useLang, useLocalized } from "@/i18n/LanguageProvider";
+import { services, WHATSAPP_NUMBER } from "@/lib/site-data";
+
+export const Route = createFileRoute("/contact")({
+  component: ContactPage,
+});
+
+function ContactPage() {
+  const { t } = useLang();
+  const L = useLocalized();
+  const [sent, setSent] = useState(false);
+
+  return (
+    <SiteLayout>
+      <PageHero eyebrow={t.nav.contact} title={t.contact.title} subtitle={t.contact.sub} />
+
+      <section className="py-16">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-3 lg:px-8">
+          <div className="space-y-5 lg:col-span-1">
+            {[
+              { icon: MapPin, label: t.contact.office, value: "Riyadh · Dubai · Doha" },
+              { icon: Phone, label: t.contact.phone, value: "+966 5X XXX XXXX" },
+              { icon: Mail, label: t.contact.email, value: "hello@apexsports.co" },
+              { icon: Clock, label: t.contact.hours, value: t.contact.hours },
+            ].map((c, i) => (
+              <div key={i} className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-primary">
+                  <c.icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">{c.label}</p>
+                  <p className="font-medium text-foreground">{c.value}</p>
+                </div>
+              </div>
+            ))}
+            <a
+              href={`https://wa.me/${WHATSAPP_NUMBER}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-primary px-5 py-4 font-semibold text-primary-foreground shadow-soft"
+            >
+              <MessageCircle className="h-5 w-5" />
+              {t.cta.whatsapp}
+            </a>
+          </div>
+
+          <div className="rounded-3xl border border-border bg-card p-8 shadow-soft lg:col-span-2">
+            {sent ? (
+              <div className="flex min-h-[400px] flex-col items-center justify-center text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent text-primary">
+                  <CheckCircle2 className="h-8 w-8" />
+                </div>
+                <p className="mt-6 max-w-md text-lg font-medium text-foreground">{t.contact.success}</p>
+                <Button variant="outline" className="mt-6" onClick={() => setSent(false)}>
+                  {t.cta.send}
+                </Button>
+              </div>
+            ) : (
+              <form
+                className="grid gap-5 sm:grid-cols-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setSent(true);
+                }}
+              >
+                <div className="space-y-2">
+                  <Label htmlFor="name">{t.contact.name}</Label>
+                  <Input id="name" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">{t.contact.email}</Label>
+                  <Input id="email" type="email" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">{t.contact.phone}</Label>
+                  <Input id="phone" type="tel" />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t.contact.projectType}</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t.contact.projectType} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {services.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {L(s.title)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="budget">{t.contact.budget}</Label>
+                  <Input id="budget" />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="message">{t.contact.message}</Label>
+                  <Textarea id="message" rows={5} required />
+                </div>
+                <div className="sm:col-span-2">
+                  <Button type="submit" variant="hero" size="lg" className="w-full">
+                    {t.cta.send}
+                  </Button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      </section>
+    </SiteLayout>
+  );
+}

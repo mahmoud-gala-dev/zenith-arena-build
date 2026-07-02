@@ -1,0 +1,92 @@
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { ArrowLeft, Clock, User } from "lucide-react";
+import { SiteLayout } from "@/components/site/SiteLayout";
+import { Reveal } from "@/components/site/Reveal";
+import { ArticleCard } from "@/components/site/Cards";
+import { Button } from "@/components/ui/button";
+import { useLang, useLocalized } from "@/i18n/LanguageProvider";
+import { articles } from "@/lib/site-data";
+
+export const Route = createFileRoute("/knowledge/$slug")({
+  loader: ({ params }) => {
+    const article = articles.find((a) => a.slug === params.slug);
+    if (!article) throw notFound();
+    return { slug: params.slug };
+  },
+  component: ArticleDetail,
+  notFoundComponent: () => (
+    <SiteLayout>
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 pt-24 text-center">
+        <p className="text-2xl font-semibold">Article not found</p>
+        <Button asChild variant="hero">
+          <Link to="/knowledge">Back to Knowledge Center</Link>
+        </Button>
+      </div>
+    </SiteLayout>
+  ),
+});
+
+function ArticleDetail() {
+  const { slug } = Route.useLoaderData();
+  const { t, lang } = useLang();
+  const L = useLocalized();
+  const article = articles.find((a) => a.slug === slug)!;
+  const related = articles.filter((a) => a.slug !== slug).slice(0, 3);
+
+  return (
+    <SiteLayout>
+      <article>
+        <section className="relative overflow-hidden bg-ink pt-32 pb-14 text-white">
+          <img src={article.image} alt={L(article.title)} className="absolute inset-0 h-full w-full object-cover opacity-30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/40" />
+          <div className="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+            <Link to="/knowledge" className="inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white">
+              <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+              {t.knowledge.backToList}
+            </Link>
+            <span className="mt-6 inline-block rounded-full bg-gradient-gold px-3 py-1 text-xs font-semibold text-gold-foreground">
+              {L(article.category)}
+            </span>
+            <h1 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl">{L(article.title)}</h1>
+            <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-white/70">
+              <span className="inline-flex items-center gap-1.5"><User className="h-4 w-4" /> {article.author}</span>
+              <span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4" /> {article.readTime} {t.knowledge.readTime}</span>
+              <span>{new Date(article.date).toLocaleDateString(lang === "ar" ? "ar" : "en", { year: "numeric", month: "long", day: "numeric" })}</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-14">
+          <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+            <p className="text-lg font-medium leading-relaxed text-foreground">{L(article.excerpt)}</p>
+            <div className="mt-6 space-y-6">
+              {article.body.map((p, i) => (
+                <p key={i} className="leading-relaxed text-muted-foreground">{L(p)}</p>
+              ))}
+            </div>
+            <div className="mt-12 rounded-2xl bg-hero px-8 py-10 text-center">
+              <h3 className="text-xl font-bold text-white">{t.sections.ctaTitle}</h3>
+              <p className="mx-auto mt-2 max-w-md text-white/70">{t.sections.ctaSub}</p>
+              <Button asChild variant="gold" className="mt-6">
+                <Link to="/contact">{t.cta.getConsultation}</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+      </article>
+
+      <section className="bg-secondary/50 py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-bold text-foreground">{t.knowledge.related}</h2>
+          <div className="mt-8 grid gap-6 md:grid-cols-3">
+            {related.map((a, i) => (
+              <Reveal key={a.slug} delay={i * 60}>
+                <ArticleCard article={a} />
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+    </SiteLayout>
+  );
+}
