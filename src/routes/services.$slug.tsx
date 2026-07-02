@@ -8,7 +8,7 @@ import { ShareButtons } from "@/components/site/ShareButtons";
 import { GallerySection } from "@/components/site/GallerySection";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
-import { projects, services, products, heroImg } from "@/lib/site-data";
+import { projects, services, products } from "@/lib/site-data";
 
 export const Route = createFileRoute("/services/$slug")({
   loader: ({ params }) => {
@@ -118,7 +118,7 @@ function ServiceDetailPage() {
   return (
     <SiteLayout>
       <section className="relative overflow-hidden bg-ink pt-32 pb-16 text-white">
-        <img src={heroImg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" />
+        <img src={service.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/40" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Breadcrumbs items={[{ label: t.nav.services, to: "/services" }, { label: L(service.title) }]} />
@@ -184,7 +184,7 @@ function ServiceDetailPage() {
       </section>
 
       <GallerySection
-        image={projects[0]?.image ?? heroImg}
+        image={service.image}
         title={L(service.title)}
         source="services"
       />
