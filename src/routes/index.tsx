@@ -61,6 +61,14 @@ export const Route = createFileRoute("/")({
       { name: "twitter:image", content: ogImage.url },
       { name: "twitter:image:alt", content: "Egytic Sports" },
     ],
+    links: [
+      {
+        rel: "preload",
+        as: "image",
+        href: ctaLandmark.url,
+        fetchpriority: "high",
+      },
+    ],
   }),
 });
 
