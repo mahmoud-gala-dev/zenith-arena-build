@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useLang } from "@/i18n/LanguageProvider";
 import type { Database } from "@/integrations/supabase/types";
+import { HeroLogoBadge } from "./HeroLogoBadge";
 
 type Slide = Database["public"]["Tables"]["hero_slides"]["Row"] & { hide_cta?: boolean | null };
 
@@ -88,6 +89,7 @@ export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
       <div className="absolute inset-0 grid-texture opacity-30" />
 
       <div className="relative mx-auto w-full max-w-7xl px-4 py-28 sm:px-6 lg:px-8">
+        <HeroLogoBadge className="mb-6 hidden sm:block" />
         <AnimatePresence mode="wait">
           <motion.div
             key={current.id}
