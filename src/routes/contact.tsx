@@ -23,6 +23,38 @@ import { services, WHATSAPP_NUMBER } from "@/lib/site-data";
 
 export const Route = createFileRoute("/contact")({
   component: ContactPage,
+  head: () => ({
+    meta: [
+      { title: "Contact Egytic Sports — Get a Project Consultation" },
+      {
+        name: "description",
+        content:
+          "Talk to Egytic Sports engineers about your football pitch, athletics track, indoor arena, or aquatic centre. Detailed proposals delivered within 48 hours.",
+      },
+      { property: "og:title", content: "Contact Egytic Sports" },
+      {
+        property: "og:description",
+        content: "Reach our engineering team for a tailored sports construction consultation.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "/contact" },
+      { property: "og:image", content: heroContact.url },
+      { property: "og:image:width", content: "1920" },
+      { property: "og:image:height", content: "1080" },
+      { property: "og:image:alt", content: "Egytic Sports headquarters at dusk" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Contact Egytic Sports" },
+      { name: "twitter:description", content: "Get a tailored sports construction consultation." },
+      { name: "twitter:image", content: heroContact.url },
+    ],
+    links: [
+      { rel: "canonical", href: "/contact" },
+      { rel: "alternate", hrefLang: "en", href: "/contact" },
+      { rel: "alternate", hrefLang: "ar", href: "/contact" },
+      { rel: "alternate", hrefLang: "x-default", href: "/contact" },
+      { rel: "preload", as: "image", href: heroContact.url, fetchpriority: "high" },
+    ],
+  }),
 });
 
 function ContactPage() {

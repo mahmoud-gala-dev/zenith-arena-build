@@ -26,21 +26,30 @@ export const Route = createFileRoute("/gallery")({
       {
         name: "description",
         content:
-          "A visual gallery of football pitches, athletics tracks, indoor arenas, tennis and padel courts, and aquatic centers delivered by Egytic.",
+          "Visual gallery of football pitches, athletics tracks, indoor arenas, tennis and padel courts, and aquatic centres delivered by Egytic Sports.",
       },
-      { property: "og:title", content: "Project Gallery — Egytic" },
+      { property: "og:title", content: "Project Gallery — Egytic Sports" },
       {
         property: "og:description",
-        content: "A visual gallery of world-class sports facilities delivered by Egytic.",
+        content: "A visual gallery of world-class sports facilities delivered by Egytic Sports.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "/gallery" },
+      { property: "og:image", content: heroGallery.url },
+      { property: "og:image:width", content: "1920" },
+      { property: "og:image:height", content: "1080" },
+      { property: "og:image:alt", content: "Collage of sports facility close-ups" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Project Gallery — Egytic Sports" },
+      { name: "twitter:description", content: "Photos from our sports construction portfolio." },
+      { name: "twitter:image", content: heroGallery.url },
     ],
     links: [
       { rel: "canonical", href: "/gallery" },
       { rel: "alternate", hrefLang: "en", href: "/gallery" },
       { rel: "alternate", hrefLang: "ar", href: "/gallery" },
       { rel: "alternate", hrefLang: "x-default", href: "/gallery" },
+      { rel: "preload", as: "image", href: heroGallery.url, fetchpriority: "high" },
     ],
     scripts: [
       {
