@@ -90,21 +90,48 @@ export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
   );
 }
 
-function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAnim, t, align, showCTA }: any) {
+function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAnim, t, align, showCTA, isRTL, onPauseChange }: any) {
   const { scrollY } = useScroll();
   const bgY = useTransform(scrollY, [0, 800], [0, 180]);
   const bgScale = useTransform(scrollY, [0, 800], [1, 1.08]);
   const contentY = useTransform(scrollY, [0, 600], [0, -60]);
   const contentOpacity = useTransform(scrollY, [0, 500], [1, 0.2]);
+  const dotRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  const onDotsKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (count < 2) return;
+    const forward = isRTL ? "ArrowLeft" : "ArrowRight";
+    const back = isRTL ? "ArrowRight" : "ArrowLeft";
+    let next = index;
+    if (e.key === forward) next = (index + 1) % count;
+    else if (e.key === back) next = (index - 1 + count) % count;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = count - 1;
+    else return;
+    e.preventDefault();
+    setIndex(next);
+    dotRefs.current[next]?.focus();
+  };
 
   return (
-    <section className="relative flex min-h-[92vh] items-center overflow-hidden bg-ink">
-      <motion.div className="absolute inset-0" style={{ y: bgY, scale: bgScale }}>
+    <section
+      className="relative flex min-h-[92vh] items-center overflow-hidden bg-ink"
+      aria-roledescription="carousel"
+      aria-label="Featured highlights"
+      onMouseEnter={() => onPauseChange?.(true)}
+      onMouseLeave={() => onPauseChange?.(false)}
+      onFocus={() => onPauseChange?.(true)}
+      onBlur={() => onPauseChange?.(false)}
+    >
+      <motion.div className="absolute inset-0" style={{ y: bgY, scale: bgScale }} aria-hidden>
         <AnimatePresence mode="sync">
           <motion.img
             key={current.id + "-img"}
             src={current.image_url}
             alt=""
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
             {...imgAnim}
             className="absolute inset-0 h-full w-full object-cover"
           />
@@ -112,6 +139,7 @@ function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAni
       </motion.div>
 
       <div
+        aria-hidden
         className={
           current.overlay === "light"
             ? "absolute inset-0 bg-gradient-to-b from-white/30 via-white/10 to-ink/60"
@@ -120,62 +148,85 @@ function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAni
             : "absolute inset-0 bg-gradient-to-b from-ink/70 via-ink/50 to-ink"
         }
       />
-      <CinematicBackdrop />
-      <div className="absolute inset-0 grid-texture opacity-30" />
+      <CinematicBackdrop
+        fog={current.fog_intensity ?? 0.6}
+        spotlights={current.spotlight_intensity ?? 0.6}
+        vignette={current.vignette_intensity ?? 0.6}
+      />
+      <div className="absolute inset-0 grid-texture opacity-30" aria-hidden />
 
       <motion.div style={{ y: contentY, opacity: contentOpacity }} className="relative mx-auto w-full max-w-7xl px-4 py-28 sm:px-6 lg:px-8">
         <HeroLogoBadge className="mb-6 hidden sm:block" />
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={current.id}
-            {...textAnim}
-            className={`flex max-w-3xl flex-col ${align}`}
-          >
-            {(current.eyebrow_en || current.eyebrow_ar) && (
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-white/80 backdrop-blur">
-                {t(current.eyebrow_en, current.eyebrow_ar)}
-              </span>
-            )}
-            <h1 className="mt-6 text-4xl font-bold leading-[1.05] text-white sm:text-6xl md:text-7xl">
-              {t(current.title_en, current.title_ar)}
-            </h1>
-            {(current.subtitle_en || current.subtitle_ar) && (
-              <p className="mt-6 max-w-xl text-lg text-white/70">{t(current.subtitle_en, current.subtitle_ar)}</p>
-            )}
-            {showCTA && (
-              <div className="mt-9 flex flex-wrap gap-3">
-                {current.primary_href && (current.primary_label_en || current.primary_label_ar) && (
-                  <Button asChild size="lg" className="bg-gradient-primary text-primary-foreground">
-                    <Link to={current.primary_href}>{t(current.primary_label_en, current.primary_label_ar)}</Link>
-                  </Button>
-                )}
-                {current.secondary_href && (current.secondary_label_en || current.secondary_label_ar) && (
-                  <Button asChild size="lg" variant="outline" className="border-white/30 bg-white/5 text-white hover:bg-white/10">
-                    <Link to={current.secondary_href}>{t(current.secondary_label_en, current.secondary_label_ar)}</Link>
-                  </Button>
-                )}
-              </div>
-            )}
+        <div
+          role="group"
+          aria-roledescription="slide"
+          aria-label={`${(index % count) + 1} of ${count}`}
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={current.id}
+              {...textAnim}
+              className={`flex max-w-3xl flex-col ${align}`}
+            >
+              {(current.eyebrow_en || current.eyebrow_ar) && (
+                <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-white/80 backdrop-blur">
+                  {t(current.eyebrow_en, current.eyebrow_ar)}
+                </span>
+              )}
+              <h1 className="mt-6 text-4xl font-bold leading-[1.05] text-white sm:text-6xl md:text-7xl">
+                {t(current.title_en, current.title_ar)}
+              </h1>
+              {(current.subtitle_en || current.subtitle_ar) && (
+                <p className="mt-6 max-w-xl text-lg text-white/70">{t(current.subtitle_en, current.subtitle_ar)}</p>
+              )}
+              {showCTA && (
+                <div className="mt-9 flex flex-wrap gap-3">
+                  {current.primary_href && (current.primary_label_en || current.primary_label_ar) && (
+                    <Button asChild size="lg" className="bg-gradient-primary text-primary-foreground">
+                      <Link to={current.primary_href}>{t(current.primary_label_en, current.primary_label_ar)}</Link>
+                    </Button>
+                  )}
+                  {current.secondary_href && (current.secondary_label_en || current.secondary_label_ar) && (
+                    <Button asChild size="lg" variant="outline" className="border-white/30 bg-white/5 text-white hover:bg-white/10">
+                      <Link to={current.secondary_href}>{t(current.secondary_label_en, current.secondary_label_ar)}</Link>
+                    </Button>
+                  )}
+                </div>
+              )}
 
-            {count > 1 && (
-              <div className="mt-10 flex items-center gap-2" role="tablist" aria-label="Hero slides">
-                {slides!.map((s: Slide, i: number) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={i === index}
-                    aria-label={`Go to slide ${i + 1}`}
-                    onClick={() => setIndex(i)}
-                    className={`h-1.5 rounded-full transition-all ${i === index ? "w-8 bg-white" : "w-3 bg-white/40 hover:bg-white/70"}`}
-                  />
-                ))}
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
+              {count > 1 && (
+                <div
+                  className="mt-10 flex items-center gap-2"
+                  role="tablist"
+                  aria-label="Hero slides"
+                  onKeyDown={onDotsKeyDown}
+                >
+                  {slides!.map((s: Slide, i: number) => {
+                    const selected = i === index;
+                    return (
+                      <button
+                        key={s.id}
+                        ref={(el) => { dotRefs.current[i] = el; }}
+                        type="button"
+                        role="tab"
+                        aria-selected={selected}
+                        aria-label={`Slide ${i + 1} of ${count}`}
+                        tabIndex={selected ? 0 : -1}
+                        onClick={() => setIndex(i)}
+                        className={`h-2.5 min-h-[16px] min-w-[16px] rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink ${selected ? "w-10 bg-white" : "w-4 bg-white/40 hover:bg-white/70"}`}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </motion.div>
     </section>
   );
 }
+
 
