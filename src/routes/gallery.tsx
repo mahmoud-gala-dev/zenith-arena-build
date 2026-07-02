@@ -92,7 +92,9 @@ function GalleryPage() {
 
   const [activeType, setActiveType] = useState<SourceType>(search.type ?? "all");
   const [activeCategory, setActiveCategory] = useState<string>(search.category ?? "all");
+  const [query, setQuery] = useState("");
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const [zoomed, setZoomed] = useState(false);
 
   useEffect(() => {
     setActiveType(search.type ?? "all");
