@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "apex-theme";
+
 
 export function ThemeToggle() {
   const [dark, setDark] = useState(false);
