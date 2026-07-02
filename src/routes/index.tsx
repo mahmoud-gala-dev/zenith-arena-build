@@ -10,6 +10,8 @@ import { HeroSlider } from "@/components/site/HeroSlider";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
 import ogImage from "@/assets/apex-og.jpg.asset.json";
+import ctaLandmark from "@/assets/cta-landmark.jpg.asset.json";
+
 import {
   services,
   projects,
@@ -380,28 +382,53 @@ function Index() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="pb-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Reveal className="relative overflow-hidden rounded-3xl bg-hero px-6 py-16 text-center shadow-elegant sm:px-16">
-            <div className="absolute inset-0 grid-texture opacity-20" />
-            <div className="relative">
-              <h2 className="mx-auto max-w-2xl text-3xl font-bold text-white sm:text-4xl">
-                {t.sections.ctaTitle}
-              </h2>
-              <p className="mx-auto mt-4 max-w-xl text-white/70">{t.sections.ctaSub}</p>
-              <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <Button asChild variant="gold" size="xl">
-                  <Link to="/contact">{t.cta.quote}</Link>
-                </Button>
-                <Button asChild variant="outlineLight" size="xl">
-                  <Link to="/contact">{t.cta.getConsultation}</Link>
-                </Button>
-              </div>
+      {/* CTA — full-bleed landmark */}
+      <section
+        className="relative isolate w-full min-h-screen overflow-hidden"
+        aria-labelledby="cta-landmark-title"
+      >
+        <img
+          src={ctaLandmark.url}
+          alt=""
+          aria-hidden
+          loading="lazy"
+          decoding="async"
+          width={1920}
+          height={1280}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-b from-ink/70 via-ink/45 to-ink/85"
+        />
+        <div aria-hidden className="absolute inset-0 grid-texture opacity-15" />
+
+        <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-4 py-24 text-center sm:px-6 lg:px-8">
+          <Reveal>
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-gold">
+              Egytic Sports
+            </p>
+            <h2
+              id="cta-landmark-title"
+              className="mx-auto max-w-4xl text-4xl font-bold leading-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
+            >
+              {t.sections.ctaTitle}
+            </h2>
+            <p className="mx-auto mt-6 max-w-2xl text-base text-white/80 sm:text-lg">
+              {t.sections.ctaSub}
+            </p>
+            <div className="mt-10 flex flex-wrap justify-center gap-3">
+              <Button asChild variant="gold" size="xl">
+                <Link to="/contact">{t.cta.quote}</Link>
+              </Button>
+              <Button asChild variant="outlineLight" size="xl">
+                <Link to="/contact">{t.cta.getConsultation}</Link>
+              </Button>
             </div>
           </Reveal>
         </div>
       </section>
+
     </SiteLayout>
   );
 }
