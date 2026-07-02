@@ -3,6 +3,7 @@ import { ArrowLeft, Clock, User } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Reveal } from "@/components/site/Reveal";
 import { ArticleCard } from "@/components/site/Cards";
+import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { articles } from "@/lib/site-data";
@@ -12,6 +13,43 @@ export const Route = createFileRoute("/knowledge/$slug")({
     const article = articles.find((a) => a.slug === params.slug);
     if (!article) throw notFound();
     return { slug: params.slug };
+  },
+  head: ({ params }) => {
+    const article = articles.find((a) => a.slug === params.slug);
+    if (!article) {
+      return { meta: [{ title: "Article not found — APEX" }, { name: "robots", content: "noindex" }] };
+    }
+    const title = `${article.title.en} | APEX Knowledge Center`;
+    const desc = article.excerpt.en;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { name: "author", content: article.author },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "article" },
+        { property: "og:url", content: `/knowledge/${params.slug}` },
+        { property: "article:published_time", content: article.date },
+        { property: "article:author", content: article.author },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: desc },
+      ],
+      links: [{ rel: "canonical", href: `/knowledge/${params.slug}` }],
+      scripts: [{
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: article.title.en,
+          description: desc,
+          author: { "@type": "Person", name: article.author },
+          datePublished: article.date,
+          articleSection: article.category.en,
+        }),
+      }],
+    };
   },
   component: ArticleDetail,
   notFoundComponent: () => (
@@ -40,7 +78,8 @@ function ArticleDetail() {
           <img src={article.image} alt={L(article.title)} className="absolute inset-0 h-full w-full object-cover opacity-30" />
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/40" />
           <div className="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-            <Link to="/knowledge" className="inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white">
+            <Breadcrumbs items={[{ label: t.nav.knowledge, to: "/knowledge" }, { label: L(article.category) }]} />
+            <Link to="/knowledge" className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white">
               <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
               {t.knowledge.backToList}
             </Link>

@@ -3,6 +3,7 @@ import { ArrowLeft, MapPin, Calendar, Layers } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Reveal } from "@/components/site/Reveal";
 import { ProjectCard } from "@/components/site/Cards";
+import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { projects } from "@/lib/site-data";
@@ -12,6 +13,39 @@ export const Route = createFileRoute("/projects/$slug")({
     const project = projects.find((p) => p.slug === params.slug);
     if (!project) throw notFound();
     return { slug: params.slug };
+  },
+  head: ({ params }) => {
+    const project = projects.find((p) => p.slug === params.slug);
+    if (!project) {
+      return { meta: [{ title: "Project not found — APEX" }, { name: "robots", content: "noindex" }] };
+    }
+    const title = `${project.title.en} — ${project.location.en} | APEX Projects`;
+    const desc = project.overview.en;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "article" },
+        { property: "og:url", content: `/projects/${params.slug}` },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: desc },
+      ],
+      links: [{ rel: "canonical", href: `/projects/${params.slug}` }],
+      scripts: [{
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CreativeWork",
+          name: project.title.en,
+          description: desc,
+          locationCreated: project.location.en,
+          dateCreated: project.year,
+        }),
+      }],
+    };
   },
   component: ProjectDetail,
   notFoundComponent: () => (
@@ -39,11 +73,12 @@ function ProjectDetail() {
         <img src={project.image} alt={L(project.title)} className="absolute inset-0 h-full w-full object-cover opacity-45" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/60 to-ink/30" />
         <div className="relative mx-auto flex min-h-[70vh] max-w-7xl flex-col justify-end px-4 pb-14 sm:px-6 lg:px-8">
-          <Link to="/projects" className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white">
+          <Breadcrumbs items={[{ label: t.nav.projects, to: "/projects" }, { label: L(project.title) }]} />
+          <Link to="/projects" className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white">
             <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
             {t.projects.moreProjects}
           </Link>
-          <span className="text-sm font-semibold uppercase tracking-[0.2em] text-gold">{project.year}</span>
+          <span className="mt-4 text-sm font-semibold uppercase tracking-[0.2em] text-gold">{project.year}</span>
           <h1 className="mt-3 max-w-3xl text-4xl font-bold text-white sm:text-5xl">{L(project.title)}</h1>
           <p className="mt-4 text-lg text-white/70">{L(project.client)}</p>
         </div>

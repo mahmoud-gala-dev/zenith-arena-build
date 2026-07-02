@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, BadgeCheck, CheckCircle2, Download } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { ProjectCard } from "@/components/site/Cards";
+import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { products, projects, services } from "@/lib/site-data";
@@ -14,16 +15,36 @@ export const Route = createFileRoute("/products/$slug")({
   },
   head: ({ params }) => {
     const product = products.find((item) => item.id === params.slug);
+    if (!product) {
+      return { meta: [{ title: "Product not found — APEX" }, { name: "robots", content: "noindex" }] };
+    }
+    const title = `${product.title.en} — ${product.certified} | APEX Products`;
+    const desc = product.description.en;
     return {
       meta: [
-        { title: product ? `${product.title.en} — Sports Infrastructure Products` : "Product — APEX" },
-        { name: "description", content: product?.description.en ?? "Sports infrastructure product details from APEX." },
-        { property: "og:title", content: product ? `${product.title.en} — APEX` : "Product — APEX" },
-        { property: "og:description", content: product?.description.en ?? "Sports infrastructure product details from APEX." },
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "product" },
         { property: "og:url", content: `/products/${params.slug}` },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: desc },
       ],
       links: [{ rel: "canonical", href: `/products/${params.slug}` }],
-      scripts: product ? [{ type: "application/ld+json", children: JSON.stringify({ "@context": "https://schema.org", "@type": "Product", name: product.title.en, description: product.description.en }) }] : [],
+      scripts: [{
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: product.title.en,
+          description: product.description.en,
+          category: product.category.en,
+          brand: { "@type": "Brand", name: "APEX" },
+          award: product.certified,
+        }),
+      }],
     };
   },
   component: ProductDetailPage,
@@ -47,7 +68,10 @@ function ProductDetailPage() {
       <section className="relative overflow-hidden bg-ink pt-32 pb-16 text-white">
         <img src={product.image} alt={L(product.title)} className="absolute inset-0 h-full w-full object-cover opacity-35" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/40" />
-        <div className="relative mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Breadcrumbs items={[{ label: t.nav.products, to: "/products" }, { label: L(product.title) }]} />
+        </div>
+        <div className="relative mx-auto mt-6 grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
           <div>
             <Link to="/products" className="inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white"><ArrowLeft className="h-4 w-4 rtl:rotate-180" /> {tx.back}</Link>
             <p className="mt-8 text-sm font-semibold uppercase tracking-[0.2em] text-gold">{L(product.category)}</p>

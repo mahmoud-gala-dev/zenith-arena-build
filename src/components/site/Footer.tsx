@@ -1,9 +1,17 @@
 import { Link } from "@tanstack/react-router";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Phone, Facebook, Instagram, Linkedin, Youtube, Twitter } from "lucide-react";
 import { Logo } from "./Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLang } from "@/i18n/LanguageProvider";
+
+const socialLinks = [
+  { name: "LinkedIn", href: "https://www.linkedin.com/company/apexsports", Icon: Linkedin },
+  { name: "Instagram", href: "https://www.instagram.com/apexsports", Icon: Instagram },
+  { name: "Facebook", href: "https://www.facebook.com/apexsports", Icon: Facebook },
+  { name: "X (Twitter)", href: "https://twitter.com/apexsports", Icon: Twitter },
+  { name: "YouTube", href: "https://www.youtube.com/@apexsports", Icon: Youtube },
+];
 
 export function Footer() {
   const { t, lang } = useLang();
@@ -55,6 +63,20 @@ export function Footer() {
               <p className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-primary" /> hello@apexsports.co
               </p>
+            </div>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {socialLinks.map(({ name, href, Icon }) => (
+                <a
+                  key={name}
+                  href={href}
+                  aria-label={name}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/70 transition hover:border-primary hover:bg-primary/10 hover:text-white"
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
             </div>
           </div>
 
