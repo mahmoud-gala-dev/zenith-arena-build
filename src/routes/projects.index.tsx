@@ -249,11 +249,16 @@ function ProjectsPage() {
                   </Link>
                 )}
               </div>
-              {dbFiltered.length === 0 ? (
+              {dbLoading ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)}
+                </div>
+              ) : dbFiltered.length === 0 ? (
                 <p className="rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground">
                   {lang === "ar" ? "لا توجد مشاريع منشورة مطابقة." : "No published projects match."}
                 </p>
               ) : (
+
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {dbFiltered.map((p, i) => (
                     <Reveal key={p.id} delay={i * 50}>
