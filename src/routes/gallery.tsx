@@ -197,6 +197,8 @@ function GalleryPage() {
     setActiveType(t);
     if (t !== "projects") setActiveCategory("all");
     navigate({ search: { type: t === "all" ? undefined : t, category: undefined }, replace: true });
+    const results = allItems.filter((it) => t === "all" || it.type === t).length;
+    trackEvent({ name: "gallery_filter", filter_type: "type", value: t, results });
   };
   const setCategory = (c: string) => {
     setActiveCategory(c);
@@ -207,31 +209,114 @@ function GalleryPage() {
       },
       replace: true,
     });
+    const results = allItems.filter(
+      (it) => (activeType === "all" || it.type === activeType) && (c === "all" || it.category === c),
+    ).length;
+    trackEvent({ name: "gallery_filter", filter_type: "category", value: c, results });
   };
+
+  // Debounced gallery search analytics
+  useEffect(() => {
+    const q = query.trim();
+    if (!q) return;
+    const id = window.setTimeout(() => {
+      trackEvent({ name: "gallery_search", query: q, results: filtered.length });
+    }, 500);
+    return () => window.clearTimeout(id);
+  }, [query, filtered.length]);
 
   // Reset zoom whenever slide changes / closes
   useEffect(() => {
     setZoomed(false);
   }, [lightbox]);
 
-  // Lightbox keyboard nav + body scroll lock
+  // Focus restoration + focus trap refs
+  const lastTriggerRef = useRef<HTMLElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const closeBtnRef = useRef<HTMLButtonElement | null>(null);
+  const prefersReducedMotion =
+    typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+  const openLightbox = (i: number, ev?: React.MouseEvent<HTMLButtonElement>) => {
+    lastTriggerRef.current = (ev?.currentTarget as HTMLElement) ?? (document.activeElement as HTMLElement);
+    setLightbox(i);
+    const item = filtered[i];
+    if (item) {
+      trackEvent({
+        name: "gallery_lightbox_open",
+        index: i,
+        total: filtered.length,
+        item_title: item.title.en,
+        item_type: item.type,
+      });
+    }
+  };
+
+  const closeLightbox = () => {
+    if (lightbox !== null) {
+      const item = filtered[lightbox];
+      trackEvent({
+        name: "gallery_lightbox_close",
+        index: lightbox,
+        item_title: item?.title.en ?? "",
+      });
+    }
+    setLightbox(null);
+    // return focus after paint
+    window.setTimeout(() => lastTriggerRef.current?.focus?.(), 0);
+  };
+
+  const navLightbox = (dir: 1 | -1, via: "keyboard" | "button") => {
+    setLightbox((i) => {
+      if (i === null) return null;
+      const next = (i + dir + filtered.length) % filtered.length;
+      trackEvent({ name: "gallery_lightbox_nav", from: i, to: next, via });
+      return next;
+    });
+  };
+
+  // Lightbox keyboard nav + body scroll lock + focus trap
   useEffect(() => {
     if (lightbox === null) return;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    // move initial focus to close button
+    window.setTimeout(() => closeBtnRef.current?.focus?.(), 0);
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setLightbox(null);
-      if (e.key === "ArrowRight") setLightbox((i) => (i === null ? null : (i + 1) % filtered.length));
-      if (e.key === "ArrowLeft")
-        setLightbox((i) => (i === null ? null : (i - 1 + filtered.length) % filtered.length));
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeLightbox();
+        return;
+      }
+      if (e.key === "ArrowRight") navLightbox(1, "keyboard");
+      if (e.key === "ArrowLeft") navLightbox(-1, "keyboard");
       if (e.key === " " || e.key === "z") setZoomed((z) => !z);
+      if (e.key === "Tab") {
+        const root = dialogRef.current;
+        if (!root) return;
+        const focusables = root.querySelectorAll<HTMLElement>(
+          'button, [href], input, [tabindex]:not([tabindex="-1"])',
+        );
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lightbox, filtered.length]);
+
 
   const typeChips: { id: SourceType; label: string }[] = [
     { id: "all", label: tx.all },
