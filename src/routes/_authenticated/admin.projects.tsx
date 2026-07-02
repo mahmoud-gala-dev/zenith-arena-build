@@ -31,25 +31,33 @@ type Project = {
   cover_image: string | null;
   status: string;
   featured: boolean;
+  governorate_id: string | null;
   created_at: string;
 };
+
+type GovOption = { id: string; name_en: string; name_ar: string };
 
 const emptyProject: Partial<Project> = {
   slug_en: "", title_en: "", title_ar: "", description_en: "", description_ar: "",
   client: "", location: "", country: "", city: "", year: new Date().getFullYear(),
-  sport_type: "", cover_image: "", status: "published", featured: false,
+  sport_type: "", cover_image: "", status: "published", featured: false, governorate_id: null,
 };
 
 function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<Project> | null>(null);
+  const [govs, setGovs] = useState<GovOption[]>([]);
 
   async function load() {
     setLoading(true);
-    const { data, error } = await supabase.from("projects").select("*").order("created_at", { ascending: false });
+    const [{ data, error }, { data: gdata }] = await Promise.all([
+      supabase.from("projects").select("*").order("created_at", { ascending: false }),
+      supabase.from("governorates").select("id,name_en,name_ar").order("sort_order"),
+    ]);
     if (error) toast.error(error.message);
     setProjects((data ?? []) as Project[]);
+    setGovs((gdata ?? []) as GovOption[]);
     setLoading(false);
   }
   useEffect(() => { load(); }, []);
@@ -65,6 +73,7 @@ function ProjectsPage() {
       year: editing.year ? Number(editing.year) : null, sport_type: editing.sport_type || null,
       cover_image: editing.cover_image || null, status: editing.status || "published",
       featured: !!editing.featured,
+      governorate_id: editing.governorate_id || null,
     };
     const { error } = editing.id
       ? await supabase.from("projects").update(payload).eq("id", editing.id)
@@ -143,6 +152,12 @@ function ProjectsPage() {
               <Field label="Country"><Input value={editing.country ?? ""} onChange={(e) => setEditing({ ...editing, country: e.target.value })} /></Field>
               <Field label="City"><Input value={editing.city ?? ""} onChange={(e) => setEditing({ ...editing, city: e.target.value })} /></Field>
               <Field label="Location (display)"><Input value={editing.location ?? ""} onChange={(e) => setEditing({ ...editing, location: e.target.value })} /></Field>
+              <Field label="Governorate">
+                <select value={editing.governorate_id ?? ""} onChange={(e) => setEditing({ ...editing, governorate_id: e.target.value || null })} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+                  <option value="">— None —</option>
+                  {govs.map((g) => (<option key={g.id} value={g.id}>{g.name_en} — {g.name_ar}</option>))}
+                </select>
+              </Field>
               <Field label="Cover image URL"><Input value={editing.cover_image ?? ""} onChange={(e) => setEditing({ ...editing, cover_image: e.target.value })} /></Field>
               <div className="sm:col-span-2"><Field label="Description (EN)"><Textarea rows={3} value={editing.description_en ?? ""} onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} /></Field></div>
               <div className="sm:col-span-2"><Field label="Description (AR)"><Textarea rows={3} dir="rtl" value={editing.description_ar ?? ""} onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} /></Field></div>
