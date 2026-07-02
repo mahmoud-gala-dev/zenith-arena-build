@@ -27,9 +27,17 @@ type RenderReport = {
   commitTime: number;
 };
 
+export type PerfEvent = {
+  type: string;
+  ts: number;
+  data?: Record<string, unknown>;
+};
+
 type PerfBuffer = {
   vitals: VitalReport[];
   renders: RenderReport[];
+  events: PerfEvent[];
+  logEvent: (type: string, data?: Record<string, unknown>) => void;
   summary: () => Record<string, unknown>;
 };
 
@@ -38,6 +46,7 @@ declare global {
     __perf?: PerfBuffer;
   }
 }
+
 
 const isVerbose = () => {
   try {
