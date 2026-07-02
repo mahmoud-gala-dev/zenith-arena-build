@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Logo } from "./Logo";
 import { LangToggle } from "./LangToggle";
+import { ThemeToggle } from "./ThemeToggle";
+
 import { useLang } from "@/i18n/LanguageProvider";
 import { cn } from "@/lib/utils";
 
