@@ -5,6 +5,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { SectionHeader } from "@/components/site/SectionHeader";
 import { Reveal } from "@/components/site/Reveal";
 import { ServiceCard, ProjectCard, ArticleCard } from "@/components/site/Cards";
+import { HeroSlider } from "@/components/site/HeroSlider";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import ogImage from "@/assets/apex-og.jpg.asset.json";
 import {
