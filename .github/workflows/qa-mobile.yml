@@ -1,0 +1,66 @@
+name: QA Mobile — Playwright + Web Vitals
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  qa-mobile:
+    name: Playwright on iPhone + Android + tablet + desktop
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build app
+        run: bun run build
+
+      - name: Start preview server
+        run: |
+          bun run preview --host 127.0.0.1 --port 8080 &
+          echo $! > .server.pid
+          for i in {1..60}; do
+            if curl -sf http://127.0.0.1:8080 >/dev/null; then echo "up"; exit 0; fi
+            sleep 1
+          done
+          echo "server did not start"; exit 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Playwright
+        run: |
+          python -m pip install --no-cache-dir playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Run QA mobile checks (BLOCKING on WhatsApp overlap)
+        env:
+          BASE_URL: http://127.0.0.1:8080
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          COMMIT_SHA: ${{ github.sha }}
+          BRANCH: ${{ github.ref_name }}
+        run: python scripts/qa-mobile.py
+
+      - name: Upload QA artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-report-${{ github.sha }}
+          path: qa-report/
+          retention-days: 30
+
+      - name: Stop preview server
+        if: always()
+        run: kill $(cat .server.pid) || true
