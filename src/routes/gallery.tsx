@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { X, ChevronLeft, ChevronRight, ArrowRight, Search, ZoomIn, ZoomOut } from "lucide-react";
 import { z } from "zod";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -9,6 +9,8 @@ import { Reveal } from "@/components/site/Reveal";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { projects, projectCategories, articles, services, type L as Localized } from "@/lib/site-data";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/analytics";
+
 
 type SourceType = "all" | "projects" | "services" | "knowledge";
 
