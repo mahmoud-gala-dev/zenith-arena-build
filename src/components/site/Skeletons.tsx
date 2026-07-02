@@ -95,3 +95,70 @@ export function DetailPageSkeleton() {
     </>
   );
 }
+
+/** Skeleton rows for admin CMS tables (matches CmsCollectionPage layout). */
+export function TableRowsSkeleton({ rows = 6, columns = 5 }: { rows?: number; columns?: number }) {
+  return (
+    <>
+      {Array.from({ length: rows }).map((_, r) => (
+        <tr key={r} aria-hidden>
+          <td className="px-4 py-3"><SkeletonBox className="h-4 w-4 rounded" /></td>
+          {Array.from({ length: columns }).map((__, c) => (
+            <td key={c} className="px-4 py-3">
+              <SkeletonBox className={c === 0 ? "h-10 w-16 rounded-md" : "h-4 w-full max-w-[180px]"} />
+            </td>
+          ))}
+          <td className="px-4 py-3"><SkeletonBox className="ml-auto h-8 w-16" /></td>
+        </tr>
+      ))}
+    </>
+  );
+}
+
+/** Skeleton for admin edit/create dialog forms. */
+export function FormSkeleton({ fields = 6 }: { fields?: number }) {
+  return (
+    <div aria-hidden className="grid gap-4 sm:grid-cols-2">
+      {Array.from({ length: fields }).map((_, i) => (
+        <div key={i} className="space-y-2">
+          <SkeletonBox className="h-3 w-24" />
+          <SkeletonBox className="h-10 w-full rounded-md" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Skeleton for a project detail media gallery grid + specs sidebar. */
+export function ProjectDetailContentSkeleton() {
+  return (
+    <div aria-hidden className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-3 lg:px-8">
+      <div className="space-y-6 lg:col-span-2">
+        <SkeletonBox className="h-6 w-40" />
+        <SkeletonBox className="h-4 w-full" />
+        <SkeletonBox className="h-4 w-11/12" />
+        <SkeletonBox className="h-4 w-10/12" />
+        <div className="grid gap-4 sm:grid-cols-3">
+          <SkeletonBox className="h-24 rounded-2xl" />
+          <SkeletonBox className="h-24 rounded-2xl" />
+          <SkeletonBox className="h-24 rounded-2xl" />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonBox key={i} className="aspect-[4/3] w-full rounded-xl" />
+          ))}
+        </div>
+      </div>
+      <aside className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-soft">
+        <SkeletonBox className="h-5 w-32" />
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="space-y-2">
+            <SkeletonBox className="h-3 w-24" />
+            <SkeletonBox className="h-4 w-40" />
+          </div>
+        ))}
+        <SkeletonBox className="mt-2 h-11 w-full rounded-full" />
+      </aside>
+    </div>
+  );
+}
