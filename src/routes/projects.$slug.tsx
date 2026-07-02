@@ -33,6 +33,8 @@ export const Route = createFileRoute("/projects/$slug")({
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: desc },
+        { property: "og:image", content: project.image },
+        { name: "twitter:image", content: project.image },
       ],
       links: [
         { rel: "canonical", href: `/projects/${params.slug}` },
