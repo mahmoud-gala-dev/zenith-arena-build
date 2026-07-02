@@ -57,10 +57,11 @@ export function MobileTopBar() {
       )}
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
-      <div className="mx-auto flex h-14 items-center justify-between gap-2 px-3">
+      <div className="mx-auto flex h-16 items-center justify-between gap-2 px-3">
         <Link to="/" aria-label="Home" className="flex items-center">
-          <Logo light={transparent} size="h-10 w-auto object-contain select-none" />
+          <Logo light={transparent} size="h-12 w-auto max-w-[180px] object-contain select-none" />
         </Link>
+
 
         {title && !transparent && (
           <h1 className="pointer-events-none absolute left-1/2 max-w-[45%] -translate-x-1/2 truncate text-sm font-semibold">
