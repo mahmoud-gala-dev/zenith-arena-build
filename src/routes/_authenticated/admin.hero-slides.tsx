@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowDown, ArrowUp, Loader2, Pencil, Plus, Trash2, Upload } from "lucide-react";
+import { ArrowDown, ArrowUp, GripVertical, Loader2, Pencil, Plus, Trash2, Upload } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,11 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { CinematicBackdrop } from "@/components/site/CinematicBackdrop";
+
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8 MB
+const MIN_IMAGE_WIDTH = 1200;
+const MIN_IMAGE_HEIGHT = 600;
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 
 const clamp01 = (n: unknown): number => {
   const v = typeof n === "number" ? n : Number(n);
