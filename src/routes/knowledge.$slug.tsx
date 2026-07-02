@@ -36,6 +36,8 @@ export const Route = createFileRoute("/knowledge/$slug")({
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: desc },
+        { property: "og:image", content: article.image },
+        { name: "twitter:image", content: article.image },
       ],
       links: [
         { rel: "canonical", href: `/knowledge/${params.slug}` },
@@ -45,15 +47,29 @@ export const Route = createFileRoute("/knowledge/$slug")({
       ],
       scripts: [{
         type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Article",
-          headline: article.title.en,
-          description: desc,
-          author: { "@type": "Person", name: article.author },
-          datePublished: article.date,
-          articleSection: article.category.en,
-        }),
+        children: JSON.stringify([
+          {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: article.title.en,
+            description: desc,
+            image: article.image,
+            url: `/knowledge/${params.slug}`,
+            author: { "@type": "Person", name: article.author },
+            publisher: { "@type": "Organization", name: "APEX Sports" },
+            datePublished: article.date,
+            articleSection: article.category.en,
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "/" },
+              { "@type": "ListItem", position: 2, name: "Knowledge", item: "/knowledge" },
+              { "@type": "ListItem", position: 3, name: article.title.en, item: `/knowledge/${params.slug}` },
+            ],
+          },
+        ]),
       }],
     };
   },
