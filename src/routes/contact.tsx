@@ -6,6 +6,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MapPin, Phone, Clock, CheckCircle2, MessageCircle } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
+import heroContact from "@/assets/hero-contact.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -61,7 +62,7 @@ function ContactPage() {
 
   return (
     <SiteLayout>
-      <PageHero eyebrow={t.nav.contact} title={t.contact.title} subtitle={t.contact.sub} />
+      <PageHero eyebrow={t.nav.contact} title={t.contact.title} subtitle={t.contact.sub} bgImage={heroContact.url} />
 
       <section className="py-16">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-3 lg:px-8">

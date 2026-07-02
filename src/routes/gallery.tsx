@@ -4,6 +4,7 @@ import { X, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { z } from "zod";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
+import heroGallery from "@/assets/hero-gallery.jpg.asset.json";
 import { Reveal } from "@/components/site/Reveal";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { projects, projectCategories, articles, services, type L as Localized } from "@/lib/site-data";
@@ -208,7 +209,7 @@ function GalleryPage() {
 
   return (
     <SiteLayout>
-      <PageHero eyebrow={tx.eyebrow} title={tx.title} subtitle={tx.sub} />
+      <PageHero eyebrow={tx.eyebrow} title={tx.title} subtitle={tx.sub} bgImage={heroGallery.url} />
 
       <section className="py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

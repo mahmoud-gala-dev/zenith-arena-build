@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
+import heroServices from "@/assets/hero-services.jpg.asset.json";
 import { Reveal } from "@/components/site/Reveal";
 import { Icon } from "@/components/site/Icon";
 import { ServiceRowSkeleton } from "@/components/site/Skeletons";
@@ -21,7 +22,7 @@ function ServicesPage() {
 
   return (
     <SiteLayout>
-      <PageHero eyebrow={t.nav.services} title={t.sections.servicesTitle} subtitle={t.sections.servicesSub} />
+      <PageHero eyebrow={t.nav.services} title={t.sections.servicesTitle} subtitle={t.sections.servicesSub} bgImage={heroServices.url} />
       <section className="py-20">
         <div className="mx-auto max-w-7xl space-y-20 px-4 sm:px-6 lg:px-8">
           {loading ? (
