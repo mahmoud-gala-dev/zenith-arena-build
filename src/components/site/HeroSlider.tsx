@@ -124,8 +124,22 @@ function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAni
     else if (e.key === "End") next = count - 1;
     else return;
     e.preventDefault();
+    const to = slides?.[next];
+    if (to) {
+      trackEvent({ name: "hero_keyboard_nav", key: e.key, index: next, slide_id: to.id });
+      trackEvent({ name: "hero_slide_change", from: index, to: next, slide_id: to.id, via: "keyboard" });
+    }
     setIndex(next);
     dotRefs.current[next]?.focus();
+  };
+
+  const onDotClick = (i: number) => {
+    const to = slides?.[i];
+    if (to && i !== index) {
+      trackEvent({ name: "hero_dot_click", index: i, slide_id: to.id });
+      trackEvent({ name: "hero_slide_change", from: index, to: i, slide_id: to.id, via: "dot_click" });
+    }
+    setIndex(i);
   };
 
   return (
