@@ -348,10 +348,12 @@ function GalleryPage() {
 
       {current && (
         <div
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-ink/95 p-4 sm:p-8"
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-ink/95 p-3 sm:p-8"
           onClick={() => setLightbox(null)}
           role="dialog"
           aria-modal="true"
+          aria-label={L(current.title)}
+          style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top))" }}
         >
           <button
             aria-label={tx.close}
@@ -359,9 +361,19 @@ function GalleryPage() {
               e.stopPropagation();
               setLightbox(null);
             }}
-            className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20 rtl:left-4 rtl:right-auto"
+            className="absolute right-3 top-3 grid h-12 w-12 place-items-center rounded-full bg-white/15 text-white shadow-lg backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white active:scale-95 sm:right-4 sm:top-4 rtl:left-3 rtl:right-auto sm:rtl:left-4"
           >
-            <X className="h-5 w-5" />
+            <X className="h-6 w-6" />
+          </button>
+          <button
+            aria-label={zoomed ? tx.zoomOut : tx.zoomIn}
+            onClick={(e) => {
+              e.stopPropagation();
+              setZoomed((z) => !z);
+            }}
+            className="absolute right-3 top-[4.5rem] grid h-11 w-11 place-items-center rounded-full bg-white/15 text-white backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white sm:right-4 sm:top-[5rem] rtl:left-3 rtl:right-auto sm:rtl:left-4"
+          >
+            {zoomed ? <ZoomOut className="h-5 w-5" /> : <ZoomIn className="h-5 w-5" />}
           </button>
           <button
             aria-label={tx.prev}
@@ -369,7 +381,7 @@ function GalleryPage() {
               e.stopPropagation();
               setLightbox((i) => (i === null ? null : (i - 1 + filtered.length) % filtered.length));
             }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20"
+            className="absolute left-2 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/15 text-white backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white active:scale-95 sm:left-4"
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
@@ -379,20 +391,33 @@ function GalleryPage() {
               e.stopPropagation();
               setLightbox((i) => (i === null ? null : (i + 1) % filtered.length));
             }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20"
+            className="absolute right-2 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/15 text-white backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white active:scale-95 sm:right-4"
           >
             <ChevronRight className="h-6 w-6" />
           </button>
 
           <div
-            className="flex max-h-[90vh] max-w-6xl flex-col items-center gap-4"
+            className="flex max-h-[92vh] w-full max-w-6xl flex-col items-center gap-3"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
-              src={current.image}
-              alt={L(current.title)}
-              className="max-h-[75vh] w-auto max-w-full rounded-2xl object-contain shadow-elegant"
-            />
+            <div
+              className={cn(
+                "relative w-full overflow-auto rounded-2xl",
+                zoomed ? "max-h-[80vh] cursor-zoom-out" : "max-h-[75vh] cursor-zoom-in",
+              )}
+              onClick={() => setZoomed((z) => !z)}
+            >
+              <img
+                src={current.image}
+                alt={L(current.title)}
+                className={cn(
+                  "mx-auto h-auto rounded-2xl object-contain shadow-elegant transition-transform duration-300",
+                  zoomed ? "max-w-none scale-[1.8] origin-center" : "max-h-[75vh] w-auto max-w-full",
+                )}
+                draggable={false}
+              />
+            </div>
+
             <div className="w-full rounded-2xl bg-white/5 p-4 text-center backdrop-blur">
               <p className="text-lg font-semibold text-white">{L(current.title)}</p>
               <p className="mt-1 text-sm text-white/70">{L(current.caption)}</p>
