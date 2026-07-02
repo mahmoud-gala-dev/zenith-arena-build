@@ -45,8 +45,31 @@ export const Route = createFileRoute("/services/")({
       { rel: "alternate", hrefLang: "x-default", href: "/services" },
       { rel: "preload", as: "image", href: heroServices.url, fetchpriority: "high" },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: "Sports Construction Services — Egytic Sports",
+          itemListElement: [
+            "Football Pitches",
+            "Athletics Tracks",
+            "Indoor Arenas",
+            "Tennis & Padel Courts",
+            "Aquatic Centres",
+            "Stadium Maintenance",
+          ].map((n, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            item: { "@type": "Service", name: n, provider: { "@type": "Organization", name: "Egytic Sports" } },
+          })),
+        }),
+      },
+    ],
   }),
 });
+
 
 function ServicesPage() {
   const { t, lang } = useLang();
