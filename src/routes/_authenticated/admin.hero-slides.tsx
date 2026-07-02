@@ -232,6 +232,7 @@ function AdminHeroSlides() {
                 </div>
                 <div><Label>Sort order</Label><Input type="number" value={editing.sort_order ?? 0} onChange={(e) => set("sort_order", Number(e.target.value))} /></div>
                 <div className="flex items-end gap-2"><Switch checked={editing.is_active ?? true} onCheckedChange={(v) => set("is_active", v)} /><span className="text-sm">Active</span></div>
+                <div className="flex items-end gap-2"><Switch checked={(editing as any).hide_cta ?? false} onCheckedChange={(v) => set("hide_cta" as any, v)} /><span className="text-sm">Hide CTA buttons</span></div>
               </div>
             </div>
           )}
