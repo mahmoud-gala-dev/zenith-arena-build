@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, BadgeCheck, BookOpen, CheckCircle2, Download } f
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { ProjectCard } from "@/components/site/Cards";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { ProductGallery } from "@/components/site/ProductGallery";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -126,6 +127,10 @@ function ProductDetailPage() {
           </aside>
         </div>
       </section>
+
+      <ProductGallery product={product} />
+
+
 
       <section className="bg-secondary/50 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
