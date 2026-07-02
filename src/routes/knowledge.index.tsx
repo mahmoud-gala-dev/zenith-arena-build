@@ -64,8 +64,9 @@ function KnowledgePage() {
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {isLoading ? (
-            <p className="text-center text-muted-foreground">…</p>
+            <CardGridSkeleton count={6} />
           ) : posts.length === 0 ? (
+
             <p className="text-center text-muted-foreground">{ar ? "لا توجد مقالات بعد." : "No articles yet."}</p>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
