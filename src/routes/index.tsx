@@ -69,6 +69,35 @@ function Index() {
   const { t } = useLang();
   const L = useLocalized();
 
+  const { data: dbClients } = useQuery({
+    queryKey: ["home-clients"],
+    queryFn: async (): Promise<DbClient[]> => {
+      const { data, error } = await supabase
+        .from("clients")
+        .select("id,name_en,name_ar,logo_url,industry,description_en,description_ar")
+        .eq("status", "published")
+        .order("sort_order", { ascending: true })
+        .limit(18);
+      if (error) throw error;
+      return (data ?? []) as DbClient[];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const clients: TrustClient[] =
+    dbClients && dbClients.length > 0
+      ? dbClients.map((c, i) => ({
+          name: { en: c.name_en, ar: c.name_ar },
+          sector: { en: c.industry ?? "Client", ar: c.industry ?? "عميل" },
+          monogram: monogramFor(c.name_en),
+          accent: ACCENTS[i % ACCENTS.length],
+          logo_url: c.logo_url,
+          description: { en: c.description_en ?? "", ar: c.description_ar ?? "" },
+        }))
+      : fallbackClients;
+
+
+
   return (
     <SiteLayout>
       <HeroSlider
