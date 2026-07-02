@@ -7,6 +7,7 @@ import { useLang } from "@/i18n/LanguageProvider";
 import type { Database } from "@/integrations/supabase/types";
 import { HeroLogoBadge } from "./HeroLogoBadge";
 import { CinematicBackdrop } from "./CinematicBackdrop";
+import { trackEvent } from "@/lib/analytics";
 
 type Slide = Database["public"]["Tables"]["hero_slides"]["Row"] & {
   hide_cta?: boolean | null;
