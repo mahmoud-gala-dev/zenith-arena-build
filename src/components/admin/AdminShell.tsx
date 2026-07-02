@@ -36,7 +36,7 @@ export function AdminShell({ children, title }: { children: React.ReactNode; tit
             return (
               <Link
                 key={item.to}
-                to={item.to}
+                to={item.to as "/admin"}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${
                   active
                     ? "bg-gradient-primary text-primary-foreground shadow-soft"

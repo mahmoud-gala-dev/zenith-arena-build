@@ -61,7 +61,7 @@ function LeadsPage() {
   });
 
   async function updateStatus(id: string, status: string) {
-    const { error } = await supabase.from("leads").update({ status }).eq("id", id);
+    const { error } = await supabase.from("leads").update({ status: status as Lead["status"] as never }).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Status updated");
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)));
