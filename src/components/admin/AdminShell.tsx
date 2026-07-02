@@ -12,6 +12,7 @@ import {
   Image as ImageIcon,
   Images,
   Inbox,
+  GalleryHorizontalEnd,
   LayoutDashboard,
   Layers,
   LogOut,
@@ -29,6 +30,7 @@ import { toast } from "sonner";
 
 const nav: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
+  { to: "/admin/hero-slides", label: "Hero Slider", icon: GalleryHorizontalEnd },
   { to: "/admin/pages", label: "Pages", icon: FileText },
   { to: "/admin/services", label: "Services", icon: Layers },
   { to: "/admin/products", label: "Products", icon: Package },

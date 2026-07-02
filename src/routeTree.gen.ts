@@ -51,6 +51,7 @@ import { Route as AuthenticatedAdminProductsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminPagesRouteImport } from './routes/_authenticated/admin.pages'
 import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin.media'
 import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin.leads'
+import { Route as AuthenticatedAdminHeroSlidesRouteImport } from './routes/_authenticated/admin.hero-slides'
 import { Route as AuthenticatedAdminGovernoratesRouteImport } from './routes/_authenticated/admin.governorates'
 import { Route as AuthenticatedAdminGalleryRouteImport } from './routes/_authenticated/admin.gallery'
 import { Route as AuthenticatedAdminDownloadsRouteImport } from './routes/_authenticated/admin.downloads'
@@ -275,6 +276,12 @@ const AuthenticatedAdminLeadsRoute = AuthenticatedAdminLeadsRouteImport.update({
   path: '/leads',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminHeroSlidesRoute =
+  AuthenticatedAdminHeroSlidesRouteImport.update({
+    id: '/hero-slides',
+    path: '/hero-slides',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminGovernoratesRoute =
   AuthenticatedAdminGovernoratesRouteImport.update({
     id: '/governorates',
@@ -353,6 +360,7 @@ export interface FileRoutesByFullPath {
   '/admin/downloads': typeof AuthenticatedAdminDownloadsRoute
   '/admin/gallery': typeof AuthenticatedAdminGalleryRoute
   '/admin/governorates': typeof AuthenticatedAdminGovernoratesRoute
+  '/admin/hero-slides': typeof AuthenticatedAdminHeroSlidesRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
@@ -398,6 +406,7 @@ export interface FileRoutesByTo {
   '/admin/downloads': typeof AuthenticatedAdminDownloadsRoute
   '/admin/gallery': typeof AuthenticatedAdminGalleryRoute
   '/admin/governorates': typeof AuthenticatedAdminGovernoratesRoute
+  '/admin/hero-slides': typeof AuthenticatedAdminHeroSlidesRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
@@ -450,6 +459,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/downloads': typeof AuthenticatedAdminDownloadsRoute
   '/_authenticated/admin/gallery': typeof AuthenticatedAdminGalleryRoute
   '/_authenticated/admin/governorates': typeof AuthenticatedAdminGovernoratesRoute
+  '/_authenticated/admin/hero-slides': typeof AuthenticatedAdminHeroSlidesRoute
   '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/_authenticated/admin/media': typeof AuthenticatedAdminMediaRoute
   '/_authenticated/admin/pages': typeof AuthenticatedAdminPagesRoute
@@ -502,6 +512,7 @@ export interface FileRouteTypes {
     | '/admin/downloads'
     | '/admin/gallery'
     | '/admin/governorates'
+    | '/admin/hero-slides'
     | '/admin/leads'
     | '/admin/media'
     | '/admin/pages'
@@ -547,6 +558,7 @@ export interface FileRouteTypes {
     | '/admin/downloads'
     | '/admin/gallery'
     | '/admin/governorates'
+    | '/admin/hero-slides'
     | '/admin/leads'
     | '/admin/media'
     | '/admin/pages'
@@ -598,6 +610,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/downloads'
     | '/_authenticated/admin/gallery'
     | '/_authenticated/admin/governorates'
+    | '/_authenticated/admin/hero-slides'
     | '/_authenticated/admin/leads'
     | '/_authenticated/admin/media'
     | '/_authenticated/admin/pages'
@@ -932,6 +945,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminLeadsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/hero-slides': {
+      id: '/_authenticated/admin/hero-slides'
+      path: '/hero-slides'
+      fullPath: '/admin/hero-slides'
+      preLoaderRoute: typeof AuthenticatedAdminHeroSlidesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/governorates': {
       id: '/_authenticated/admin/governorates'
       path: '/governorates'
@@ -992,6 +1012,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminDownloadsRoute: typeof AuthenticatedAdminDownloadsRoute
   AuthenticatedAdminGalleryRoute: typeof AuthenticatedAdminGalleryRoute
   AuthenticatedAdminGovernoratesRoute: typeof AuthenticatedAdminGovernoratesRoute
+  AuthenticatedAdminHeroSlidesRoute: typeof AuthenticatedAdminHeroSlidesRoute
   AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
   AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
   AuthenticatedAdminPagesRoute: typeof AuthenticatedAdminPagesRoute
@@ -1015,6 +1036,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminDownloadsRoute: AuthenticatedAdminDownloadsRoute,
   AuthenticatedAdminGalleryRoute: AuthenticatedAdminGalleryRoute,
   AuthenticatedAdminGovernoratesRoute: AuthenticatedAdminGovernoratesRoute,
+  AuthenticatedAdminHeroSlidesRoute: AuthenticatedAdminHeroSlidesRoute,
   AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
   AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
   AuthenticatedAdminPagesRoute: AuthenticatedAdminPagesRoute,

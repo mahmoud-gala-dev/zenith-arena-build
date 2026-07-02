@@ -5,6 +5,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { SectionHeader } from "@/components/site/SectionHeader";
 import { Reveal } from "@/components/site/Reveal";
 import { ServiceCard, ProjectCard, ArticleCard } from "@/components/site/Cards";
+import { HeroSlider } from "@/components/site/HeroSlider";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import ogImage from "@/assets/apex-og.jpg.asset.json";
 import {
@@ -41,65 +42,46 @@ function Index() {
 
   return (
     <SiteLayout>
-      {/* Hero */}
-      <section className="relative flex min-h-[92vh] items-center overflow-hidden bg-ink">
-        <img
-          src={heroImg}
-          alt="Stadium at dusk"
-          className="absolute inset-0 h-full w-full object-cover opacity-55"
-          width={1920}
-          height={1280}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/70 via-ink/50 to-ink" />
-        <div className="absolute inset-0 grid-texture opacity-30" />
-
-        <div className="relative mx-auto w-full max-w-7xl px-4 py-28 sm:px-6 lg:px-8">
-          <div className="max-w-3xl">
-            <span
-              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-white/80 backdrop-blur"
-              style={{ animation: "fade-up 0.7s ease-out both" }}
-            >
-              {t.hero.eyebrow}
-            </span>
-            <h1
-              className="mt-6 text-4xl font-bold leading-[1.05] text-white sm:text-6xl md:text-7xl"
-              style={{ animation: "fade-up 0.8s ease-out 0.1s both" }}
-            >
-              {t.hero.title1}{" "}
-              <span className="text-gradient-gold">{t.hero.title2}</span>
-            </h1>
-            <p
-              className="mt-6 max-w-xl text-lg text-white/70"
-              style={{ animation: "fade-up 0.8s ease-out 0.2s both" }}
-            >
-              {t.hero.subtitle}
-            </p>
-            <div
-              className="mt-9 flex flex-wrap gap-3"
-              style={{ animation: "fade-up 0.8s ease-out 0.3s both" }}
-            >
-              <Button asChild variant="gold" size="xl">
-                <Link to="/contact">
-                  {t.cta.getConsultation}
-                  <ArrowRight className="h-5 w-5 rtl:rotate-180" />
-                </Link>
-              </Button>
-              <Button asChild variant="outlineLight" size="xl">
-                <Link to="/projects">{t.cta.explore}</Link>
-              </Button>
-            </div>
-          </div>
-
-          <div className="mt-20 grid grid-cols-2 gap-6 border-t border-white/10 pt-8 sm:grid-cols-4">
-            {heroStats.map((s, i) => (
-              <div key={s.key} style={{ animation: `fade-up 0.7s ease-out ${0.4 + i * 0.1}s both` }}>
-                <p className="text-3xl font-bold text-white sm:text-4xl">{s.value}</p>
-                <p className="mt-1 text-sm text-white/60">{t.hero[s.key]}</p>
+      <HeroSlider
+        fallback={
+          <section className="relative flex min-h-[92vh] items-center overflow-hidden bg-ink">
+            <img src={heroImg} alt="Stadium at dusk" className="absolute inset-0 h-full w-full object-cover opacity-55" width={1920} height={1280} />
+            <div className="absolute inset-0 bg-gradient-to-b from-ink/70 via-ink/50 to-ink" />
+            <div className="relative mx-auto w-full max-w-7xl px-4 py-28 sm:px-6 lg:px-8">
+              <div className="max-w-3xl">
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-white/80 backdrop-blur">
+                  {t.hero.eyebrow}
+                </span>
+                <h1 className="mt-6 text-4xl font-bold leading-[1.05] text-white sm:text-6xl md:text-7xl">
+                  {t.hero.title1} <span className="text-gradient-gold">{t.hero.title2}</span>
+                </h1>
+                <p className="mt-6 max-w-xl text-lg text-white/70">{t.hero.subtitle}</p>
+                <div className="mt-9 flex flex-wrap gap-3">
+                  <Button asChild variant="gold" size="xl">
+                    <Link to="/contact">{t.cta.getConsultation}<ArrowRight className="h-5 w-5 rtl:rotate-180" /></Link>
+                  </Button>
+                  <Button asChild variant="outlineLight" size="xl">
+                    <Link to="/projects">{t.cta.explore}</Link>
+                  </Button>
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
+          </section>
+        }
+      />
+
+      {/* Stats strip */}
+      <section className="border-b border-border bg-ink py-10 text-white">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 sm:grid-cols-4 sm:px-6 lg:px-8">
+          {heroStats.map((s) => (
+            <div key={s.key}>
+              <p className="text-3xl font-bold sm:text-4xl">{s.value}</p>
+              <p className="mt-1 text-sm text-white/60">{t.hero[s.key]}</p>
+            </div>
+          ))}
         </div>
       </section>
+
 
       {/* Services */}
       <section className="py-24">
