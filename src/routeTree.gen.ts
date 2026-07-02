@@ -28,6 +28,10 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ServicesIndexRouteImport } from './routes/services.index'
+import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
+import { Route as ProductsIndexRouteImport } from './routes/products.index'
+import { Route as KnowledgeIndexRouteImport } from './routes/knowledge.index'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
@@ -144,6 +148,26 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesIndexRoute = ServicesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ServicesRoute,
+} as any)
+const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProjectsRoute,
+} as any)
+const ProductsIndexRoute = ProductsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProductsRoute,
+} as any)
+const KnowledgeIndexRoute = KnowledgeIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => KnowledgeRoute,
 } as any)
 const ServicesSlugRoute = ServicesSlugRouteImport.update({
   id: '/$slug',
@@ -290,6 +314,10 @@ export interface FileRoutesByFullPath {
   '/products/$slug': typeof ProductsSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
+  '/knowledge/': typeof KnowledgeIndexRoute
+  '/products/': typeof ProductsIndexRoute
+  '/projects/': typeof ProjectsIndexRoute
+  '/services/': typeof ServicesIndexRoute
   '/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
@@ -319,18 +347,18 @@ export interface FileRoutesByTo {
   '/downloads': typeof DownloadsRoute
   '/faq': typeof FaqRoute
   '/gallery': typeof GalleryRoute
-  '/knowledge': typeof KnowledgeRouteWithChildren
   '/privacy': typeof PrivacyRoute
-  '/products': typeof ProductsRouteWithChildren
-  '/projects': typeof ProjectsRouteWithChildren
   '/quote': typeof QuoteRoute
-  '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/knowledge/$slug': typeof KnowledgeSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
+  '/knowledge': typeof KnowledgeIndexRoute
+  '/products': typeof ProductsIndexRoute
+  '/projects': typeof ProjectsIndexRoute
+  '/services': typeof ServicesIndexRoute
   '/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
@@ -375,6 +403,10 @@ export interface FileRoutesById {
   '/products/$slug': typeof ProductsSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
+  '/knowledge/': typeof KnowledgeIndexRoute
+  '/products/': typeof ProductsIndexRoute
+  '/projects/': typeof ProjectsIndexRoute
+  '/services/': typeof ServicesIndexRoute
   '/_authenticated/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
@@ -419,6 +451,10 @@ export interface FileRouteTypes {
     | '/products/$slug'
     | '/projects/$slug'
     | '/services/$slug'
+    | '/knowledge/'
+    | '/products/'
+    | '/projects/'
+    | '/services/'
     | '/admin/blog'
     | '/admin/categories'
     | '/admin/certificates'
@@ -448,18 +484,18 @@ export interface FileRouteTypes {
     | '/downloads'
     | '/faq'
     | '/gallery'
-    | '/knowledge'
     | '/privacy'
-    | '/products'
-    | '/projects'
     | '/quote'
-    | '/services'
     | '/sitemap.xml'
     | '/terms'
     | '/knowledge/$slug'
     | '/products/$slug'
     | '/projects/$slug'
     | '/services/$slug'
+    | '/knowledge'
+    | '/products'
+    | '/projects'
+    | '/services'
     | '/admin/blog'
     | '/admin/categories'
     | '/admin/certificates'
@@ -503,6 +539,10 @@ export interface FileRouteTypes {
     | '/products/$slug'
     | '/projects/$slug'
     | '/services/$slug'
+    | '/knowledge/'
+    | '/products/'
+    | '/projects/'
+    | '/services/'
     | '/_authenticated/admin/blog'
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/certificates'
@@ -678,6 +718,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/services/': {
+      id: '/services/'
+      path: '/'
+      fullPath: '/services/'
+      preLoaderRoute: typeof ServicesIndexRouteImport
+      parentRoute: typeof ServicesRoute
+    }
+    '/projects/': {
+      id: '/projects/'
+      path: '/'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof ProjectsIndexRouteImport
+      parentRoute: typeof ProjectsRoute
+    }
+    '/products/': {
+      id: '/products/'
+      path: '/'
+      fullPath: '/products/'
+      preLoaderRoute: typeof ProductsIndexRouteImport
+      parentRoute: typeof ProductsRoute
+    }
+    '/knowledge/': {
+      id: '/knowledge/'
+      path: '/'
+      fullPath: '/knowledge/'
+      preLoaderRoute: typeof KnowledgeIndexRouteImport
+      parentRoute: typeof KnowledgeRoute
     }
     '/services/$slug': {
       id: '/services/$slug'
@@ -892,10 +960,12 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface KnowledgeRouteChildren {
   KnowledgeSlugRoute: typeof KnowledgeSlugRoute
+  KnowledgeIndexRoute: typeof KnowledgeIndexRoute
 }
 
 const KnowledgeRouteChildren: KnowledgeRouteChildren = {
   KnowledgeSlugRoute: KnowledgeSlugRoute,
+  KnowledgeIndexRoute: KnowledgeIndexRoute,
 }
 
 const KnowledgeRouteWithChildren = KnowledgeRoute._addFileChildren(
@@ -904,10 +974,12 @@ const KnowledgeRouteWithChildren = KnowledgeRoute._addFileChildren(
 
 interface ProductsRouteChildren {
   ProductsSlugRoute: typeof ProductsSlugRoute
+  ProductsIndexRoute: typeof ProductsIndexRoute
 }
 
 const ProductsRouteChildren: ProductsRouteChildren = {
   ProductsSlugRoute: ProductsSlugRoute,
+  ProductsIndexRoute: ProductsIndexRoute,
 }
 
 const ProductsRouteWithChildren = ProductsRoute._addFileChildren(
@@ -916,10 +988,12 @@ const ProductsRouteWithChildren = ProductsRoute._addFileChildren(
 
 interface ProjectsRouteChildren {
   ProjectsSlugRoute: typeof ProjectsSlugRoute
+  ProjectsIndexRoute: typeof ProjectsIndexRoute
 }
 
 const ProjectsRouteChildren: ProjectsRouteChildren = {
   ProjectsSlugRoute: ProjectsSlugRoute,
+  ProjectsIndexRoute: ProjectsIndexRoute,
 }
 
 const ProjectsRouteWithChildren = ProjectsRoute._addFileChildren(
@@ -928,10 +1002,12 @@ const ProjectsRouteWithChildren = ProjectsRoute._addFileChildren(
 
 interface ServicesRouteChildren {
   ServicesSlugRoute: typeof ServicesSlugRoute
+  ServicesIndexRoute: typeof ServicesIndexRoute
 }
 
 const ServicesRouteChildren: ServicesRouteChildren = {
   ServicesSlugRoute: ServicesSlugRoute,
+  ServicesIndexRoute: ServicesIndexRoute,
 }
 
 const ServicesRouteWithChildren = ServicesRoute._addFileChildren(
