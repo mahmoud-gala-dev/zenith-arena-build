@@ -118,7 +118,7 @@ function ServiceDetailPage() {
   return (
     <SiteLayout>
       <section className="relative overflow-hidden bg-ink pt-32 pb-16 text-white">
-        <img src={heroImg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" />
+        <img src={service.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/40" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Breadcrumbs items={[{ label: t.nav.services, to: "/services" }, { label: L(service.title) }]} />
