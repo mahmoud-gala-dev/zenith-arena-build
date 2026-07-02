@@ -38,6 +38,14 @@ const commonColumns = [
   { key: "updated_at", label: "Updated", type: "date" as const },
 ];
 
+const categoryColumns = [
+  { key: "title_en", label: "Title" },
+  { key: "slug_en", label: "Slug" },
+  { key: "status", label: "Status" },
+  { key: "sort_order", label: "Order" },
+  { key: "updated_at", label: "Updated", type: "date" as const },
+];
+
 export const serviceConfig: CmsCollectionConfig = {
   table: "services",
   title: "Services",
@@ -354,7 +362,7 @@ export const categoryConfigs: CmsCollectionConfig[] = [
     title: "Service Categories",
     singular: "category",
     description: "Manage service category labels and ordering.",
-    columns: commonColumns,
+    columns: categoryColumns,
     searchFields: ["title_en", "title_ar", "slug_en"],
     orderBy: "sort_order",
     orderAscending: true,
@@ -367,7 +375,7 @@ export const categoryConfigs: CmsCollectionConfig[] = [
     title: "Product Categories",
     singular: "category",
     description: "Manage product category labels and ordering.",
-    columns: commonColumns,
+    columns: categoryColumns,
     searchFields: ["title_en", "title_ar", "slug_en"],
     orderBy: "sort_order",
     orderAscending: true,
@@ -380,7 +388,7 @@ export const categoryConfigs: CmsCollectionConfig[] = [
     title: "Blog Categories",
     singular: "category",
     description: "Manage knowledge center category labels and ordering.",
-    columns: commonColumns,
+    columns: categoryColumns,
     searchFields: ["title_en", "title_ar", "slug_en"],
     orderBy: "sort_order",
     orderAscending: true,
