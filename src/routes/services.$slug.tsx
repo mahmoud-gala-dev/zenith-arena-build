@@ -16,16 +16,34 @@ export const Route = createFileRoute("/services/$slug")({
   },
   head: ({ params }) => {
     const service = services.find((item) => item.id === params.slug);
+    if (!service) {
+      return { meta: [{ title: "Service not found — APEX" }, { name: "robots", content: "noindex" }] };
+    }
+    const title = `${service.title.en} — Sports Construction Services | APEX`;
+    const desc = service.description.en;
     return {
       meta: [
-        { title: service ? `${service.title.en} — Sports Construction Services` : "Service — APEX" },
-        { name: "description", content: service?.description.en ?? "Sports construction service details from APEX." },
-        { property: "og:title", content: service ? `${service.title.en} — APEX` : "Service — APEX" },
-        { property: "og:description", content: service?.description.en ?? "Sports construction service details from APEX." },
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "website" },
         { property: "og:url", content: `/services/${params.slug}` },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: desc },
       ],
       links: [{ rel: "canonical", href: `/services/${params.slug}` }],
-      scripts: service ? [{ type: "application/ld+json", children: JSON.stringify({ "@context": "https://schema.org", "@type": "Service", name: service.title.en, description: service.description.en }) }] : [],
+      scripts: [{
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: service.title.en,
+          description: service.description.en,
+          provider: { "@type": "Organization", name: "APEX Sports" },
+        }),
+      }],
     };
   },
   component: ServiceDetailPage,
