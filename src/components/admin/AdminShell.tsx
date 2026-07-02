@@ -4,12 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-const nav = [
+const nav: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { to: "/admin/leads", label: "Leads", icon: Inbox },
   { to: "/admin/projects", label: "Projects", icon: FolderKanban },
   { to: "/admin/media", label: "Media Library", icon: ImageIcon },
-] as const;
+];
 
 export function AdminShell({ children, title }: { children: React.ReactNode; title: string }) {
   const navigate = useNavigate();
