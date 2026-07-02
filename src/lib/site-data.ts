@@ -467,14 +467,88 @@ export const articles: Article[] = [
   },
 ];
 
-export const clients: string[] = [
-  "National Football Federation",
-  "Ministry of Sports",
-  "City Sports Authority",
-  "Olympic Committee",
-  "Premier League Club",
-  "University Athletics",
+export interface ClientLogo {
+  name: { en: string; ar: string };
+  sector: { en: string; ar: string };
+  monogram: string; // 2–3 chars used as SVG mark
+  accent: string; // css color for the mark
+}
+
+export const clients: ClientLogo[] = [
+  {
+    name: { en: "Egyptian Football Association", ar: "الاتحاد المصري لكرة القدم" },
+    sector: { en: "National Federation", ar: "اتحاد وطني" },
+    monogram: "EFA",
+    accent: "#c9a84c",
+  },
+  {
+    name: { en: "Ministry of Youth & Sports", ar: "وزارة الشباب والرياضة" },
+    sector: { en: "Government", ar: "جهة حكومية" },
+    monogram: "MYS",
+    accent: "#0f6b3a",
+  },
+  {
+    name: { en: "Egyptian Olympic Committee", ar: "اللجنة الأولمبية المصرية" },
+    sector: { en: "Olympic Committee", ar: "لجنة أولمبية" },
+    monogram: "EOC",
+    accent: "#1e40af",
+  },
+  {
+    name: { en: "Al Ahly SC", ar: "النادي الأهلي" },
+    sector: { en: "Premier Club", ar: "نادٍ محترف" },
+    monogram: "AH",
+    accent: "#b91c1c",
+  },
+  {
+    name: { en: "Zamalek SC", ar: "نادي الزمالك" },
+    sector: { en: "Premier Club", ar: "نادٍ محترف" },
+    monogram: "ZS",
+    accent: "#0e7490",
+  },
+  {
+    name: { en: "Cairo University", ar: "جامعة القاهرة" },
+    sector: { en: "University Athletics", ar: "رياضة جامعية" },
+    monogram: "CU",
+    accent: "#7c3aed",
+  },
+  {
+    name: { en: "New Administrative Capital", ar: "العاصمة الإدارية الجديدة" },
+    sector: { en: "Mega Development", ar: "تطوير كبير" },
+    monogram: "NAC",
+    accent: "#0f766e",
+  },
+  {
+    name: { en: "Alexandria Sports Authority", ar: "هيئة الإسكندرية للرياضة" },
+    sector: { en: "City Authority", ar: "هيئة محلية" },
+    monogram: "ASA",
+    accent: "#c2410c",
+  },
+  {
+    name: { en: "Pyramids FC", ar: "نادي بيراميدز" },
+    sector: { en: "Premier Club", ar: "نادٍ محترف" },
+    monogram: "PFC",
+    accent: "#0369a1",
+  },
+  {
+    name: { en: "Suez Canal Authority", ar: "هيئة قناة السويس" },
+    sector: { en: "Public Sector", ar: "قطاع عام" },
+    monogram: "SCA",
+    accent: "#065f46",
+  },
+  {
+    name: { en: "British International School", ar: "المدرسة البريطانية الدولية" },
+    sector: { en: "International School", ar: "مدرسة دولية" },
+    monogram: "BIS",
+    accent: "#334155",
+  },
+  {
+    name: { en: "Ministry of Education", ar: "وزارة التربية والتعليم" },
+    sector: { en: "Government", ar: "جهة حكومية" },
+    monogram: "MOE",
+    accent: "#9d174d",
+  },
 ];
+
 
 export interface Testimonial {
   quote: L;
