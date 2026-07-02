@@ -77,12 +77,28 @@ function toArray(g: unknown): string[] {
   return [];
 }
 
+const IMAGE_FIELDS = [
+  { key: "cover_image" as const, variantsKey: "cover_image_variants" as const, aspect: 16 / 10, label: "Cover" },
+  { key: "header_image" as const, variantsKey: "header_image_variants" as const, aspect: 21 / 9, label: "Header" },
+  { key: "og_image" as const, variantsKey: "og_image_variants" as const, aspect: 1200 / 630, label: "Social" },
+];
+
+function loadImageDims(url: string): Promise<{ w: number; h: number } | null> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
 function AdminServicesPage() {
   const [rows, setRows] = useState<ServiceRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<ServiceRow | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [tabStatus, setTabStatus] = useState<Record<string, FieldStatus>>({});
 
   async function load() {
     setLoading(true);
@@ -94,10 +110,34 @@ function AdminServicesPage() {
 
   useEffect(() => { load(); }, []);
 
+  function openEditor(row: ServiceRow) {
+    setTabStatus({});
+    setEditing({ ...row, gallery_images: toArray(row.gallery_images) });
+  }
+
   function validate(v: ServiceRow): string | null {
     if (!v.slug_en.trim()) return "English slug is required";
     if (!v.title_en.trim()) return "English title is required";
     if (v.slug_en.length > 140) return "Slug too long";
+    return null;
+  }
+
+  /** Verify each image URL falls within the tab's aspect tolerance before saving. */
+  async function validateAspects(v: ServiceRow): Promise<string | null> {
+    const tolerance = 0.08;
+    for (const f of IMAGE_FIELDS) {
+      const url = v[f.key];
+      if (!url) continue;
+      // Uploaded images already carry a `_variants` manifest — they were cropped by us and are trusted.
+      if (v[f.variantsKey]) continue;
+      const dims = await loadImageDims(url);
+      if (!dims) return `${f.label} image failed to load — cannot verify aspect ratio.`;
+      const actual = dims.w / dims.h;
+      const diff = Math.abs(actual - f.aspect) / f.aspect;
+      if (diff > tolerance) {
+        return `${f.label} image aspect ratio is ${actual.toFixed(2)}:1 — expected ${f.aspect.toFixed(2)}:1 (±${Math.round(tolerance * 100)}%). Use Upload & Crop to fix.`;
+      }
+    }
     return null;
   }
 
@@ -106,18 +146,55 @@ function AdminServicesPage() {
     const err = validate(editing);
     if (err) { toast.error(err); return; }
     setSaving(true);
+    const aspectErr = await validateAspects(editing);
+    if (aspectErr) { setSaving(false); toast.error(aspectErr); return; }
+
     const { id, updated_at: _u, ...rest } = editing;
     void _u;
     const payload = { ...rest, gallery_images: rest.gallery_images ?? [] };
+
+    // Snapshot previous image values into image_versions BEFORE overwriting.
+    if (id) {
+      const previous = rows.find((r) => r.id === id);
+      if (previous) {
+        await Promise.all(
+          IMAGE_FIELDS.map(async (f) => {
+            const oldUrl = previous[f.key];
+            const oldManifest = previous[f.variantsKey];
+            const newUrl = editing[f.key];
+            const changed = (oldUrl ?? "") !== (newUrl ?? "");
+            if (changed && (oldUrl || oldManifest)) {
+              try {
+                await insertImageVersion({
+                  entity_table: "services",
+                  entity_id: id,
+                  field: f.key,
+                  url: oldUrl,
+                  variants: oldManifest,
+                  note: `Replaced via admin editor`,
+                });
+                if (oldManifest) invalidateManifestCache(oldManifest);
+              } catch (e) {
+                console.warn("image_versions insert failed", e);
+              }
+            }
+          }),
+        );
+      }
+    }
+
     const { error } = id
       ? await supabase.from("services").update(payload).eq("id", id)
       : await supabase.from("services").insert(payload);
     setSaving(false);
     if (error) { toast.error(error.message); return; }
+    // Invalidate the manifest cache for the new versions so /services picks them up immediately.
+    IMAGE_FIELDS.forEach((f) => editing[f.variantsKey] && invalidateManifestCache(editing[f.variantsKey]));
     toast.success("Service saved");
     setEditing(null);
     load();
   }
+
 
   async function confirmDelete() {
     if (!deleteId) return;
