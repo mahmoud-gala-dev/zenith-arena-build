@@ -40,13 +40,13 @@ export function Header() {
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-300",
         scrolled
-          ? "border-b border-border/70 bg-background/85 backdrop-blur-lg shadow-soft"
-          : "bg-transparent",
+          ? "border-b border-border/70 bg-background/85 backdrop-blur-lg shadow-soft text-foreground"
+          : "bg-transparent text-white",
       )}
     >
       <div className="mx-auto flex h-24 max-w-7xl items-center justify-between gap-4 px-4 sm:h-28 sm:px-6 lg:h-32 xl:h-36 lg:px-8">
         <Link to="/" aria-label="APEX home">
-          <Logo />
+          <Logo light={!scrolled} />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
@@ -55,10 +55,13 @@ export function Header() {
               key={l.to}
               to={l.to}
               className={cn(
-                "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
-                pathname === l.to && "text-foreground",
+                "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                scrolled
+                  ? "text-muted-foreground hover:text-foreground"
+                  : "text-white/80 hover:text-white",
+                pathname === l.to && (scrolled ? "text-foreground" : "text-white"),
               )}
-              activeProps={{ className: "text-foreground" }}
+              activeProps={{ className: scrolled ? "text-foreground" : "text-white" }}
               activeOptions={{ exact: l.to === "/" }}
             >
               {l.label}
@@ -80,7 +83,12 @@ export function Header() {
 
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Open menu">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Open menu"
+                className={cn(!scrolled && "text-white hover:bg-white/10 hover:text-white")}
+              >
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
@@ -112,3 +120,4 @@ export function Header() {
     </header>
   );
 }
+
