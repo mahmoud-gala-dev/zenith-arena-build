@@ -33,7 +33,12 @@ export const Route = createFileRoute("/projects/$slug")({
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: desc },
       ],
-      links: [{ rel: "canonical", href: `/projects/${params.slug}` }],
+      links: [
+        { rel: "canonical", href: `/projects/${params.slug}` },
+        { rel: "alternate", hrefLang: "en", href: `/projects/${params.slug}` },
+        { rel: "alternate", hrefLang: "ar", href: `/projects/${params.slug}` },
+        { rel: "alternate", hrefLang: "x-default", href: `/projects/${params.slug}` },
+      ],
       scripts: [{
         type: "application/ld+json",
         children: JSON.stringify({
