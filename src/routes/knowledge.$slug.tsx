@@ -37,7 +37,12 @@ export const Route = createFileRoute("/knowledge/$slug")({
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: desc },
       ],
-      links: [{ rel: "canonical", href: `/knowledge/${params.slug}` }],
+      links: [
+        { rel: "canonical", href: `/knowledge/${params.slug}` },
+        { rel: "alternate", hrefLang: "en", href: `/knowledge/${params.slug}` },
+        { rel: "alternate", hrefLang: "ar", href: `/knowledge/${params.slug}` },
+        { rel: "alternate", hrefLang: "x-default", href: `/knowledge/${params.slug}` },
+      ],
       scripts: [{
         type: "application/ld+json",
         children: JSON.stringify({
