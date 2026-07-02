@@ -216,7 +216,7 @@ function AdminServicesPage() {
               <Badge variant="outline">{rows.filter((r) => r.status === "published").length} published</Badge>
             </div>
           </div>
-          <Button onClick={() => setEditing({ ...EMPTY })}><Plus className="h-4 w-4" /> New service</Button>
+          <Button onClick={() => { setTabStatus({}); setEditing({ ...EMPTY }); }}><Plus className="h-4 w-4" /> New service</Button>
         </div>
 
         <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-soft">
