@@ -8,7 +8,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { ServiceCard, ProjectCard, ArticleCard } from "@/components/site/Cards";
 import { HeroSlider } from "@/components/site/HeroSlider";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
-import { supabase } from "@/integrations/supabase/client";
+import { heroSlidesActiveQueryOptions, homeClientsQueryOptions, type HomeClient } from "@/lib/queries";
 import ogImage from "@/assets/apex-og.jpg.asset.json";
 import ctaLandmark from "@/assets/cta-landmark.jpg.asset.json";
 
