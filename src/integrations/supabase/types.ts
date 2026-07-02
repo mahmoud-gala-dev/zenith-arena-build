@@ -1313,15 +1313,18 @@ export type Database = {
           alt_en: string | null
           category: string | null
           cover_image: string | null
+          cover_image_variants: Json | null
           created_at: string
           description_ar: string | null
           description_en: string | null
           featured: boolean
           gallery_images: Json
           header_image: string | null
+          header_image_variants: Json | null
           icon: string | null
           id: string
           og_image: string | null
+          og_image_variants: Json | null
           seo_description_ar: string | null
           seo_description_en: string | null
           seo_title_ar: string | null
@@ -1339,15 +1342,18 @@ export type Database = {
           alt_en?: string | null
           category?: string | null
           cover_image?: string | null
+          cover_image_variants?: Json | null
           created_at?: string
           description_ar?: string | null
           description_en?: string | null
           featured?: boolean
           gallery_images?: Json
           header_image?: string | null
+          header_image_variants?: Json | null
           icon?: string | null
           id?: string
           og_image?: string | null
+          og_image_variants?: Json | null
           seo_description_ar?: string | null
           seo_description_en?: string | null
           seo_title_ar?: string | null
@@ -1365,15 +1371,18 @@ export type Database = {
           alt_en?: string | null
           category?: string | null
           cover_image?: string | null
+          cover_image_variants?: Json | null
           created_at?: string
           description_ar?: string | null
           description_en?: string | null
           featured?: boolean
           gallery_images?: Json
           header_image?: string | null
+          header_image_variants?: Json | null
           icon?: string | null
           id?: string
           og_image?: string | null
+          og_image_variants?: Json | null
           seo_description_ar?: string | null
           seo_description_en?: string | null
           seo_title_ar?: string | null
