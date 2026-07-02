@@ -372,6 +372,48 @@ export type Database = {
           },
         ]
       }
+      governorates: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          logo_url: string | null
+          name_ar: string
+          name_en: string
+          region_ar: string | null
+          region_en: string | null
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name_ar: string
+          name_en: string
+          region_ar?: string | null
+          region_en?: string | null
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name_ar?: string
+          name_en?: string
+          region_ar?: string | null
+          region_en?: string | null
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       homepage_sections: {
         Row: {
           content: Json
@@ -889,6 +931,7 @@ export type Database = {
           description_en: string | null
           featured: boolean
           gallery: Json | null
+          governorate_id: string | null
           id: string
           location: string | null
           overview_ar: string | null
@@ -918,6 +961,7 @@ export type Database = {
           description_en?: string | null
           featured?: boolean
           gallery?: Json | null
+          governorate_id?: string | null
           id?: string
           location?: string | null
           overview_ar?: string | null
@@ -947,6 +991,7 @@ export type Database = {
           description_en?: string | null
           featured?: boolean
           gallery?: Json | null
+          governorate_id?: string | null
           id?: string
           location?: string | null
           overview_ar?: string | null
@@ -965,7 +1010,15 @@ export type Database = {
           updated_at?: string
           year?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "projects_governorate_id_fkey"
+            columns: ["governorate_id"]
+            isOneToOne: false
+            referencedRelation: "governorates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       role_permissions: {
         Row: {
