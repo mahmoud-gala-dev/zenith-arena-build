@@ -37,30 +37,22 @@ export function SplashScreen() {
       <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-3xl" />
 
       <div className="relative flex flex-col items-center">
-        {/* Animated monogram */}
+        {/* Animated brand logo */}
         <div className="relative">
-          <span className="absolute inset-0 rounded-2xl border border-primary/40" style={{ animation: "ring-pulse 1.8s ease-out infinite" }} />
+          <span
+            className="absolute -inset-6 rounded-3xl border border-primary/40"
+            style={{ animation: "ring-pulse 1.8s ease-out infinite" }}
+          />
           <div
-            className="flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-primary shadow-elegant"
+            className="relative flex items-center justify-center px-4 py-2"
             style={{ animation: "scale-in 0.9s cubic-bezier(0.16,1,0.3,1) both" }}
           >
-            <svg viewBox="0 0 24 24" fill="none" className="h-12 w-12 text-primary-foreground">
-              <path d="M12 3L4 20h4l1.5-3.5h5L16 20h4L12 3zm-1 10l1-2.5 1 2.5h-2z" fill="currentColor" />
-            </svg>
+            <Logo light className="[&_img]:!h-28 sm:[&_img]:!h-32 lg:[&_img]:!h-40 [&_img]:!max-w-none" />
           </div>
         </div>
 
-        {/* Wordmark with reveal mask */}
-        <div className="mt-7 overflow-hidden">
-          <h1
-            className="text-4xl font-bold tracking-[0.18em] text-white"
-            style={{ fontFamily: "var(--font-display)", animation: "splash-mask 1s cubic-bezier(0.16,1,0.3,1) 0.5s both" }}
-          >
-            APEX
-          </h1>
-        </div>
         <p
-          className="mt-2 text-xs font-medium uppercase tracking-[0.4em] text-white/50"
+          className="mt-6 text-xs font-medium uppercase tracking-[0.4em] text-white/50"
           style={{ animation: "fade-in 0.9s ease-out 1.2s both" }}
         >
           Sports Infrastructure
