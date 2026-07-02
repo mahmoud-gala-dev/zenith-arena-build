@@ -56,44 +56,62 @@ export function Header() {
       >
         <Link to="/" aria-label="Egytic home" className="group relative inline-flex items-center">
           <motion.span
-            initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -12, scale: 0.9, filter: "blur(6px)" }}
-            animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            whileHover={reduceMotion ? undefined : { scale: 1.06, rotate: -1.5 }}
+            initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.6, rotate: -12, filter: "blur(10px)" }}
+            animate={reduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1, rotate: 0, filter: "blur(0px)" }}
+            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={reduceMotion ? undefined : { scale: 1.08 }}
             className={cn(
-              "relative inline-flex items-center transition-transform duration-500 ease-out will-change-transform",
+              "relative inline-flex items-center justify-center will-change-transform",
               scrolled ? "scale-100" : "scale-110",
               "[&_img]:!h-20 sm:[&_img]:!h-24 lg:[&_img]:!h-28 xl:[&_img]:!h-32",
             )}
           >
-            {/* Ambient glow */}
+            {/* Rotating conic aura ring */}
             {!reduceMotion && (
               <motion.span
                 aria-hidden
-                className={cn(
-                  "pointer-events-none absolute inset-0 -z-10 rounded-full blur-2xl",
-                  scrolled ? "bg-primary/20" : "bg-white/20",
-                )}
-                animate={{ opacity: [0.35, 0.7, 0.35], scale: [0.9, 1.05, 0.9] }}
-                transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+                className="pointer-events-none absolute inset-[-18%] -z-10 rounded-full opacity-70"
+                style={{
+                  background:
+                    "conic-gradient(from 0deg, transparent 0deg, hsl(var(--primary)/0.85) 60deg, transparent 140deg, hsl(var(--primary)/0.55) 220deg, transparent 320deg)",
+                  filter: "blur(14px)",
+                }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
               />
             )}
-            <Logo light={!scrolled} />
-            {/* Shimmer sweep */}
+            {/* Counter-rotating inner ring */}
             {!reduceMotion && (
               <motion.span
                 aria-hidden
-                className="pointer-events-none absolute inset-0 overflow-hidden"
+                className="pointer-events-none absolute inset-[-6%] -z-10 rounded-full opacity-60"
                 style={{
-                  WebkitMaskImage: "linear-gradient(90deg, transparent 0%, black 40%, black 60%, transparent 100%)",
-                  maskImage: "linear-gradient(90deg, transparent 0%, black 40%, black 60%, transparent 100%)",
+                  background:
+                    "conic-gradient(from 180deg, transparent 0deg, hsl(45 90% 60% / 0.7) 90deg, transparent 200deg, hsl(45 90% 60% / 0.5) 280deg, transparent 360deg)",
+                  filter: "blur(8px)",
                 }}
+                animate={{ rotate: -360 }}
+                transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+              />
+            )}
+            {/* Floating logo with subtle bob */}
+            <motion.span
+              className="relative inline-flex"
+              animate={reduceMotion ? undefined : { y: [0, -4, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <Logo light={!scrolled} />
+            </motion.span>
+            {/* Orbiting spark */}
+            {!reduceMotion && (
+              <motion.span
+                aria-hidden
+                className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_12px_4px_hsl(var(--primary)/0.7)]"
+                style={{ transformOrigin: "0 0" }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
               >
-                <motion.span
-                  className="absolute inset-y-0 -left-1/2 block w-1/3 bg-gradient-to-r from-transparent via-white/60 to-transparent mix-blend-overlay"
-                  animate={{ x: ["0%", "350%"] }}
-                  transition={{ duration: 3.2, repeat: Infinity, repeatDelay: 4.5, ease: "easeInOut" }}
-                />
+                <span className="absolute -left-[60px] -top-[2px] block h-1.5 w-1.5" />
               </motion.span>
             )}
           </motion.span>
