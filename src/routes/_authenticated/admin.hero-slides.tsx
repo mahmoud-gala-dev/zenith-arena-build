@@ -281,19 +281,37 @@ function AdminHeroSlides() {
             <div className="grid gap-4">
               <div>
                 <Label>Image</Label>
-                {editing.image_url ? (
-                  <div className="mt-2 flex items-center gap-3">
-                    <img src={editing.image_url} alt="" className="h-24 w-40 rounded object-cover" />
-                    <Button variant="outline" size="sm" onClick={() => set("image_url", "")}>Replace</Button>
+                {editing.image_url || localPreview ? (
+                  <div className="mt-2 flex items-start gap-3">
+                    <div className="relative">
+                      <img
+                        src={localPreview ?? editing.image_url ?? ""}
+                        alt=""
+                        className="h-24 w-40 rounded object-cover ring-1 ring-border"
+                      />
+                      {/* 16:9 crop-safe overlay so admins see what will be visible on the hero */}
+                      <div className="pointer-events-none absolute inset-0 rounded ring-1 ring-inset ring-white/60 mix-blend-overlay" />
+                      {uploading && (
+                        <div className="absolute inset-0 flex items-center justify-center rounded bg-black/40 text-white">
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+                      <p>Preview shows the safe 16:9 crop area.</p>
+                      <Button variant="outline" size="sm" onClick={() => { clearLocalPreview(); set("image_url", ""); }}>
+                        Replace
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <label className="mt-2 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed p-6 text-sm text-muted-foreground hover:bg-secondary/40">
                     {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                    {uploading ? "Uploading…" : "Click to upload image"}
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+                    {uploading ? "Uploading…" : `Upload JPG/PNG/WEBP · ≥ ${MIN_IMAGE_WIDTH}×${MIN_IMAGE_HEIGHT}px · ≤ ${MAX_IMAGE_BYTES / 1024 / 1024} MB`}
+                    <input type="file" accept={ALLOWED_IMAGE_TYPES.join(",")} className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
                   </label>
                 )}
-                <Input className="mt-2" placeholder="…or paste image URL" value={editing.image_url ?? ""} onChange={(e) => set("image_url", e.target.value)} />
+                <Input className="mt-2" placeholder="…or paste image URL" value={editing.image_url ?? ""} onChange={(e) => { clearLocalPreview(); set("image_url", e.target.value); }} />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
