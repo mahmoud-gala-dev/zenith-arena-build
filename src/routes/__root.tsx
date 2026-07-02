@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LanguageProvider } from "../i18n/LanguageProvider";
 import { SmoothScroll } from "../components/site/SmoothScroll";
+import { initPerf } from "../lib/perf";
 
 
 import "@fontsource/sora/400.css";
