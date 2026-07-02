@@ -57,13 +57,27 @@ const isVerbose = () => {
 };
 
 function ensureBuffer(): PerfBuffer {
-  if (typeof window === "undefined") {
-    return { vitals: [], renders: [], summary: () => ({}) };
-  }
+  const makeStub = (): PerfBuffer => ({
+    vitals: [],
+    renders: [],
+    events: [],
+    logEvent: () => {},
+    summary: () => ({}),
+  });
+  if (typeof window === "undefined") return makeStub();
   if (window.__perf) return window.__perf;
   const buf: PerfBuffer = {
     vitals: [],
     renders: [],
+    events: [],
+    logEvent(type, data) {
+      const ev: PerfEvent = { type, ts: performance.now(), data };
+      buf.events.push(ev);
+      if (isVerbose()) {
+        // eslint-disable-next-line no-console
+        console.info(`[perf:event] ${type}`, data ?? "");
+      }
+    },
     summary() {
       const byId: Record<string, { count: number; totalActual: number; maxActual: number }> = {};
       for (const r of buf.renders) {
@@ -74,12 +88,17 @@ function ensureBuffer(): PerfBuffer {
       }
       const vitals: Record<string, number> = {};
       for (const v of buf.vitals) vitals[v.name] = v.value;
-      return { vitals, renders: byId };
+      return { vitals, renders: byId, events: buf.events.slice(-50) };
     },
   };
   window.__perf = buf;
   return buf;
 }
+
+export function logPerfEvent(type: string, data?: Record<string, unknown>) {
+  ensureBuffer().logEvent(type, data);
+}
+
 
 let started = false;
 export function initPerf() {
