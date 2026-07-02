@@ -59,7 +59,7 @@ export function MobileTopBar() {
     >
       <div className="mx-auto flex h-14 items-center justify-between gap-2 px-3">
         <Link to="/" aria-label="Home" className="flex items-center">
-          <Logo light={transparent} className="h-10 w-auto sm:h-11" />
+          <Logo light={transparent} size="h-10 w-auto object-contain select-none" />
         </Link>
 
         {title && !transparent && (
