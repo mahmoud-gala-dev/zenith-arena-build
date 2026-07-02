@@ -44,8 +44,9 @@ function ServiceDetailPage() {
     : { back: "Back to services", overview: "Overview", gallery: "Service gallery", brochure: "Download brochure", whatsapp: "WhatsApp", quote: "Request quote", notFound: "Service not found" };
 
   if (loading) {
-    return <SiteLayout><div className="grid min-h-[60vh] place-items-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div></SiteLayout>;
+    return <SiteLayout><DetailPageSkeleton /></SiteLayout>;
   }
+
   if (!service) {
     return (
       <SiteLayout>
