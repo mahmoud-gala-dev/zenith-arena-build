@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as QuoteRouteImport } from './routes/quote'
 import { Route as ProjectsRouteImport } from './routes/projects'
@@ -53,6 +54,11 @@ import { Route as AuthenticatedAdminBlogRouteImport } from './routes/_authentica
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServicesRoute = ServicesRouteImport.update({
@@ -277,6 +283,7 @@ export interface FileRoutesByFullPath {
   '/projects': typeof ProjectsRouteWithChildren
   '/quote': typeof QuoteRoute
   '/services': typeof ServicesRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/knowledge/$slug': typeof KnowledgeSlugRoute
@@ -318,6 +325,7 @@ export interface FileRoutesByTo {
   '/projects': typeof ProjectsRouteWithChildren
   '/quote': typeof QuoteRoute
   '/services': typeof ServicesRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/knowledge/$slug': typeof KnowledgeSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -360,6 +368,7 @@ export interface FileRoutesById {
   '/projects': typeof ProjectsRouteWithChildren
   '/quote': typeof QuoteRoute
   '/services': typeof ServicesRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/knowledge/$slug': typeof KnowledgeSlugRoute
@@ -403,6 +412,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/quote'
     | '/services'
+    | '/sitemap.xml'
     | '/terms'
     | '/admin'
     | '/knowledge/$slug'
@@ -444,6 +454,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/quote'
     | '/services'
+    | '/sitemap.xml'
     | '/terms'
     | '/knowledge/$slug'
     | '/products/$slug'
@@ -485,6 +496,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/quote'
     | '/services'
+    | '/sitemap.xml'
     | '/terms'
     | '/_authenticated/admin'
     | '/knowledge/$slug'
@@ -528,6 +540,7 @@ export interface RootRouteChildren {
   ProjectsRoute: typeof ProjectsRouteWithChildren
   QuoteRoute: typeof QuoteRoute
   ServicesRoute: typeof ServicesRouteWithChildren
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
 }
 
@@ -538,6 +551,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/services': {
@@ -936,6 +956,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsRoute: ProjectsRouteWithChildren,
   QuoteRoute: QuoteRoute,
   ServicesRoute: ServicesRouteWithChildren,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport

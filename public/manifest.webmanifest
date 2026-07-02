@@ -1,0 +1,13 @@
+{
+  "name": "APEX — Sports Construction & Infrastructure",
+  "short_name": "APEX",
+  "description": "Turnkey sports infrastructure: FIFA-grade pitches, World Athletics tracks, courts, aquatic centers.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b0f19",
+  "theme_color": "#0b0f19",
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "48x48", "type": "image/x-icon" }
+  ]
+}
