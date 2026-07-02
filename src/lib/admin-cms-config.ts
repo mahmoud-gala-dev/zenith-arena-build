@@ -186,7 +186,7 @@ export const clientsConfig: CmsCollectionConfig = {
   fields: [
     { name: "name_en", label: "English name", required: true },
     { name: "name_ar", label: "Arabic name", required: true, dir: "rtl" },
-    { name: "logo_url", label: "Logo (SVG / PNG) — URL or upload", type: "image", fullWidth: true },
+    { name: "logo_url", label: "Logo URL (SVG or PNG, transparent bg)", type: "url", fullWidth: true },
     { name: "industry", label: "Sector / Industry" },
     { name: "country", label: "Country" },
     { name: "website", label: "Website", type: "url" },
