@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Award, ShieldCheck, Cpu, Wrench } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { SectionHeader } from "@/components/site/SectionHeader";
@@ -7,16 +8,44 @@ import { Reveal } from "@/components/site/Reveal";
 import { ServiceCard, ProjectCard, ArticleCard } from "@/components/site/Cards";
 import { HeroSlider } from "@/components/site/HeroSlider";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
+import { supabase } from "@/integrations/supabase/client";
 import ogImage from "@/assets/apex-og.jpg.asset.json";
 import {
   services,
   projects,
   articles,
   testimonials,
-  clients,
+  clients as fallbackClients,
   heroStats,
   heroImg,
+  type ClientLogo,
 } from "@/lib/site-data";
+
+type DbClient = {
+  id: string;
+  name_en: string;
+  name_ar: string;
+  logo_url: string | null;
+  industry: string | null;
+  description_en: string | null;
+  description_ar: string | null;
+};
+
+type TrustClient = ClientLogo & { logo_url?: string | null; description?: { en: string; ar: string } };
+
+function monogramFor(name: string): string {
+  return name
+    .replace(/[^A-Za-z\u0600-\u06FF ]/g, "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase() || name.slice(0, 2).toUpperCase();
+}
+
+const ACCENTS = ["#c9a84c", "#0f766e", "#1e40af", "#b91c1c", "#7c3aed", "#0369a1", "#a16207", "#065f46"];
+
 
 export const Route = createFileRoute("/")({
   component: Index,
