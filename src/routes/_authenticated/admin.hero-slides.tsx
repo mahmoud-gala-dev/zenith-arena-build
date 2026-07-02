@@ -14,6 +14,13 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { CinematicBackdrop } from "@/components/site/CinematicBackdrop";
+
+const clamp01 = (n: unknown): number => {
+  const v = typeof n === "number" ? n : Number(n);
+  if (!Number.isFinite(v)) return 0.6;
+  return Math.min(1, Math.max(0, v));
+};
 
 type Slide = Database["public"]["Tables"]["hero_slides"]["Row"];
 type SlideInput = Database["public"]["Tables"]["hero_slides"]["Insert"];
