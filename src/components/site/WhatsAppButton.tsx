@@ -10,9 +10,11 @@ export function WhatsAppButton() {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="group fixed bottom-[calc(env(safe-area-inset-bottom)+6.5rem)] z-40 flex items-center gap-2 rounded-full bg-gradient-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-elegant transition-transform hover:-translate-y-0.5 md:bottom-5"
-      style={isRTL ? { left: "1.25rem" } : { right: "1.25rem" }}
-
+      className="group fixed z-40 flex items-center gap-2 rounded-full bg-gradient-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-elegant transition-transform hover:-translate-y-0.5 md:!bottom-5"
+      style={{
+        bottom: "calc(env(safe-area-inset-bottom) + 6.25rem)",
+        ...(isRTL ? { left: "1.25rem" } : { right: "1.25rem" }),
+      }}
       aria-label={t.cta.whatsapp}
     >
       <MessageCircle className="h-5 w-5" />
