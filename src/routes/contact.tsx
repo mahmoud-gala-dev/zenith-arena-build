@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MapPin, Phone, Clock, CheckCircle2, MessageCircle } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -25,6 +28,36 @@ function ContactPage() {
   const { t } = useLang();
   const L = useLocalized();
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [projectType, setProjectType] = useState("");
+
+  const schema = z.object({
+    name: z.string().trim().min(1).max(100),
+    email: z.string().trim().email().max(255),
+    message: z.string().trim().min(1).max(2000),
+  });
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const payload = {
+      type: "contact" as const,
+      name: String(fd.get("name") ?? ""),
+      email: String(fd.get("email") ?? ""),
+      phone: String(fd.get("phone") ?? "") || null,
+      service: projectType || null,
+      budget_range: String(fd.get("budget") ?? "") || null,
+      message: String(fd.get("message") ?? ""),
+    };
+    const check = schema.safeParse(payload);
+    if (!check.success) return toast.error(check.error.issues[0].message);
+    setSubmitting(true);
+    const { error } = await supabase.from("leads").insert(payload as never);
+    setSubmitting(false);
+    if (error) return toast.error(error.message);
+    setSent(true);
+  }
+
 
   return (
     <SiteLayout>
