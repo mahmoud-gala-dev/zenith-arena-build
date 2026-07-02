@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import { Logo } from "./Logo";
 import { LangToggle } from "./LangToggle";
 import { ThemeToggle } from "./ThemeToggle";
+import { useBranding, DEFAULT_LOGO_MOTION } from "@/hooks/useBranding";
 
 import { useLang } from "@/i18n/LanguageProvider";
 import { cn } from "@/lib/utils";
