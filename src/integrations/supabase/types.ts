@@ -1020,6 +1020,57 @@ export type Database = {
           },
         ]
       }
+      qa_reports: {
+        Row: {
+          branch: string | null
+          cls: number | null
+          commit_sha: string | null
+          created_at: string
+          id: string
+          lcp_ms: number | null
+          metadata: Json | null
+          more_opened: boolean | null
+          notes: string | null
+          page: string
+          run_at: string
+          screenshot_url: string | null
+          viewport: string
+          wa_overlap: boolean | null
+        }
+        Insert: {
+          branch?: string | null
+          cls?: number | null
+          commit_sha?: string | null
+          created_at?: string
+          id?: string
+          lcp_ms?: number | null
+          metadata?: Json | null
+          more_opened?: boolean | null
+          notes?: string | null
+          page: string
+          run_at?: string
+          screenshot_url?: string | null
+          viewport: string
+          wa_overlap?: boolean | null
+        }
+        Update: {
+          branch?: string | null
+          cls?: number | null
+          commit_sha?: string | null
+          created_at?: string
+          id?: string
+          lcp_ms?: number | null
+          metadata?: Json | null
+          more_opened?: boolean | null
+          notes?: string | null
+          page?: string
+          run_at?: string
+          screenshot_url?: string | null
+          viewport?: string
+          wa_overlap?: boolean | null
+        }
+        Relationships: []
+      }
       role_permissions: {
         Row: {
           created_at: string
