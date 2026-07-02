@@ -68,7 +68,10 @@ function ProductDetailPage() {
       <section className="relative overflow-hidden bg-ink pt-32 pb-16 text-white">
         <img src={product.image} alt={L(product.title)} className="absolute inset-0 h-full w-full object-cover opacity-35" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/40" />
-        <div className="relative mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Breadcrumbs items={[{ label: t.nav.products, to: "/products" }, { label: L(product.title) }]} />
+        </div>
+        <div className="relative mx-auto mt-6 grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
           <div>
             <Link to="/products" className="inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white"><ArrowLeft className="h-4 w-4 rtl:rotate-180" /> {tx.back}</Link>
             <p className="mt-8 text-sm font-semibold uppercase tracking-[0.2em] text-gold">{L(product.category)}</p>
