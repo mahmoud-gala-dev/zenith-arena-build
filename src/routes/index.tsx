@@ -8,7 +8,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { ServiceCard, ProjectCard, ArticleCard } from "@/components/site/Cards";
 import { HeroSlider } from "@/components/site/HeroSlider";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
-import { supabase } from "@/integrations/supabase/client";
+import { heroSlidesActiveQueryOptions, homeClientsQueryOptions, type HomeClient } from "@/lib/queries";
 import ogImage from "@/assets/apex-og.jpg.asset.json";
 import ctaLandmark from "@/assets/cta-landmark.jpg.asset.json";
 
@@ -23,15 +23,6 @@ import {
   type ClientLogo,
 } from "@/lib/site-data";
 
-type DbClient = {
-  id: string;
-  name_en: string;
-  name_ar: string;
-  logo_url: string | null;
-  industry: string | null;
-  description_en: string | null;
-  description_ar: string | null;
-};
 
 type TrustClient = ClientLogo & { logo_url?: string | null; description?: { en: string; ar: string } };
 
@@ -51,6 +42,10 @@ const ACCENTS = ["#c9a84c", "#0f766e", "#1e40af", "#b91c1c", "#7c3aed", "#0369a1
 
 export const Route = createFileRoute("/")({
   component: Index,
+  loader: ({ context: { queryClient } }) => {
+    void queryClient.ensureQueryData(heroSlidesActiveQueryOptions);
+    void queryClient.ensureQueryData(homeClientsQueryOptions);
+  },
   head: () => ({
     meta: [
       { property: "og:image", content: ogImage.url },
@@ -79,20 +74,7 @@ function Index() {
   const { t } = useLang();
   const L = useLocalized();
 
-  const { data: dbClients } = useQuery({
-    queryKey: ["home-clients"],
-    queryFn: async (): Promise<DbClient[]> => {
-      const { data, error } = await supabase
-        .from("clients")
-        .select("id,name_en,name_ar,logo_url,industry,description_en,description_ar")
-        .eq("status", "published")
-        .order("sort_order", { ascending: true })
-        .limit(18);
-      if (error) throw error;
-      return (data ?? []) as DbClient[];
-    },
-    staleTime: 5 * 60 * 1000,
-  });
+  const { data: dbClients } = useQuery<HomeClient[]>(homeClientsQueryOptions);
 
   const clients: TrustClient[] =
     dbClients && dbClients.length > 0

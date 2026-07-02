@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { ImageVariantsManifest } from "@/hooks/useSignedImage";
 
@@ -48,30 +48,28 @@ function normalize(row: Record<string, unknown>): ServiceRow {
 }
 
 const FIVE_MIN = 5 * 60 * 1000;
+const HALF_HOUR = 30 * 60 * 1000;
 
-export function useServicesList() {
-  const q = useQuery({
-    queryKey: ["services", "published"],
-    staleTime: FIVE_MIN,
-    gcTime: 30 * 60 * 1000,
-    queryFn: async () => {
-      const { data: rows, error } = await supabase
-        .from("services")
-        .select("*")
-        .eq("status", "published")
-        .order("sort_order", { ascending: true });
-      if (error) throw error;
-      return (rows ?? []).map((r) => normalize(r as Record<string, unknown>));
-    },
-  });
-  return { data: q.data ?? [], loading: q.isLoading };
-}
+export const servicesPublishedQueryOptions = queryOptions<ServiceRow[]>({
+  queryKey: ["services", "published"],
+  staleTime: FIVE_MIN,
+  gcTime: HALF_HOUR,
+  queryFn: async () => {
+    const { data: rows, error } = await supabase
+      .from("services")
+      .select("*")
+      .eq("status", "published")
+      .order("sort_order", { ascending: true });
+    if (error) throw error;
+    return (rows ?? []).map((r) => normalize(r as Record<string, unknown>));
+  },
+});
 
-export function useServiceBySlug(slug: string) {
-  const q = useQuery({
+export const serviceBySlugQueryOptions = (slug: string) =>
+  queryOptions<ServiceRow | null>({
     queryKey: ["services", "by-slug", slug],
     staleTime: FIVE_MIN,
-    gcTime: 30 * 60 * 1000,
+    gcTime: HALF_HOUR,
     enabled: !!slug,
     queryFn: async () => {
       const { data: row, error } = await supabase
@@ -83,5 +81,14 @@ export function useServiceBySlug(slug: string) {
       return row ? normalize(row as Record<string, unknown>) : null;
     },
   });
+
+export function useServicesList() {
+  const q = useQuery(servicesPublishedQueryOptions);
+  return { data: q.data ?? [], loading: q.isLoading };
+}
+
+export function useServiceBySlug(slug: string) {
+  const q = useQuery(serviceBySlugQueryOptions(slug));
   return { data: q.data ?? null, loading: q.isLoading };
 }
+

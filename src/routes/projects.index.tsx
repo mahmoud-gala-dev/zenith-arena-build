@@ -10,10 +10,17 @@ import heroImg from "@/assets/hero-projects.jpg";
 import { Reveal } from "@/components/site/Reveal";
 import { ProjectCard } from "@/components/site/Cards";
 import { CardSkeleton } from "@/components/site/Skeletons";
+import { VirtualCardGrid } from "@/components/site/VirtualCardGrid";
+import { PerfProfiler } from "@/lib/perf";
 import { cn } from "@/lib/utils";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { projects, projectCategories } from "@/lib/site-data";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  governoratesActiveQueryOptions,
+  projectsPublishedListQueryOptions,
+  type Gov,
+  type DbProject,
+} from "@/lib/queries";
 
 
 const searchSchema = z.object({
@@ -24,35 +31,14 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/projects/")({
   validateSearch: zodValidator(searchSchema),
+  loader: ({ context: { queryClient } }) => {
+    // Warm the cache in parallel while the route matches — the component
+    // subscribes below and will hit the cache instantly.
+    void queryClient.ensureQueryData(governoratesActiveQueryOptions);
+    void queryClient.ensureQueryData(projectsPublishedListQueryOptions);
+  },
   component: ProjectsPage,
 });
-
-type Gov = {
-  id: string;
-  slug: string;
-  name_en: string;
-  name_ar: string;
-  logo_url: string | null;
-  region_en: string | null;
-  region_ar: string | null;
-};
-
-type DbProject = {
-  id: string;
-  slug_en: string;
-  title_en: string;
-  title_ar: string | null;
-  description_en: string | null;
-  description_ar: string | null;
-  location: string | null;
-  year: number | null;
-  sport_type: string | null;
-  service_category: string | null;
-  cover_image: string | null;
-  governorate_id: string | null;
-};
-
-const FIVE_MIN = 5 * 60 * 1000;
 
 function ProjectsPage() {
   const { t, lang } = useLang();
@@ -63,29 +49,8 @@ function ProjectsPage() {
 
   useEffect(() => { setQInput(q); }, [q]);
 
-  const govsQuery = useQuery<Gov[]>({
-    queryKey: ["governorates", "active"],
-    staleTime: FIVE_MIN,
-    gcTime: 30 * 60 * 1000,
-    queryFn: async () => {
-      const { data, error } = await supabase.from("governorates").select("*").eq("active", true).order("sort_order");
-      if (error) throw error;
-      return (data ?? []) as Gov[];
-    },
-  });
-  const projectsQuery = useQuery<DbProject[]>({
-    queryKey: ["projects", "published-list"],
-    staleTime: FIVE_MIN,
-    gcTime: 30 * 60 * 1000,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("projects")
-        .select("id,slug_en,title_en,title_ar,description_en,description_ar,location,year,sport_type,service_category,cover_image,governorate_id")
-        .eq("status", "published");
-      if (error) throw error;
-      return (data ?? []) as DbProject[];
-    },
-  });
+  const govsQuery = useQuery<Gov[]>(governoratesActiveQueryOptions);
+  const projectsQuery = useQuery<DbProject[]>(projectsPublishedListQueryOptions);
   const govs = govsQuery.data ?? [];
   const dbProjects = projectsQuery.data ?? [];
   const dbLoading = govsQuery.isLoading || projectsQuery.isLoading;
@@ -275,10 +240,12 @@ function ProjectsPage() {
                 </p>
               ) : (
 
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {dbFiltered.map((p, i) => (
-                    <Reveal key={p.id} delay={i * 50}>
-                      <Link to="/projects/$slug" params={{ slug: p.slug_en }} className="group block overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">
+                <PerfProfiler id="projects:db-grid">
+                  <VirtualCardGrid
+                    items={dbFiltered}
+                    renderItem={(p, i) => (
+                      <Reveal key={p.id} delay={Math.min(i * 40, 200)}>
+                        <Link to="/projects/$slug" params={{ slug: p.slug_en }} className="group block overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">
                         {p.cover_image && (
                           <div className="aspect-[16/10] overflow-hidden bg-secondary">
                             <img src={p.cover_image} alt={lang === "ar" ? p.title_ar ?? p.title_en : p.title_en} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
@@ -296,8 +263,10 @@ function ProjectsPage() {
                         </div>
                       </Link>
                     </Reveal>
-                  ))}
-                </div>
+                    )}
+                    className="mt-0"
+                  />
+                </PerfProfiler>
               )}
             </div>
           ) : (

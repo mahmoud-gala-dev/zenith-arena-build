@@ -8,12 +8,15 @@ import { Icon } from "@/components/site/Icon";
 import { ServiceRowSkeleton } from "@/components/site/Skeletons";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
-import { useServicesList } from "@/hooks/useServiceContent";
+import { useServicesList, servicesPublishedQueryOptions } from "@/hooks/useServiceContent";
 import { ResponsiveImage } from "@/components/site/ResponsiveImage";
 
 
 
 export const Route = createFileRoute("/services/")({
+  loader: ({ context: { queryClient } }) => {
+    void queryClient.ensureQueryData(servicesPublishedQueryOptions);
+  },
   component: ServicesPage,
   head: () => ({
     meta: [
