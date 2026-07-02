@@ -101,6 +101,8 @@ function CinematicBackdropImpl({
       "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.7'/></svg>\")",
   }), []);
 
+  if (!mounted) return null;
+
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
       {v > 0 && <div className="absolute inset-0" style={styles.vignette} />}
