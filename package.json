@@ -9,7 +9,10 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
+    "test": "vitest run",
+    "test:e2e:smooth-scroll": "python3 scripts/smooth-scroll-fallback.py",
     "format": "prettier --write ."
+
   },
   "dependencies": {
     "@fontsource/cairo": "^5.2.7",
