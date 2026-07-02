@@ -6,8 +6,9 @@ import { cn } from "@/lib/utils";
 const STORAGE_KEY = "apex-theme";
 
 
-export function ThemeToggle() {
+export function ThemeToggle({ light = false }: { light?: boolean }) {
   const [dark, setDark] = useState(false);
+
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
