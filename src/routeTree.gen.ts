@@ -36,6 +36,7 @@ import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
 import { Route as KnowledgeSlugRouteImport } from './routes/knowledge.$slug'
+import { Route as GovernoratesSlugRouteImport } from './routes/governorates.$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
@@ -190,6 +191,11 @@ const KnowledgeSlugRoute = KnowledgeSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => KnowledgeRoute,
 } as any)
+const GovernoratesSlugRoute = GovernoratesSlugRouteImport.update({
+  id: '/governorates/$slug',
+  path: '/governorates/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -317,6 +323,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/governorates/$slug': typeof GovernoratesSlugRoute
   '/knowledge/$slug': typeof KnowledgeSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
@@ -359,6 +366,7 @@ export interface FileRoutesByTo {
   '/quote': typeof QuoteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/governorates/$slug': typeof GovernoratesSlugRoute
   '/knowledge/$slug': typeof KnowledgeSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
@@ -408,6 +416,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/governorates/$slug': typeof GovernoratesSlugRoute
   '/knowledge/$slug': typeof KnowledgeSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
@@ -457,6 +466,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin'
+    | '/governorates/$slug'
     | '/knowledge/$slug'
     | '/products/$slug'
     | '/projects/$slug'
@@ -499,6 +509,7 @@ export interface FileRouteTypes {
     | '/quote'
     | '/sitemap.xml'
     | '/terms'
+    | '/governorates/$slug'
     | '/knowledge/$slug'
     | '/products/$slug'
     | '/projects/$slug'
@@ -547,6 +558,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/_authenticated/admin'
+    | '/governorates/$slug'
     | '/knowledge/$slug'
     | '/products/$slug'
     | '/projects/$slug'
@@ -595,6 +607,7 @@ export interface RootRouteChildren {
   ServicesRoute: typeof ServicesRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  GovernoratesSlugRoute: typeof GovernoratesSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -787,6 +800,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/knowledge/$slug'
       preLoaderRoute: typeof KnowledgeSlugRouteImport
       parentRoute: typeof KnowledgeRoute
+    }
+    '/governorates/$slug': {
+      id: '/governorates/$slug'
+      path: '/governorates/$slug'
+      fullPath: '/governorates/$slug'
+      preLoaderRoute: typeof GovernoratesSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
@@ -1056,6 +1076,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServicesRoute: ServicesRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  GovernoratesSlugRoute: GovernoratesSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
