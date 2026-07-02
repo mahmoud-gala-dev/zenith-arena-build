@@ -166,6 +166,8 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <SmoothScroll />
+        <PerfOverlay />
+
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
       </LanguageProvider>
