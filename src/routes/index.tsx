@@ -61,6 +61,14 @@ export const Route = createFileRoute("/")({
       { name: "twitter:image", content: ogImage.url },
       { name: "twitter:image:alt", content: "Egytic Sports" },
     ],
+    links: [
+      {
+        rel: "preload",
+        as: "image",
+        href: ctaLandmark.url,
+        fetchpriority: "high",
+      },
+    ],
   }),
 });
 
@@ -384,50 +392,58 @@ function Index() {
 
       {/* CTA — full-bleed landmark */}
       <section
-        className="relative isolate w-full min-h-screen overflow-hidden"
+        className="relative isolate w-full min-h-[100svh] overflow-hidden bg-ink"
         aria-labelledby="cta-landmark-title"
       >
         <img
           src={ctaLandmark.url}
           alt=""
           aria-hidden
-          loading="lazy"
+          loading="eager"
           decoding="async"
+          fetchPriority="high"
           width={1920}
           height={1280}
+          sizes="100vw"
           className="absolute inset-0 h-full w-full object-cover"
+        />
+        {/* Readability overlay: darker at top/bottom to guarantee AA contrast on white text/buttons */}
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-b from-ink/85 via-ink/55 to-ink/90"
         />
         <div
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-b from-ink/70 via-ink/45 to-ink/85"
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.55)_100%)]"
         />
         <div aria-hidden className="absolute inset-0 grid-texture opacity-15" />
 
-        <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-4 py-24 text-center sm:px-6 lg:px-8">
+        <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl flex-col items-center justify-center px-4 py-24 text-center sm:px-6 lg:px-8">
           <Reveal>
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-gold">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-gold drop-shadow">
               Egytic Sports
             </p>
             <h2
               id="cta-landmark-title"
-              className="mx-auto max-w-4xl text-4xl font-bold leading-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
+              className="mx-auto max-w-4xl text-4xl font-bold leading-tight text-white drop-shadow-lg sm:text-5xl md:text-6xl lg:text-7xl"
             >
               {t.sections.ctaTitle}
             </h2>
-            <p className="mx-auto mt-6 max-w-2xl text-base text-white/80 sm:text-lg">
+            <p className="mx-auto mt-6 max-w-2xl text-base text-white/90 drop-shadow sm:text-lg">
               {t.sections.ctaSub}
             </p>
-            <div className="mt-10 flex flex-wrap justify-center gap-3">
-              <Button asChild variant="gold" size="xl">
+            <div className="mt-10 flex flex-col flex-wrap items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+              <Button asChild variant="gold" size="xl" aria-label={t.cta.quote}>
                 <Link to="/contact">{t.cta.quote}</Link>
               </Button>
-              <Button asChild variant="outlineLight" size="xl">
+              <Button asChild variant="outlineLight" size="xl" aria-label={t.cta.getConsultation}>
                 <Link to="/contact">{t.cta.getConsultation}</Link>
               </Button>
             </div>
           </Reveal>
         </div>
       </section>
+
 
     </SiteLayout>
   );
