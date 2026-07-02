@@ -596,9 +596,7 @@ export function BrandingPanel() {
                   respectSystem={true}
                 />
               </div>
-            </div>
-          </>
-        )}
+
               <ExportImportPanel
                 motionEn={motionEn}
                 motionAr={motionAr}
@@ -612,6 +610,7 @@ export function BrandingPanel() {
             </div>
           </>
         )}
+
         <div className="flex items-center justify-between gap-2">
           <label className="flex items-center gap-2 text-xs text-muted-foreground">
             <Switch checked={livePreview} onCheckedChange={setLivePreview} />
