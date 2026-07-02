@@ -13,6 +13,39 @@ import { useServicesList } from "@/hooks/useServiceContent";
 
 export const Route = createFileRoute("/services/")({
   component: ServicesPage,
+  head: () => ({
+    meta: [
+      { title: "Sports Construction Services — Egytic Sports" },
+      {
+        name: "description",
+        content:
+          "Turnkey sports construction services: football pitches, athletics tracks, indoor arenas, tennis and padel courts, aquatic centres and stadium maintenance across Egypt and the region.",
+      },
+      { property: "og:title", content: "Sports Construction Services — Egytic" },
+      {
+        property: "og:description",
+        content:
+          "Design, build and maintain elite sports facilities — engineered to international standards by Egytic Sports.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "/services" },
+      { property: "og:image", content: heroServices.url },
+      { property: "og:image:width", content: "1920" },
+      { property: "og:image:height", content: "1080" },
+      { property: "og:image:alt", content: "Illuminated sports complex at dusk" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Sports Construction Services — Egytic" },
+      { name: "twitter:description", content: "Turnkey design-build for elite sports facilities." },
+      { name: "twitter:image", content: heroServices.url },
+    ],
+    links: [
+      { rel: "canonical", href: "/services" },
+      { rel: "alternate", hrefLang: "en", href: "/services" },
+      { rel: "alternate", hrefLang: "ar", href: "/services" },
+      { rel: "alternate", hrefLang: "x-default", href: "/services" },
+      { rel: "preload", as: "image", href: heroServices.url, fetchpriority: "high" },
+    ],
+  }),
 });
 
 function ServicesPage() {

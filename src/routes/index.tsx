@@ -208,24 +208,85 @@ function Index() {
         </div>
       </section>
 
-      {/* Clients */}
-      <section className="border-y border-border py-14">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            {t.sections.clientsTitle}
-          </p>
-          <div className="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
-            {clients.map((c) => (
-              <div
-                key={c}
-                className="flex items-center justify-center rounded-lg border border-border bg-card px-4 py-5 text-center text-xs font-semibold text-muted-foreground"
-              >
-                {c}
-              </div>
+      {/* Clients — trusted by */}
+      <section className="relative overflow-hidden border-y border-border bg-gradient-to-b from-background via-secondary/30 to-background py-20">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.06]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 20% 20%, var(--primary) 0, transparent 40%), radial-gradient(circle at 80% 60%, var(--gold) 0, transparent 40%)",
+          }}
+        />
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            eyebrow={t.sections.clientsTitle}
+            title={t.sections.clientsTitle}
+            subtitle={t.sections.clientsSub}
+          />
+          <ul
+            className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-6"
+            aria-label={t.sections.clientsTitle}
+          >
+            {clients.map((c, i) => (
+              <Reveal key={c.monogram + i} delay={i * 40}>
+                <li className="group relative flex h-full flex-col items-center justify-center gap-3 overflow-hidden rounded-2xl border border-border bg-card/80 p-5 text-center shadow-soft backdrop-blur transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-elegant">
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute -inset-x-4 -top-16 h-24 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-60"
+                    style={{ background: c.accent }}
+                  />
+                  <svg
+                    viewBox="0 0 80 80"
+                    className="h-14 w-14 shrink-0 drop-shadow-sm"
+                    role="img"
+                    aria-label={L(c.name)}
+                  >
+                    <defs>
+                      <linearGradient id={`cg-${i}`} x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor={c.accent} stopOpacity="0.95" />
+                        <stop offset="100%" stopColor={c.accent} stopOpacity="0.55" />
+                      </linearGradient>
+                    </defs>
+                    <rect x="2" y="2" width="76" height="76" rx="18" fill={`url(#cg-${i})`} />
+                    <rect
+                      x="2"
+                      y="2"
+                      width="76"
+                      height="76"
+                      rx="18"
+                      fill="none"
+                      stroke="rgba(255,255,255,0.35)"
+                      strokeWidth="1.5"
+                    />
+                    <text
+                      x="40"
+                      y="47"
+                      textAnchor="middle"
+                      fontSize={c.monogram.length > 2 ? "22" : "28"}
+                      fontWeight="800"
+                      fontFamily="ui-sans-serif, system-ui, sans-serif"
+                      fill="#fff"
+                      letterSpacing="1"
+                    >
+                      {c.monogram}
+                    </text>
+                  </svg>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-foreground" title={L(c.name)}>
+                      {L(c.name)}
+                    </p>
+                    <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                      {L(c.sector)}
+                    </p>
+                  </div>
+                </li>
+              </Reveal>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
+
 
       {/* Knowledge preview */}
       <section className="py-24">
