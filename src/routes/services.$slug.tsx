@@ -22,7 +22,10 @@ export const Route = createFileRoute("/services/$slug")({
       return { meta: [{ title: "Service not found — Egytic" }, { name: "robots", content: "noindex" }] };
     }
     const title = `${service.title.en} — Sports Construction Services | Egytic`;
+    const titleAr = `${service.title.ar} — خدمات إنشاء المنشآت الرياضية | إيجيتيك`;
     const desc = service.description.en;
+    const descAr = service.description.ar;
+    const alt = `${service.title.en} — ${service.title.ar}`;
     return {
       meta: [
         { title },
@@ -31,9 +34,17 @@ export const Route = createFileRoute("/services/$slug")({
         { property: "og:description", content: desc },
         { property: "og:type", content: "website" },
         { property: "og:url", content: `/services/${params.slug}` },
+        { property: "og:image", content: service.image },
+        { property: "og:image:alt", content: alt },
+        { property: "og:locale", content: "en_US" },
+        { property: "og:locale:alternate", content: "ar_AR" },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: desc },
+        { name: "twitter:image", content: service.image },
+        { name: "twitter:image:alt", content: alt },
+        { name: "description:ar", content: descAr },
+        { name: "title:ar", content: titleAr },
       ],
       links: [
         { rel: "canonical", href: `/services/${params.slug}` },
@@ -50,6 +61,7 @@ export const Route = createFileRoute("/services/$slug")({
             name: service.title.en,
             description: service.description.en,
             serviceType: service.title.en,
+            image: service.image,
             url: `/services/${params.slug}`,
             provider: { "@type": "Organization", name: "Egytic Sports" },
             areaServed: { "@type": "Place", name: "GCC & MENA" },

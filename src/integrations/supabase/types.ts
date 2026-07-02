@@ -1303,14 +1303,23 @@ export type Database = {
       }
       services: {
         Row: {
+          alt_ar: string | null
+          alt_en: string | null
           category: string | null
           cover_image: string | null
           created_at: string
           description_ar: string | null
           description_en: string | null
           featured: boolean
+          gallery_images: Json
+          header_image: string | null
           icon: string | null
           id: string
+          og_image: string | null
+          seo_description_ar: string | null
+          seo_description_en: string | null
+          seo_title_ar: string | null
+          seo_title_en: string | null
           slug_ar: string | null
           slug_en: string
           sort_order: number
@@ -1320,14 +1329,23 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          alt_ar?: string | null
+          alt_en?: string | null
           category?: string | null
           cover_image?: string | null
           created_at?: string
           description_ar?: string | null
           description_en?: string | null
           featured?: boolean
+          gallery_images?: Json
+          header_image?: string | null
           icon?: string | null
           id?: string
+          og_image?: string | null
+          seo_description_ar?: string | null
+          seo_description_en?: string | null
+          seo_title_ar?: string | null
+          seo_title_en?: string | null
           slug_ar?: string | null
           slug_en: string
           sort_order?: number
@@ -1337,14 +1355,23 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          alt_ar?: string | null
+          alt_en?: string | null
           category?: string | null
           cover_image?: string | null
           created_at?: string
           description_ar?: string | null
           description_en?: string | null
           featured?: boolean
+          gallery_images?: Json
+          header_image?: string | null
           icon?: string | null
           id?: string
+          og_image?: string | null
+          seo_description_ar?: string | null
+          seo_description_en?: string | null
+          seo_title_ar?: string | null
+          seo_title_en?: string | null
           slug_ar?: string | null
           slug_en?: string
           sort_order?: number
