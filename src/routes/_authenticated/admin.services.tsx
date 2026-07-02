@@ -93,11 +93,12 @@ function AdminServicesPage() {
     const err = validate(editing);
     if (err) { toast.error(err); return; }
     setSaving(true);
-    const payload = { ...editing, gallery_images: editing.gallery_images ?? [] } as unknown as Record<string, unknown>;
-    const { id, ...rest } = payload as { id?: string } & Record<string, unknown>;
+    const { id, updated_at: _u, ...rest } = editing;
+    void _u;
+    const payload = { ...rest, gallery_images: rest.gallery_images ?? [] };
     const { error } = id
-      ? await supabase.from("services").update(rest).eq("id", id)
-      : await supabase.from("services").insert(rest);
+      ? await supabase.from("services").update(payload).eq("id", id)
+      : await supabase.from("services").insert(payload);
     setSaving(false);
     if (error) { toast.error(error.message); return; }
     toast.success("Service saved");
