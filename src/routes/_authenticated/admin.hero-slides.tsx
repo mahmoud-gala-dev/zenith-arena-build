@@ -205,7 +205,7 @@ function AdminHeroSlides() {
   return (
     <AdminShell title="Hero Slides">
       <div className="mb-6 flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">Animated homepage banner. Drag order with arrows. Everything shown to visitors is fully editable.</p>
+        <p className="text-sm text-muted-foreground">Animated homepage banner. Drag the handle to reorder, or use the arrows. Everything shown to visitors is fully editable.</p>
         <Button onClick={startNew}><Plus className="mr-2 h-4 w-4" />New slide</Button>
       </div>
 
@@ -215,26 +215,62 @@ function AdminHeroSlides() {
         <div className="rounded-lg border border-dashed p-10 text-center text-muted-foreground">No slides yet. Create the first one.</div>
       ) : (
         <div className="grid gap-4">
-          {slides.map((s, i) => (
-            <div key={s.id} className="flex items-center gap-4 rounded-lg border bg-card p-3">
-              <img src={s.image_url} alt="" className="h-20 w-32 flex-none rounded object-cover" />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-muted-foreground">#{s.sort_order}</span>
-                  <h3 className="truncate font-semibold">{s.title_en}</h3>
-                  {!s.is_active && <span className="rounded bg-muted px-2 py-0.5 text-xs">Hidden</span>}
+          {slides.map((s, i) => {
+            const isDragging = dragId === s.id;
+            const isOver = dragOverId === s.id && dragId !== s.id;
+            return (
+              <div
+                key={s.id}
+                draggable
+                onDragStart={(e) => {
+                  setDragId(s.id);
+                  e.dataTransfer.effectAllowed = "move";
+                  e.dataTransfer.setData("text/plain", s.id);
+                }}
+                onDragEnter={() => setDragOverId(s.id)}
+                onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
+                onDragLeave={(e) => {
+                  // Only clear when we actually leave the row, not a child.
+                  if (e.currentTarget === e.target) setDragOverId((cur) => (cur === s.id ? null : cur));
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const from = slides.findIndex((x) => x.id === dragId);
+                  const to = slides.findIndex((x) => x.id === s.id);
+                  setDragId(null);
+                  setDragOverId(null);
+                  if (from >= 0 && to >= 0) moveTo(from, to);
+                }}
+                onDragEnd={() => { setDragId(null); setDragOverId(null); }}
+                className={`flex items-center gap-4 rounded-lg border bg-card p-3 transition ${isDragging ? "opacity-40" : ""} ${isOver ? "border-primary ring-2 ring-primary/30" : ""}`}
+              >
+                <button
+                  type="button"
+                  aria-label="Drag to reorder"
+                  className="flex-none cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
+                  <GripVertical className="h-5 w-5" />
+                </button>
+                <img src={s.image_url} alt="" className="h-20 w-32 flex-none rounded object-cover" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono text-muted-foreground">#{s.sort_order}</span>
+                    <h3 className="truncate font-semibold">{s.title_en}</h3>
+                    {!s.is_active && <span className="rounded bg-muted px-2 py-0.5 text-xs">Hidden</span>}
+                  </div>
+                  <p className="line-clamp-1 text-sm text-muted-foreground">{s.subtitle_en}</p>
                 </div>
-                <p className="line-clamp-1 text-sm text-muted-foreground">{s.subtitle_en}</p>
+                <div className="flex items-center gap-1">
+                  <Switch checked={s.is_active} onCheckedChange={() => toggleActive(s)} />
+                  <Button size="icon" variant="ghost" disabled={i === 0} onClick={() => reorder(s.id, -1)}><ArrowUp className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" disabled={i === slides.length - 1} onClick={() => reorder(s.id, 1)}><ArrowDown className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" onClick={() => startEdit(s)}><Pencil className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" onClick={() => setDeleteId(s.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Switch checked={s.is_active} onCheckedChange={() => toggleActive(s)} />
-                <Button size="icon" variant="ghost" disabled={i === 0} onClick={() => reorder(s.id, -1)}><ArrowUp className="h-4 w-4" /></Button>
-                <Button size="icon" variant="ghost" disabled={i === slides.length - 1} onClick={() => reorder(s.id, 1)}><ArrowDown className="h-4 w-4" /></Button>
-                <Button size="icon" variant="ghost" onClick={() => startEdit(s)}><Pencil className="h-4 w-4" /></Button>
-                <Button size="icon" variant="ghost" onClick={() => setDeleteId(s.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
