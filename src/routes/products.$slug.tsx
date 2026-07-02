@@ -147,6 +147,42 @@ function ProductDetailPage() {
         </div>
       </section>
 
+      {relatedKnowledge.length > 0 && (
+        <section className="bg-secondary/50 py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center gap-3">
+              <BookOpen className="h-5 w-5 text-primary" />
+              <h2 className="text-2xl font-bold text-foreground">{tx.relatedKnowledge}</h2>
+            </div>
+            <div className="mt-8 grid gap-6 md:grid-cols-3">
+              {relatedKnowledge.map((k) => (
+                <Link
+                  key={k.id}
+                  to="/knowledge/$slug"
+                  params={{ slug: k.slug_en }}
+                  className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition hover:-translate-y-1 hover:shadow-elegant"
+                >
+                  {k.featured_image && (
+                    <div className="aspect-[16/10] overflow-hidden">
+                      <img src={k.featured_image} alt={ar ? k.title_ar : k.title_en} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    </div>
+                  )}
+                  <div className="flex flex-1 flex-col p-5">
+                    <h3 className="font-semibold text-foreground group-hover:text-primary">{ar ? k.title_ar : k.title_en}</h3>
+                    <p className="mt-2 flex-1 text-sm text-muted-foreground line-clamp-2">{ar ? k.excerpt_ar : k.excerpt_en}</p>
+                    <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                      {tx.readArticle} <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+
+
       <section className="bg-hero py-16 text-white">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8"><h2 className="text-3xl font-bold">{t.sections.ctaTitle}</h2><p className="mx-auto mt-3 max-w-xl text-white/70">{t.sections.ctaSub}</p><Button asChild variant="gold" size="lg" className="mt-7"><Link to="/quote">{tx.inquiry}</Link></Button></div>
       </section>
