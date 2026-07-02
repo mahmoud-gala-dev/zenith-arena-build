@@ -169,14 +169,30 @@ function AdminHeroSlides() {
 
   async function reorder(id: string, dir: -1 | 1) {
     const idx = slides.findIndex((s) => s.id === id);
-    const swap = slides[idx + dir];
-    if (!swap) return;
-    const a = slides[idx];
-    await Promise.all([
-      supabase.from("hero_slides").update({ sort_order: swap.sort_order }).eq("id", a.id),
-      supabase.from("hero_slides").update({ sort_order: a.sort_order }).eq("id", swap.id),
-    ]);
-    load();
+    const target = idx + dir;
+    if (target < 0 || target >= slides.length) return;
+    await moveTo(idx, target);
+  }
+
+  // Reorders locally, then rewrites sort_order for every affected slide.
+  // Used by both drag-and-drop and the up/down arrow buttons.
+  async function moveTo(from: number, to: number) {
+    if (from === to) return;
+    const next = slides.slice();
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    // Optimistic update with fresh sort_order values.
+    const withOrder = next.map((s, i) => ({ ...s, sort_order: i + 1 }));
+    setSlides(withOrder);
+    const updates = withOrder.map((s) =>
+      supabase.from("hero_slides").update({ sort_order: s.sort_order }).eq("id", s.id),
+    );
+    const results = await Promise.all(updates);
+    const err = results.find((r) => r.error)?.error;
+    if (err) {
+      toast.error(err.message);
+      load();
+    }
   }
 
   async function toggleActive(s: Slide) {
