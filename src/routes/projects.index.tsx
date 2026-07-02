@@ -145,19 +145,19 @@ function ProjectsPage() {
             <button
               onClick={() => setSearch({ gov: "all" })}
               className={cn(
-                "flex flex-col items-center gap-2 rounded-2xl border p-4 text-center transition-colors",
+                "flex min-h-[10.5rem] flex-col items-center justify-start gap-2 rounded-2xl border p-4 text-center transition-colors",
                 gov === "all" ? "border-primary bg-primary/5" : "border-border bg-card hover:bg-accent",
               )}
             >
-              <div className="grid h-14 w-14 place-items-center rounded-full bg-secondary text-lg font-semibold text-foreground">EG</div>
-              <div className="text-sm font-medium text-foreground">{lang === "ar" ? "كل المحافظات" : "All governorates"}</div>
-              <div className="text-xs text-muted-foreground">{dbProjects.length} {lang === "ar" ? "مشروع" : "projects"}</div>
+              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-secondary text-lg font-semibold text-foreground">EG</div>
+              <div className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5 text-foreground">{lang === "ar" ? "كل المحافظات" : "All governorates"}</div>
+              <div className="min-h-[1rem] text-xs text-muted-foreground">{dbProjects.length} {lang === "ar" ? "مشروع" : "projects"}</div>
             </button>
             {govs.length === 0 && Array.from({ length: 11 }).map((_, i) => (
-              <div key={`sk-${i}`} className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4">
-                <div className="h-14 w-14 rounded-full bg-secondary" />
-                <div className="h-4 w-16 rounded bg-secondary" />
-                <div className="h-3 w-12 rounded bg-secondary/70" />
+              <div key={`sk-${i}`} className="flex min-h-[10.5rem] flex-col items-center justify-start gap-2 rounded-2xl border border-border bg-card p-4" aria-hidden>
+                <div className="h-14 w-14 shrink-0 rounded-full bg-secondary" />
+                <div className="h-5 w-20 rounded bg-secondary" />
+                <div className="h-4 w-14 rounded bg-secondary/70" />
               </div>
             ))}
             {govs.map((g) => {
@@ -168,7 +168,7 @@ function ProjectsPage() {
                   key={g.id}
                   onClick={() => setSearch({ gov: g.slug })}
                   className={cn(
-                    "flex flex-col items-center gap-2 rounded-2xl border p-4 text-center transition-colors",
+                    "flex min-h-[10.5rem] flex-col items-center justify-start gap-2 rounded-2xl border p-4 text-center transition-colors",
                     active ? "border-primary bg-primary/5" : "border-border bg-card hover:bg-accent",
                   )}
                 >
@@ -185,13 +185,14 @@ function ProjectsPage() {
                       />
                     ) : null}
                   </div>
-                  <div className="text-sm font-medium text-foreground">{lang === "ar" ? g.name_ar : g.name_en}</div>
-                  <div className="text-xs text-muted-foreground">{count} {lang === "ar" ? "مشروع" : "projects"}</div>
+                  <div className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5 text-foreground">{lang === "ar" ? g.name_ar : g.name_en}</div>
+                  <div className="min-h-[1rem] text-xs text-muted-foreground">{count} {lang === "ar" ? "مشروع" : "projects"}</div>
                 </button>
               );
             })}
 
           </div>
+
         </div>
       </section>
 
