@@ -153,7 +153,7 @@ function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAni
             )}
           </motion.div>
         </AnimatePresence>
-      </div>
+      </motion.div>
     </section>
   );
 }
