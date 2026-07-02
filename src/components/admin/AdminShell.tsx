@@ -17,6 +17,7 @@ import {
   LogOut,
   MessageSquareQuote,
   Package,
+  RefreshCw,
   Search,
   Settings,
   Tags,
