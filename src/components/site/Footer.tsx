@@ -6,14 +6,43 @@ import { Input } from "@/components/ui/input";
 import { useLang } from "@/i18n/LanguageProvider";
 
 export function Footer() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const year = new Date().getFullYear();
+  const ar = lang === "ar";
+
+  const resources = ar
+    ? [
+        { to: "/downloads", label: "التحميلات" },
+        { to: "/certificates", label: "الشهادات" },
+        { to: "/clients", label: "العملاء" },
+        { to: "/gallery", label: "المعرض" },
+        { to: "/faq", label: "الأسئلة الشائعة" },
+      ]
+    : [
+        { to: "/downloads", label: "Downloads" },
+        { to: "/certificates", label: "Certifications" },
+        { to: "/clients", label: "Clients" },
+        { to: "/gallery", label: "Gallery" },
+        { to: "/faq", label: "FAQ" },
+      ];
+
+  const legal = ar
+    ? [
+        { to: "/careers", label: "الوظائف" },
+        { to: "/privacy", label: "سياسة الخصوصية" },
+        { to: "/terms", label: "الشروط والأحكام" },
+      ]
+    : [
+        { to: "/careers", label: "Careers" },
+        { to: "/privacy", label: "Privacy Policy" },
+        { to: "/terms", label: "Terms & Conditions" },
+      ];
 
   return (
     <footer className="bg-ink text-ink-foreground">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-12 lg:grid-cols-4">
-          <div className="lg:col-span-1">
+        <div className="grid gap-12 lg:grid-cols-5">
+          <div className="lg:col-span-2">
             <Logo light />
             <p className="mt-4 max-w-xs text-sm text-white/60">{t.footer.tagline}</p>
             <div className="mt-6 space-y-2 text-sm text-white/70">
@@ -30,37 +59,33 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-white">
-              {t.footer.explore}
-            </h4>
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-white">{t.footer.explore}</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-white/60">
               <li><Link to="/services" className="hover:text-white">{t.nav.services}</Link></li>
               <li><Link to="/projects" className="hover:text-white">{t.nav.projects}</Link></li>
               <li><Link to="/products" className="hover:text-white">{t.nav.products}</Link></li>
               <li><Link to="/knowledge" className="hover:text-white">{t.nav.knowledge}</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-white">
-              {t.footer.company}
-            </h4>
-            <ul className="mt-4 space-y-2.5 text-sm text-white/60">
               <li><Link to="/about" className="hover:text-white">{t.nav.about}</Link></li>
               <li><Link to="/contact" className="hover:text-white">{t.nav.contact}</Link></li>
-              <li><Link to="/contact" className="hover:text-white">{t.cta.quote}</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white">
-              {t.footer.newsletter}
+              {ar ? "الموارد" : "Resources"}
             </h4>
+            <ul className="mt-4 space-y-2.5 text-sm text-white/60">
+              {resources.map((r) => (
+                <li key={r.to}><Link to={r.to} className="hover:text-white">{r.label}</Link></li>
+              ))}
+              <li><Link to="/quote" className="hover:text-white">{t.cta.quote}</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-white">{t.footer.newsletter}</h4>
             <p className="mt-4 text-sm text-white/60">{t.footer.newsletterSub}</p>
-            <form
-              className="mt-4 flex gap-2"
-              onSubmit={(e) => e.preventDefault()}
-            >
+            <form className="mt-4 flex gap-2" onSubmit={(e) => e.preventDefault()}>
               <Input
                 type="email"
                 required
@@ -71,6 +96,11 @@ export function Footer() {
                 {t.footer.subscribe}
               </Button>
             </form>
+            <ul className="mt-6 flex flex-wrap gap-x-4 gap-y-2 text-xs text-white/50">
+              {legal.map((l) => (
+                <li key={l.to}><Link to={l.to} className="hover:text-white">{l.label}</Link></li>
+              ))}
+            </ul>
           </div>
         </div>
 
