@@ -183,6 +183,12 @@ function ServiceDetailPage() {
         </div>
       </section>
 
+      <GallerySection
+        image={projects[0]?.image ?? heroImg}
+        title={L(service.title)}
+        source="services"
+      />
+
       <section className="bg-hero py-16 text-white">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold">{t.sections.ctaTitle}</h2>
