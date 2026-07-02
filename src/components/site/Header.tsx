@@ -86,7 +86,15 @@ export function Header() {
         <div className="hidden items-center gap-2 lg:flex">
           <ThemeToggle light={!scrolled} />
           <LangToggle light={!scrolled} />
-          <Button asChild variant="hero" size="sm">
+          <Button
+            asChild
+            variant="hero"
+            size="sm"
+            className={cn(
+              "transition-all duration-500",
+              !scrolled && "shadow-[0_0_24px_-4px_rgba(201,168,76,0.55)] hover:shadow-[0_0_32px_-2px_rgba(201,168,76,0.8)]",
+            )}
+          >
             <Link to="/quote">{t.nav.quote}</Link>
           </Button>
         </div>
