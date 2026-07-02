@@ -113,6 +113,9 @@ function GalleryPage() {
         close: "إغلاق",
         prev: "السابق",
         next: "التالي",
+        searchPh: "ابحث في المعرض…",
+        zoomIn: "تكبير",
+        zoomOut: "تصغير",
       }
     : {
         eyebrow: "Gallery",
@@ -125,6 +128,9 @@ function GalleryPage() {
         close: "Close",
         prev: "Previous",
         next: "Next",
+        searchPh: "Search the gallery…",
+        zoomIn: "Zoom in",
+        zoomOut: "Zoom out",
       };
 
   // Build unified gallery pool from three sources
