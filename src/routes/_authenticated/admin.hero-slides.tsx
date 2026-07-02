@@ -31,7 +31,8 @@ const empty: SlideInput = {
   image_url: "",
   overlay: "dark", align: "left",
   is_active: true, sort_order: 0,
-};
+  fog_intensity: 0.6, spotlight_intensity: 0.6, vignette_intensity: 0.6,
+} as SlideInput;
 
 function AdminHeroSlides() {
   const [slides, setSlides] = useState<Slide[]>([]);
