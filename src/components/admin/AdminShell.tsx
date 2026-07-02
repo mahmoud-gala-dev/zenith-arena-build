@@ -12,6 +12,7 @@ import {
   Image as ImageIcon,
   Images,
   Inbox,
+  GalleryHorizontalEnd,
   LayoutDashboard,
   Layers,
   LogOut,
