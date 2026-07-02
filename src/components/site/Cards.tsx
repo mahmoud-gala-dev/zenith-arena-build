@@ -8,28 +8,39 @@ export function ServiceCard({ service }: { service: Service }) {
   const L = useLocalized();
   const { t } = useLang();
   return (
-    <div className="group relative flex flex-col rounded-2xl border border-border bg-card p-7 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant">
-      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-primary transition-colors group-hover:bg-gradient-primary group-hover:text-primary-foreground">
-        <Icon name={service.icon} className="h-6 w-6" />
+    <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant">
+      <div className="relative aspect-[16/10] overflow-hidden">
+        <img
+          src={service.image}
+          alt={L(service.title)}
+          loading="lazy"
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-transparent" />
+        <div className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-xl bg-white/90 text-primary shadow-soft backdrop-blur">
+          <Icon name={service.icon} className="h-5 w-5" />
+        </div>
       </div>
-      <h3 className="mt-5 text-xl font-semibold text-foreground">{L(service.title)}</h3>
-      <p className="mt-2 text-sm text-muted-foreground">{L(service.short)}</p>
-      <ul className="mt-4 space-y-2">
-        {service.features.map((f, i) => (
-          <li key={i} className="flex items-center gap-2 text-sm text-foreground/80">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
-            {L(f)}
-          </li>
-        ))}
-      </ul>
-      <Link
-        to="/services/$slug"
-        params={{ slug: service.id }}
-        className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-primary"
-      >
-        {t.cta.learnMore}
-        <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-      </Link>
+      <div className="flex flex-1 flex-col p-6">
+        <h3 className="text-xl font-semibold text-foreground">{L(service.title)}</h3>
+        <p className="mt-2 text-sm text-muted-foreground">{L(service.short)}</p>
+        <ul className="mt-4 space-y-2">
+          {service.features.map((f, i) => (
+            <li key={i} className="flex items-center gap-2 text-sm text-foreground/80">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+              {L(f)}
+            </li>
+          ))}
+        </ul>
+        <Link
+          to="/services/$slug"
+          params={{ slug: service.id }}
+          className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-primary"
+        >
+          {t.cta.learnMore}
+          <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+        </Link>
+      </div>
     </div>
   );
 }
