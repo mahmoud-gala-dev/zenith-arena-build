@@ -134,6 +134,9 @@ function ServiceDetailPage() {
             <Block title={copy.specs}><List items={copy.specRows} /></Block>
             <Block title={copy.steps}><List items={copy.stepRows} ordered /></Block>
             <Block title={copy.materials}><List items={copy.materialRows} /></Block>
+            <div className="border-t border-border pt-6">
+              <ShareButtons title={L(service.title)} path={`/services/${slug}`} />
+            </div>
           </div>
           <aside className="h-fit space-y-4 rounded-2xl border border-border bg-card p-6 shadow-soft">
             <h2 className="text-lg font-semibold text-foreground">{copy.brochure}</h2>
