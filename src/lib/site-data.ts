@@ -75,6 +75,7 @@ export const services: Service[] = [
   {
     id: "football-pitches",
     icon: "Goal",
+    image: football,
     title: { en: "Football Pitches", ar: "ملاعب كرة القدم" },
     short: { en: "Natural & hybrid turf systems", ar: "أنظمة عشب طبيعي وهجين" },
     description: {
@@ -90,6 +91,7 @@ export const services: Service[] = [
   {
     id: "athletics-tracks",
     icon: "Timer",
+    image: athletics,
     title: { en: "Athletics Tracks", ar: "مضامير ألعاب القوى" },
     short: { en: "IAAF-certified running tracks", ar: "مضامير معتمدة من الاتحاد الدولي" },
     description: {
@@ -105,6 +107,7 @@ export const services: Service[] = [
   {
     id: "indoor-halls",
     icon: "Warehouse",
+    image: multipurpose,
     title: { en: "Indoor Sports Halls", ar: "الصالات الرياضية المغلقة" },
     short: { en: "Multi-sport arenas & flooring", ar: "صالات متعددة الرياضات وأرضيات" },
     description: {
@@ -120,6 +123,7 @@ export const services: Service[] = [
   {
     id: "courts",
     icon: "LayoutGrid",
+    image: tennis,
     title: { en: "Tennis & Padel Courts", ar: "ملاعب التنس والبادل" },
     short: { en: "Acrylic, clay & glass courts", ar: "ملاعب أكريليك وطين وزجاج" },
     description: {
@@ -135,6 +139,7 @@ export const services: Service[] = [
   {
     id: "aquatics",
     icon: "Waves",
+    image: swimming,
     title: { en: "Aquatic Centers", ar: "المراكز المائية" },
     short: { en: "Competition & training pools", ar: "مسابح تنافسية وتدريبية" },
     description: {
@@ -150,6 +155,7 @@ export const services: Service[] = [
   {
     id: "maintenance",
     icon: "Wrench",
+    image: maintenance,
     title: { en: "Maintenance & Care", ar: "الصيانة والرعاية" },
     short: { en: "Lifecycle facility management", ar: "إدارة دورة حياة المنشأة" },
     description: {
