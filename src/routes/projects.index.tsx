@@ -8,10 +8,12 @@ import { PageHero } from "@/components/site/PageHero";
 import heroImg from "@/assets/hero-projects.jpg";
 import { Reveal } from "@/components/site/Reveal";
 import { ProjectCard } from "@/components/site/Cards";
+import { CardSkeleton } from "@/components/site/Skeletons";
 import { cn } from "@/lib/utils";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { projects, projectCategories } from "@/lib/site-data";
 import { supabase } from "@/integrations/supabase/client";
+
 
 const searchSchema = z.object({
   gov: fallback(z.string(), "all").default("all"),
