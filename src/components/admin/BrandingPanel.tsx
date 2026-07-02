@@ -4,8 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { useBranding } from "@/hooks/useBranding";
+import { useBranding, DEFAULT_LOGO_MOTION, type LogoMotionConfig } from "@/hooks/useBranding";
 import { useQueryClient } from "@tanstack/react-query";
 
 function LogoField({
@@ -95,17 +97,72 @@ function LogoField({
   );
 }
 
+function MotionControls({
+  lang,
+  value,
+  onChange,
+}: {
+  lang: "en" | "ar";
+  value: LogoMotionConfig;
+  onChange: (v: LogoMotionConfig) => void;
+}) {
+  const label = lang === "en" ? "English" : "العربية";
+  return (
+    <div className="space-y-4 rounded-lg border border-border p-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold">{label}</p>
+          <p className="text-xs text-muted-foreground">Toggle & tune the header logo motion.</p>
+        </div>
+        <Switch checked={value.enabled} onCheckedChange={(v) => onChange({ ...value, enabled: v })} />
+      </div>
+      <div className={value.enabled ? "space-y-4" : "space-y-4 opacity-50 pointer-events-none"}>
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs">
+            <Label>Intensity</Label>
+            <span className="text-muted-foreground">{value.intensity}%</span>
+          </div>
+          <Slider
+            value={[value.intensity]}
+            min={0}
+            max={100}
+            step={5}
+            onValueChange={([v]) => onChange({ ...value, intensity: v })}
+          />
+        </div>
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs">
+            <Label>Speed</Label>
+            <span className="text-muted-foreground">{value.speed}%</span>
+          </div>
+          <Slider
+            value={[value.speed]}
+            min={0}
+            max={100}
+            step={5}
+            onValueChange={([v]) => onChange({ ...value, speed: v })}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function BrandingPanel() {
   const { data, isLoading } = useBranding();
   const qc = useQueryClient();
   const [light, setLight] = useState("");
   const [dark, setDark] = useState("");
+  const [motionEn, setMotionEn] = useState<LogoMotionConfig>(DEFAULT_LOGO_MOTION);
+  const [motionAr, setMotionAr] = useState<LogoMotionConfig>(DEFAULT_LOGO_MOTION);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (data) {
       setLight(data.logo_light_url);
       setDark(data.logo_dark_url);
+      setMotionEn(data.logo_motion.en);
+      setMotionAr(data.logo_motion.ar);
     }
   }, [data]);
 
@@ -115,7 +172,11 @@ export function BrandingPanel() {
       const { error } = await supabase
         .from("settings")
         .update({
-          value: { logo_light_url: light, logo_dark_url: dark },
+          value: {
+            logo_light_url: light,
+            logo_dark_url: dark,
+            logo_motion: { en: motionEn, ar: motionAr },
+          },
           is_public: true,
         })
         .eq("key", "branding");
@@ -133,20 +194,33 @@ export function BrandingPanel() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Header logos</CardTitle>
+        <CardTitle>Header logos & motion</CardTitle>
         <CardDescription>
-          Upload two separate logos: one for the light theme and a white/light version for the dark theme.
-          SVG is recommended for the sharpest result on high-DPI screens.
+          Upload two separate logos (light/dark) and control the header logo animation intensity and speed per language.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-8">
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2">
-            <LogoField label="Light theme logo" surface="light" value={light} onChange={setLight} />
-            <LogoField label="Dark theme logo" surface="dark" value={dark} onChange={setDark} />
-          </div>
+          <>
+            <div className="grid gap-6 md:grid-cols-2">
+              <LogoField label="Light theme logo" surface="light" value={light} onChange={setLight} />
+              <LogoField label="Dark theme logo" surface="dark" value={dark} onChange={setDark} />
+            </div>
+            <div className="space-y-3">
+              <div>
+                <h3 className="text-sm font-semibold">Logo motion</h3>
+                <p className="text-xs text-muted-foreground">
+                  Configure the animated aura independently for each language.
+                </p>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <MotionControls lang="en" value={motionEn} onChange={setMotionEn} />
+                <MotionControls lang="ar" value={motionAr} onChange={setMotionAr} />
+              </div>
+            </div>
+          </>
         )}
         <div className="flex justify-end">
           <Button onClick={save} disabled={saving} variant="hero">
