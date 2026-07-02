@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Search, Plus, Pencil, Trash2, Loader2, Filter, ArrowUpDown } from "lucide-react";
+import { TableRowsSkeleton } from "@/components/site/Skeletons";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
@@ -314,7 +315,8 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
           </thead>
           <tbody className="divide-y divide-border">
             {loading ? (
-              <tr><td colSpan={config.columns.length + 2} className="px-4 py-16 text-center text-muted-foreground"><Loader2 className="mx-auto mb-3 h-5 w-5 animate-spin" /> Loading {config.title.toLowerCase()}…</td></tr>
+              <TableRowsSkeleton rows={6} columns={config.columns.length} />)
+            : (loading ? null
             ) : error ? (
               <tr><td colSpan={config.columns.length + 2} className="px-4 py-16 text-center text-destructive">{error}</td></tr>
             ) : visibleRows.length === 0 ? (
