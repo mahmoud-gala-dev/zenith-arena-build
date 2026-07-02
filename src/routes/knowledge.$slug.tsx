@@ -109,6 +109,9 @@ function ArticleDetail() {
                 <p key={i} className="leading-relaxed text-muted-foreground">{L(p)}</p>
               ))}
             </div>
+            <div className="mt-10 border-t border-border pt-6">
+              <ShareButtons title={L(article.title)} path={`/knowledge/${slug}`} />
+            </div>
             <div className="mt-12 rounded-2xl bg-hero px-8 py-10 text-center">
               <h3 className="text-xl font-bold text-white">{t.sections.ctaTitle}</h3>
               <p className="mx-auto mt-2 max-w-md text-white/70">{t.sections.ctaSub}</p>
