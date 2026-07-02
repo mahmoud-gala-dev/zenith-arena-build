@@ -13,6 +13,7 @@ export type Branding = {
   logo_motion: {
     en: LogoMotionConfig;
     ar: LogoMotionConfig;
+    reduced_motion_safe?: boolean;
   };
 };
 
@@ -40,8 +41,10 @@ export function useBranding() {
         logo_motion: {
           en: { ...DEFAULT_LOGO_MOTION, ...(motion.en ?? {}) },
           ar: { ...DEFAULT_LOGO_MOTION, ...(motion.ar ?? {}) },
+          reduced_motion_safe: motion.reduced_motion_safe ?? true,
         },
       };
     },
   });
 }
+
