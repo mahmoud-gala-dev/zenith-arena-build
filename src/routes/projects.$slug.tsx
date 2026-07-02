@@ -5,6 +5,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { ProjectCard } from "@/components/site/Cards";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ShareButtons } from "@/components/site/ShareButtons";
+import { GallerySection } from "@/components/site/GallerySection";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { projects } from "@/lib/site-data";
