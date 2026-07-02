@@ -89,6 +89,7 @@ export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
       <div className="absolute inset-0 grid-texture opacity-30" />
 
       <div className="relative mx-auto w-full max-w-7xl px-4 py-28 sm:px-6 lg:px-8">
+        <HeroLogoBadge className="mb-6 hidden sm:block" />
         <AnimatePresence mode="wait">
           <motion.div
             key={current.id}
