@@ -247,7 +247,7 @@ function AdminServicesPage() {
                   <td className="px-4 py-3"><Badge variant={row.status === "published" ? "default" : "outline"}>{row.status}</Badge></td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => setEditing({ ...row, gallery_images: toArray(row.gallery_images) })}><Pencil className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="sm" onClick={() => openEditor(row)}><Pencil className="h-4 w-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => row.id && setDeleteId(row.id)}><Trash2 className="h-4 w-4" /></Button>
                     </div>
                   </td>
