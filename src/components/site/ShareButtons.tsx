@@ -4,28 +4,68 @@ import { useLang } from "@/i18n/LanguageProvider";
 
 interface ShareButtonsProps {
   title: string;
-  path: string;
+  path?: string;
+  /** Optional short summary used in WhatsApp / X share text. */
+  summary?: string;
 }
 
-export function ShareButtons({ title, path }: ShareButtonsProps) {
+export function ShareButtons({ title, path, summary }: ShareButtonsProps) {
   const { lang } = useLang();
   const [copied, setCopied] = useState(false);
   const ar = lang === "ar";
 
-  const url = typeof window !== "undefined" ? `${window.location.origin}${path}` : path;
-  const encodedUrl = encodeURIComponent(url);
-  const encodedTitle = encodeURIComponent(title);
+  // Recompute URL at click time so the shared link always matches what the
+  // visitor is actually looking at (including query strings and future
+  // language segments). Fall back to the provided path for SSR safety.
+  const currentUrl = () => {
+    if (typeof window !== "undefined") return window.location.href;
+    return path ?? "/";
+  };
+
+  const waMessage = (url: string) => {
+    if (ar) {
+      const intro = summary ? `${title} — ${summary}` : title;
+      return `${intro}\nاطلع على التفاصيل عبر APEX:\n${url}`;
+    }
+    const intro = summary ? `${title} — ${summary}` : title;
+    return `${intro}\nRead more on APEX:\n${url}`;
+  };
+
+  const open = (href: string) => {
+    if (typeof window === "undefined") return;
+    window.open(href, "_blank", "noopener,noreferrer");
+  };
 
   const shares = [
-    { name: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`, Icon: Facebook },
-    { name: "X", href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`, Icon: Twitter },
-    { name: "LinkedIn", href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`, Icon: Linkedin },
-    { name: "WhatsApp", href: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`, Icon: MessageCircle },
+    {
+      name: "Facebook",
+      Icon: Facebook,
+      onClick: () => open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl())}`),
+    },
+    {
+      name: "X",
+      Icon: Twitter,
+      onClick: () => {
+        const url = currentUrl();
+        const text = summary ? `${title} — ${summary}` : title;
+        open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`);
+      },
+    },
+    {
+      name: "LinkedIn",
+      Icon: Linkedin,
+      onClick: () => open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentUrl())}`),
+    },
+    {
+      name: "WhatsApp",
+      Icon: MessageCircle,
+      onClick: () => open(`https://wa.me/?text=${encodeURIComponent(waMessage(currentUrl()))}`),
+    },
   ];
 
   const onCopy = async () => {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(currentUrl());
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -38,17 +78,16 @@ export function ShareButtons({ title, path }: ShareButtonsProps) {
       <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {ar ? "مشاركة" : "Share"}
       </span>
-      {shares.map(({ name, href, Icon }) => (
-        <a
+      {shares.map(({ name, Icon, onClick }) => (
+        <button
           key={name}
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
+          type="button"
+          onClick={onClick}
           aria-label={ar ? `مشاركة على ${name}` : `Share on ${name}`}
           className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition hover:border-primary hover:bg-primary/10 hover:text-primary"
         >
           <Icon className="h-4 w-4" />
-        </a>
+        </button>
       ))}
       <button
         type="button"

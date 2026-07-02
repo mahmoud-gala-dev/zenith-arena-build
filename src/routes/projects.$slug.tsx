@@ -5,6 +5,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { ProjectCard } from "@/components/site/Cards";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ShareButtons } from "@/components/site/ShareButtons";
+import { GallerySection } from "@/components/site/GallerySection";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { projects } from "@/lib/site-data";
@@ -33,6 +34,8 @@ export const Route = createFileRoute("/projects/$slug")({
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: desc },
+        { property: "og:image", content: project.image },
+        { name: "twitter:image", content: project.image },
       ],
       links: [
         { rel: "canonical", href: `/projects/${params.slug}` },
@@ -42,14 +45,28 @@ export const Route = createFileRoute("/projects/$slug")({
       ],
       scripts: [{
         type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "CreativeWork",
-          name: project.title.en,
-          description: desc,
-          locationCreated: project.location.en,
-          dateCreated: project.year,
-        }),
+        children: JSON.stringify([
+          {
+            "@context": "https://schema.org",
+            "@type": "CreativeWork",
+            name: project.title.en,
+            description: desc,
+            image: project.image,
+            url: `/projects/${params.slug}`,
+            locationCreated: project.location.en,
+            dateCreated: project.year,
+            creator: { "@type": "Organization", name: "APEX Sports" },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "/" },
+              { "@type": "ListItem", position: 2, name: "Projects", item: "/projects" },
+              { "@type": "ListItem", position: 3, name: project.title.en, item: `/projects/${params.slug}` },
+            ],
+          },
+        ]),
       }],
     };
   },
@@ -139,6 +156,13 @@ function ProjectDetail() {
           </aside>
         </div>
       </section>
+
+      <GallerySection
+        image={project.image}
+        title={L(project.title)}
+        toCategory={project.category}
+        source="projects"
+      />
 
       <section className="bg-secondary/50 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
