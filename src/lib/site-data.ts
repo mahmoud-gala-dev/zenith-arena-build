@@ -22,6 +22,7 @@ export interface L {
 export interface Service {
   id: string;
   icon: string;
+  image: string;
   title: L;
   short: L;
   description: L;
