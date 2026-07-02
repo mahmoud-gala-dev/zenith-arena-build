@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Logo } from "./Logo";
 
 const KEY = "apex-splash-seen";
 
