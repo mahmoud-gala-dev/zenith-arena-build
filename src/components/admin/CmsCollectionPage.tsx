@@ -132,7 +132,7 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
       if ((field.type === "text" || field.type === "textarea" || field.type === "tags") && !textValueSchema.max(field.maxLength ?? 5000).safeParse(text).success) {
         return `${field.label} is too long`;
       }
-      if ((field.type === "url" || field.name.includes("image") || field.name.includes("url")) && text && !urlSchema.safeParse(text).success) {
+      if ((field.type === "url" || field.name.includes("image")) && text && !urlSchema.safeParse(text).success) {
         return `${field.label} must be a valid URL`;
       }
       if (field.type === "json" && text) {

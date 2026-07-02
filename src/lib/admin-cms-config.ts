@@ -288,6 +288,66 @@ export const seoConfig: CmsCollectionConfig = {
   ],
 };
 
+export const settingsConfig: CmsCollectionConfig = {
+  table: "settings",
+  title: "Settings",
+  singular: "setting",
+  description: "Manage public site identity, social links and internal configuration values.",
+  columns: [{ key: "key", label: "Key" }, { key: "is_public", label: "Public", type: "boolean" }, { key: "updated_at", label: "Updated", type: "date" }],
+  searchFields: ["key"],
+  orderBy: "updated_at",
+  initialValues: { key: "", value: "{}", is_public: false },
+  fields: [
+    { name: "key", label: "Key", required: true, maxLength: 120 },
+    { name: "is_public", label: "Publicly readable", type: "switch" },
+    { name: "value", label: "Value JSON", type: "json" },
+  ],
+};
+
+export const menusConfig: CmsCollectionConfig = {
+  table: "menus",
+  title: "Menus",
+  singular: "menu item",
+  description: "Manage header and footer menu labels, links and ordering.",
+  columns: [{ key: "label_en", label: "Label" }, { key: "location", label: "Location", type: "badge" }, { key: "href", label: "Link" }, { key: "status", label: "Status" }, { key: "updated_at", label: "Updated", type: "date" }],
+  searchFields: ["label_en", "label_ar", "href", "location"],
+  orderBy: "sort_order",
+  orderAscending: true,
+  filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }, { key: "location", label: "Location", values: ["header", "footer"] }],
+  initialValues: { location: "header", label_en: "", label_ar: "", href: "/", sort_order: 0, status: "published" },
+  fields: [
+    { name: "location", label: "Location", required: true },
+    { name: "label_en", label: "English label", required: true },
+    { name: "label_ar", label: "Arabic label", required: true, dir: "rtl" },
+    { name: "href", label: "Link", required: true },
+    { name: "sort_order", label: "Sort order", type: "number" },
+    { name: "status", label: "Status", type: "select", options: statusOptions, required: true },
+  ],
+};
+
+export const homepageConfig: CmsCollectionConfig = {
+  table: "homepage_sections",
+  title: "Homepage Sections",
+  singular: "section",
+  description: "Manage configurable homepage section copy and structured content blocks.",
+  columns: [{ key: "section_key", label: "Section" }, { key: "title_en", label: "Title" }, { key: "status", label: "Status" }, { key: "sort_order", label: "Order" }, { key: "updated_at", label: "Updated", type: "date" }],
+  searchFields: ["section_key", "title_en", "title_ar"],
+  orderBy: "sort_order",
+  orderAscending: true,
+  filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }],
+  initialValues: { section_key: "", title_en: "", title_ar: "", subtitle_en: "", subtitle_ar: "", content: "{}", sort_order: 0, status: "published" },
+  fields: [
+    { name: "section_key", label: "Section key", required: true },
+    { name: "title_en", label: "English title" },
+    { name: "title_ar", label: "Arabic title", dir: "rtl" },
+    { name: "subtitle_en", label: "English subtitle", type: "textarea" },
+    { name: "subtitle_ar", label: "Arabic subtitle", type: "textarea", dir: "rtl" },
+    { name: "content", label: "Content JSON", type: "json" },
+    { name: "sort_order", label: "Sort order", type: "number" },
+    { name: "status", label: "Status", type: "select", options: statusOptions, required: true },
+  ],
+};
+
 export const categoryConfigs: CmsCollectionConfig[] = [
   {
     table: "service_categories",
