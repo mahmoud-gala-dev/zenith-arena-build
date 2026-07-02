@@ -18,7 +18,7 @@ function ServicesPage() {
 
   return (
     <SiteLayout>
-      <PageHero eyebrow={t.nav.services} title={t.sections.servicesTitle} subtitle={t.sections.servicesSub} />
+      <PageHero eyebrow={t.nav.services} title={t.sections.servicesTitle} subtitle={t.sections.servicesSub} bgImage={servicesHero} />
       <section className="py-20">
         <div className="mx-auto max-w-7xl space-y-20 px-4 sm:px-6 lg:px-8">
           {services.map((s, i) => (
