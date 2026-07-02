@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Download, MessageCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Download, MessageCircle } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { DetailPageSkeleton } from "@/components/site/Skeletons";
+
 import { Icon } from "@/components/site/Icon";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ShareButtons } from "@/components/site/ShareButtons";
@@ -42,8 +44,9 @@ function ServiceDetailPage() {
     : { back: "Back to services", overview: "Overview", gallery: "Service gallery", brochure: "Download brochure", whatsapp: "WhatsApp", quote: "Request quote", notFound: "Service not found" };
 
   if (loading) {
-    return <SiteLayout><div className="grid min-h-[60vh] place-items-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div></SiteLayout>;
+    return <SiteLayout><DetailPageSkeleton /></SiteLayout>;
   }
+
   if (!service) {
     return (
       <SiteLayout>

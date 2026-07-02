@@ -8,10 +8,12 @@ import { PageHero } from "@/components/site/PageHero";
 import heroImg from "@/assets/hero-projects.jpg";
 import { Reveal } from "@/components/site/Reveal";
 import { ProjectCard } from "@/components/site/Cards";
+import { CardSkeleton } from "@/components/site/Skeletons";
 import { cn } from "@/lib/utils";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { projects, projectCategories } from "@/lib/site-data";
 import { supabase } from "@/integrations/supabase/client";
+
 
 const searchSchema = z.object({
   gov: fallback(z.string(), "all").default("all"),
@@ -57,6 +59,7 @@ function ProjectsPage() {
   const [qInput, setQInput] = useState(q);
   const [govs, setGovs] = useState<Gov[]>([]);
   const [dbProjects, setDbProjects] = useState<DbProject[]>([]);
+  const [dbLoading, setDbLoading] = useState(true);
 
   useEffect(() => { setQInput(q); }, [q]);
 
@@ -68,8 +71,10 @@ function ProjectsPage() {
       ]);
       setGovs((g ?? []) as Gov[]);
       setDbProjects((p ?? []) as DbProject[]);
+      setDbLoading(false);
     })();
   }, []);
+
 
   const govCounts = useMemo(() => {
     const m = new Map<string, number>();
@@ -244,11 +249,16 @@ function ProjectsPage() {
                   </Link>
                 )}
               </div>
-              {dbFiltered.length === 0 ? (
+              {dbLoading ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)}
+                </div>
+              ) : dbFiltered.length === 0 ? (
                 <p className="rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground">
                   {lang === "ar" ? "لا توجد مشاريع منشورة مطابقة." : "No published projects match."}
                 </p>
               ) : (
+
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {dbFiltered.map((p, i) => (
                     <Reveal key={p.id} delay={i * 50}>

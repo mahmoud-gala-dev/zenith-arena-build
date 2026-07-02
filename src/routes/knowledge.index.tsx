@@ -4,9 +4,11 @@ import { Clock, User } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
+import { CardGridSkeleton } from "@/components/site/Skeletons";
 import { useLang } from "@/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
 import heroImg from "@/assets/hero-knowledge.jpg";
+
 
 export const Route = createFileRoute("/knowledge/")({
   component: KnowledgePage,
@@ -62,8 +64,9 @@ function KnowledgePage() {
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {isLoading ? (
-            <p className="text-center text-muted-foreground">…</p>
+            <CardGridSkeleton count={6} />
           ) : posts.length === 0 ? (
+
             <p className="text-center text-muted-foreground">{ar ? "لا توجد مقالات بعد." : "No articles yet."}</p>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
