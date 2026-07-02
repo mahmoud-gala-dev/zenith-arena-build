@@ -543,6 +543,42 @@ export type Database = {
         }
         Relationships: []
       }
+      image_versions: {
+        Row: {
+          created_at: string
+          entity_id: string
+          entity_table: string
+          field: string
+          id: string
+          note: string | null
+          replaced_by_user: string | null
+          url: string | null
+          variants: Json | null
+        }
+        Insert: {
+          created_at?: string
+          entity_id: string
+          entity_table: string
+          field: string
+          id?: string
+          note?: string | null
+          replaced_by_user?: string | null
+          url?: string | null
+          variants?: Json | null
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          entity_table?: string
+          field?: string
+          id?: string
+          note?: string | null
+          replaced_by_user?: string | null
+          url?: string | null
+          variants?: Json | null
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           assigned_to: string | null

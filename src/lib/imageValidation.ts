@@ -5,7 +5,12 @@ export type ImageValidationOptions = {
   maxWidth?: number;
   maxHeight?: number;
   allowedTypes?: string[];   // e.g. ["image/jpeg","image/png","image/webp","image/svg+xml"]
+  /** Expected aspect ratio (width / height). When set the image must match within `aspectTolerance`. */
+  expectedAspect?: number;
+  /** Fractional tolerance around expectedAspect. Default 0.08 (≈ ±8%). */
+  aspectTolerance?: number;
 };
+
 
 export type ImageValidationResult =
   | { ok: true; width: number; height: number; bytes?: number; type?: string }
@@ -72,8 +77,20 @@ export async function validateImageUrl(url: string, options: ImageValidationOpti
     if (width > opts.maxWidth || height > opts.maxHeight) {
       return { ok: false, error: `Image is ${width}×${height}, maximum ${opts.maxWidth}×${opts.maxHeight}` };
     }
+    if (options.expectedAspect) {
+      const tol = options.aspectTolerance ?? 0.08;
+      const actual = width / height;
+      const diff = Math.abs(actual - options.expectedAspect) / options.expectedAspect;
+      if (diff > tol) {
+        return {
+          ok: false,
+          error: `Aspect ratio ${actual.toFixed(2)}:1 is outside the allowed range (${options.expectedAspect.toFixed(2)}:1 ±${Math.round(tol * 100)}%). Crop before uploading.`,
+        };
+      }
+    }
     return { ok: true, width, height };
   } catch {
     return { ok: false, error: "Image failed to load from URL" };
   }
 }
+

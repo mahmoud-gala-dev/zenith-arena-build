@@ -13,16 +13,20 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { StrictImageUrlField } from "@/components/admin/StrictImageUrlField";
+import { StrictImageUrlField, type FieldStatus } from "@/components/admin/StrictImageUrlField";
 import { GalleryOrderEditor } from "@/components/admin/GalleryOrderEditor";
 import { ServiceLivePreview } from "@/components/admin/ServiceLivePreview";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { ImageVariantsManifest } from "@/hooks/useSignedImage";
+import { invalidateManifestCache } from "@/hooks/useSignedImage";
+import { insertImageVersion } from "@/hooks/useImageVersions";
+import { ImageHistoryButton } from "@/components/admin/ImageHistoryButton";
 
 
 export const Route = createFileRoute("/_authenticated/admin/services")({
   component: AdminServicesPage,
 });
+
 
 type ServiceRow = {
   id?: string;
@@ -73,12 +77,28 @@ function toArray(g: unknown): string[] {
   return [];
 }
 
+const IMAGE_FIELDS = [
+  { key: "cover_image" as const, variantsKey: "cover_image_variants" as const, aspect: 16 / 10, label: "Cover" },
+  { key: "header_image" as const, variantsKey: "header_image_variants" as const, aspect: 21 / 9, label: "Header" },
+  { key: "og_image" as const, variantsKey: "og_image_variants" as const, aspect: 1200 / 630, label: "Social" },
+];
+
+function loadImageDims(url: string): Promise<{ w: number; h: number } | null> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
 function AdminServicesPage() {
   const [rows, setRows] = useState<ServiceRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<ServiceRow | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [tabStatus, setTabStatus] = useState<Record<string, FieldStatus>>({});
 
   async function load() {
     setLoading(true);
@@ -90,10 +110,34 @@ function AdminServicesPage() {
 
   useEffect(() => { load(); }, []);
 
+  function openEditor(row: ServiceRow) {
+    setTabStatus({});
+    setEditing({ ...row, gallery_images: toArray(row.gallery_images) });
+  }
+
   function validate(v: ServiceRow): string | null {
     if (!v.slug_en.trim()) return "English slug is required";
     if (!v.title_en.trim()) return "English title is required";
     if (v.slug_en.length > 140) return "Slug too long";
+    return null;
+  }
+
+  /** Verify each image URL falls within the tab's aspect tolerance before saving. */
+  async function validateAspects(v: ServiceRow): Promise<string | null> {
+    const tolerance = 0.08;
+    for (const f of IMAGE_FIELDS) {
+      const url = v[f.key];
+      if (!url) continue;
+      // Uploaded images already carry a `_variants` manifest — they were cropped by us and are trusted.
+      if (v[f.variantsKey]) continue;
+      const dims = await loadImageDims(url);
+      if (!dims) return `${f.label} image failed to load — cannot verify aspect ratio.`;
+      const actual = dims.w / dims.h;
+      const diff = Math.abs(actual - f.aspect) / f.aspect;
+      if (diff > tolerance) {
+        return `${f.label} image aspect ratio is ${actual.toFixed(2)}:1 — expected ${f.aspect.toFixed(2)}:1 (±${Math.round(tolerance * 100)}%). Use Upload & Crop to fix.`;
+      }
+    }
     return null;
   }
 
@@ -102,18 +146,55 @@ function AdminServicesPage() {
     const err = validate(editing);
     if (err) { toast.error(err); return; }
     setSaving(true);
+    const aspectErr = await validateAspects(editing);
+    if (aspectErr) { setSaving(false); toast.error(aspectErr); return; }
+
     const { id, updated_at: _u, ...rest } = editing;
     void _u;
     const payload = { ...rest, gallery_images: rest.gallery_images ?? [] };
+
+    // Snapshot previous image values into image_versions BEFORE overwriting.
+    if (id) {
+      const previous = rows.find((r) => r.id === id);
+      if (previous) {
+        await Promise.all(
+          IMAGE_FIELDS.map(async (f) => {
+            const oldUrl = previous[f.key];
+            const oldManifest = previous[f.variantsKey];
+            const newUrl = editing[f.key];
+            const changed = (oldUrl ?? "") !== (newUrl ?? "");
+            if (changed && (oldUrl || oldManifest)) {
+              try {
+                await insertImageVersion({
+                  entity_table: "services",
+                  entity_id: id,
+                  field: f.key,
+                  url: oldUrl,
+                  variants: oldManifest,
+                  note: `Replaced via admin editor`,
+                });
+                if (oldManifest) invalidateManifestCache(oldManifest);
+              } catch (e) {
+                console.warn("image_versions insert failed", e);
+              }
+            }
+          }),
+        );
+      }
+    }
+
     const { error } = id
       ? await supabase.from("services").update(payload).eq("id", id)
       : await supabase.from("services").insert(payload);
     setSaving(false);
     if (error) { toast.error(error.message); return; }
+    // Invalidate the manifest cache for the new versions so /services picks them up immediately.
+    IMAGE_FIELDS.forEach((f) => editing[f.variantsKey] && invalidateManifestCache(editing[f.variantsKey]));
     toast.success("Service saved");
     setEditing(null);
     load();
   }
+
 
   async function confirmDelete() {
     if (!deleteId) return;
@@ -135,7 +216,7 @@ function AdminServicesPage() {
               <Badge variant="outline">{rows.filter((r) => r.status === "published").length} published</Badge>
             </div>
           </div>
-          <Button onClick={() => setEditing({ ...EMPTY })}><Plus className="h-4 w-4" /> New service</Button>
+          <Button onClick={() => { setTabStatus({}); setEditing({ ...EMPTY }); }}><Plus className="h-4 w-4" /> New service</Button>
         </div>
 
         <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-soft">
@@ -166,7 +247,7 @@ function AdminServicesPage() {
                   <td className="px-4 py-3"><Badge variant={row.status === "published" ? "default" : "outline"}>{row.status}</Badge></td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => setEditing({ ...row, gallery_images: toArray(row.gallery_images) })}><Pencil className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="sm" onClick={() => openEditor(row)}><Pencil className="h-4 w-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => row.id && setDeleteId(row.id)}><Trash2 className="h-4 w-4" /></Button>
                     </div>
                   </td>
@@ -202,11 +283,17 @@ function AdminServicesPage() {
                   <p className="mb-3 text-sm font-medium">Images — pick a tab, then Upload &amp; Crop or paste a URL.</p>
                   <Tabs defaultValue="cover">
                     <TabsList className="mb-3">
-                      <TabsTrigger value="cover">Cover (16:10)</TabsTrigger>
-                      <TabsTrigger value="header">Header (21:9)</TabsTrigger>
-                      <TabsTrigger value="og">Social (1.91:1)</TabsTrigger>
+                      <TabsTrigger value="cover" className="gap-1.5"><StatusDot s={tabStatus.cover} /> Cover (16:10)</TabsTrigger>
+                      <TabsTrigger value="header" className="gap-1.5"><StatusDot s={tabStatus.header} /> Header (21:9)</TabsTrigger>
+                      <TabsTrigger value="og" className="gap-1.5"><StatusDot s={tabStatus.og} /> Social (1.91:1)</TabsTrigger>
                     </TabsList>
-                    <TabsContent value="cover" className="mt-0">
+                    <TabsContent value="cover" className="mt-0 space-y-2">
+                      <div className="flex justify-end">
+                        <ImageHistoryButton
+                          entityTable="services" entityId={editing.id} field="cover_image"
+                          onRevert={(v) => setEditing({ ...editing, cover_image: v.url ?? "", cover_image_variants: v.variants })}
+                        />
+                      </div>
                       <StrictImageUrlField
                         label="Cover image (card thumbnail)"
                         value={editing.cover_image ?? ""}
@@ -216,11 +303,18 @@ function AdminServicesPage() {
                         aspect="aspect-[16/10]"
                         aspectRatio={16 / 10}
                         options={{ minWidth: 600, minHeight: 375 }}
-                        help="Recommended 1200×750 · WebP variants auto-generated · ≤ 8MB"
+                        help="Recommended 1200×750 · WebP variants auto-generated · ≤ 8MB · aspect enforced ±8%"
                         folder="services/cover"
+                        onStatusChange={(s) => setTabStatus((p) => ({ ...p, cover: s }))}
                       />
                     </TabsContent>
-                    <TabsContent value="header" className="mt-0">
+                    <TabsContent value="header" className="mt-0 space-y-2">
+                      <div className="flex justify-end">
+                        <ImageHistoryButton
+                          entityTable="services" entityId={editing.id} field="header_image"
+                          onRevert={(v) => setEditing({ ...editing, header_image: v.url ?? "", header_image_variants: v.variants })}
+                        />
+                      </div>
                       <StrictImageUrlField
                         label="Header image (page hero)"
                         value={editing.header_image ?? ""}
@@ -230,11 +324,18 @@ function AdminServicesPage() {
                         aspect="aspect-[21/9]"
                         aspectRatio={21 / 9}
                         options={{ minWidth: 1200, minHeight: 500 }}
-                        help="Recommended 1920×820 · WebP variants auto-generated · ≤ 8MB"
+                        help="Recommended 1920×820 · WebP variants auto-generated · ≤ 8MB · aspect enforced ±8%"
                         folder="services/header"
+                        onStatusChange={(s) => setTabStatus((p) => ({ ...p, header: s }))}
                       />
                     </TabsContent>
-                    <TabsContent value="og" className="mt-0">
+                    <TabsContent value="og" className="mt-0 space-y-2">
+                      <div className="flex justify-end">
+                        <ImageHistoryButton
+                          entityTable="services" entityId={editing.id} field="og_image"
+                          onRevert={(v) => setEditing({ ...editing, og_image: v.url ?? "", og_image_variants: v.variants })}
+                        />
+                      </div>
                       <StrictImageUrlField
                         label="Social share image (og:image)"
                         value={editing.og_image ?? ""}
@@ -244,9 +345,11 @@ function AdminServicesPage() {
                         aspect="aspect-[1200/630]"
                         aspectRatio={1200 / 630}
                         options={{ minWidth: 1200, minHeight: 630 }}
-                        help="Facebook/Twitter card — 1200×630 recommended"
+                        help="Facebook/Twitter card — 1200×630 recommended · aspect enforced ±8%"
                         folder="services/og"
+                        onStatusChange={(s) => setTabStatus((p) => ({ ...p, og: s }))}
                       />
+
                     </TabsContent>
                   </Tabs>
                 </div>
@@ -315,3 +418,15 @@ function AdminServicesPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <div className="space-y-1.5"><Label>{label}</Label>{children}</div>;
 }
+
+function StatusDot({ s }: { s?: FieldStatus }) {
+  const color =
+    s === "ok" ? "bg-emerald-500"
+    : s === "uploading" ? "bg-amber-500 animate-pulse"
+    : s === "error" ? "bg-destructive"
+    : "bg-muted-foreground/40";
+  const title =
+    s === "ok" ? "Image set" : s === "uploading" ? "Uploading…" : s === "error" ? "Invalid" : "Empty";
+  return <span aria-label={title} title={title} className={`inline-block h-2 w-2 rounded-full ${color}`} />;
+}
+
