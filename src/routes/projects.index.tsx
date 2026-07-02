@@ -227,7 +227,12 @@ function ProjectsPage() {
             <div className="mt-6">
               <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  {selectedGov?.logo_url && <img src={selectedGov.logo_url} alt="" className="h-10 w-10 rounded-full bg-secondary object-contain p-1" />}
+                  {selectedGov?.logo_url && (
+                    <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full bg-secondary">
+                      <img src={selectedGov.logo_url} alt="" width={40} height={40} className="h-full w-full object-contain p-1" decoding="async" />
+                    </span>
+                  )}
+
                   <h3 className="text-lg font-semibold text-foreground">
                     {lang === "ar" ? "مشاريع في" : "Projects in"} {selectedGov ? (lang === "ar" ? selectedGov.name_ar : selectedGov.name_en) : ""}
                   </h3>
