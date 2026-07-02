@@ -18,6 +18,23 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { data: branding } = useBranding();
+
+  // Low-power heuristic: skip heavy effects on constrained devices.
+  const lowPower = useMemo(() => {
+    if (typeof navigator === "undefined") return false;
+    const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+    const cores = navigator.hardwareConcurrency ?? 8;
+    return (mem !== undefined && mem <= 4) || cores <= 4;
+  }, []);
+
+  const motionCfg = branding?.logo_motion?.[lang] ?? DEFAULT_LOGO_MOTION;
+  const motionOn = !reduceMotion && motionCfg.enabled;
+  const intensity = Math.max(0, Math.min(100, motionCfg.intensity)) / 100; // 0..1
+  const speedFactor = 0.5 + (100 - Math.max(0, Math.min(100, motionCfg.speed))) / 50; // 0.5..2.5
+  const outerBlur = lowPower ? 8 : 12 + Math.round(6 * intensity);
+  const innerBlur = lowPower ? 5 : 6 + Math.round(4 * intensity);
+  const auraOpacity = 0.35 + 0.45 * intensity;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
