@@ -17,16 +17,19 @@ export function SmoothScroll() {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) return;
 
+    // Silkier feel: exponential ease-out + slightly lower lerp for buttery
+    // interpolation. Mobile uses syncTouch for a unified inertial feel that
+    // matches the desktop smoothness (was previously native-only).
+    const isTouch = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
     const lenis = new Lenis({
-      // Prefer lerp over duration — snappier feel, fewer wasted frames,
-      // less repaint pressure on image-heavy pages (Projects/Knowledge).
-      lerp: 0.11,
+      lerp: 0.085,
+      duration: 1.15,
+      easing: (t: number) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)), // expo out
       smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 1.2,
-      // Keep native touch scrolling (better inertia, pull-to-refresh, no jank
-      // on tall image lists like Projects/Knowledge).
-      syncTouch: false,
+      wheelMultiplier: 0.9,
+      touchMultiplier: 1.4,
+      syncTouch: isTouch,
+      syncTouchLerp: 0.08,
       // Let overlays / modals / horizontal snap rails handle their own scroll.
       prevent: (node) =>
         !!node.closest(
