@@ -178,13 +178,18 @@ function GalleryPage() {
   }, []);
 
   const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
     return allItems.filter((it) => {
       if (activeType !== "all" && it.type !== activeType) return false;
       if (activeType === "projects" && activeCategory !== "all" && it.category !== activeCategory)
         return false;
+      if (q) {
+        const hay = `${it.title.en} ${it.title.ar} ${it.caption.en} ${it.caption.ar} ${it.category}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
       return true;
     });
-  }, [allItems, activeType, activeCategory]);
+  }, [allItems, activeType, activeCategory, query]);
 
   const setType = (t: SourceType) => {
     setActiveType(t);
@@ -202,17 +207,28 @@ function GalleryPage() {
     });
   };
 
-  // Lightbox keyboard nav
+  // Reset zoom whenever slide changes / closes
+  useEffect(() => {
+    setZoomed(false);
+  }, [lightbox]);
+
+  // Lightbox keyboard nav + body scroll lock
   useEffect(() => {
     if (lightbox === null) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setLightbox(null);
       if (e.key === "ArrowRight") setLightbox((i) => (i === null ? null : (i + 1) % filtered.length));
       if (e.key === "ArrowLeft")
         setLightbox((i) => (i === null ? null : (i - 1 + filtered.length) % filtered.length));
+      if (e.key === " " || e.key === "z") setZoomed((z) => !z);
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
   }, [lightbox, filtered.length]);
 
   const typeChips: { id: SourceType; label: string }[] = [
