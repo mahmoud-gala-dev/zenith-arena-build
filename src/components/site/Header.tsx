@@ -51,19 +51,55 @@ export function Header() {
       <div
         className={cn(
           "mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 transition-all duration-500 ease-out",
-          scrolled ? "h-20 sm:h-24 lg:h-24" : "h-24 sm:h-28 lg:h-32 xl:h-36",
+          scrolled ? "h-24 sm:h-28 lg:h-28" : "h-32 sm:h-36 lg:h-40 xl:h-44",
         )}
       >
-        <Link to="/" aria-label="Egytic home" className="inline-flex items-center">
-          <span
+        <Link to="/" aria-label="Egytic home" className="group relative inline-flex items-center">
+          <motion.span
+            initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -12, scale: 0.9, filter: "blur(6px)" }}
+            animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={reduceMotion ? undefined : { scale: 1.06, rotate: -1.5 }}
             className={cn(
-              "inline-block transition-transform duration-500 ease-out will-change-transform",
-              scrolled ? "scale-90" : "scale-105",
+              "relative inline-flex items-center transition-transform duration-500 ease-out will-change-transform",
+              scrolled ? "scale-100" : "scale-110",
+              "[&_img]:!h-20 sm:[&_img]:!h-24 lg:[&_img]:!h-28 xl:[&_img]:!h-32",
             )}
           >
+            {/* Ambient glow */}
+            {!reduceMotion && (
+              <motion.span
+                aria-hidden
+                className={cn(
+                  "pointer-events-none absolute inset-0 -z-10 rounded-full blur-2xl",
+                  scrolled ? "bg-primary/20" : "bg-white/20",
+                )}
+                animate={{ opacity: [0.35, 0.7, 0.35], scale: [0.9, 1.05, 0.9] }}
+                transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+              />
+            )}
             <Logo light={!scrolled} />
-          </span>
+            {/* Shimmer sweep */}
+            {!reduceMotion && (
+              <motion.span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 overflow-hidden"
+                style={{
+                  WebkitMaskImage: "linear-gradient(90deg, transparent 0%, black 40%, black 60%, transparent 100%)",
+                  maskImage: "linear-gradient(90deg, transparent 0%, black 40%, black 60%, transparent 100%)",
+                }}
+              >
+                <motion.span
+                  className="absolute inset-y-0 -left-1/2 block w-1/3 bg-gradient-to-r from-transparent via-white/60 to-transparent mix-blend-overlay"
+                  animate={{ x: ["0%", "350%"] }}
+                  transition={{ duration: 3.2, repeat: Infinity, repeatDelay: 4.5, ease: "easeInOut" }}
+                />
+              </motion.span>
+            )}
+          </motion.span>
         </Link>
+
+
 
         <nav className="hidden items-center gap-1 lg:flex">
           {links.map((l) => (
