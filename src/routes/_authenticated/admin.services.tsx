@@ -13,16 +13,20 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { StrictImageUrlField } from "@/components/admin/StrictImageUrlField";
+import { StrictImageUrlField, type FieldStatus } from "@/components/admin/StrictImageUrlField";
 import { GalleryOrderEditor } from "@/components/admin/GalleryOrderEditor";
 import { ServiceLivePreview } from "@/components/admin/ServiceLivePreview";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { ImageVariantsManifest } from "@/hooks/useSignedImage";
+import { invalidateManifestCache } from "@/hooks/useSignedImage";
+import { insertImageVersion } from "@/hooks/useImageVersions";
+import { ImageHistoryButton } from "@/components/admin/ImageHistoryButton";
 
 
 export const Route = createFileRoute("/_authenticated/admin/services")({
   component: AdminServicesPage,
 });
+
 
 type ServiceRow = {
   id?: string;
