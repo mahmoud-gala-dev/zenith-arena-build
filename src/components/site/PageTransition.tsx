@@ -1,31 +1,40 @@
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useRouterState } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 /**
- * Wraps children with subtle mobile-only page transitions.
- * On desktop / tablet or when reduced motion is on, renders children as-is.
+ * Mobile-only page transitions with graceful fallbacks:
+ *  - Server / desktop / tablet → renders children as-is (no motion overhead).
+ *  - prefers-reduced-motion → renders children as-is.
+ *  - framer-motion fails to load for any reason → renders children as-is.
+ *  - Otherwise → lazy-loads the animated shell so desktop bundles stay lean.
  */
+
+const MotionShell = lazy(() =>
+  import("./PageTransitionMotion")
+    .then((m) => ({ default: m.PageTransitionMotion }))
+    .catch(() => ({ default: ({ children }: { children: ReactNode }) => <>{children}</> })),
+);
+
+function usePrefersReducedMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduce(mq.matches);
+    update();
+    mq.addEventListener?.("change", update);
+    return () => mq.removeEventListener?.("change", update);
+  }, []);
+  return reduce;
+}
+
 export function PageTransition({ children }: { children: ReactNode }) {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isMobile = useIsMobile();
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
 
   if (!isMobile || reduce) return <>{children}</>;
 
-  return (
-    <AnimatePresence mode="wait" initial={false}>
-      <motion.div
-        key={pathname}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -6 }}
-        transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-        style={{ willChange: "transform, opacity" }}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
-  );
+  return <Suspense fallback={<>{children}</>}>
+    <MotionShell>{children}</MotionShell>
+  </Suspense>;
 }
