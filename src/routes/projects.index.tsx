@@ -59,6 +59,7 @@ function ProjectsPage() {
   const [qInput, setQInput] = useState(q);
   const [govs, setGovs] = useState<Gov[]>([]);
   const [dbProjects, setDbProjects] = useState<DbProject[]>([]);
+  const [dbLoading, setDbLoading] = useState(true);
 
   useEffect(() => { setQInput(q); }, [q]);
 
@@ -70,8 +71,10 @@ function ProjectsPage() {
       ]);
       setGovs((g ?? []) as Gov[]);
       setDbProjects((p ?? []) as DbProject[]);
+      setDbLoading(false);
     })();
   }, []);
+
 
   const govCounts = useMemo(() => {
     const m = new Map<string, number>();
