@@ -1,0 +1,1 @@
+INSERT INTO public.settings (key, value, is_public) VALUES ('branding', '{"logo_light_url":"","logo_dark_url":""}'::jsonb, true) ON CONFLICT (key) DO UPDATE SET is_public = true;
