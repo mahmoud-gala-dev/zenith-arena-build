@@ -18,14 +18,20 @@ export function SmoothScroll() {
     if (reduce) return;
 
     const lenis = new Lenis({
-      duration: 1.05,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      // Prefer lerp over duration — snappier feel, fewer wasted frames,
+      // less repaint pressure on image-heavy pages (Projects/Knowledge).
+      lerp: 0.11,
       smoothWheel: true,
       wheelMultiplier: 1,
       touchMultiplier: 1.2,
-      // Let native touch scrolling remain in charge on mobile (better inertia + pull-to-refresh),
-      // but still smooth mouse-wheel + trackpad.
+      // Keep native touch scrolling (better inertia, pull-to-refresh, no jank
+      // on tall image lists like Projects/Knowledge).
       syncTouch: false,
+      // Let overlays / modals / horizontal snap rails handle their own scroll.
+      prevent: (node) =>
+        !!node.closest(
+          "[data-lenis-prevent],[data-radix-scroll-area-viewport],[data-slot='sheet-content'],.snap-x-rail",
+        ),
     });
 
     let rafId = 0;

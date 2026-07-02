@@ -22,6 +22,7 @@ export function MobileTabBar({ onOpenMore }: { onOpenMore: () => void }) {
 
   return (
     <nav
+      data-mobile-tabbar
       aria-label={ar ? "شريط التنقل" : "Bottom navigation"}
       className={cn(
         "fixed inset-x-0 bottom-0 z-40 md:hidden",
