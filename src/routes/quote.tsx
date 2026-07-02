@@ -39,6 +39,44 @@ function QuotePage() {
   const L = useLocalized();
   const ar = lang === "ar";
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [serviceValue, setServiceValue] = useState("");
+  const [budgetValue, setBudgetValue] = useState("");
+  const [contactMethod, setContactMethod] = useState("email");
+
+  const submitSchema = z.object({
+    name: z.string().trim().min(1).max(100),
+    email: z.string().trim().email().max(255),
+    phone: z.string().trim().min(1).max(30),
+  });
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const payload = {
+      type: "quote" as const,
+      name: String(fd.get("name") ?? ""),
+      company: String(fd.get("company") ?? "") || null,
+      email: String(fd.get("email") ?? ""),
+      phone: String(fd.get("phone") ?? "") || null,
+      country: String(fd.get("country") ?? "") || null,
+      city: String(fd.get("city") ?? "") || null,
+      service: serviceValue || null,
+      project_area: String(fd.get("area") ?? "") || null,
+      budget_range: budgetValue || null,
+      start_date: String(fd.get("start") ?? "") || null,
+      message: String(fd.get("message") ?? "") || null,
+      preferred_contact: contactMethod,
+    };
+    const check = submitSchema.safeParse(payload);
+    if (!check.success) return toast.error(check.error.issues[0].message);
+    setSubmitting(true);
+    const { error } = await supabase.from("leads").insert(payload as never);
+    setSubmitting(false);
+    if (error) return toast.error(error.message);
+    setSent(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   const tx = ar
     ? {
