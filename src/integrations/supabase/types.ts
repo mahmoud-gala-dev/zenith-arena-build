@@ -420,6 +420,7 @@ export type Database = {
           created_at: string
           eyebrow_ar: string | null
           eyebrow_en: string | null
+          hide_cta: boolean
           id: string
           image_url: string
           is_active: boolean
@@ -442,6 +443,7 @@ export type Database = {
           created_at?: string
           eyebrow_ar?: string | null
           eyebrow_en?: string | null
+          hide_cta?: boolean
           id?: string
           image_url: string
           is_active?: boolean
@@ -464,6 +466,7 @@ export type Database = {
           created_at?: string
           eyebrow_ar?: string | null
           eyebrow_en?: string | null
+          hide_cta?: boolean
           id?: string
           image_url?: string
           is_active?: boolean
