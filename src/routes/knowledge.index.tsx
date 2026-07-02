@@ -4,9 +4,11 @@ import { Clock, User } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
+import { CardGridSkeleton } from "@/components/site/Skeletons";
 import { useLang } from "@/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
 import heroImg from "@/assets/hero-knowledge.jpg";
+
 
 export const Route = createFileRoute("/knowledge/")({
   component: KnowledgePage,
