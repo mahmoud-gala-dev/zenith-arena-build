@@ -7,6 +7,7 @@ import { useLang } from "@/i18n/LanguageProvider";
 import type { Database } from "@/integrations/supabase/types";
 import { HeroLogoBadge } from "./HeroLogoBadge";
 import { CinematicBackdrop } from "./CinematicBackdrop";
+import { trackEvent } from "@/lib/analytics";
 
 type Slide = Database["public"]["Tables"]["hero_slides"]["Row"] & {
   hide_cta?: boolean | null;
@@ -41,13 +42,27 @@ export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
   const count = slides?.length ?? 0;
   const [paused, setPaused] = useState(false);
 
+  const prevIndexRef = useRef(0);
   useEffect(() => {
     if (count < 2 || paused) return;
-    const t = setInterval(() => setIndex((i) => (i + 1) % count), AUTOPLAY_MS);
+    const t = setInterval(() => {
+      setIndex((i) => {
+        const next = (i + 1) % count;
+        const from = slides?.[i];
+        const to = slides?.[next];
+        if (to) trackEvent({ name: "hero_slide_change", from: i, to: next, slide_id: to.id, via: "autoplay" });
+        return next;
+      });
+    }, AUTOPLAY_MS);
     return () => clearInterval(t);
-  }, [count, paused]);
+  }, [count, paused, slides]);
 
   const current = useMemo(() => (slides && count > 0 ? slides[index % count] : null), [slides, index, count]);
+
+  useEffect(() => {
+    if (current) trackEvent({ name: "hero_slide_view", index, slide_id: current.id, total: count });
+    prevIndexRef.current = index;
+  }, [current, index, count]);
 
   if (slides === null) {
     return (
@@ -109,8 +124,22 @@ function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAni
     else if (e.key === "End") next = count - 1;
     else return;
     e.preventDefault();
+    const to = slides?.[next];
+    if (to) {
+      trackEvent({ name: "hero_keyboard_nav", key: e.key, index: next, slide_id: to.id });
+      trackEvent({ name: "hero_slide_change", from: index, to: next, slide_id: to.id, via: "keyboard" });
+    }
     setIndex(next);
     dotRefs.current[next]?.focus();
+  };
+
+  const onDotClick = (i: number) => {
+    const to = slides?.[i];
+    if (to && i !== index) {
+      trackEvent({ name: "hero_dot_click", index: i, slide_id: to.id });
+      trackEvent({ name: "hero_slide_change", from: index, to: i, slide_id: to.id, via: "dot_click" });
+    }
+    setIndex(i);
   };
 
   return (
@@ -214,7 +243,7 @@ function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAni
                         aria-selected={selected}
                         aria-label={`Slide ${i + 1} of ${count}`}
                         tabIndex={selected ? 0 : -1}
-                        onClick={() => setIndex(i)}
+                        onClick={() => onDotClick(i)}
                         className={`h-2.5 min-h-[16px] min-w-[16px] rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink ${selected ? "w-10 bg-white" : "w-4 bg-white/40 hover:bg-white/70"}`}
                       />
                     );
