@@ -4,6 +4,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { Icon } from "@/components/site/Icon";
 import { ProjectCard } from "@/components/site/Cards";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { ShareButtons } from "@/components/site/ShareButtons";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { projects, services, products, heroImg } from "@/lib/site-data";
@@ -33,7 +34,12 @@ export const Route = createFileRoute("/services/$slug")({
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: desc },
       ],
-      links: [{ rel: "canonical", href: `/services/${params.slug}` }],
+      links: [
+        { rel: "canonical", href: `/services/${params.slug}` },
+        { rel: "alternate", hrefLang: "en", href: `/services/${params.slug}` },
+        { rel: "alternate", hrefLang: "ar", href: `/services/${params.slug}` },
+        { rel: "alternate", hrefLang: "x-default", href: `/services/${params.slug}` },
+      ],
       scripts: [{
         type: "application/ld+json",
         children: JSON.stringify({
@@ -128,6 +134,9 @@ function ServiceDetailPage() {
             <Block title={copy.specs}><List items={copy.specRows} /></Block>
             <Block title={copy.steps}><List items={copy.stepRows} ordered /></Block>
             <Block title={copy.materials}><List items={copy.materialRows} /></Block>
+            <div className="border-t border-border pt-6">
+              <ShareButtons title={L(service.title)} path={`/services/${slug}`} />
+            </div>
           </div>
           <aside className="h-fit space-y-4 rounded-2xl border border-border bg-card p-6 shadow-soft">
             <h2 className="text-lg font-semibold text-foreground">{copy.brochure}</h2>

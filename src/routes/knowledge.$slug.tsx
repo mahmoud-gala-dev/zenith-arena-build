@@ -4,6 +4,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { Reveal } from "@/components/site/Reveal";
 import { ArticleCard } from "@/components/site/Cards";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { ShareButtons } from "@/components/site/ShareButtons";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { articles } from "@/lib/site-data";
@@ -36,7 +37,12 @@ export const Route = createFileRoute("/knowledge/$slug")({
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: desc },
       ],
-      links: [{ rel: "canonical", href: `/knowledge/${params.slug}` }],
+      links: [
+        { rel: "canonical", href: `/knowledge/${params.slug}` },
+        { rel: "alternate", hrefLang: "en", href: `/knowledge/${params.slug}` },
+        { rel: "alternate", hrefLang: "ar", href: `/knowledge/${params.slug}` },
+        { rel: "alternate", hrefLang: "x-default", href: `/knowledge/${params.slug}` },
+      ],
       scripts: [{
         type: "application/ld+json",
         children: JSON.stringify({
@@ -102,6 +108,9 @@ function ArticleDetail() {
               {article.body.map((p, i) => (
                 <p key={i} className="leading-relaxed text-muted-foreground">{L(p)}</p>
               ))}
+            </div>
+            <div className="mt-10 border-t border-border pt-6">
+              <ShareButtons title={L(article.title)} path={`/knowledge/${slug}`} />
             </div>
             <div className="mt-12 rounded-2xl bg-hero px-8 py-10 text-center">
               <h3 className="text-xl font-bold text-white">{t.sections.ctaTitle}</h3>

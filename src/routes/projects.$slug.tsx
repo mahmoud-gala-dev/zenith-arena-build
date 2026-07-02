@@ -4,6 +4,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { Reveal } from "@/components/site/Reveal";
 import { ProjectCard } from "@/components/site/Cards";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { ShareButtons } from "@/components/site/ShareButtons";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { projects } from "@/lib/site-data";
@@ -33,7 +34,12 @@ export const Route = createFileRoute("/projects/$slug")({
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: desc },
       ],
-      links: [{ rel: "canonical", href: `/projects/${params.slug}` }],
+      links: [
+        { rel: "canonical", href: `/projects/${params.slug}` },
+        { rel: "alternate", hrefLang: "en", href: `/projects/${params.slug}` },
+        { rel: "alternate", hrefLang: "ar", href: `/projects/${params.slug}` },
+        { rel: "alternate", hrefLang: "x-default", href: `/projects/${params.slug}` },
+      ],
       scripts: [{
         type: "application/ld+json",
         children: JSON.stringify({
@@ -96,6 +102,9 @@ function ProjectDetail() {
                   <p className="mt-1 text-sm text-muted-foreground">{L(s.label)}</p>
                 </div>
               ))}
+            </div>
+            <div className="mt-8">
+              <ShareButtons title={L(project.title)} path={`/projects/${slug}`} />
             </div>
           </div>
 

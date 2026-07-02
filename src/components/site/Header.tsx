@@ -11,7 +11,7 @@ import { useLang } from "@/i18n/LanguageProvider";
 import { cn } from "@/lib/utils";
 
 export function Header() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -23,11 +23,13 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const ar = lang === "ar";
   const links = [
     { to: "/", label: t.nav.home },
     { to: "/services", label: t.nav.services },
     { to: "/projects", label: t.nav.projects },
     { to: "/products", label: t.nav.products },
+    { to: "/gallery", label: ar ? "معرض الصور" : "Gallery" },
     { to: "/knowledge", label: t.nav.knowledge },
     { to: "/about", label: t.nav.about },
     { to: "/contact", label: t.nav.contact },
