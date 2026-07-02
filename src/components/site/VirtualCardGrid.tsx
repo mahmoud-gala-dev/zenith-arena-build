@@ -49,7 +49,7 @@ export function VirtualCardGrid<T>({
 
   const rowVirtualizer = useVirtualizer({
     count: rows,
-    getScrollElement: () => (shouldVirtualize ? window as unknown as HTMLElement : null),
+    getScrollElement: () => (typeof document !== "undefined" ? document.documentElement : null),
     estimateSize: () => estimatedRowHeight + gap,
     overscan: 3,
     observeElementRect: (instance, cb) => {
