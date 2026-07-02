@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 
 export function Header() {
   const { t, lang } = useLang();
+  const reduceMotion = useReducedMotion();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
