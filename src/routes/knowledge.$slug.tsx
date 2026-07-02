@@ -190,7 +190,7 @@ function ArticleDetail() {
           <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
             {excerpt && <p className="text-lg font-medium leading-relaxed text-foreground">{excerpt}</p>}
             <div className="mt-6 space-y-6">
-              {paragraphs.map((p, i) => (
+              {paragraphs.map((p: string, i: number) => (
                 <p key={i} className="leading-relaxed text-muted-foreground whitespace-pre-line">{p}</p>
               ))}
             </div>
