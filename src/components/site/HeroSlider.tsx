@@ -39,18 +39,19 @@ export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
   }, []);
 
   const count = slides?.length ?? 0;
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    if (count < 2) return;
+    if (count < 2 || paused) return;
     const t = setInterval(() => setIndex((i) => (i + 1) % count), AUTOPLAY_MS);
     return () => clearInterval(t);
-  }, [count]);
+  }, [count, paused]);
 
   const current = useMemo(() => (slides && count > 0 ? slides[index % count] : null), [slides, index, count]);
 
   if (slides === null) {
     return (
-      <section className="relative flex min-h-[92vh] items-center overflow-hidden bg-ink">
+      <section className="relative flex min-h-[92vh] items-center overflow-hidden bg-ink" aria-label="Loading hero" aria-busy="true">
         <div className="absolute inset-0 animate-pulse bg-ink" />
       </section>
     );
@@ -71,7 +72,22 @@ export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 }, transition: { duration: 0.3 } }
     : { initial: { opacity: 0, y: 24 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -16 }, transition: { duration: 0.7, ease: "easeOut" as const } };
 
-  return <HeroSection current={current} count={count} slides={slides!} index={index} setIndex={setIndex} imgAnim={imgAnim} textAnim={textAnim} t={t} align={align} showCTA={showCTA} />;
+  return (
+    <HeroSection
+      current={current}
+      count={count}
+      slides={slides!}
+      index={index}
+      setIndex={setIndex}
+      imgAnim={imgAnim}
+      textAnim={textAnim}
+      t={t}
+      align={align}
+      showCTA={showCTA}
+      isRTL={isRTL}
+      onPauseChange={setPaused}
+    />
+  );
 }
 
 function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAnim, t, align, showCTA }: any) {
