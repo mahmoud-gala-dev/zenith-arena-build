@@ -66,17 +66,29 @@ export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 }, transition: { duration: 0.3 } }
     : { initial: { opacity: 0, y: 24 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -16 }, transition: { duration: 0.7, ease: "easeOut" as const } };
 
+  return <HeroSection current={current} count={count} slides={slides!} index={index} setIndex={setIndex} imgAnim={imgAnim} textAnim={textAnim} t={t} align={align} showCTA={showCTA} />;
+}
+
+function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAnim, t, align, showCTA }: any) {
+  const { scrollY } = useScroll();
+  const bgY = useTransform(scrollY, [0, 800], [0, 180]);
+  const bgScale = useTransform(scrollY, [0, 800], [1, 1.08]);
+  const contentY = useTransform(scrollY, [0, 600], [0, -60]);
+  const contentOpacity = useTransform(scrollY, [0, 500], [1, 0.2]);
+
   return (
     <section className="relative flex min-h-[92vh] items-center overflow-hidden bg-ink">
-      <AnimatePresence mode="sync">
-        <motion.img
-          key={current.id + "-img"}
-          src={current.image_url}
-          alt=""
-          {...imgAnim}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-      </AnimatePresence>
+      <motion.div className="absolute inset-0" style={{ y: bgY, scale: bgScale }}>
+        <AnimatePresence mode="sync">
+          <motion.img
+            key={current.id + "-img"}
+            src={current.image_url}
+            alt=""
+            {...imgAnim}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        </AnimatePresence>
+      </motion.div>
 
       <div
         className={
@@ -87,9 +99,10 @@ export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
             : "absolute inset-0 bg-gradient-to-b from-ink/70 via-ink/50 to-ink"
         }
       />
+      <CinematicBackdrop />
       <div className="absolute inset-0 grid-texture opacity-30" />
 
-      <div className="relative mx-auto w-full max-w-7xl px-4 py-28 sm:px-6 lg:px-8">
+      <motion.div style={{ y: contentY, opacity: contentOpacity }} className="relative mx-auto w-full max-w-7xl px-4 py-28 sm:px-6 lg:px-8">
         <HeroLogoBadge className="mb-6 hidden sm:block" />
         <AnimatePresence mode="wait">
           <motion.div
