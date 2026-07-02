@@ -3,9 +3,9 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import { useLang } from "@/i18n/LanguageProvider";
 import type { Database } from "@/integrations/supabase/types";
+import { heroSlidesActiveQueryOptions } from "@/lib/queries";
 
 import { CinematicBackdrop } from "./CinematicBackdrop";
 import { Logo } from "./Logo";
@@ -24,18 +24,7 @@ export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
   const { lang, isRTL } = useLang();
   const reduceMotion = useReducedMotion();
   const { data: slides = null, isLoading } = useQuery<Slide[]>({
-    queryKey: ["hero_slides", "active"],
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("hero_slides")
-        .select("*")
-        .eq("is_active", true)
-        .order("sort_order", { ascending: true });
-      if (error) throw error;
-      return (data as Slide[]) ?? [];
-    },
+    ...heroSlidesActiveQueryOptions,
   });
   const [index, setIndex] = useState(0);
 
