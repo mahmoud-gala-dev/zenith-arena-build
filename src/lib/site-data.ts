@@ -6,8 +6,13 @@ import tennis from "@/assets/project-tennis.jpg";
 import swimming from "@/assets/project-swimming.jpg";
 import padel from "@/assets/project-padel.jpg";
 import aboutImg from "@/assets/about-facility.jpg";
+import servicesHeroAsset from "@/assets/services-hero.jpg.asset.json";
+import maintenanceAsset from "@/assets/service-maintenance.jpg.asset.json";
 
-export { heroImg, aboutImg };
+const servicesHero = servicesHeroAsset.url;
+const maintenance = maintenanceAsset.url;
+
+export { heroImg, aboutImg, servicesHero };
 
 export interface L {
   en: string;
