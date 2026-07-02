@@ -54,6 +54,14 @@ function AdminHeroSlides() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const localPreviewRef = useRef<string | null>(null);
+
+  useEffect(() => () => {
+    if (localPreviewRef.current) URL.revokeObjectURL(localPreviewRef.current);
+  }, []);
 
   async function load() {
     setLoading(true);
@@ -64,18 +72,57 @@ function AdminHeroSlides() {
   }
   useEffect(() => { load(); }, []);
 
+  function clearLocalPreview() {
+    if (localPreviewRef.current) URL.revokeObjectURL(localPreviewRef.current);
+    localPreviewRef.current = null;
+    setLocalPreview(null);
+  }
+
   function startNew() {
+    clearLocalPreview();
     setEditingId(null);
     setEditing({ ...empty, sort_order: (slides.at(-1)?.sort_order ?? 0) + 1 });
   }
   function startEdit(s: Slide) {
+    clearLocalPreview();
     setEditingId(s.id);
     setEditing({ ...s });
+  }
+
+  function validateImage(file: File): Promise<{ width: number; height: number; url: string }> {
+    return new Promise((resolve, reject) => {
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        return reject(new Error("Use JPG, PNG, WEBP or AVIF"));
+      }
+      if (file.size > MAX_IMAGE_BYTES) {
+        return reject(new Error(`Image must be under ${MAX_IMAGE_BYTES / 1024 / 1024} MB`));
+      }
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        if (img.naturalWidth < MIN_IMAGE_WIDTH || img.naturalHeight < MIN_IMAGE_HEIGHT) {
+          URL.revokeObjectURL(url);
+          return reject(new Error(`Minimum size ${MIN_IMAGE_WIDTH}×${MIN_IMAGE_HEIGHT}px`));
+        }
+        resolve({ width: img.naturalWidth, height: img.naturalHeight, url });
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error("Could not read image"));
+      };
+      img.src = url;
+    });
   }
 
   async function upload(file: File) {
     setUploading(true);
     try {
+      const { url: previewUrl } = await validateImage(file);
+      // Immediate local preview via object URL — swaps to the CDN URL once uploaded.
+      if (localPreviewRef.current) URL.revokeObjectURL(localPreviewRef.current);
+      localPreviewRef.current = previewUrl;
+      setLocalPreview(previewUrl);
+
       const ext = file.name.split(".").pop() ?? "jpg";
       const path = `hero/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
       const { error } = await supabase.storage.from("media").upload(path, file, { upsert: false, contentType: file.type });
