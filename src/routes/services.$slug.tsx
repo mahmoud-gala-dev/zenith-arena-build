@@ -43,13 +43,27 @@ export const Route = createFileRoute("/services/$slug")({
       ],
       scripts: [{
         type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Service",
-          name: service.title.en,
-          description: service.description.en,
-          provider: { "@type": "Organization", name: "APEX Sports" },
-        }),
+        children: JSON.stringify([
+          {
+            "@context": "https://schema.org",
+            "@type": "Service",
+            name: service.title.en,
+            description: service.description.en,
+            serviceType: service.title.en,
+            url: `/services/${params.slug}`,
+            provider: { "@type": "Organization", name: "APEX Sports" },
+            areaServed: { "@type": "Place", name: "GCC & MENA" },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "/" },
+              { "@type": "ListItem", position: 2, name: "Services", item: "/services" },
+              { "@type": "ListItem", position: 3, name: service.title.en, item: `/services/${params.slug}` },
+            ],
+          },
+        ]),
       }],
     };
   },
