@@ -64,6 +64,20 @@ export function Footer() {
                 <Mail className="h-4 w-4 text-primary" /> hello@apexsports.co
               </p>
             </div>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {socialLinks.map(({ name, href, Icon }) => (
+                <a
+                  key={name}
+                  href={href}
+                  aria-label={name}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/70 transition hover:border-primary hover:bg-primary/10 hover:text-white"
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
           </div>
 
           <div>
