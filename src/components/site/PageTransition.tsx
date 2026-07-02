@@ -1,12 +1,9 @@
 import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 /**
- * Mobile-only page transitions with graceful fallbacks:
- *  - Server / desktop / tablet → renders children as-is (no motion overhead).
- *  - prefers-reduced-motion → renders children as-is.
- *  - framer-motion fails to load for any reason → renders children as-is.
- *  - Otherwise → lazy-loads the animated shell so desktop bundles stay lean.
+ * Global page transitions with graceful fallbacks:
+ *  - SSR / prefers-reduced-motion / framer-motion load failure → children as-is.
+ *  - Otherwise → lazy-loaded animated shell (fade + blur + scale, 0.45s).
  */
 
 const MotionShell = lazy(() =>
@@ -29,12 +26,15 @@ function usePrefersReducedMotion() {
 }
 
 export function PageTransition({ children }: { children: ReactNode }) {
-  const isMobile = useIsMobile();
   const reduce = usePrefersReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
-  if (!isMobile || reduce) return <>{children}</>;
+  if (!mounted || reduce) return <>{children}</>;
 
-  return <Suspense fallback={<>{children}</>}>
-    <MotionShell>{children}</MotionShell>
-  </Suspense>;
+  return (
+    <Suspense fallback={<>{children}</>}>
+      <MotionShell>{children}</MotionShell>
+    </Suspense>
+  );
 }

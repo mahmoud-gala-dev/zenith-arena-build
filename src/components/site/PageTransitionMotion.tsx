@@ -3,8 +3,8 @@ import { useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 /**
- * The actual framer-motion animated wrapper. Kept in its own module so
- * PageTransition can lazy-load it and gracefully fall back on failure.
+ * Global cinematic page transition: fade + subtle blur + micro-scale.
+ * Duration ~0.45s using a soft ease-out. Kept in a lazy module.
  */
 export function PageTransitionMotion({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -12,11 +12,11 @@ export function PageTransitionMotion({ children }: { children: ReactNode }) {
     <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key={pathname}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -6 }}
-        transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
-        style={{ willChange: "transform, opacity" }}
+        initial={{ opacity: 0, y: 12, scale: 0.985, filter: "blur(8px)" }}
+        animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+        exit={{ opacity: 0, y: -8, scale: 0.995, filter: "blur(6px)" }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        style={{ willChange: "transform, opacity, filter" }}
       >
         {children}
       </motion.div>
