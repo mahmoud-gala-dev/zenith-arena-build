@@ -90,7 +90,12 @@ function AdminHeroSlides() {
     if (!editing.title_en?.trim()) return toast.error("English title is required");
     if (!editing.image_url?.trim()) return toast.error("Image is required");
     setSaving(true);
-    const payload = { ...editing };
+    const payload = {
+      ...editing,
+      fog_intensity: clamp01((editing as any).fog_intensity ?? 0.6),
+      spotlight_intensity: clamp01((editing as any).spotlight_intensity ?? 0.6),
+      vignette_intensity: clamp01((editing as any).vignette_intensity ?? 0.6),
+    };
     const res = editingId
       ? await supabase.from("hero_slides").update(payload).eq("id", editingId)
       : await supabase.from("hero_slides").insert(payload);
