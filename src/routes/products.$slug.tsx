@@ -15,16 +15,36 @@ export const Route = createFileRoute("/products/$slug")({
   },
   head: ({ params }) => {
     const product = products.find((item) => item.id === params.slug);
+    if (!product) {
+      return { meta: [{ title: "Product not found — APEX" }, { name: "robots", content: "noindex" }] };
+    }
+    const title = `${product.title.en} — ${product.certified} | APEX Products`;
+    const desc = product.description.en;
     return {
       meta: [
-        { title: product ? `${product.title.en} — Sports Infrastructure Products` : "Product — APEX" },
-        { name: "description", content: product?.description.en ?? "Sports infrastructure product details from APEX." },
-        { property: "og:title", content: product ? `${product.title.en} — APEX` : "Product — APEX" },
-        { property: "og:description", content: product?.description.en ?? "Sports infrastructure product details from APEX." },
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "product" },
         { property: "og:url", content: `/products/${params.slug}` },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: desc },
       ],
       links: [{ rel: "canonical", href: `/products/${params.slug}` }],
-      scripts: product ? [{ type: "application/ld+json", children: JSON.stringify({ "@context": "https://schema.org", "@type": "Product", name: product.title.en, description: product.description.en }) }] : [],
+      scripts: [{
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: product.title.en,
+          description: product.description.en,
+          category: product.category.en,
+          brand: { "@type": "Brand", name: "APEX" },
+          award: product.certified,
+        }),
+      }],
     };
   },
   component: ProductDetailPage,
