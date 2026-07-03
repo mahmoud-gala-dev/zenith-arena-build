@@ -33,6 +33,14 @@ interface Report {
   notes: string | null;
 }
 
+interface ReportMedia {
+  id: string;
+  report_id: string;
+  media_url: string;
+  caption: string | null;
+  sort_order: number;
+}
+
 type FormState = {
   viewport: string;
   page: string;
