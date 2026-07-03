@@ -1,6 +1,8 @@
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery, keepPreviousData } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { ImageVariantsManifest } from "@/hooks/useSignedImage";
+
+export type ServiceFaq = { q_en: string; q_ar?: string; a_en: string; a_ar?: string };
 
 export type ServiceRow = {
   id: string;
@@ -15,12 +17,15 @@ export type ServiceRow = {
   cover_image: string | null;
   header_image: string | null;
   og_image: string | null;
+  og_image_ar: string | null;
   cover_image_variants: ImageVariantsManifest | null;
   header_image_variants: ImageVariantsManifest | null;
   og_image_variants: ImageVariantsManifest | null;
+  og_image_ar_variants: ImageVariantsManifest | null;
   alt_en: string | null;
   alt_ar: string | null;
   gallery_images: string[];
+  faqs: ServiceFaq[];
   seo_title_en: string | null;
   seo_title_ar: string | null;
   seo_description_en: string | null;
@@ -28,6 +33,7 @@ export type ServiceRow = {
   status: string;
   featured: boolean;
   sort_order: number;
+  updated_at?: string | null;
 };
 
 function normalizeGallery(value: unknown): string[] {
@@ -38,6 +44,7 @@ function normalizeGallery(value: unknown): string[] {
       return Array.isArray(parsed) ? parsed.filter((v) => typeof v === "string" && !!v) : [];
     } catch {
       return [];
+
     }
   }
   return [];
