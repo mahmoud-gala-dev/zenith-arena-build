@@ -21,7 +21,10 @@ import { ResponsiveImage } from "@/components/site/ResponsiveImage";
 const SITE_URL = "https://zenith-arena-build.lovable.app";
 const DEFAULT_PAGE_SIZE = 9;
 
-type Search = { q?: string; category?: string; page?: number; lang?: "en" | "ar" };
+type SortKey = "featured" | "newest" | "oldest" | "az" | "za";
+type Search = { q?: string; category?: string; page?: number; lang?: "en" | "ar"; sort?: SortKey };
+
+const SORT_KEYS: readonly SortKey[] = ["featured", "newest", "oldest", "az", "za"] as const;
 
 export const Route = createFileRoute("/services/")({
   validateSearch: (raw: Record<string, unknown>): Search => {
@@ -30,16 +33,18 @@ export const Route = createFileRoute("/services/")({
     const pageN = typeof raw.page === "number" ? raw.page : typeof raw.page === "string" ? Number(raw.page) : undefined;
     const page = Number.isFinite(pageN) && (pageN as number) > 1 ? Math.floor(pageN as number) : undefined;
     const lang = raw.lang === "ar" || raw.lang === "en" ? raw.lang : undefined;
-    return { q, category, page, lang };
+    const sort = typeof raw.sort === "string" && (SORT_KEYS as readonly string[]).includes(raw.sort) ? (raw.sort as SortKey) : undefined;
+    return { q, category, page, lang, sort };
   },
-  loaderDeps: ({ search }) => ({ q: search.q, category: search.category, page: search.page }),
+  loaderDeps: ({ search }) => ({ q: search.q, category: search.category, page: search.page, sort: search.sort, lang: search.lang }),
   loader: ({ context: { queryClient }, deps }) => {
     void queryClient.ensureQueryData(
-      servicesPageQueryOptions({ q: deps.q, category: deps.category, page: deps.page ?? 1, pageSize: DEFAULT_PAGE_SIZE }),
+      servicesPageQueryOptions({ q: deps.q, category: deps.category, page: deps.page ?? 1, pageSize: DEFAULT_PAGE_SIZE, sort: deps.sort, lang: deps.lang }),
     );
     void queryClient.ensureQueryData(servicesCategoriesQueryOptions);
   },
   component: ServicesPage,
+
   head: () => ({
     meta: [
       { title: "Sports Construction Services — Egytic Sports" },
