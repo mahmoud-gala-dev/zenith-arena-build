@@ -87,6 +87,26 @@ function toArray(g: unknown): string[] {
   return [];
 }
 
+function toFaqs(v: unknown): ServiceFaq[] {
+  const arr = Array.isArray(v)
+    ? v
+    : typeof v === "string" && v.trim()
+      ? (() => { try { return JSON.parse(v); } catch { return []; } })()
+      : [];
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .map((raw: unknown) => {
+      const o = (raw ?? {}) as Record<string, unknown>;
+      return {
+        q_en: typeof o.q_en === "string" ? o.q_en : (typeof o.question === "string" ? (o.question as string) : ""),
+        a_en: typeof o.a_en === "string" ? o.a_en : (typeof o.answer === "string" ? (o.answer as string) : ""),
+        q_ar: typeof o.q_ar === "string" ? (o.q_ar as string) : "",
+        a_ar: typeof o.a_ar === "string" ? (o.a_ar as string) : "",
+      } as ServiceFaq;
+    });
+}
+
+
 const IMAGE_FIELDS = [
   { key: "cover_image" as const, variantsKey: "cover_image_variants" as const, aspect: 16 / 10, label: "Cover" },
   { key: "header_image" as const, variantsKey: "header_image_variants" as const, aspect: 21 / 9, label: "Header" },
