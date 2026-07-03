@@ -316,3 +316,51 @@ body { -webkit-tap-highlight-color: transparent; }
 }
 .press:active { transform: scale(0.98); }
 
+/* ============================================================
+   Custom scrollbar — slim, branded, smooth
+   Firefox: `scrollbar-*` props.  WebKit/Blink: `::-webkit-scrollbar-*`.
+   Auto-hides on mobile (native OS overlay is nicer there).
+   ============================================================ */
+@media (min-width: 768px) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--primary) 55%, transparent) transparent;
+    scrollbar-gutter: stable;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in oklch, var(--primary) 45%, transparent);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    border-radius: 999px;
+    transition: background-color 200ms ease;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklch, var(--primary) 75%, transparent);
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:active {
+    background: var(--primary);
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-corner { background: transparent; }
+}
+
+/* Hide native scrollbars on mobile — OS overlay scrollbars are used instead */
+@media (max-width: 767px) {
+  ::-webkit-scrollbar { width: 0; height: 0; }
+  html { scrollbar-width: none; }
+}
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  ::-webkit-scrollbar-thumb { transition: none; }
+}
+
+
