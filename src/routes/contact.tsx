@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 import { createFileRoute } from "@tanstack/react-router";
-import { Mail, MapPin, Phone, Clock, CheckCircle2, MessageCircle } from "lucide-react";
+import { Mail, MapPin, Clock, CheckCircle2, MessageCircle } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import heroContact from "@/assets/hero-contact.jpg.asset.json";
