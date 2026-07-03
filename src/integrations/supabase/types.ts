@@ -1353,6 +1353,7 @@ export type Database = {
           created_at: string
           description_ar: string | null
           description_en: string | null
+          faqs: Json
           featured: boolean
           gallery_images: Json
           header_image: string | null
@@ -1360,6 +1361,8 @@ export type Database = {
           icon: string | null
           id: string
           og_image: string | null
+          og_image_ar: string | null
+          og_image_ar_variants: Json | null
           og_image_variants: Json | null
           seo_description_ar: string | null
           seo_description_en: string | null
@@ -1382,6 +1385,7 @@ export type Database = {
           created_at?: string
           description_ar?: string | null
           description_en?: string | null
+          faqs?: Json
           featured?: boolean
           gallery_images?: Json
           header_image?: string | null
@@ -1389,6 +1393,8 @@ export type Database = {
           icon?: string | null
           id?: string
           og_image?: string | null
+          og_image_ar?: string | null
+          og_image_ar_variants?: Json | null
           og_image_variants?: Json | null
           seo_description_ar?: string | null
           seo_description_en?: string | null
@@ -1411,6 +1417,7 @@ export type Database = {
           created_at?: string
           description_ar?: string | null
           description_en?: string | null
+          faqs?: Json
           featured?: boolean
           gallery_images?: Json
           header_image?: string | null
@@ -1418,6 +1425,8 @@ export type Database = {
           icon?: string | null
           id?: string
           og_image?: string | null
+          og_image_ar?: string | null
+          og_image_ar_variants?: Json | null
           og_image_variants?: Json | null
           seo_description_ar?: string | null
           seo_description_en?: string | null
