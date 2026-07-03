@@ -150,14 +150,54 @@ function Index() {
             subtitle={t.sections.servicesSub}
           />
           <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {services.map((s, i) => (
-              <Reveal key={s.id} delay={i * 60}>
-                <ServiceCard service={s} />
-              </Reveal>
-            ))}
+            {featuredServices.map((s, i) => {
+              const title = L({ en: s.title_en, ar: s.title_ar ?? s.title_en });
+              const desc = L({ en: s.description_en ?? "", ar: s.description_ar ?? s.description_en ?? "" });
+              const alt = L({ en: s.alt_en ?? s.title_en, ar: s.alt_ar ?? s.title_ar ?? s.title_en });
+              return (
+                <Reveal key={s.id} delay={i * 60}>
+                  <Link
+                    to="/services/$slug"
+                    params={{ slug: s.slug_en }}
+                    className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant focus-visible:-translate-y-1 focus-visible:shadow-elegant motion-reduce:transition-none"
+                  >
+                    <div className="relative aspect-[16/10] overflow-hidden bg-secondary">
+                      {s.cover_image ? (
+                        <ResponsiveImage
+                          src={s.cover_image}
+                          variants={s.cover_image_variants}
+                          alt={alt}
+                          width={800}
+                          height={500}
+                          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-secondary to-primary/20">
+                          <Icon name={s.icon || "Goal"} className="h-16 w-16 text-primary/40" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-transparent" />
+                      <div className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-xl bg-white/90 text-primary shadow-soft backdrop-blur">
+                        <Icon name={s.icon || "Goal"} className="h-5 w-5" />
+                      </div>
+                    </div>
+                    <div className="flex flex-1 flex-col p-6">
+                      <h3 className="text-xl font-semibold text-foreground">{title}</h3>
+                      {desc && <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{desc}</p>}
+                      <span className="mt-auto pt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                        {t.cta.learnMore}
+                        <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                      </span>
+                    </div>
+                  </Link>
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </section>
+
 
       {/* Featured projects */}
       <section className="bg-secondary/50 py-24">
