@@ -4,8 +4,15 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { services, projects, products, articles } from "@/lib/site-data";
 
-// TODO: replace with your project URL once a project name or custom domain is set.
-const BASE_URL = "";
+function resolveBaseUrl(request: Request): string {
+  const envBase = process.env.SITE_URL || process.env.PUBLIC_SITE_URL;
+  if (envBase) return envBase.replace(/\/$/, "");
+  const url = new URL(request.url);
+  const forwardedHost = request.headers.get("x-forwarded-host") ?? url.host;
+  const forwardedProto = request.headers.get("x-forwarded-proto") ?? url.protocol.replace(":", "");
+  return `${forwardedProto}://${forwardedHost}`;
+}
+
 
 const STATIC_PATHS = [
   "/", "/about", "/services", "/products", "/projects", "/knowledge",
@@ -18,7 +25,9 @@ interface Entry { path: string; lastmod?: string }
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
-      GET: async () => {
+      GET: async ({ request }) => {
+        const BASE_URL = resolveBaseUrl(request);
+
         const entries: Entry[] = [
           ...STATIC_PATHS.map((path) => ({ path })),
           ...services.map((s) => ({ path: `/services/${s.id}` })),

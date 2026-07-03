@@ -6,7 +6,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 export function WhatsAppButton() {
   const { t, isRTL } = useLang();
   const isMobile = useIsMobile();
+  if (!WHATSAPP_NUMBER) return null;
   const href = `https://wa.me/${WHATSAPP_NUMBER}`;
+
 
   // On mobile, clear the bottom tab bar (≈74px) + safe area with breathing room.
   // On desktop/tablet there's no tab bar, so sit closer to the edge.

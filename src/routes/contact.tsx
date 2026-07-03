@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
+import { submitLead } from "@/lib/leads.functions";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+
 import { createFileRoute } from "@tanstack/react-router";
-import { Mail, MapPin, Phone, Clock, CheckCircle2, MessageCircle } from "lucide-react";
+import { Mail, MapPin, Clock, CheckCircle2, MessageCircle } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import heroContact from "@/assets/hero-contact.jpg.asset.json";
@@ -95,6 +97,8 @@ function ContactPage() {
     message: z.string().trim().min(1).max(2000),
   });
 
+  const submit = useServerFn(submitLead);
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
@@ -106,15 +110,21 @@ function ContactPage() {
       service: projectType || null,
       budget_range: String(fd.get("budget") ?? "") || null,
       message: String(fd.get("message") ?? ""),
+      website: String(fd.get("website") ?? ""),
     };
     const check = schema.safeParse(payload);
     if (!check.success) return toast.error(check.error.issues[0].message);
     setSubmitting(true);
-    const { error } = await supabase.from("leads").insert(payload as never);
-    setSubmitting(false);
-    if (error) return toast.error(error.message);
-    setSent(true);
+    try {
+      await submit({ data: payload });
+      setSent(true);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Submission failed");
+    } finally {
+      setSubmitting(false);
+    }
   }
+
 
 
   return (
@@ -126,8 +136,7 @@ function ContactPage() {
           <div className="space-y-5 lg:col-span-1">
             {[
               { icon: MapPin, label: t.contact.office, value: "Riyadh · Dubai · Doha" },
-              { icon: Phone, label: t.contact.phone, value: "+966 5X XXX XXXX" },
-              { icon: Mail, label: t.contact.email, value: "hello@apexsports.co" },
+              { icon: Mail, label: t.contact.email, value: "hello@egyticsports.com" },
               { icon: Clock, label: t.contact.hours, value: t.contact.hours },
             ].map((c, i) => (
               <div key={i} className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft">
@@ -140,16 +149,20 @@ function ContactPage() {
                 </div>
               </div>
             ))}
-            <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-primary px-5 py-4 font-semibold text-primary-foreground shadow-soft"
-            >
-              <MessageCircle className="h-5 w-5" />
-              {t.cta.whatsapp}
-            </a>
+            {WHATSAPP_NUMBER ? (
+              <a
+                href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-primary px-5 py-4 font-semibold text-primary-foreground shadow-soft"
+              >
+                <MessageCircle className="h-5 w-5" />
+                {t.cta.whatsapp}
+
+              </a>
+            ) : null}
           </div>
+
 
           <div className="rounded-3xl border border-border bg-card p-8 shadow-soft lg:col-span-2">
             {sent ? (
@@ -197,7 +210,17 @@ function ContactPage() {
                   <Label htmlFor="message">{t.contact.message}</Label>
                   <Textarea id="message" name="message" rows={5} required maxLength={2000} />
                 </div>
+                {/* Honeypot — hidden from users, bots typically fill any input. */}
+                <input
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  className="hidden"
+                  aria-hidden="true"
+                />
                 <div className="sm:col-span-2">
+
                   <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
                     {t.cta.send}
                   </Button>
