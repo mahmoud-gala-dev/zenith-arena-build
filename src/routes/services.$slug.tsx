@@ -263,6 +263,33 @@ function ServiceDetailPage() {
         </section>
       )}
 
+      {service.faqs && service.faqs.length > 0 && (
+        <section className="py-16">
+          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-bold text-foreground">{copy.faq}</h2>
+            <dl className="mt-8 space-y-4">
+              {service.faqs.map((f, i) => {
+                const q = (ar && f.q_ar) ? f.q_ar : f.q_en;
+                const a = (ar && f.a_ar) ? f.a_ar : f.a_en;
+                return (
+                  <details key={i} className="group rounded-xl border border-border bg-card p-5 shadow-soft open:shadow-elegant">
+                    <summary className="cursor-pointer list-none text-base font-semibold text-foreground marker:hidden">
+                      <span className="flex items-center justify-between gap-4">
+                        <span>{q}</span>
+                        <span className="text-primary transition-transform group-open:rotate-45" aria-hidden>+</span>
+                      </span>
+                    </summary>
+                    <p className="mt-3 leading-relaxed text-muted-foreground">{a}</p>
+                  </details>
+                );
+              })}
+            </dl>
+          </div>
+        </section>
+      )}
+
+
+
       <section className="bg-hero py-16 text-white">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold">{t.sections.ctaTitle}</h2>
