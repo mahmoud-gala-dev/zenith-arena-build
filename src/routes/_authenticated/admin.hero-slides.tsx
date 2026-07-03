@@ -288,7 +288,7 @@ function AdminHeroSlides() {
                 <img src={s.image_url} alt="" className="h-20 w-32 flex-none rounded object-cover" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-muted-foreground">#{s.sort_order}</span>
+                    <span className="text-xs font-mono text-muted-foreground">#{(s as unknown as Record<string, number | null>)[orderCol] ?? s.sort_order} · {orderLang.toUpperCase()}</span>
                     <h3 className="truncate font-semibold">{s.title_en}</h3>
                     {s.status === "draft" && <span className="rounded bg-amber-500/15 px-2 py-0.5 text-xs text-amber-700 dark:text-amber-400">Draft</span>}
                     {s.scheduled_at && new Date(s.scheduled_at) > new Date() && (
