@@ -42,9 +42,25 @@ const AUTOPLAY_MS = 6500;
 export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
   const { lang, isRTL } = useLang();
   const reduceMotion = useReducedMotion();
+  const qc = useQueryClient();
   const { data: slides = null, isLoading } = useQuery<Slide[]>({
     ...heroSlidesActiveQueryOptions(lang),
   });
+
+  // Auto-publish check: refetch every 60s so scheduled slides light up when their time arrives,
+  // plus a realtime channel for instant admin edits.
+  useEffect(() => {
+    const key = ["hero_slides", "active", lang];
+    const t = setInterval(() => { qc.invalidateQueries({ queryKey: key }); }, 60_000);
+    const ch = supabase
+      .channel("hero_slides-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "hero_slides" }, () => {
+        qc.invalidateQueries({ queryKey: key });
+      })
+      .subscribe();
+    return () => { clearInterval(t); supabase.removeChannel(ch); };
+  }, [qc, lang]);
+
   const [index, setIndex] = useState(0);
 
   const count = slides?.length ?? 0;
