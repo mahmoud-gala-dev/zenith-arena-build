@@ -22,3 +22,6 @@ Disallow: /*?*preview=
 Disallow: /*?*utm_
 
 Sitemap: https://zenith-arena-build.lovable.app/sitemap.xml
+Sitemap: https://zenith-arena-build.lovable.app/sitemap-en.xml
+Sitemap: https://zenith-arena-build.lovable.app/sitemap-ar.xml
+

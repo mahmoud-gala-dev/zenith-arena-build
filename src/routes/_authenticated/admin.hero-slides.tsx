@@ -58,7 +58,10 @@ function AdminHeroSlides() {
   const [localPreview, setLocalPreview] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const [orderLang, setOrderLang] = useState<"en" | "ar">("en");
   const localPreviewRef = useRef<string | null>(null);
+
+  const orderCol = orderLang === "ar" ? "sort_order_ar" : "sort_order";
 
   useEffect(() => () => {
     if (localPreviewRef.current) URL.revokeObjectURL(localPreviewRef.current);
@@ -66,12 +69,20 @@ function AdminHeroSlides() {
 
   async function load() {
     setLoading(true);
-    const { data, error } = await supabase.from("hero_slides").select("*").order("sort_order", { ascending: true });
+    const { data, error } = await supabase.from("hero_slides").select("*");
     if (error) toast.error(error.message);
-    setSlides(data ?? []);
+    const rows = (data ?? []) as Slide[];
+    // Sort by the language-specific column (fall back to the shared sort_order).
+    rows.sort((a, b) => {
+      const av = ((a as unknown as Record<string, number | null>)[orderCol] ?? a.sort_order ?? 0);
+      const bv = ((b as unknown as Record<string, number | null>)[orderCol] ?? b.sort_order ?? 0);
+      return av - bv;
+    });
+    setSlides(rows);
     setLoading(false);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); /* re-sort when tab changes */ }, [orderLang]);
+
 
   function clearLocalPreview() {
     if (localPreviewRef.current) URL.revokeObjectURL(localPreviewRef.current);
@@ -175,26 +186,34 @@ function AdminHeroSlides() {
     await moveTo(idx, target);
   }
 
-  // Reorders locally, then rewrites sort_order for every affected slide.
+  // Reorders locally, then rewrites the language-specific sort column for every affected slide.
   // Used by both drag-and-drop and the up/down arrow buttons.
   async function moveTo(from: number, to: number) {
     if (from === to) return;
     const next = slides.slice();
     const [moved] = next.splice(from, 1);
     next.splice(to, 0, moved);
-    // Optimistic update with fresh sort_order values.
-    const withOrder = next.map((s, i) => ({ ...s, sort_order: i + 1 }));
+    const withOrder = next.map((s, i) => ({
+      ...s,
+      [orderCol]: i + 1,
+    })) as Slide[];
     setSlides(withOrder);
-    const updates = withOrder.map((s) =>
-      supabase.from("hero_slides").update({ sort_order: s.sort_order }).eq("id", s.id),
-    );
+    const updates = withOrder.map((s) => {
+      const val = (s as unknown as Record<string, number>)[orderCol];
+      const patch = (orderCol === "sort_order_ar" ? { sort_order_ar: val } : { sort_order: val }) as SlideInput;
+      return supabase.from("hero_slides").update(patch).eq("id", s.id);
+    });
+
     const results = await Promise.all(updates);
     const err = results.find((r) => r.error)?.error;
     if (err) {
       toast.error(err.message);
       load();
+    } else {
+      toast.success(`Saved ${orderLang.toUpperCase()} order`);
     }
   }
+
 
   async function toggleActive(s: Slide) {
     await supabase.from("hero_slides").update({ is_active: !s.is_active }).eq("id", s.id);
@@ -205,10 +224,23 @@ function AdminHeroSlides() {
 
   return (
     <AdminShell title="Hero Slides">
-      <div className="mb-6 flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">Animated homepage banner. Drag the handle to reorder, or use the arrows. Everything shown to visitors is fully editable.</p>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">Animated homepage banner. Drag the handle to reorder — the order is saved per language. Scheduled draft slides auto‑publish when their time arrives.</p>
         <Button onClick={startNew}><Plus className="mr-2 h-4 w-4" />New slide</Button>
       </div>
+      <div className="mb-4 inline-flex rounded-lg border bg-card p-1 text-sm">
+        {(["en", "ar"] as const).map((l) => (
+          <button
+            key={l}
+            type="button"
+            onClick={() => setOrderLang(l)}
+            className={`rounded-md px-3 py-1.5 font-medium transition ${orderLang === l ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            {l === "en" ? "English order" : "الترتيب العربي"}
+          </button>
+        ))}
+      </div>
+
 
       {loading ? (
         <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Loading…</div>
@@ -256,7 +288,7 @@ function AdminHeroSlides() {
                 <img src={s.image_url} alt="" className="h-20 w-32 flex-none rounded object-cover" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-muted-foreground">#{s.sort_order}</span>
+                    <span className="text-xs font-mono text-muted-foreground">#{(s as unknown as Record<string, number | null>)[orderCol] ?? s.sort_order} · {orderLang.toUpperCase()}</span>
                     <h3 className="truncate font-semibold">{s.title_en}</h3>
                     {s.status === "draft" && <span className="rounded bg-amber-500/15 px-2 py-0.5 text-xs text-amber-700 dark:text-amber-400">Draft</span>}
                     {s.scheduled_at && new Date(s.scheduled_at) > new Date() && (

@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          kind: string
+          link: string | null
+          read_at: string | null
+          ref_id: string | null
+          ref_table: string | null
+          title: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          link?: string | null
+          read_at?: string | null
+          ref_id?: string | null
+          ref_table?: string | null
+          title: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          link?: string | null
+          read_at?: string | null
+          ref_id?: string | null
+          ref_table?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -1229,14 +1265,20 @@ export type Database = {
           cls: number | null
           commit_sha: string | null
           created_at: string
+          created_by: string | null
           id: string
           lcp_ms: number | null
           metadata: Json | null
           more_opened: boolean | null
           notes: string | null
           page: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reviewer_note: string | null
           run_at: string
           screenshot_url: string | null
+          status: Database["public"]["Enums"]["qa_report_status"]
+          submitted_at: string | null
           viewport: string
           wa_overlap: boolean | null
         }
@@ -1245,14 +1287,20 @@ export type Database = {
           cls?: number | null
           commit_sha?: string | null
           created_at?: string
+          created_by?: string | null
           id?: string
           lcp_ms?: number | null
           metadata?: Json | null
           more_opened?: boolean | null
           notes?: string | null
           page: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_note?: string | null
           run_at?: string
           screenshot_url?: string | null
+          status?: Database["public"]["Enums"]["qa_report_status"]
+          submitted_at?: string | null
           viewport: string
           wa_overlap?: boolean | null
         }
@@ -1261,14 +1309,20 @@ export type Database = {
           cls?: number | null
           commit_sha?: string | null
           created_at?: string
+          created_by?: string | null
           id?: string
           lcp_ms?: number | null
           metadata?: Json | null
           more_opened?: boolean | null
           notes?: string | null
           page?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_note?: string | null
           run_at?: string
           screenshot_url?: string | null
+          status?: Database["public"]["Enums"]["qa_report_status"]
+          submitted_at?: string | null
           viewport?: string
           wa_overlap?: boolean | null
         }
@@ -1667,6 +1721,7 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      publish_due_hero_slides: { Args: never; Returns: number }
     }
     Enums: {
       app_role:
@@ -1684,6 +1739,7 @@ export type Database = {
         | "won"
         | "lost"
       lead_type: "quote" | "contact"
+      qa_report_status: "draft" | "submitted" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1828,6 +1884,7 @@ export const Constants = {
         "lost",
       ],
       lead_type: ["quote", "contact"],
+      qa_report_status: ["draft", "submitted", "approved", "rejected"],
     },
   },
 } as const

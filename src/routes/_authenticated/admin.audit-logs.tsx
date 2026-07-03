@@ -5,8 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCw, Search } from "lucide-react";
+import { Download, FileText, RefreshCw, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
 
 export const Route = createFileRoute("/_authenticated/admin/audit-logs")({
   component: AuditLogsPage,
@@ -42,13 +45,18 @@ function AuditLogsPage() {
   const [table, setTable] = useState<(typeof TABLES)[number]>("all");
   const [action, setAction] = useState<(typeof ACTIONS)[number]>("all");
   const [q, setQ] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
+
 
   async function load() {
     setLoading(true);
     let query = supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(300);
     if (table !== "all") query = query.eq("table_name", table);
     if (action !== "all") query = query.eq("action", action);
+    if (dateFrom) query = query.gte("created_at", new Date(dateFrom).toISOString());
+    if (dateTo) query = query.lte("created_at", new Date(dateTo + "T23:59:59").toISOString());
     const { data } = await query;
     setRows((data as AuditRow[]) ?? []);
     setLoading(false);
@@ -56,9 +64,10 @@ function AuditLogsPage() {
 
   useEffect(() => {
     load();
-  }, [table, action]);
+  }, [table, action, dateFrom, dateTo]);
 
   const filtered = useMemo(() => {
+
     const needle = q.trim().toLowerCase();
     if (!needle) return rows;
     return rows.filter((r) =>
@@ -67,6 +76,49 @@ function AuditLogsPage() {
         .some((v) => String(v).toLowerCase().includes(needle)),
     );
   }, [rows, q]);
+
+  function exportCSV() {
+    const header = ["When", "Actor", "Table", "Action", "Record", "Changed fields"];
+    const lines = [header.join(",")].concat(
+      filtered.map((r) => [
+        new Date(r.created_at).toISOString(),
+        r.actor_email ?? "system",
+        r.table_name,
+        r.action,
+        r.record_id ?? "",
+        (r.changes?.changed_fields ?? []).join("|"),
+      ].map((c) => `"${String(c).replaceAll(`"`, `""`)}"`).join(",")),
+    );
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `audit-log-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function exportPDF() {
+    const doc = new jsPDF({ orientation: "landscape" });
+    doc.setFontSize(14);
+    doc.text("Audit Log", 14, 14);
+    doc.setFontSize(9);
+    doc.text(`Exported ${new Date().toLocaleString()} · ${filtered.length} events`, 14, 20);
+    autoTable(doc, {
+      startY: 24,
+      head: [["When", "Actor", "Table", "Action", "Changed"]],
+      body: filtered.map((r) => [
+        new Date(r.created_at).toLocaleString(),
+        r.actor_email ?? "system",
+        r.table_name,
+        r.action,
+        (r.changes?.changed_fields ?? []).slice(0, 6).join(", "),
+      ]),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [30, 41, 59] },
+    });
+    doc.save(`audit-log-${new Date().toISOString().slice(0, 10)}.pdf`);
+  }
+
 
   return (
     <AdminShell title="Audit Log">
@@ -89,11 +141,20 @@ function AuditLogsPage() {
                 {ACTIONS.map((a) => <SelectItem key={a} value={a}>{a === "all" ? "All actions" : a}</SelectItem>)}
               </SelectContent>
             </Select>
+            <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-[150px]" aria-label="From date" />
+            <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-[150px]" aria-label="To date" />
             <Button variant="outline" size="sm" onClick={load} disabled={loading}>
               <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
               Refresh
             </Button>
+            <Button variant="outline" size="sm" onClick={exportCSV} disabled={!filtered.length}>
+              <Download className="h-4 w-4" /> CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportPDF} disabled={!filtered.length}>
+              <FileText className="h-4 w-4" /> PDF
+            </Button>
           </div>
+
           <p className="mt-2 text-xs text-muted-foreground">
             Automatic audit trail for Hero Slides, Blog articles and QA Reports. Showing latest 300 events.
           </p>

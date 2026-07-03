@@ -18,6 +18,8 @@ export const Route = createFileRoute("/_authenticated/admin/qa-reports")({
   component: QaReportsPage,
 });
 
+type QaStatus = "draft" | "submitted" | "approved" | "rejected";
+
 interface Report {
   id: string;
   run_at: string;
@@ -31,7 +33,12 @@ interface Report {
   more_opened: boolean | null;
   screenshot_url: string | null;
   notes: string | null;
+  status?: QaStatus | null;
+  submitted_at?: string | null;
+  reviewed_at?: string | null;
+  reviewer_note?: string | null;
 }
+
 
 interface ReportMedia {
   id: string;
@@ -76,6 +83,19 @@ function tone(lcp: number | null, cls: number | null, overlap: boolean | null) {
   if ((lcp ?? 0) > 2500 || (cls ?? 0) > 0.1) return "warn";
   return "pass";
 }
+
+function StatusBadge({ status }: { status: QaStatus }) {
+  const map: Record<QaStatus, string> = {
+    draft: "bg-muted text-muted-foreground",
+    submitted: "bg-blue-500/10 text-blue-700 dark:text-blue-400",
+    approved: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+    rejected: "bg-destructive/10 text-destructive",
+  };
+  return <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide", map[status])}>{status}</span>;
+}
+
+
+
 
 function QaReportsPage() {
   const [rows, setRows] = useState<Report[]>([]);
@@ -258,6 +278,26 @@ function QaReportsPage() {
     load();
   }
 
+  async function changeStatus(r: Report, next: QaStatus, note?: string) {
+    const patch: {
+      status: QaStatus;
+      submitted_at?: string;
+      reviewed_at?: string;
+      reviewer_note?: string;
+    } = { status: next };
+    if (next === "submitted") patch.submitted_at = new Date().toISOString();
+    if (next === "approved" || next === "rejected") {
+      patch.reviewed_at = new Date().toISOString();
+      if (note !== undefined) patch.reviewer_note = note;
+    }
+    const { error } = await supabase.from("qa_reports").update(patch).eq("id", r.id);
+    if (error) return toast.error(error.message);
+    toast.success(`Marked ${next}`);
+    load();
+  }
+
+
+
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setEditing((e) => (e ? { ...e, [k]: v } : e));
 
@@ -405,7 +445,17 @@ function QaReportsPage() {
                           </td>
                           {canWrite && (
                             <td className="py-2 text-end">
-                              <div className="inline-flex gap-1">
+                              <div className="inline-flex items-center gap-1">
+                                <StatusBadge status={(r.status ?? "draft") as QaStatus} />
+                                {(r.status ?? "draft") === "draft" && (
+                                  <Button size="sm" variant="outline" onClick={() => changeStatus(r, "submitted")}>Submit</Button>
+                                )}
+                                {r.status === "submitted" && (
+                                  <>
+                                    <Button size="sm" variant="outline" className="border-emerald-500/40 text-emerald-700 dark:text-emerald-400" onClick={() => changeStatus(r, "approved")}>Approve</Button>
+                                    <Button size="sm" variant="outline" className="border-destructive/40 text-destructive" onClick={() => changeStatus(r, "rejected")}>Reject</Button>
+                                  </>
+                                )}
                                 <Button size="icon" variant="ghost" onClick={() => startEdit(r)}>
                                   <Pencil className="h-4 w-4" />
                                 </Button>
@@ -415,6 +465,7 @@ function QaReportsPage() {
                               </div>
                             </td>
                           )}
+
                         </tr>
                       );
                     })}

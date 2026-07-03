@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform, type TargetAndTransition, type Transition } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import type { Database } from "@/integrations/supabase/types";
 import { heroSlidesActiveQueryOptions } from "@/lib/queries";
+import { supabase } from "@/integrations/supabase/client";
+
 
 import { CinematicBackdrop } from "./CinematicBackdrop";
 import { Logo } from "./Logo";
@@ -40,9 +42,25 @@ const AUTOPLAY_MS = 6500;
 export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
   const { lang, isRTL } = useLang();
   const reduceMotion = useReducedMotion();
+  const qc = useQueryClient();
   const { data: slides = null, isLoading } = useQuery<Slide[]>({
     ...heroSlidesActiveQueryOptions(lang),
   });
+
+  // Auto-publish check: refetch every 60s so scheduled slides light up when their time arrives,
+  // plus a realtime channel for instant admin edits.
+  useEffect(() => {
+    const key = ["hero_slides", "active", lang];
+    const t = setInterval(() => { qc.invalidateQueries({ queryKey: key }); }, 60_000);
+    const ch = supabase
+      .channel("hero_slides-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "hero_slides" }, () => {
+        qc.invalidateQueries({ queryKey: key });
+      })
+      .subscribe();
+    return () => { clearInterval(t); supabase.removeChannel(ch); };
+  }, [qc, lang]);
+
   const [index, setIndex] = useState(0);
 
   const count = slides?.length ?? 0;
