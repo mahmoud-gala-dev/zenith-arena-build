@@ -343,6 +343,14 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
                 ))}
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-1">
+                    {config.previewUrl && (() => {
+                      const url = config.previewUrl(row);
+                      return url ? (
+                        <Button asChild variant="ghost" size="sm" aria-label={`Preview ${config.singular}`}>
+                          <a href={url} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-4 w-4" /></a>
+                        </Button>
+                      ) : null;
+                    })()}
                     <Button variant="ghost" size="sm" onClick={() => setEditing(row)} aria-label={`Edit ${config.singular}`}><Pencil className="h-4 w-4" /></Button>
                     <Button variant="ghost" size="sm" onClick={() => row.id && setDeleteIds([row.id])} aria-label={`Delete ${config.singular}`}><Trash2 className="h-4 w-4" /></Button>
                   </div>
