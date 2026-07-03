@@ -156,6 +156,54 @@ function QaReportsPage() {
     }
   }
 
+  async function uploadMedia(file: File) {
+    setUploadingMedia(true);
+    try {
+      const ext = file.name.split(".").pop() ?? "png";
+      const path = `qa-reports/media/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("media").upload(path, file, { upsert: false, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data } = supabase.storage.from("media").getPublicUrl(path);
+      const nextOrder = editingMedia.length;
+      if (editingId) {
+        const { data: inserted, error } = await supabase.from("qa_report_media")
+          .insert({ report_id: editingId, media_url: data.publicUrl, sort_order: nextOrder })
+          .select("*").single();
+        if (error) throw error;
+        setEditingMedia((m) => [...m, inserted as ReportMedia]);
+        setMediaByReport((prev) => ({ ...prev, [editingId]: [...(prev[editingId] ?? []), inserted as ReportMedia] }));
+      } else {
+        // Buffer locally until the report is created.
+        setEditingMedia((m) => [...m, { id: `tmp-${Date.now()}`, report_id: "", media_url: data.publicUrl, caption: null, sort_order: nextOrder }]);
+      }
+      toast.success("Media uploaded");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploadingMedia(false);
+    }
+  }
+
+  async function removeMedia(m: ReportMedia) {
+    if (m.id.startsWith("tmp-")) {
+      setEditingMedia((rows) => rows.filter((r) => r.id !== m.id));
+      return;
+    }
+    const { error } = await supabase.from("qa_report_media").delete().eq("id", m.id);
+    if (error) return toast.error(error.message);
+    setEditingMedia((rows) => rows.filter((r) => r.id !== m.id));
+    if (editingId) {
+      setMediaByReport((prev) => ({ ...prev, [editingId]: (prev[editingId] ?? []).filter((r) => r.id !== m.id) }));
+    }
+  }
+
+  async function updateMediaCaption(m: ReportMedia, caption: string) {
+    setEditingMedia((rows) => rows.map((r) => (r.id === m.id ? { ...r, caption } : r)));
+    if (!m.id.startsWith("tmp-")) {
+      await supabase.from("qa_report_media").update({ caption }).eq("id", m.id);
+    }
+  }
+
   async function save() {
     if (!editing) return;
     if (!editing.viewport.trim() || !editing.page.trim()) {
