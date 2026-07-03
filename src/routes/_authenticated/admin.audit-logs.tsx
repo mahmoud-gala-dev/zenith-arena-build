@@ -77,6 +77,49 @@ function AuditLogsPage() {
     );
   }, [rows, q]);
 
+  function exportCSV() {
+    const header = ["When", "Actor", "Table", "Action", "Record", "Changed fields"];
+    const lines = [header.join(",")].concat(
+      filtered.map((r) => [
+        new Date(r.created_at).toISOString(),
+        r.actor_email ?? "system",
+        r.table_name,
+        r.action,
+        r.record_id ?? "",
+        (r.changes?.changed_fields ?? []).join("|"),
+      ].map((c) => `"${String(c).replaceAll(`"`, `""`)}"`).join(",")),
+    );
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `audit-log-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function exportPDF() {
+    const doc = new jsPDF({ orientation: "landscape" });
+    doc.setFontSize(14);
+    doc.text("Audit Log", 14, 14);
+    doc.setFontSize(9);
+    doc.text(`Exported ${new Date().toLocaleString()} · ${filtered.length} events`, 14, 20);
+    autoTable(doc, {
+      startY: 24,
+      head: [["When", "Actor", "Table", "Action", "Changed"]],
+      body: filtered.map((r) => [
+        new Date(r.created_at).toLocaleString(),
+        r.actor_email ?? "system",
+        r.table_name,
+        r.action,
+        (r.changes?.changed_fields ?? []).slice(0, 6).join(", "),
+      ]),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [30, 41, 59] },
+    });
+    doc.save(`audit-log-${new Date().toISOString().slice(0, 10)}.pdf`);
+  }
+
+
   return (
     <AdminShell title="Audit Log">
       <div className="mx-auto max-w-6xl space-y-4">
