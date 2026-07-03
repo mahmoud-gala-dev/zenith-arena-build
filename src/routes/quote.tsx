@@ -186,6 +186,8 @@ function QuotePage() {
               </div>
             ) : (
               <form className="grid gap-5 sm:grid-cols-2" onSubmit={onSubmit}>
+                <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+
                 <div className="space-y-2">
                   <Label htmlFor="q-name">{tx.name}*</Label>
                   <Input id="q-name" name="name" required maxLength={100} />
