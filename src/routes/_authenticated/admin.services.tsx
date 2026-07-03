@@ -477,3 +477,82 @@ function StatusDot({ s }: { s?: FieldStatus }) {
   return <span aria-label={title} title={title} className={`inline-block h-2 w-2 rounded-full ${color}`} />;
 }
 
+function FaqEditor({ value, onChange }: { value: ServiceFaq[]; onChange: (v: ServiceFaq[]) => void }) {
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const set = (i: number, patch: Partial<ServiceFaq>) => {
+    const next = value.slice();
+    next[i] = { ...next[i], ...patch };
+    onChange(next);
+  };
+  const move = (from: number, to: number) => {
+    if (to < 0 || to >= value.length || from === to) return;
+    const next = value.slice();
+    const [item] = next.splice(from, 1);
+    next.splice(to, 0, item);
+    onChange(next);
+  };
+  const remove = (i: number) => onChange(value.filter((_, k) => k !== i));
+  const add = () => onChange([...value, { q_en: "", a_en: "", q_ar: "", a_ar: "" }]);
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium">Frequently asked questions</p>
+          <p className="text-xs text-muted-foreground">Powers the on-page FAQ section and FAQPage JSON-LD. Drag to reorder; Arabic fields are optional.</p>
+        </div>
+        <Button type="button" size="sm" variant="outline" onClick={add}><Plus className="h-4 w-4" /> Add FAQ</Button>
+      </div>
+      {value.length === 0 ? (
+        <p className="rounded-md border border-dashed border-border bg-background/60 px-3 py-6 text-center text-sm text-muted-foreground">
+          No FAQs yet. Add your first question to appear on the service page.
+        </p>
+      ) : (
+        <ul className="space-y-2">
+          {value.map((f, i) => (
+            <li
+              key={i}
+              draggable
+              onDragStart={() => setDragIdx(i)}
+              onDragOver={(e) => { e.preventDefault(); }}
+              onDrop={(e) => { e.preventDefault(); if (dragIdx !== null) { move(dragIdx, i); setDragIdx(null); } }}
+              onDragEnd={() => setDragIdx(null)}
+              className={`rounded-md border border-border bg-background p-3 ${dragIdx === i ? "opacity-60" : ""}`}
+            >
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                  <GripVertical className="h-4 w-4 cursor-grab" /> #{i + 1}
+                </span>
+                <div className="flex gap-1">
+                  <Button type="button" size="icon" variant="ghost" aria-label="Move up" disabled={i === 0} onClick={() => move(i, i - 1)}><ArrowUp className="h-4 w-4" /></Button>
+                  <Button type="button" size="icon" variant="ghost" aria-label="Move down" disabled={i === value.length - 1} onClick={() => move(i, i + 1)}><ArrowDown className="h-4 w-4" /></Button>
+                  <Button type="button" size="icon" variant="ghost" aria-label="Delete" onClick={() => remove(i)}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Question (EN) *</Label>
+                  <Input value={f.q_en} onChange={(e) => set(i, { q_en: e.target.value })} maxLength={200} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">السؤال (AR)</Label>
+                  <Input dir="rtl" value={f.q_ar ?? ""} onChange={(e) => set(i, { q_ar: e.target.value })} maxLength={200} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Answer (EN) *</Label>
+                  <Textarea rows={3} value={f.a_en} onChange={(e) => set(i, { a_en: e.target.value })} maxLength={1200} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">الإجابة (AR)</Label>
+                  <Textarea dir="rtl" rows={3} value={f.a_ar ?? ""} onChange={(e) => set(i, { a_ar: e.target.value })} maxLength={1200} />
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+
