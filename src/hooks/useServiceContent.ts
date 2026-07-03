@@ -126,3 +126,74 @@ export function useServiceBySlug(slug: string) {
   return { data: q.data ?? null, loading: q.isLoading };
 }
 
+export const servicesPageQueryOptions = (params: ServicesPageParams) => {
+  const page = Math.max(1, params.page ?? 1);
+  const pageSize = Math.min(48, Math.max(1, params.pageSize ?? 9));
+  const q = (params.q ?? "").trim();
+  const category = (params.category ?? "").trim();
+  return queryOptions<ServicesPage>({
+    queryKey: ["services", "page", { q, category, page, pageSize }],
+    staleTime: FIVE_MIN,
+    gcTime: HALF_HOUR,
+    placeholderData: keepPreviousData,
+    queryFn: async () => {
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize - 1;
+      let query = supabase
+        .from("services")
+        .select("*", { count: "exact" })
+        .eq("status", "published")
+        .order("sort_order", { ascending: true })
+        .range(from, to);
+      if (category) query = query.eq("category", category);
+      if (q) {
+        const escaped = q.replace(/[%,()]/g, " ").replace(/\s+/g, " ").trim();
+        const like = `%${escaped}%`;
+        query = query.or(
+          [
+            `title_en.ilike.${like}`,
+            `title_ar.ilike.${like}`,
+            `description_en.ilike.${like}`,
+            `description_ar.ilike.${like}`,
+            `category.ilike.${like}`,
+          ].join(","),
+        );
+      }
+      const { data: rows, error, count } = await query;
+      if (error) throw error;
+      return {
+        rows: (rows ?? []).map((r) => normalize(r as Record<string, unknown>)),
+        total: count ?? 0,
+        page,
+        pageSize,
+      };
+    },
+  });
+};
+
+export function useServicesPage(params: ServicesPageParams) {
+  const q = useQuery(servicesPageQueryOptions(params));
+  return { data: q.data, loading: q.isLoading, fetching: q.isFetching };
+}
+
+export const servicesCategoriesQueryOptions = queryOptions<string[]>({
+  queryKey: ["services", "categories"],
+  staleTime: 15 * 60 * 1000,
+  gcTime: HALF_HOUR,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("services")
+      .select("category")
+      .eq("status", "published")
+      .not("category", "is", null);
+    if (error) throw error;
+    const set = new Set<string>();
+    for (const r of data ?? []) {
+      const c = (r as { category?: string | null }).category;
+      if (c && c.trim()) set.add(c.trim());
+    }
+    return Array.from(set).sort();
+  },
+});
+
+
