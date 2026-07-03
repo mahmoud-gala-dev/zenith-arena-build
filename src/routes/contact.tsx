@@ -207,7 +207,17 @@ function ContactPage() {
                   <Label htmlFor="message">{t.contact.message}</Label>
                   <Textarea id="message" name="message" rows={5} required maxLength={2000} />
                 </div>
+                {/* Honeypot — hidden from users, bots typically fill any input. */}
+                <input
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  className="hidden"
+                  aria-hidden="true"
+                />
                 <div className="sm:col-span-2">
+
                   <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
                     {t.cta.send}
                   </Button>
