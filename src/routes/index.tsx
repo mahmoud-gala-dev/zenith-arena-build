@@ -5,15 +5,17 @@ import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { SectionHeader } from "@/components/site/SectionHeader";
 import { Reveal } from "@/components/site/Reveal";
-import { ServiceCard, ProjectCard, ArticleCard } from "@/components/site/Cards";
+import { ProjectCard, ArticleCard } from "@/components/site/Cards";
 import { HeroSlider } from "@/components/site/HeroSlider";
+import { Icon } from "@/components/site/Icon";
+import { ResponsiveImage } from "@/components/site/ResponsiveImage";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { heroSlidesActiveQueryOptions, homeClientsQueryOptions, type HomeClient } from "@/lib/queries";
+import { servicesPublishedQueryOptions } from "@/hooks/useServiceContent";
 import ogImage from "@/assets/apex-og.jpg.asset.json";
 import ctaLandmark from "@/assets/cta-landmark.jpg.asset.json";
 
 import {
-  services,
   projects,
   articles,
   testimonials,
