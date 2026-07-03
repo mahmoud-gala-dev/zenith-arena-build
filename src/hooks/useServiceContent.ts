@@ -184,8 +184,11 @@ export const servicesPageQueryOptions = (params: ServicesPageParams) => {
         );
       }
       // Apply sort AFTER filters, then range last.
-      query = applySort(query as unknown as { order: (...a: unknown[]) => typeof query }, sort, lang) as typeof query;
+      for (const spec of sortSpecs(sort, lang)) {
+        query = query.order(spec.column, { ascending: spec.ascending, nullsFirst: spec.nullsFirst });
+      }
       query = query.range(from, to);
+
       const { data: rows, error, count } = await query;
       if (error) throw error;
       return {
