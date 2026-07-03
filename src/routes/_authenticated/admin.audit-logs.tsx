@@ -45,7 +45,10 @@ function AuditLogsPage() {
   const [table, setTable] = useState<(typeof TABLES)[number]>("all");
   const [action, setAction] = useState<(typeof ACTIONS)[number]>("all");
   const [q, setQ] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
+
 
   async function load() {
     setLoading(true);
