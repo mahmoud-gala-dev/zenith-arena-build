@@ -101,10 +101,12 @@ function Index() {
   const L = useLocalized();
 
   const { data: dbClients } = useQuery<HomeClient[]>(homeClientsQueryOptions);
-  const { data: dbServices = [] } = useQuery(servicesPublishedQueryOptions);
-  const featuredServices = (dbServices.filter((s) => s.featured).length > 0
-    ? dbServices.filter((s) => s.featured)
-    : dbServices
+  const { data: dbServices, isLoading: servicesLoading } = useQuery(servicesPublishedQueryOptions);
+  const servicesList = dbServices ?? [];
+  const withSlug = servicesList.filter((s) => Boolean(s.slug_en));
+  const featuredServices = (withSlug.filter((s) => s.featured).length > 0
+    ? withSlug.filter((s) => s.featured)
+    : withSlug
   ).slice(0, 6);
 
   const clients: TrustClient[] =
