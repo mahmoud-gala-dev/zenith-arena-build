@@ -50,9 +50,36 @@ function normalizeGallery(value: unknown): string[] {
   return [];
 }
 
-function normalize(row: Record<string, unknown>): ServiceRow {
-  return { ...(row as ServiceRow), gallery_images: normalizeGallery((row as { gallery_images?: unknown }).gallery_images) };
+function normalizeFaqs(value: unknown): ServiceFaq[] {
+  const arr = Array.isArray(value)
+    ? value
+    : typeof value === "string" && value.trim()
+      ? (() => { try { return JSON.parse(value); } catch { return []; } })()
+      : [];
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .map((f: unknown) => {
+      const o = (f ?? {}) as Record<string, unknown>;
+      const q_en = typeof o.q_en === "string" ? o.q_en : typeof o.question === "string" ? (o.question as string) : "";
+      const a_en = typeof o.a_en === "string" ? o.a_en : typeof o.answer === "string" ? (o.answer as string) : "";
+      const q_ar = typeof o.q_ar === "string" ? (o.q_ar as string) : undefined;
+      const a_ar = typeof o.a_ar === "string" ? (o.a_ar as string) : undefined;
+      return { q_en, a_en, q_ar, a_ar };
+    })
+    .filter((f) => f.q_en && f.a_en);
 }
+
+function normalize(row: Record<string, unknown>): ServiceRow {
+  return {
+    ...(row as ServiceRow),
+    gallery_images: normalizeGallery((row as { gallery_images?: unknown }).gallery_images),
+    faqs: normalizeFaqs((row as { faqs?: unknown }).faqs),
+  };
+}
+
+export type ServicesPageParams = { q?: string; category?: string; page?: number; pageSize?: number };
+export type ServicesPage = { rows: ServiceRow[]; total: number; page: number; pageSize: number };
+
 
 const FIVE_MIN = 5 * 60 * 1000;
 const HALF_HOUR = 30 * 60 * 1000;
