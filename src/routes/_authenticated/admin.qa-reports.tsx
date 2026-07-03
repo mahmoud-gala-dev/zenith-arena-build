@@ -432,7 +432,17 @@ function QaReportsPage() {
                           </td>
                           {canWrite && (
                             <td className="py-2 text-end">
-                              <div className="inline-flex gap-1">
+                              <div className="inline-flex items-center gap-1">
+                                <StatusBadge status={(r.status ?? "draft") as QaStatus} />
+                                {(r.status ?? "draft") === "draft" && (
+                                  <Button size="sm" variant="outline" onClick={() => changeStatus(r, "submitted")}>Submit</Button>
+                                )}
+                                {r.status === "submitted" && (
+                                  <>
+                                    <Button size="sm" variant="outline" className="border-emerald-500/40 text-emerald-700 dark:text-emerald-400" onClick={() => changeStatus(r, "approved")}>Approve</Button>
+                                    <Button size="sm" variant="outline" className="border-destructive/40 text-destructive" onClick={() => changeStatus(r, "rejected")}>Reject</Button>
+                                  </>
+                                )}
                                 <Button size="icon" variant="ghost" onClick={() => startEdit(r)}>
                                   <Pencil className="h-4 w-4" />
                                 </Button>
@@ -442,6 +452,7 @@ function QaReportsPage() {
                               </div>
                             </td>
                           )}
+
                         </tr>
                       );
                     })}
