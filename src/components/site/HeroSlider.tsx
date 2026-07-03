@@ -41,7 +41,7 @@ export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
   const { lang, isRTL } = useLang();
   const reduceMotion = useReducedMotion();
   const { data: slides = null, isLoading } = useQuery<Slide[]>({
-    ...heroSlidesActiveQueryOptions,
+    ...heroSlidesActiveQueryOptions(lang),
   });
   const [index, setIndex] = useState(0);
 
