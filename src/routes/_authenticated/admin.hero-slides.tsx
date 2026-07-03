@@ -398,6 +398,9 @@ function AdminHeroSlides() {
                   />
                   <p className="mt-1 text-xs text-muted-foreground">Leave empty to publish immediately. Slides stay hidden until this time.</p>
                 </div>
+              </div>
+
+
 
               <div className="rounded-lg border bg-secondary/30 p-3">
                 <p className="mb-3 text-sm font-semibold">Cinematic backdrop intensity</p>
