@@ -134,7 +134,7 @@ function AdminServicesPage() {
     setLoading(true);
     const { data, error } = await supabase.from("services").select("*").order("sort_order", { ascending: true });
     if (error) toast.error(error.message);
-    setRows(((data ?? []) as unknown as ServiceRow[]).map((r) => ({ ...r, gallery_images: toArray(r.gallery_images) })));
+    setRows(((data ?? []) as unknown as ServiceRow[]).map((r) => ({ ...r, gallery_images: toArray(r.gallery_images), faqs: toFaqs((r as unknown as { faqs: unknown }).faqs) })));
     setLoading(false);
   }
 
@@ -142,7 +142,8 @@ function AdminServicesPage() {
 
   function openEditor(row: ServiceRow) {
     setTabStatus({});
-    setEditing({ ...row, gallery_images: toArray(row.gallery_images) });
+    setEditing({ ...row, gallery_images: toArray(row.gallery_images), faqs: toFaqs((row as unknown as { faqs: unknown }).faqs) });
+
   }
 
   function validate(v: ServiceRow): string | null {
