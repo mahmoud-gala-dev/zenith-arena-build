@@ -3,12 +3,18 @@ import { Home, Building2, Package, BookOpen, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLang } from "@/i18n/LanguageProvider";
 import { useScrollIdle } from "@/hooks/useScrollIdle";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { useUiPrefs } from "@/hooks/useUiPrefs";
+import { computeMobileNavVisibility, DEFAULT_IDLE_MS } from "@/lib/mobileNavVisibility";
 
 export function MobileTabBar({ onOpenMore }: { onOpenMore: () => void }) {
   const { lang } = useLang();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const scrolling = useScrollIdle(220);
-  const hidden = scrolling;
+  const reducedMotion = usePrefersReducedMotion();
+  const { data: prefs } = useUiPrefs();
+  const idleMs = prefs?.mobile_nav_idle_ms ?? DEFAULT_IDLE_MS;
+  const scrolling = useScrollIdle(idleMs);
+  const { hidden, transitionMs } = computeMobileNavVisibility({ scrolling, reducedMotion });
 
   const ar = lang === "ar";
   const tabs = [
@@ -23,15 +29,23 @@ export function MobileTabBar({ onOpenMore }: { onOpenMore: () => void }) {
   return (
     <nav
       data-mobile-tabbar
+      data-hidden={hidden ? "true" : "false"}
       aria-label={ar ? "شريط التنقل" : "Bottom navigation"}
+      aria-hidden={hidden || undefined}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-40 md:hidden",
+        "fixed inset-x-0 bottom-0 z-40 md:hidden will-change-transform",
         "border-t border-border/70 bg-background/90 backdrop-blur-xl",
-        "transition-transform duration-300 ease-out",
         "pb-[env(safe-area-inset-bottom)]",
-        hidden ? "translate-y-full" : "translate-y-0",
+        hidden
+          ? "translate-y-full opacity-0 pointer-events-none"
+          : "translate-y-0 opacity-100",
       )}
-      style={{ paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))" }}
+      style={{
+        paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))",
+        transitionProperty: "transform, opacity",
+        transitionDuration: `${transitionMs}ms`,
+        transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
+      }}
     >
       <ul className="mx-auto grid max-w-lg grid-cols-5 gap-1 px-2 pt-1.5">
         {tabs.map((t) => {
