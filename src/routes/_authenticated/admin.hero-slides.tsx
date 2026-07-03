@@ -224,10 +224,23 @@ function AdminHeroSlides() {
 
   return (
     <AdminShell title="Hero Slides">
-      <div className="mb-6 flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">Animated homepage banner. Drag the handle to reorder, or use the arrows. Everything shown to visitors is fully editable.</p>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">Animated homepage banner. Drag the handle to reorder — the order is saved per language. Scheduled draft slides auto‑publish when their time arrives.</p>
         <Button onClick={startNew}><Plus className="mr-2 h-4 w-4" />New slide</Button>
       </div>
+      <div className="mb-4 inline-flex rounded-lg border bg-card p-1 text-sm">
+        {(["en", "ar"] as const).map((l) => (
+          <button
+            key={l}
+            type="button"
+            onClick={() => setOrderLang(l)}
+            className={`rounded-md px-3 py-1.5 font-medium transition ${orderLang === l ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            {l === "en" ? "English order" : "الترتيب العربي"}
+          </button>
+        ))}
+      </div>
+
 
       {loading ? (
         <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Loading…</div>
