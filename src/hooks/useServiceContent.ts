@@ -81,21 +81,26 @@ export type ServicesSort = "featured" | "newest" | "oldest" | "az" | "za";
 export type ServicesPageParams = { q?: string; category?: string; page?: number; pageSize?: number; sort?: ServicesSort; lang?: "en" | "ar" };
 export type ServicesPage = { rows: ServiceRow[]; total: number; page: number; pageSize: number };
 
-function applySort<T extends { order: (...args: unknown[]) => T }>(query: T, sort: ServicesSort, lang: "en" | "ar"): T {
+type SortSpec = { column: "sort_order" | "updated_at" | "title_en" | "title_ar" | "featured"; ascending: boolean; nullsFirst?: boolean };
+function sortSpecs(sort: ServicesSort, lang: "en" | "ar"): SortSpec[] {
   switch (sort) {
     case "newest":
-      return query.order("updated_at", { ascending: false, nullsFirst: false });
+      return [{ column: "updated_at", ascending: false, nullsFirst: false }];
     case "oldest":
-      return query.order("updated_at", { ascending: true, nullsFirst: true });
+      return [{ column: "updated_at", ascending: true, nullsFirst: true }];
     case "az":
-      return query.order(lang === "ar" ? "title_ar" : "title_en", { ascending: true, nullsFirst: false });
+      return [{ column: lang === "ar" ? "title_ar" : "title_en", ascending: true, nullsFirst: false }];
     case "za":
-      return query.order(lang === "ar" ? "title_ar" : "title_en", { ascending: false, nullsFirst: false });
+      return [{ column: lang === "ar" ? "title_ar" : "title_en", ascending: false, nullsFirst: false }];
     case "featured":
     default:
-      return query.order("featured", { ascending: false }).order("sort_order", { ascending: true });
+      return [
+        { column: "featured", ascending: false },
+        { column: "sort_order", ascending: true },
+      ];
   }
 }
+
 
 
 
