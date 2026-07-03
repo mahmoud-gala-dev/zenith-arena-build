@@ -590,4 +590,4 @@ export const heroStats = [
   { value: "99%", key: "stat4" as const },
 ];
 
-export const WHATSAPP_NUMBER = "9665XXXXXXXX";
+export const WHATSAPP_NUMBER = (import.meta.env.VITE_WHATSAPP_NUMBER as string | undefined) ?? "";
