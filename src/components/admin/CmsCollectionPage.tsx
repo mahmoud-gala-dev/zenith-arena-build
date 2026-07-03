@@ -60,6 +60,7 @@ export type CmsCollectionConfig = {
   orderAscending?: boolean;
   filters?: Array<{ key: string; label: string; values: string[] }>;
   preparePayload?: (values: AnyRow) => AnyRow;
+  previewUrl?: (row: AnyRow) => string | null;
 };
 
 const contentStatuses = ["published", "draft", "archived"];
