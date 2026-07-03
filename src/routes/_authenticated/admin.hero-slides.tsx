@@ -42,7 +42,8 @@ const empty: SlideInput = {
   secondary_label_en: "", secondary_label_ar: "", secondary_href: "",
   image_url: "",
   overlay: "dark", align: "left",
-  is_active: true, sort_order: 0,
+  is_active: true, sort_order: 0, sort_order_ar: 0,
+  status: "published", scheduled_at: null,
   fog_intensity: 0.6, spotlight_intensity: 0.6, vignette_intensity: 0.6,
 } as SlideInput;
 
@@ -257,6 +258,10 @@ function AdminHeroSlides() {
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-mono text-muted-foreground">#{s.sort_order}</span>
                     <h3 className="truncate font-semibold">{s.title_en}</h3>
+                    {s.status === "draft" && <span className="rounded bg-amber-500/15 px-2 py-0.5 text-xs text-amber-700 dark:text-amber-400">Draft</span>}
+                    {s.scheduled_at && new Date(s.scheduled_at) > new Date() && (
+                      <span className="rounded bg-blue-500/15 px-2 py-0.5 text-xs text-blue-700 dark:text-blue-400">Scheduled · {new Date(s.scheduled_at).toLocaleString()}</span>
+                    )}
                     {!s.is_active && <span className="rounded bg-muted px-2 py-0.5 text-xs">Hidden</span>}
                   </div>
                   <p className="line-clamp-1 text-sm text-muted-foreground">{s.subtitle_en}</p>
@@ -366,10 +371,36 @@ function AdminHeroSlides() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div><Label>Sort order</Label><Input type="number" value={editing.sort_order ?? 0} onChange={(e) => set("sort_order", Number(e.target.value))} /></div>
+                <div><Label>Sort order (EN)</Label><Input type="number" value={editing.sort_order ?? 0} onChange={(e) => set("sort_order", Number(e.target.value))} /></div>
+                <div><Label>Sort order (AR)</Label><Input type="number" value={editing.sort_order_ar ?? 0} onChange={(e) => set("sort_order_ar", Number(e.target.value))} /></div>
                 <div className="flex items-end gap-2"><Switch checked={editing.is_active ?? true} onCheckedChange={(v) => set("is_active", v)} /><span className="text-sm">Active</span></div>
                 <div className="flex items-end gap-2"><Switch checked={editing.hide_cta ?? false} onCheckedChange={(v) => set("hide_cta", v)} /><span className="text-sm">Hide CTA buttons</span></div>
               </div>
+
+              <div className="grid grid-cols-2 gap-3 rounded-lg border bg-secondary/30 p-3">
+                <div>
+                  <Label>Publish status</Label>
+                  <Select value={editing.status ?? "published"} onValueChange={(v) => set("status", v as "draft" | "published")}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="draft">Draft</SelectItem>
+                      <SelectItem value="published">Published</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="mt-1 text-xs text-muted-foreground">Draft slides are hidden from visitors even if Active.</p>
+                </div>
+                <div>
+                  <Label>Scheduled publish at</Label>
+                  <Input
+                    type="datetime-local"
+                    value={editing.scheduled_at ? new Date(editing.scheduled_at).toISOString().slice(0, 16) : ""}
+                    onChange={(e) => set("scheduled_at", e.target.value ? new Date(e.target.value).toISOString() : null)}
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">Leave empty to publish immediately. Slides stay hidden until this time.</p>
+                </div>
+              </div>
+
+
 
               <div className="rounded-lg border bg-secondary/30 p-3">
                 <p className="mb-3 text-sm font-semibold">Cinematic backdrop intensity</p>

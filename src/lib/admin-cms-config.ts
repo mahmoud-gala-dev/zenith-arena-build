@@ -146,6 +146,7 @@ export const blogConfig: CmsCollectionConfig = {
     { name: "og_image", label: "Social share image URL (og:image)", type: "url", fullWidth: true },
     ...publicationFields,
   ],
+  previewUrl: (row) => (row.slug_en ? `/blog/${row.slug_en}` : null),
 };
 
 

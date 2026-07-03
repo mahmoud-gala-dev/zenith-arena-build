@@ -33,6 +33,14 @@ interface Report {
   notes: string | null;
 }
 
+interface ReportMedia {
+  id: string;
+  report_id: string;
+  media_url: string;
+  caption: string | null;
+  sort_order: number;
+}
+
 type FormState = {
   viewport: string;
   page: string;
@@ -71,23 +79,31 @@ function tone(lcp: number | null, cls: number | null, overlap: boolean | null) {
 
 function QaReportsPage() {
   const [rows, setRows] = useState<Report[]>([]);
+  const [mediaByReport, setMediaByReport] = useState<Record<string, ReportMedia[]>>({});
   const [loading, setLoading] = useState(true);
   const [canWrite, setCanWrite] = useState(false);
   const [editing, setEditing] = useState<FormState | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingMedia, setEditingMedia] = useState<ReportMedia[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const mediaFileRef = useRef<HTMLInputElement>(null);
 
   async function load() {
     setLoading(true);
-    const { data } = await supabase
-      .from("qa_reports")
-      .select("*")
-      .order("run_at", { ascending: false })
-      .limit(200);
-    setRows((data as Report[]) ?? []);
+    const [{ data: reportRows }, { data: mediaRows }] = await Promise.all([
+      supabase.from("qa_reports").select("*").order("run_at", { ascending: false }).limit(200),
+      supabase.from("qa_report_media").select("*").order("sort_order", { ascending: true }),
+    ]);
+    setRows((reportRows as Report[]) ?? []);
+    const grouped: Record<string, ReportMedia[]> = {};
+    for (const m of (mediaRows as ReportMedia[]) ?? []) {
+      (grouped[m.report_id] ??= []).push(m);
+    }
+    setMediaByReport(grouped);
     setLoading(false);
   }
 
@@ -102,10 +118,12 @@ function QaReportsPage() {
 
   function startNew() {
     setEditingId(null);
+    setEditingMedia([]);
     setEditing(emptyForm());
   }
   function startEdit(r: Report) {
     setEditingId(r.id);
+    setEditingMedia(mediaByReport[r.id] ?? []);
     setEditing({
       viewport: r.viewport,
       page: r.page,
@@ -138,6 +156,54 @@ function QaReportsPage() {
     }
   }
 
+  async function uploadMedia(file: File) {
+    setUploadingMedia(true);
+    try {
+      const ext = file.name.split(".").pop() ?? "png";
+      const path = `qa-reports/media/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("media").upload(path, file, { upsert: false, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data } = supabase.storage.from("media").getPublicUrl(path);
+      const nextOrder = editingMedia.length;
+      if (editingId) {
+        const { data: inserted, error } = await supabase.from("qa_report_media")
+          .insert({ report_id: editingId, media_url: data.publicUrl, sort_order: nextOrder })
+          .select("*").single();
+        if (error) throw error;
+        setEditingMedia((m) => [...m, inserted as ReportMedia]);
+        setMediaByReport((prev) => ({ ...prev, [editingId]: [...(prev[editingId] ?? []), inserted as ReportMedia] }));
+      } else {
+        // Buffer locally until the report is created.
+        setEditingMedia((m) => [...m, { id: `tmp-${Date.now()}`, report_id: "", media_url: data.publicUrl, caption: null, sort_order: nextOrder }]);
+      }
+      toast.success("Media uploaded");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploadingMedia(false);
+    }
+  }
+
+  async function removeMedia(m: ReportMedia) {
+    if (m.id.startsWith("tmp-")) {
+      setEditingMedia((rows) => rows.filter((r) => r.id !== m.id));
+      return;
+    }
+    const { error } = await supabase.from("qa_report_media").delete().eq("id", m.id);
+    if (error) return toast.error(error.message);
+    setEditingMedia((rows) => rows.filter((r) => r.id !== m.id));
+    if (editingId) {
+      setMediaByReport((prev) => ({ ...prev, [editingId]: (prev[editingId] ?? []).filter((r) => r.id !== m.id) }));
+    }
+  }
+
+  async function updateMediaCaption(m: ReportMedia, caption: string) {
+    setEditingMedia((rows) => rows.map((r) => (r.id === m.id ? { ...r, caption } : r)));
+    if (!m.id.startsWith("tmp-")) {
+      await supabase.from("qa_report_media").update({ caption }).eq("id", m.id);
+    }
+  }
+
   async function save() {
     if (!editing) return;
     if (!editing.viewport.trim() || !editing.page.trim()) {
@@ -157,13 +223,29 @@ function QaReportsPage() {
       notes: editing.notes.trim() || null,
       run_at: new Date(editing.run_at).toISOString(),
     };
-    const res = editingId
-      ? await supabase.from("qa_reports").update(payload).eq("id", editingId)
-      : await supabase.from("qa_reports").insert(payload);
+    let res;
+    let newId = editingId;
+    if (editingId) {
+      res = await supabase.from("qa_reports").update(payload).eq("id", editingId);
+    } else {
+      const insertRes = await supabase.from("qa_reports").insert(payload).select("id").single();
+      res = insertRes;
+      newId = (insertRes.data as { id: string } | null)?.id ?? null;
+      // Persist buffered media rows
+      if (newId && editingMedia.length) {
+        const rid = newId;
+        const bufferedRows = editingMedia
+          .filter((m) => m.id.startsWith("tmp-"))
+          .map((m, idx) => ({ report_id: rid, media_url: m.media_url, caption: m.caption, sort_order: idx }));
+        if (bufferedRows.length) {
+          await supabase.from("qa_report_media").insert(bufferedRows);
+        }
+      }
+    }
     setSaving(false);
     if (res.error) return toast.error(res.error.message);
     toast.success(editingId ? "Report updated" : "Report added");
-    setEditing(null); setEditingId(null);
+    setEditing(null); setEditingId(null); setEditingMedia([]);
     load();
   }
 
@@ -344,7 +426,7 @@ function QaReportsPage() {
         })}
       </div>
 
-      <Dialog open={!!editing} onOpenChange={(o) => !o && (setEditing(null), setEditingId(null))}>
+      <Dialog open={!!editing} onOpenChange={(o) => !o && (setEditing(null), setEditingId(null), setEditingMedia([]))}>
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader><DialogTitle>{editingId ? "Edit QA report" : "New QA report"}</DialogTitle></DialogHeader>
           {editing && (
@@ -424,13 +506,59 @@ function QaReportsPage() {
               </div>
 
               <div>
+                <div className="flex items-center justify-between">
+                  <Label>Attached media ({editingMedia.length})</Label>
+                  <div>
+                    <input
+                      ref={mediaFileRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => e.target.files?.[0] && uploadMedia(e.target.files[0])}
+                    />
+                    <Button variant="outline" size="sm" onClick={() => mediaFileRef.current?.click()} disabled={uploadingMedia}>
+                      {uploadingMedia ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Upload className="mr-1 h-4 w-4" />}
+                      {uploadingMedia ? "Uploading…" : "Add image"}
+                    </Button>
+                  </div>
+                </div>
+                {editingMedia.length === 0 ? (
+                  <p className="mt-2 rounded border border-dashed p-4 text-center text-xs text-muted-foreground">
+                    No extra media. Uploads are auto-linked to this report.
+                  </p>
+                ) : (
+                  <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {editingMedia.map((m) => (
+                      <div key={m.id} className="group relative overflow-hidden rounded border">
+                        <img src={m.media_url} alt={m.caption ?? ""} className="h-28 w-full object-cover" />
+                        <Input
+                          className="rounded-none border-0 border-t text-xs"
+                          placeholder="Caption"
+                          value={m.caption ?? ""}
+                          onChange={(e) => updateMediaCaption(m, e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeMedia(m)}
+                          className="absolute right-1 top-1 rounded bg-background/80 p-1 opacity-0 shadow transition group-hover:opacity-100"
+                          aria-label="Remove"
+                        >
+                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
                 <Label>Notes</Label>
                 <Textarea rows={3} value={editing.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Any context: device, network throttling, reproduction steps…" />
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setEditing(null); setEditingId(null); }}>Cancel</Button>
+            <Button variant="outline" onClick={() => { setEditing(null); setEditingId(null); setEditingMedia([]); }}>Cancel</Button>
             <Button onClick={save} disabled={saving || uploading}>
               {saving && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
               {editingId ? "Save" : "Create"}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, Plus, Pencil, Trash2, Loader2, Filter, ArrowUpDown } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, Loader2, Filter, ArrowUpDown, ExternalLink } from "lucide-react";
 import { TableRowsSkeleton } from "@/components/site/Skeletons";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,6 +60,7 @@ export type CmsCollectionConfig = {
   orderAscending?: boolean;
   filters?: Array<{ key: string; label: string; values: string[] }>;
   preparePayload?: (values: AnyRow) => AnyRow;
+  previewUrl?: (row: AnyRow) => string | null;
 };
 
 const contentStatuses = ["published", "draft", "archived"];
@@ -342,6 +343,14 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
                 ))}
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-1">
+                    {config.previewUrl && (() => {
+                      const url = config.previewUrl(row);
+                      return url ? (
+                        <Button asChild variant="ghost" size="sm" aria-label={`Preview ${config.singular}`}>
+                          <a href={url} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-4 w-4" /></a>
+                        </Button>
+                      ) : null;
+                    })()}
                     <Button variant="ghost" size="sm" onClick={() => setEditing(row)} aria-label={`Edit ${config.singular}`}><Pencil className="h-4 w-4" /></Button>
                     <Button variant="ghost" size="sm" onClick={() => row.id && setDeleteIds([row.id])} aria-label={`Delete ${config.singular}`}><Trash2 className="h-4 w-4" /></Button>
                   </div>
