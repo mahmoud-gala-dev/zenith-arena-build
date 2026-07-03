@@ -28,24 +28,27 @@ export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
   });
   const [index, setIndex] = useState(0);
 
-
   const count = slides?.length ?? 0;
-  const [paused, setPaused] = useState(false);
+  // Ref-based pause avoids re-rendering / resetting the autoplay interval on hover.
+  const pausedRef = useRef(false);
+  const setPaused = (v: boolean) => { pausedRef.current = v; };
+  const slidesRef = useRef(slides);
+  slidesRef.current = slides;
 
   const prevIndexRef = useRef(0);
   useEffect(() => {
-    if (count < 2 || paused) return;
+    if (count < 2) return;
     const t = setInterval(() => {
+      if (pausedRef.current) return;
       setIndex((i) => {
         const next = (i + 1) % count;
-        const from = slides?.[i];
-        const to = slides?.[next];
+        const to = slidesRef.current?.[next];
         if (to) trackEvent({ name: "hero_slide_change", from: i, to: next, slide_id: to.id, via: "autoplay" });
         return next;
       });
     }, AUTOPLAY_MS);
     return () => clearInterval(t);
-  }, [count, paused, slides]);
+  }, [count]);
 
   const current = useMemo(() => (slides && count > 0 ? slides[index % count] : null), [slides, index, count]);
 
