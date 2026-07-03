@@ -77,8 +77,27 @@ function normalize(row: Record<string, unknown>): ServiceRow {
   };
 }
 
-export type ServicesPageParams = { q?: string; category?: string; page?: number; pageSize?: number };
+export type ServicesSort = "featured" | "newest" | "oldest" | "az" | "za";
+export type ServicesPageParams = { q?: string; category?: string; page?: number; pageSize?: number; sort?: ServicesSort; lang?: "en" | "ar" };
 export type ServicesPage = { rows: ServiceRow[]; total: number; page: number; pageSize: number };
+
+function applySort(query: ReturnType<typeof supabase.from<"services">>["select"] extends (...a: unknown[]) => infer R ? R : never, sort: ServicesSort, lang: "en" | "ar") {
+  // Chainable order() calls
+  switch (sort) {
+    case "newest":
+      return query.order("updated_at", { ascending: false, nullsFirst: false });
+    case "oldest":
+      return query.order("updated_at", { ascending: true, nullsFirst: true });
+    case "az":
+      return query.order(lang === "ar" ? "title_ar" : "title_en", { ascending: true, nullsFirst: false });
+    case "za":
+      return query.order(lang === "ar" ? "title_ar" : "title_en", { ascending: false, nullsFirst: false });
+    case "featured":
+    default:
+      return query.order("featured", { ascending: false }).order("sort_order", { ascending: true });
+  }
+}
+
 
 
 const FIVE_MIN = 5 * 60 * 1000;
