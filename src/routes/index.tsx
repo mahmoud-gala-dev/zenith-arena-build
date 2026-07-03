@@ -10,6 +10,7 @@ import { HeroSlider } from "@/components/site/HeroSlider";
 import { Icon } from "@/components/site/Icon";
 import { ResponsiveImage } from "@/components/site/ResponsiveImage";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
+import { LangToggle } from "@/components/site/LangToggle";
 import { heroSlidesActiveQueryOptions, homeClientsQueryOptions, type HomeClient } from "@/lib/queries";
 import { servicesPublishedQueryOptions } from "@/hooks/useServiceContent";
 import ogImage from "@/assets/apex-og.jpg.asset.json";
