@@ -78,6 +78,11 @@ function Index() {
   const L = useLocalized();
 
   const { data: dbClients } = useQuery<HomeClient[]>(homeClientsQueryOptions);
+  const { data: dbServices = [] } = useQuery(servicesPublishedQueryOptions);
+  const featuredServices = (dbServices.filter((s) => s.featured).length > 0
+    ? dbServices.filter((s) => s.featured)
+    : dbServices
+  ).slice(0, 6);
 
   const clients: TrustClient[] =
     dbClients && dbClients.length > 0
