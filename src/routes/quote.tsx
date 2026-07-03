@@ -12,8 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { services } from "@/lib/site-data";
-import { supabase } from "@/integrations/supabase/client";
+import { submitLead } from "@/lib/leads.functions";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/quote")({
   head: () => ({
