@@ -13,14 +13,14 @@ export type ImageVersion = {
   created_at: string;
 };
 
-// Untyped table access — the generated Database type is refreshed asynchronously
-// after the migration; casting to `any` here keeps the rest of the app fully typed.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const table = () => (supabase as any).from("image_versions");
+const table = () => supabase.from("image_versions");
 
 export async function insertImageVersion(v: Omit<ImageVersion, "id" | "created_at">) {
   if (!v.url && !v.variants) return; // nothing meaningful to snapshot
-  const { error } = await table().insert(v);
+  const { error } = await table().insert({
+    ...v,
+    variants: (v.variants ?? null) as never,
+  });
   if (error) throw error;
 }
 
@@ -39,7 +39,7 @@ export function useImageVersions(entityTable: string, entityId: string | undefin
       .order("created_at", { ascending: false })
       .limit(25);
     setLoading(false);
-    if (!error) setVersions((data ?? []) as ImageVersion[]);
+    if (!error) setVersions((data ?? []) as unknown as ImageVersion[]);
   }, [entityTable, entityId, field]);
 
   useEffect(() => { refetch(); }, [refetch]);

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform, type TargetAndTransition, type Transition } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import type { Database } from "@/integrations/supabase/types";
@@ -11,11 +11,28 @@ import { CinematicBackdrop } from "./CinematicBackdrop";
 import { Logo } from "./Logo";
 import { trackEvent } from "@/lib/analytics";
 
-type Slide = Database["public"]["Tables"]["hero_slides"]["Row"] & {
-  hide_cta?: boolean | null;
-  fog_intensity?: number | null;
-  spotlight_intensity?: number | null;
-  vignette_intensity?: number | null;
+type Slide = Database["public"]["Tables"]["hero_slides"]["Row"];
+
+type HeroAnim = {
+  initial: TargetAndTransition;
+  animate: TargetAndTransition;
+  exit: TargetAndTransition;
+  transition: Transition;
+};
+
+type HeroSectionProps = {
+  current: Slide;
+  count: number;
+  slides: Slide[];
+  index: number;
+  setIndex: (i: number) => void;
+  imgAnim: HeroAnim;
+  textAnim: HeroAnim;
+  t: (en?: string | null, ar?: string | null) => string;
+  align: string;
+  showCTA: boolean;
+  isRTL: boolean;
+  onPauseChange?: (paused: boolean) => void;
 };
 
 const AUTOPLAY_MS = 6500;
@@ -99,7 +116,7 @@ export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
   );
 }
 
-function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAnim, t, align, showCTA, isRTL, onPauseChange }: any) {
+function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAnim, t, align, showCTA, isRTL, onPauseChange }: HeroSectionProps) {
   const { scrollY } = useScroll();
   const bgY = useTransform(scrollY, [0, 800], [0, 180]);
   const bgScale = useTransform(scrollY, [0, 800], [1, 1.08]);
