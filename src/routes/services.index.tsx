@@ -88,11 +88,14 @@ function ServicesPage() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const page = search.page ?? 1;
+  const sort: SortKey = search.sort ?? "featured";
   const { data, loading, fetching } = useServicesPage({
     q: search.q,
     category: search.category,
     page,
     pageSize: DEFAULT_PAGE_SIZE,
+    sort,
+    lang,
   });
   const cats = useQuery(servicesCategoriesQueryOptions).data ?? [];
   const total = data?.total ?? 0;
@@ -103,7 +106,8 @@ function ServicesPage() {
   useEffect(() => { setQLocal(search.q ?? ""); }, [search.q]);
 
   const rows = data?.rows ?? [];
-  const hasFilters = Boolean(search.q || search.category);
+  const hasFilters = Boolean(search.q || search.category || search.sort);
+
 
   const setSearch = (next: Partial<Search>) => {
     navigate({
