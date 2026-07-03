@@ -25,7 +25,9 @@ interface Entry { path: string; lastmod?: string }
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
-      GET: async () => {
+      GET: async ({ request }) => {
+        const BASE_URL = resolveBaseUrl(request);
+
         const entries: Entry[] = [
           ...STATIC_PATHS.map((path) => ({ path })),
           ...services.map((s) => ({ path: `/services/${s.id}` })),
