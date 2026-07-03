@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          changes: Json | null
+          created_at: string
+          id: string
+          record_id: string | null
+          table_name: string
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          changes?: Json | null
+          created_at?: string
+          id?: string
+          record_id?: string | null
+          table_name: string
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          changes?: Json | null
+          created_at?: string
+          id?: string
+          record_id?: string | null
+          table_name?: string
+        }
+        Relationships: []
+      }
       blog_categories: {
         Row: {
           created_at: string
@@ -435,11 +468,14 @@ export type Database = {
           primary_href: string | null
           primary_label_ar: string | null
           primary_label_en: string | null
+          scheduled_at: string | null
           secondary_href: string | null
           secondary_label_ar: string | null
           secondary_label_en: string | null
           sort_order: number
+          sort_order_ar: number | null
           spotlight_intensity: number
+          status: string
           subtitle_ar: string | null
           subtitle_en: string | null
           title_ar: string | null
@@ -461,11 +497,14 @@ export type Database = {
           primary_href?: string | null
           primary_label_ar?: string | null
           primary_label_en?: string | null
+          scheduled_at?: string | null
           secondary_href?: string | null
           secondary_label_ar?: string | null
           secondary_label_en?: string | null
           sort_order?: number
+          sort_order_ar?: number | null
           spotlight_intensity?: number
+          status?: string
           subtitle_ar?: string | null
           subtitle_en?: string | null
           title_ar?: string | null
@@ -487,11 +526,14 @@ export type Database = {
           primary_href?: string | null
           primary_label_ar?: string | null
           primary_label_en?: string | null
+          scheduled_at?: string | null
           secondary_href?: string | null
           secondary_label_ar?: string | null
           secondary_label_en?: string | null
           sort_order?: number
+          sort_order_ar?: number | null
           spotlight_intensity?: number
+          status?: string
           subtitle_ar?: string | null
           subtitle_en?: string | null
           title_ar?: string | null
@@ -1139,6 +1181,44 @@ export type Database = {
             columns: ["governorate_id"]
             isOneToOne: false
             referencedRelation: "governorates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qa_report_media: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          media_url: string
+          report_id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          media_url: string
+          report_id: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          media_url?: string
+          report_id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qa_report_media_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "qa_reports"
             referencedColumns: ["id"]
           },
         ]
