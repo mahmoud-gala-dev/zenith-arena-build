@@ -55,6 +55,8 @@ function AuditLogsPage() {
     let query = supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(300);
     if (table !== "all") query = query.eq("table_name", table);
     if (action !== "all") query = query.eq("action", action);
+    if (dateFrom) query = query.gte("created_at", new Date(dateFrom).toISOString());
+    if (dateTo) query = query.lte("created_at", new Date(dateTo + "T23:59:59").toISOString());
     const { data } = await query;
     setRows((data as AuditRow[]) ?? []);
     setLoading(false);
@@ -62,9 +64,10 @@ function AuditLogsPage() {
 
   useEffect(() => {
     load();
-  }, [table, action]);
+  }, [table, action, dateFrom, dateTo]);
 
   const filtered = useMemo(() => {
+
     const needle = q.trim().toLowerCase();
     if (!needle) return rows;
     return rows.filter((r) =>
