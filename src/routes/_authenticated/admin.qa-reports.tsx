@@ -92,6 +92,9 @@ function StatusBadge({ status }: { status: QaStatus }) {
     rejected: "bg-destructive/10 text-destructive",
   };
   return <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide", map[status])}>{status}</span>;
+}
+
+
 
 
 function QaReportsPage() {
