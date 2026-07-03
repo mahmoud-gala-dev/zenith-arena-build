@@ -8,8 +8,15 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/admin/social-cache")({
+  beforeLoad: async () => {
+    const { data, error } = await supabase.rpc("is_staff");
+    if (error || !data) {
+      throw redirect({ to: "/" });
+    }
+  },
   component: SocialCachePage,
 });
+
 
 interface Result {
   target: string;
