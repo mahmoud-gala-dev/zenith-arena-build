@@ -42,7 +42,8 @@ const empty: SlideInput = {
   secondary_label_en: "", secondary_label_ar: "", secondary_href: "",
   image_url: "",
   overlay: "dark", align: "left",
-  is_active: true, sort_order: 0,
+  is_active: true, sort_order: 0, sort_order_ar: 0,
+  status: "published", scheduled_at: null,
   fog_intensity: 0.6, spotlight_intensity: 0.6, vignette_intensity: 0.6,
 } as SlideInput;
 
