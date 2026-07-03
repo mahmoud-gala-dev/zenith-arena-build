@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { RefreshCw, ExternalLink, CheckCircle2, AlertCircle, Info } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
