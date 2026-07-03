@@ -101,8 +101,10 @@ export const heroSlidesActiveQueryOptions = (locale: "en" | "ar" = "en") =>
         .from("hero_slides")
         .select("*")
         .eq("is_active", true)
-        .eq("status", "published")
-        .or(`scheduled_at.is.null,scheduled_at.lte.${nowIso}`);
+        .or(
+          // Published now OR scheduled and the schedule time has arrived.
+          `and(status.eq.published,or(scheduled_at.is.null,scheduled_at.lte.${nowIso})),and(status.eq.draft,scheduled_at.lte.${nowIso})`,
+        );
       if (error) throw error;
       const rows = (data ?? []) as HeroSlide[];
       // Order per-locale: fall back to global sort_order when locale-specific order is missing.
@@ -114,4 +116,5 @@ export const heroSlidesActiveQueryOptions = (locale: "en" | "ar" = "en") =>
       });
     },
   });
+
 
