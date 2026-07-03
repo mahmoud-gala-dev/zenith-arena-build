@@ -4,6 +4,7 @@ import type { Database } from "@/integrations/supabase/types";
 
 const FIVE_MIN = 5 * 60 * 1000;
 const HALF_HOUR = 30 * 60 * 1000;
+const ONE_HOUR = 60 * 60 * 1000;
 
 export type Gov = {
   id: string;
@@ -91,8 +92,8 @@ export const homeClientsQueryOptions = queryOptions<HomeClient[]>({
 
 export const heroSlidesActiveQueryOptions = queryOptions<HeroSlide[]>({
   queryKey: ["hero_slides", "active"],
-  staleTime: FIVE_MIN,
-  gcTime: HALF_HOUR,
+  staleTime: HALF_HOUR,
+  gcTime: ONE_HOUR,
   queryFn: async () => {
     const { data, error } = await supabase
       .from("hero_slides")

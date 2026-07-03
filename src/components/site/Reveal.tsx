@@ -1,18 +1,23 @@
-import { useRef, type ReactNode, type JSX } from "react";
+import { useMemo, useRef, useState, type ComponentProps, type ElementType, type ReactNode, type JSX } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 /**
  * Premium scroll-reveal: fade + slide + blur, staggered via `delay`.
  * Respects prefers-reduced-motion (falls back to opacity only).
- *
- * Tunable per-section for a unified premium feel:
- *  - `direction`: "up" | "down" | "left" | "right" | "none" (default "up")
- *  - `duration`:  seconds (default 0.7)
- *  - `y`:         travel distance in px for up/down (default 24)
- *  - `delay`:     stagger delay in ms
  */
 export type RevealDirection = "up" | "down" | "left" | "right" | "none";
+
+type MotionComponent = ReturnType<typeof motion.create>;
+const motionCache = new Map<ElementType, MotionComponent>();
+function getMotionComponent(Tag: ElementType): MotionComponent {
+  let cached = motionCache.get(Tag);
+  if (!cached) {
+    cached = motion.create(Tag as never);
+    motionCache.set(Tag, cached);
+  }
+  return cached;
+}
 
 export function Reveal({
   children,
@@ -36,8 +41,9 @@ export function Reveal({
   const ref = useRef<HTMLElement | null>(null);
   const inView = useInView(ref, { once: true, amount: 0.15, margin: "0px 0px -40px 0px" });
   const reduce = useReducedMotion();
+  const [settled, setSettled] = useState(false);
 
-  const MotionTag = motion(Tag as any);
+  const MotionTag = useMemo(() => getMotionComponent(Tag), [Tag]);
 
   const offset = (() => {
     if (reduce || direction === "none") return { x: 0, y: 0 };
@@ -57,21 +63,21 @@ export function Reveal({
     ? { opacity: 1 }
     : { opacity: 1, x: 0, y: 0, filter: "blur(0px)", scale: 1 };
 
-  return (
-    <MotionTag
-      ref={ref as any}
-      id={id}
-      className={cn(className)}
-      initial={initial}
-      animate={inView ? animate : initial}
-      transition={{
-        duration: reduce ? 0.3 : (duration ?? 0.7),
-        delay: (delay || 0) / 1000,
-        ease: [0.22, 1, 0.36, 1],
-      }}
-      style={{ willChange: "transform, opacity, filter" }}
-    >
-      {children}
-    </MotionTag>
-  );
+  // Drop will-change after the reveal completes so the compositor layer is released.
+  const motionProps: ComponentProps<MotionComponent> = {
+    ref: ref as never,
+    id,
+    className: cn(className),
+    initial,
+    animate: inView ? animate : initial,
+    transition: {
+      duration: reduce ? 0.3 : (duration ?? 0.7),
+      delay: (delay || 0) / 1000,
+      ease: [0.22, 1, 0.36, 1],
+    },
+    style: settled ? undefined : { willChange: "transform, opacity, filter" },
+    onAnimationComplete: () => setSettled(true),
+  };
+
+  return <MotionTag {...motionProps}>{children}</MotionTag>;
 }

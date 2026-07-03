@@ -11,11 +11,28 @@ import { CinematicBackdrop } from "./CinematicBackdrop";
 import { Logo } from "./Logo";
 import { trackEvent } from "@/lib/analytics";
 
-type Slide = Database["public"]["Tables"]["hero_slides"]["Row"] & {
-  hide_cta?: boolean | null;
-  fog_intensity?: number | null;
-  spotlight_intensity?: number | null;
-  vignette_intensity?: number | null;
+type Slide = Database["public"]["Tables"]["hero_slides"]["Row"];
+
+type HeroAnim = {
+  initial: Record<string, number>;
+  animate: Record<string, number>;
+  exit: Record<string, number>;
+  transition: { duration: number; ease?: "easeOut" };
+};
+
+type HeroSectionProps = {
+  current: Slide;
+  count: number;
+  slides: Slide[];
+  index: number;
+  setIndex: (i: number) => void;
+  imgAnim: HeroAnim;
+  textAnim: HeroAnim;
+  t: (en?: string | null, ar?: string | null) => string;
+  align: string;
+  showCTA: boolean;
+  isRTL: boolean;
+  onPauseChange?: (paused: boolean) => void;
 };
 
 const AUTOPLAY_MS = 6500;
@@ -99,7 +116,7 @@ export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
   );
 }
 
-function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAnim, t, align, showCTA, isRTL, onPauseChange }: any) {
+function HeroSection({ current, count, slides, index, setIndex, imgAnim, textAnim, t, align, showCTA, isRTL, onPauseChange }: HeroSectionProps) {
   const { scrollY } = useScroll();
   const bgY = useTransform(scrollY, [0, 800], [0, 180]);
   const bgScale = useTransform(scrollY, [0, 800], [1, 1.08]);

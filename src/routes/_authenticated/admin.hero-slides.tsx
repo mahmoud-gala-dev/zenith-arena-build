@@ -142,11 +142,11 @@ function AdminHeroSlides() {
     if (!editing.title_en?.trim()) return toast.error("English title is required");
     if (!editing.image_url?.trim()) return toast.error("Image is required");
     setSaving(true);
-    const payload = {
+    const payload: SlideInput = {
       ...editing,
-      fog_intensity: clamp01((editing as any).fog_intensity ?? 0.6),
-      spotlight_intensity: clamp01((editing as any).spotlight_intensity ?? 0.6),
-      vignette_intensity: clamp01((editing as any).vignette_intensity ?? 0.6),
+      fog_intensity: clamp01(editing.fog_intensity ?? 0.6),
+      spotlight_intensity: clamp01(editing.spotlight_intensity ?? 0.6),
+      vignette_intensity: clamp01(editing.vignette_intensity ?? 0.6),
     };
     const res = editingId
       ? await supabase.from("hero_slides").update(payload).eq("id", editingId)
@@ -368,7 +368,7 @@ function AdminHeroSlides() {
                 </div>
                 <div><Label>Sort order</Label><Input type="number" value={editing.sort_order ?? 0} onChange={(e) => set("sort_order", Number(e.target.value))} /></div>
                 <div className="flex items-end gap-2"><Switch checked={editing.is_active ?? true} onCheckedChange={(v) => set("is_active", v)} /><span className="text-sm">Active</span></div>
-                <div className="flex items-end gap-2"><Switch checked={(editing as any).hide_cta ?? false} onCheckedChange={(v) => set("hide_cta" as any, v)} /><span className="text-sm">Hide CTA buttons</span></div>
+                <div className="flex items-end gap-2"><Switch checked={editing.hide_cta ?? false} onCheckedChange={(v) => set("hide_cta", v)} /><span className="text-sm">Hide CTA buttons</span></div>
               </div>
 
               <div className="rounded-lg border bg-secondary/30 p-3">
@@ -379,7 +379,7 @@ function AdminHeroSlides() {
                   <div>
                     {(["fog_intensity", "spotlight_intensity", "vignette_intensity"] as const).map((key) => {
                       const label = key === "fog_intensity" ? "Fog" : key === "spotlight_intensity" ? "Spotlights" : "Vignette";
-                      const val = clamp01((editing as any)[key] ?? 0.6);
+                      const val = clamp01(editing[key] ?? 0.6);
                       return (
                         <div key={key} className="mb-3">
                           <div className="mb-1 flex items-center justify-between text-sm">
@@ -391,7 +391,7 @@ function AdminHeroSlides() {
                             min={0}
                             max={1}
                             step={0.05}
-                            onValueChange={(v) => set(key as any, clamp01(v[0]) as any)}
+                            onValueChange={(v) => set(key, clamp01(v[0]))}
                           />
                         </div>
                       );
@@ -417,12 +417,12 @@ function AdminHeroSlides() {
                         }
                       />
                       <CinematicBackdrop
-                        fog={clamp01((editing as any).fog_intensity ?? 0.6)}
-                        spotlights={clamp01((editing as any).spotlight_intensity ?? 0.6)}
-                        vignette={clamp01((editing as any).vignette_intensity ?? 0.6)}
+                        fog={clamp01(editing.fog_intensity ?? 0.6)}
+                        spotlights={clamp01(editing.spotlight_intensity ?? 0.6)}
+                        vignette={clamp01(editing.vignette_intensity ?? 0.6)}
                       />
                       <div className="absolute inset-x-2 bottom-2 text-[10px] text-white/70">
-                        Fog {clamp01((editing as any).fog_intensity ?? 0.6).toFixed(2)} · Spot {clamp01((editing as any).spotlight_intensity ?? 0.6).toFixed(2)} · Vig {clamp01((editing as any).vignette_intensity ?? 0.6).toFixed(2)}
+                        Fog {clamp01(editing.fog_intensity ?? 0.6).toFixed(2)} · Spot {clamp01(editing.spotlight_intensity ?? 0.6).toFixed(2)} · Vig {clamp01(editing.vignette_intensity ?? 0.6).toFixed(2)}
                       </div>
                     </div>
                   </div>

@@ -129,6 +129,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "preconnect", href: "https://phimnzbiqssakrepavik.supabase.co", crossOrigin: "anonymous" },
+      { rel: "dns-prefetch", href: "https://phimnzbiqssakrepavik.supabase.co" },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/favicon.ico" },
