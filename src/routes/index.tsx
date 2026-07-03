@@ -51,19 +51,43 @@ export const Route = createFileRoute("/")({
     void queryClient.ensureQueryData(servicesPublishedQueryOptions);
   },
   head: () => {
+    const SITE_URL = "https://zenith-arena-build.lovable.app";
     const titleEn = "Egytic Sports — Sports Construction & Infrastructure";
     const titleAr = "إيجيتك سبورتس — إنشاءات وبنية تحتية رياضية";
     const descEn =
       "Egytic Sports designs and builds world-class sports facilities across Egypt — turf, tracks, courts and stadium infrastructure.";
     const descAr =
       "إيجيتك سبورتس تصمم وتنفذ منشآت رياضية عالمية المستوى في مصر — أعشاب صناعية، مضامير، ملاعب وبنية تحتية للاستادات.";
+    const orgLd = {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "Egytic Sports",
+      alternateName: "إيجيتك سبورتس",
+      url: SITE_URL,
+      logo: `${SITE_URL}/favicon.ico`,
+      description: descEn,
+      areaServed: { "@type": "Country", name: "Egypt" },
+      sameAs: [] as string[],
+    };
+    const siteLd = {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "Egytic Sports",
+      url: SITE_URL,
+      inLanguage: ["en", "ar"],
+      potentialAction: {
+        "@type": "SearchAction",
+        target: `${SITE_URL}/knowledge?q={search_term_string}`,
+        "query-input": "required name=search_term_string",
+      },
+    };
     return {
       meta: [
         { title: `${titleEn} | ${titleAr}` },
         { name: "description", content: `${descEn} — ${descAr}` },
         { property: "og:type", content: "website" },
         { property: "og:site_name", content: "Egytic Sports" },
-        { property: "og:url", content: "/" },
+        { property: "og:url", content: `${SITE_URL}/` },
         { property: "og:title", content: titleEn },
         { property: "og:description", content: descEn },
         { property: "og:locale", content: "en_US" },
@@ -79,16 +103,20 @@ export const Route = createFileRoute("/")({
         { name: "twitter:image:alt", content: "Egytic Sports" },
       ],
       links: [
-        { rel: "canonical", href: "/" },
-        { rel: "alternate", hreflang: "en", href: "/" },
-        { rel: "alternate", hreflang: "ar", href: "/?lang=ar" },
-        { rel: "alternate", hreflang: "x-default", href: "/" },
+        { rel: "canonical", href: `${SITE_URL}/` },
+        { rel: "alternate", hreflang: "en", href: `${SITE_URL}/` },
+        { rel: "alternate", hreflang: "ar", href: `${SITE_URL}/?lang=ar` },
+        { rel: "alternate", hreflang: "x-default", href: `${SITE_URL}/` },
         {
           rel: "preload",
           as: "image",
           href: ctaLandmark.url,
           fetchpriority: "high",
         },
+      ],
+      scripts: [
+        { type: "application/ld+json", children: JSON.stringify(orgLd) },
+        { type: "application/ld+json", children: JSON.stringify(siteLd) },
       ],
     };
   },
