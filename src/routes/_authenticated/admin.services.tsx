@@ -21,6 +21,10 @@ import type { ImageVariantsManifest } from "@/hooks/useSignedImage";
 import { invalidateManifestCache } from "@/hooks/useSignedImage";
 import { insertImageVersion } from "@/hooks/useImageVersions";
 import { ImageHistoryButton } from "@/components/admin/ImageHistoryButton";
+import { ArrowDown, ArrowUp, GripVertical } from "lucide-react";
+
+type ServiceFaq = { q_en: string; q_ar?: string; a_en: string; a_ar?: string };
+
 
 
 export const Route = createFileRoute("/_authenticated/admin/services")({
