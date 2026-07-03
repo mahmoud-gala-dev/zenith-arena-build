@@ -506,6 +506,52 @@ function QaReportsPage() {
               </div>
 
               <div>
+                <div className="flex items-center justify-between">
+                  <Label>Attached media ({editingMedia.length})</Label>
+                  <div>
+                    <input
+                      ref={mediaFileRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => e.target.files?.[0] && uploadMedia(e.target.files[0])}
+                    />
+                    <Button variant="outline" size="sm" onClick={() => mediaFileRef.current?.click()} disabled={uploadingMedia}>
+                      {uploadingMedia ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Upload className="mr-1 h-4 w-4" />}
+                      {uploadingMedia ? "Uploading…" : "Add image"}
+                    </Button>
+                  </div>
+                </div>
+                {editingMedia.length === 0 ? (
+                  <p className="mt-2 rounded border border-dashed p-4 text-center text-xs text-muted-foreground">
+                    No extra media. Uploads are auto-linked to this report.
+                  </p>
+                ) : (
+                  <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {editingMedia.map((m) => (
+                      <div key={m.id} className="group relative overflow-hidden rounded border">
+                        <img src={m.media_url} alt={m.caption ?? ""} className="h-28 w-full object-cover" />
+                        <Input
+                          className="rounded-none border-0 border-t text-xs"
+                          placeholder="Caption"
+                          value={m.caption ?? ""}
+                          onChange={(e) => updateMediaCaption(m, e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeMedia(m)}
+                          className="absolute right-1 top-1 rounded bg-background/80 p-1 opacity-0 shadow transition group-hover:opacity-100"
+                          aria-label="Remove"
+                        >
+                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
                 <Label>Notes</Label>
                 <Textarea rows={3} value={editing.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Any context: device, network throttling, reproduction steps…" />
               </div>
