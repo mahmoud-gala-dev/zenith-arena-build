@@ -79,23 +79,31 @@ function tone(lcp: number | null, cls: number | null, overlap: boolean | null) {
 
 function QaReportsPage() {
   const [rows, setRows] = useState<Report[]>([]);
+  const [mediaByReport, setMediaByReport] = useState<Record<string, ReportMedia[]>>({});
   const [loading, setLoading] = useState(true);
   const [canWrite, setCanWrite] = useState(false);
   const [editing, setEditing] = useState<FormState | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingMedia, setEditingMedia] = useState<ReportMedia[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const mediaFileRef = useRef<HTMLInputElement>(null);
 
   async function load() {
     setLoading(true);
-    const { data } = await supabase
-      .from("qa_reports")
-      .select("*")
-      .order("run_at", { ascending: false })
-      .limit(200);
-    setRows((data as Report[]) ?? []);
+    const [{ data: reportRows }, { data: mediaRows }] = await Promise.all([
+      supabase.from("qa_reports").select("*").order("run_at", { ascending: false }).limit(200),
+      supabase.from("qa_report_media").select("*").order("sort_order", { ascending: true }),
+    ]);
+    setRows((reportRows as Report[]) ?? []);
+    const grouped: Record<string, ReportMedia[]> = {};
+    for (const m of (mediaRows as ReportMedia[]) ?? []) {
+      (grouped[m.report_id] ??= []).push(m);
+    }
+    setMediaByReport(grouped);
     setLoading(false);
   }
 
@@ -110,10 +118,12 @@ function QaReportsPage() {
 
   function startNew() {
     setEditingId(null);
+    setEditingMedia([]);
     setEditing(emptyForm());
   }
   function startEdit(r: Report) {
     setEditingId(r.id);
+    setEditingMedia(mediaByReport[r.id] ?? []);
     setEditing({
       viewport: r.viewport,
       page: r.page,
