@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform, type TargetAndTransition, type Transition } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import type { Database } from "@/integrations/supabase/types";
 import { heroSlidesActiveQueryOptions } from "@/lib/queries";
+import { supabase } from "@/integrations/supabase/client";
+
 
 import { CinematicBackdrop } from "./CinematicBackdrop";
 import { Logo } from "./Logo";
