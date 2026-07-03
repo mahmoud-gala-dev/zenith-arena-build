@@ -17,7 +17,16 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("en");
 
   useEffect(() => {
-    const stored = (typeof window !== "undefined" && window.localStorage.getItem(STORAGE_KEY)) as Lang | null;
+    if (typeof window === "undefined") return;
+    // URL ?lang= wins over stored preference (so hreflang links work), then localStorage.
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl = params.get("lang");
+    if (fromUrl === "ar" || fromUrl === "en") {
+      setLangState(fromUrl);
+      window.localStorage.setItem(STORAGE_KEY, fromUrl);
+      return;
+    }
+    const stored = window.localStorage.getItem(STORAGE_KEY) as Lang | null;
     if (stored === "ar" || stored === "en") setLangState(stored);
   }, []);
 

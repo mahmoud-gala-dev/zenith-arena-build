@@ -8,25 +8,90 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ShareButtons } from "@/components/site/ShareButtons";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
-import { useServiceBySlug } from "@/hooks/useServiceContent";
+import { serviceBySlugQueryOptions, useServiceBySlug } from "@/hooks/useServiceContent";
+
+const SITE_URL = "https://zenith-arena-build.lovable.app";
 
 export const Route = createFileRoute("/services/$slug")({
-  loader: ({ params }) => ({ slug: params.slug }),
-  head: ({ params }) => {
-    const title = `Service — Egytic Sports`;
+  loader: async ({ params, context: { queryClient } }) => {
+    const service = await queryClient.ensureQueryData(serviceBySlugQueryOptions(params.slug));
+    return { slug: params.slug, service };
+  },
+  head: ({ params, loaderData }) => {
+    const s = loaderData?.service;
+    const canonical = `${SITE_URL}/services/${params.slug}`;
+    if (!s) {
+      return {
+        meta: [
+          { title: "Service — Egytic Sports" },
+          { name: "description", content: "Turnkey sports construction services by Egytic Sports." },
+          { name: "robots", content: "noindex" },
+          { property: "og:url", content: canonical },
+        ],
+        links: [{ rel: "canonical", href: canonical }],
+      };
+    }
+    const titleEn = s.seo_title_en || `${s.title_en} — Egytic Sports`;
+    const titleAr = s.seo_title_ar || `${s.title_ar ?? s.title_en} — إيجيتك سبورتس`;
+    const descEn = s.seo_description_en || s.description_en || "Turnkey sports construction services by Egytic Sports.";
+    const descAr = s.seo_description_ar || s.description_ar || descEn;
+    const image = s.og_image || s.header_image || s.cover_image || undefined;
+    const serviceLd = {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      name: s.title_en,
+      alternateName: s.title_ar ?? undefined,
+      description: descEn,
+      serviceType: s.category ?? "Sports Construction",
+      url: canonical,
+      image: image ? [image] : undefined,
+      areaServed: { "@type": "Country", name: "Egypt" },
+      provider: {
+        "@type": "Organization",
+        name: "Egytic Sports",
+        url: SITE_URL,
+      },
+    };
+    const breadcrumbsLd = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+        { "@type": "ListItem", position: 2, name: "Services", item: `${SITE_URL}/services` },
+        { "@type": "ListItem", position: 3, name: s.title_en, item: canonical },
+      ],
+    };
     return {
       meta: [
-        { title },
-        { name: "description", content: "Turnkey sports construction services by Egytic Sports." },
-        { property: "og:title", content: title },
+        { title: `${titleEn} | ${titleAr}` },
+        { name: "description", content: `${descEn} — ${descAr}` },
         { property: "og:type", content: "website" },
-        { property: "og:url", content: `/services/${params.slug}` },
+        { property: "og:site_name", content: "Egytic Sports" },
+        { property: "og:url", content: canonical },
+        { property: "og:title", content: titleEn },
+        { property: "og:description", content: descEn },
+        { property: "og:locale", content: "en_US" },
+        { property: "og:locale:alternate", content: "ar_EG" },
+        ...(image
+          ? [
+              { property: "og:image", content: image },
+              { property: "og:image:alt", content: s.alt_en || s.title_en },
+              { name: "twitter:image", content: image },
+            ]
+          : []),
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: titleEn },
+        { name: "twitter:description", content: descEn },
       ],
       links: [
-        { rel: "canonical", href: `/services/${params.slug}` },
-        { rel: "alternate", hrefLang: "en", href: `/services/${params.slug}` },
-        { rel: "alternate", hrefLang: "ar", href: `/services/${params.slug}` },
-        { rel: "alternate", hrefLang: "x-default", href: `/services/${params.slug}` },
+        { rel: "canonical", href: canonical },
+        { rel: "alternate", hreflang: "en", href: canonical },
+        { rel: "alternate", hreflang: "ar", href: `${canonical}?lang=ar` },
+        { rel: "alternate", hreflang: "x-default", href: canonical },
+      ],
+      scripts: [
+        { type: "application/ld+json", children: JSON.stringify(serviceLd) },
+        { type: "application/ld+json", children: JSON.stringify(breadcrumbsLd) },
       ],
     };
   },

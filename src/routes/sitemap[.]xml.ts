@@ -30,19 +30,46 @@ export const Route = createFileRoute("/sitemap.xml")({
 
         const entries: Entry[] = [
           ...STATIC_PATHS.map((path) => ({ path })),
-          ...services.map((s) => ({ path: `/services/${s.id}` })),
           ...projects.map((p) => ({ path: `/projects/${p.slug}` })),
           ...products.map((p) => ({ path: `/products/${p.id}` })),
         ];
 
+        const url = process.env.SUPABASE_URL;
+        const key = process.env.SUPABASE_PUBLISHABLE_KEY;
+        const sb = url && key
+          ? createClient<Database>(url, key, {
+              auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+            })
+          : null;
+
+        // Live services from Cloud so admin edits reach crawlers on next fetch.
+        try {
+          if (sb) {
+            const { data } = await sb
+              .from("services")
+              .select("slug_en,updated_at")
+              .eq("status", "published");
+            if (data && data.length) {
+              for (const row of data) {
+                if (!row.slug_en) continue;
+                entries.push({
+                  path: `/services/${row.slug_en}`,
+                  lastmod: (row.updated_at ?? undefined) as string | undefined,
+                });
+              }
+            } else {
+              for (const s of services) entries.push({ path: `/services/${s.id}` });
+            }
+          } else {
+            for (const s of services) entries.push({ path: `/services/${s.id}` });
+          }
+        } catch {
+          for (const s of services) entries.push({ path: `/services/${s.id}` });
+        }
+
         // Live blog posts from Cloud so admin edits reach crawlers on next fetch.
         try {
-          const url = process.env.SUPABASE_URL;
-          const key = process.env.SUPABASE_PUBLISHABLE_KEY;
-          if (url && key) {
-            const sb = createClient<Database>(url, key, {
-              auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
-            });
+          if (sb) {
             const { data } = await sb
               .from("blog_posts")
               .select("slug_en,updated_at,published_at")
@@ -66,12 +93,13 @@ export const Route = createFileRoute("/sitemap.xml")({
 
         const urls = entries.map((e) => {
           const loc = `${BASE_URL}${e.path}`;
+          const arLoc = `${loc}?lang=ar`;
           return [
             `  <url>`,
             `    <loc>${loc}</loc>`,
             e.lastmod ? `    <lastmod>${new Date(e.lastmod).toISOString()}</lastmod>` : null,
             `    <xhtml:link rel="alternate" hreflang="en" href="${loc}" />`,
-            `    <xhtml:link rel="alternate" hreflang="ar" href="${loc}" />`,
+            `    <xhtml:link rel="alternate" hreflang="ar" href="${arLoc}" />`,
             `    <xhtml:link rel="alternate" hreflang="x-default" href="${loc}" />`,
             `    <changefreq>weekly</changefreq>`,
             `  </url>`,
