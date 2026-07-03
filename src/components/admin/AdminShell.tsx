@@ -57,7 +57,65 @@ const nav: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exac
   { to: "/admin/users", label: "Users & Roles", icon: Users },
 ];
 
+interface Notification { id: string; title: string; body: string | null; link: string | null; created_at: string; read_at: string | null }
+
+function NotificationsBell() {
+  const [items, setItems] = useState<Notification[]>([]);
+  const [open, setOpen] = useState(false);
+  const unread = items.filter((i) => !i.read_at).length;
+
+  async function load() {
+    const { data } = await supabase.from("admin_notifications").select("*").order("created_at", { ascending: false }).limit(20);
+    setItems((data as Notification[] | null) ?? []);
+  }
+  useEffect(() => {
+    load();
+    const ch = supabase.channel("admin-notif").on("postgres_changes", { event: "*", schema: "public", table: "admin_notifications" }, load).subscribe();
+    const t = setInterval(load, 60_000);
+    return () => { supabase.removeChannel(ch); clearInterval(t); };
+  }, []);
+
+  async function markAllRead() {
+    const ids = items.filter((i) => !i.read_at).map((i) => i.id);
+    if (!ids.length) return;
+    await supabase.from("admin_notifications").update({ read_at: new Date().toISOString() }).in("id", ids);
+    load();
+  }
+
+  return (
+    <div className="relative">
+      <Button variant="ghost" size="icon" onClick={() => setOpen((o) => !o)} aria-label="Notifications">
+        <Bell className="h-5 w-5" />
+        {unread > 0 && (
+          <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
+            {unread > 9 ? "9+" : unread}
+          </span>
+        )}
+      </Button>
+      {open && (
+        <div className="absolute right-0 top-full z-30 mt-2 w-80 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
+          <div className="flex items-center justify-between border-b border-border px-3 py-2">
+            <span className="text-sm font-semibold">Notifications</span>
+            <button className="text-xs text-primary hover:underline" onClick={markAllRead}>Mark all read</button>
+          </div>
+          <div className="max-h-96 divide-y divide-border overflow-y-auto">
+            {items.length === 0 && <div className="p-4 text-center text-xs text-muted-foreground">Nothing yet.</div>}
+            {items.map((n) => (
+              <a key={n.id} href={n.link ?? "#"} className={`block p-3 text-xs hover:bg-muted/40 ${!n.read_at ? "bg-primary/5" : ""}`}>
+                <div className="font-medium text-foreground">{n.title}</div>
+                {n.body && <div className="mt-0.5 text-muted-foreground">{n.body}</div>}
+                <div className="mt-1 text-[10px] text-muted-foreground">{new Date(n.created_at).toLocaleString()}</div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function AdminShell({ children, title }: { children: React.ReactNode; title: string }) {
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
