@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform, type TargetAndTransition, type Transition } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import type { Database } from "@/integrations/supabase/types";
@@ -14,10 +14,10 @@ import { trackEvent } from "@/lib/analytics";
 type Slide = Database["public"]["Tables"]["hero_slides"]["Row"];
 
 type HeroAnim = {
-  initial: Record<string, number | undefined>;
-  animate: Record<string, number | undefined>;
-  exit: Record<string, number | undefined>;
-  transition: { duration: number; ease?: "easeOut" };
+  initial: TargetAndTransition;
+  animate: TargetAndTransition;
+  exit: TargetAndTransition;
+  transition: Transition;
 };
 
 type HeroSectionProps = {
