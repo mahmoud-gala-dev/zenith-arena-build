@@ -186,26 +186,31 @@ function AdminHeroSlides() {
     await moveTo(idx, target);
   }
 
-  // Reorders locally, then rewrites sort_order for every affected slide.
+  // Reorders locally, then rewrites the language-specific sort column for every affected slide.
   // Used by both drag-and-drop and the up/down arrow buttons.
   async function moveTo(from: number, to: number) {
     if (from === to) return;
     const next = slides.slice();
     const [moved] = next.splice(from, 1);
     next.splice(to, 0, moved);
-    // Optimistic update with fresh sort_order values.
-    const withOrder = next.map((s, i) => ({ ...s, sort_order: i + 1 }));
+    const withOrder = next.map((s, i) => ({
+      ...s,
+      [orderCol]: i + 1,
+    })) as Slide[];
     setSlides(withOrder);
     const updates = withOrder.map((s) =>
-      supabase.from("hero_slides").update({ sort_order: s.sort_order }).eq("id", s.id),
+      supabase.from("hero_slides").update({ [orderCol]: (s as unknown as Record<string, number>)[orderCol] }).eq("id", s.id),
     );
     const results = await Promise.all(updates);
     const err = results.find((r) => r.error)?.error;
     if (err) {
       toast.error(err.message);
       load();
+    } else {
+      toast.success(`Saved ${orderLang.toUpperCase()} order`);
     }
   }
+
 
   async function toggleActive(s: Slide) {
     await supabase.from("hero_slides").update({ is_active: !s.is_active }).eq("id", s.id);
