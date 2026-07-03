@@ -159,8 +159,10 @@ function ContactPage() {
                 <MessageCircle className="h-5 w-5" />
                 {t.cta.whatsapp}
 
-            </a>
+              </a>
+            ) : null}
           </div>
+
 
           <div className="rounded-3xl border border-border bg-card p-8 shadow-soft lg:col-span-2">
             {sent ? (
