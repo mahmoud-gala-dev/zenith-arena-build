@@ -35,7 +35,11 @@ export const Route = createFileRoute("/services/$slug")({
     const titleAr = s.seo_title_ar || `${s.title_ar ?? s.title_en} — إيجيتك سبورتس`;
     const descEn = s.seo_description_en || s.description_en || "Turnkey sports construction services by Egytic Sports.";
     const descAr = s.seo_description_ar || s.description_ar || descEn;
-    const image = s.og_image || s.header_image || s.cover_image || undefined;
+    const ogEn = s.og_image || s.header_image || s.cover_image || undefined;
+    const ogAr = s.og_image_ar || ogEn;
+    const altEn = s.alt_en || s.title_en;
+    const altAr = s.alt_ar || s.title_ar || s.title_en;
+    const arUrl = `${canonical}?lang=ar`;
     const serviceLd = {
       "@context": "https://schema.org",
       "@type": "Service",
@@ -44,13 +48,9 @@ export const Route = createFileRoute("/services/$slug")({
       description: descEn,
       serviceType: s.category ?? "Sports Construction",
       url: canonical,
-      image: image ? [image] : undefined,
+      image: ogEn ? [ogEn] : undefined,
       areaServed: { "@type": "Country", name: "Egypt" },
-      provider: {
-        "@type": "Organization",
-        name: "Egytic Sports",
-        url: SITE_URL,
-      },
+      provider: { "@type": "Organization", name: "Egytic Sports", url: SITE_URL },
     };
     const breadcrumbsLd = {
       "@context": "https://schema.org",
@@ -61,6 +61,27 @@ export const Route = createFileRoute("/services/$slug")({
         { "@type": "ListItem", position: 3, name: s.title_en, item: canonical },
       ],
     };
+    const faqLd = s.faqs && s.faqs.length
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: s.faqs.map((f) => ({
+            "@type": "Question",
+            name: f.q_en,
+            acceptedAnswer: { "@type": "Answer", text: f.a_en },
+            inLanguage: "en",
+          })).concat(
+            s.faqs
+              .filter((f) => f.q_ar && f.a_ar)
+              .map((f) => ({
+                "@type": "Question",
+                name: f.q_ar as string,
+                acceptedAnswer: { "@type": "Answer", text: f.a_ar as string },
+                inLanguage: "ar",
+              })),
+          ),
+        }
+      : null;
     return {
       meta: [
         { title: `${titleEn} | ${titleAr}` },
@@ -72,11 +93,18 @@ export const Route = createFileRoute("/services/$slug")({
         { property: "og:description", content: descEn },
         { property: "og:locale", content: "en_US" },
         { property: "og:locale:alternate", content: "ar_EG" },
-        ...(image
+        ...(ogEn
           ? [
-              { property: "og:image", content: image },
-              { property: "og:image:alt", content: s.alt_en || s.title_en },
-              { name: "twitter:image", content: image },
+              { property: "og:image", content: ogEn },
+              { property: "og:image:alt", content: altEn },
+              { name: "twitter:image", content: ogEn },
+              { name: "twitter:image:alt", content: altEn },
+            ]
+          : []),
+        ...(ogAr && ogAr !== ogEn
+          ? [
+              { property: "og:image", content: ogAr },
+              { property: "og:image:alt", content: altAr },
             ]
           : []),
         { name: "twitter:card", content: "summary_large_image" },
@@ -86,17 +114,19 @@ export const Route = createFileRoute("/services/$slug")({
       links: [
         { rel: "canonical", href: canonical },
         { rel: "alternate", hreflang: "en", href: canonical },
-        { rel: "alternate", hreflang: "ar", href: `${canonical}?lang=ar` },
+        { rel: "alternate", hreflang: "ar", href: arUrl },
         { rel: "alternate", hreflang: "x-default", href: canonical },
       ],
       scripts: [
         { type: "application/ld+json", children: JSON.stringify(serviceLd) },
         { type: "application/ld+json", children: JSON.stringify(breadcrumbsLd) },
+        ...(faqLd ? [{ type: "application/ld+json", children: JSON.stringify(faqLd) }] : []),
       ],
     };
   },
   component: ServiceDetailPage,
 });
+
 
 function ServiceDetailPage() {
   const { slug } = Route.useLoaderData();
