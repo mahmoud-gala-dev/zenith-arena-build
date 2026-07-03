@@ -223,13 +223,28 @@ function QaReportsPage() {
       notes: editing.notes.trim() || null,
       run_at: new Date(editing.run_at).toISOString(),
     };
-    const res = editingId
-      ? await supabase.from("qa_reports").update(payload).eq("id", editingId)
-      : await supabase.from("qa_reports").insert(payload);
+    let res;
+    let newId = editingId;
+    if (editingId) {
+      res = await supabase.from("qa_reports").update(payload).eq("id", editingId);
+    } else {
+      const insertRes = await supabase.from("qa_reports").insert(payload).select("id").single();
+      res = insertRes;
+      newId = (insertRes.data as { id: string } | null)?.id ?? null;
+      // Persist buffered media rows
+      if (newId && editingMedia.length) {
+        const bufferedRows = editingMedia
+          .filter((m) => m.id.startsWith("tmp-"))
+          .map((m, idx) => ({ report_id: newId, media_url: m.media_url, caption: m.caption, sort_order: idx }));
+        if (bufferedRows.length) {
+          await supabase.from("qa_report_media").insert(bufferedRows);
+        }
+      }
+    }
     setSaving(false);
     if (res.error) return toast.error(res.error.message);
     toast.success(editingId ? "Report updated" : "Report added");
-    setEditing(null); setEditingId(null);
+    setEditing(null); setEditingId(null); setEditingMedia([]);
     load();
   }
 
