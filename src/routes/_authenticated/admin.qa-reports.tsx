@@ -18,6 +18,8 @@ export const Route = createFileRoute("/_authenticated/admin/qa-reports")({
   component: QaReportsPage,
 });
 
+type QaStatus = "draft" | "submitted" | "approved" | "rejected";
+
 interface Report {
   id: string;
   run_at: string;
@@ -31,7 +33,12 @@ interface Report {
   more_opened: boolean | null;
   screenshot_url: string | null;
   notes: string | null;
+  status?: QaStatus | null;
+  submitted_at?: string | null;
+  reviewed_at?: string | null;
+  reviewer_note?: string | null;
 }
+
 
 interface ReportMedia {
   id: string;
