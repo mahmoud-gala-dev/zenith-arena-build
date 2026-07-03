@@ -141,11 +141,20 @@ function AuditLogsPage() {
                 {ACTIONS.map((a) => <SelectItem key={a} value={a}>{a === "all" ? "All actions" : a}</SelectItem>)}
               </SelectContent>
             </Select>
+            <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-[150px]" aria-label="From date" />
+            <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-[150px]" aria-label="To date" />
             <Button variant="outline" size="sm" onClick={load} disabled={loading}>
               <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
               Refresh
             </Button>
+            <Button variant="outline" size="sm" onClick={exportCSV} disabled={!filtered.length}>
+              <Download className="h-4 w-4" /> CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportPDF} disabled={!filtered.length}>
+              <FileText className="h-4 w-4" /> PDF
+            </Button>
           </div>
+
           <p className="mt-2 text-xs text-muted-foreground">
             Automatic audit trail for Hero Slides, Blog articles and QA Reports. Showing latest 300 events.
           </p>
