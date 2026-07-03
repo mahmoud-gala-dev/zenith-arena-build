@@ -19,10 +19,12 @@ interface AuditRow {
   actor_email: string | null;
   table_name: string;
   record_id: string | null;
-  action: "INSERT" | "UPDATE" | "DELETE";
-  changed_fields: string[] | null;
-  old_data: Record<string, unknown> | null;
-  new_data: Record<string, unknown> | null;
+  action: string;
+  changes: {
+    changed_fields?: string[];
+    old?: Record<string, unknown> | null;
+    new?: Record<string, unknown> | null;
+  } | null;
 }
 
 const TABLES = ["all", "hero_slides", "blog_posts", "qa_reports"] as const;
