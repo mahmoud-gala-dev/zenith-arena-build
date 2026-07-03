@@ -58,11 +58,9 @@ export function Footer() {
                 <MapPin className="h-4 w-4 text-primary" /> Riyadh · Dubai · Doha
               </p>
               <p className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-primary" /> +966 5X XXX XXXX
+                <Mail className="h-4 w-4 text-primary" /> hello@egyticsports.com
               </p>
-              <p className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-primary" /> hello@apexsports.co
-              </p>
+
             </div>
             <div className="mt-6 flex flex-wrap gap-2">
               {socialLinks.map(({ name, href, Icon }) => (
