@@ -8,7 +8,8 @@ export function ServiceCard({ service }: { service: Service }) {
   const L = useLocalized();
   const { t } = useLang();
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant">
+    <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant focus-within:-translate-y-1 focus-within:shadow-elegant motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:focus-within:translate-y-0">
+
       <div className="relative aspect-[16/10] overflow-hidden">
         <img
           src={service.image}
@@ -54,7 +55,7 @@ export function ProjectCard({ project }: { project: Project }) {
     <Link
       to="/projects/$slug"
       params={{ slug: project.slug }}
-      className="group relative block overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant"
+      className="group relative block overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant focus-visible:-translate-y-1 focus-visible:shadow-elegant motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:focus-visible:translate-y-0"
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
@@ -90,7 +91,7 @@ export function ArticleCard({ article }: { article: Article }) {
     <Link
       to="/knowledge/$slug"
       params={{ slug: article.slug }}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant focus-visible:-translate-y-1 focus-visible:shadow-elegant motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:focus-visible:translate-y-0"
     >
       <div className="relative aspect-[16/9] overflow-hidden">
         <img
