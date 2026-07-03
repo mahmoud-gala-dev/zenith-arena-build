@@ -168,8 +168,21 @@ function ServicesPage() {
               <option value="">{copy.all}</option>
               {cats.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
+            <label htmlFor="services-sort" className="sr-only">{copy.sort}</label>
+            <select
+              id="services-sort"
+              value={sort}
+              onChange={(e) => setSearch({ sort: (e.target.value as SortKey) || undefined, page: undefined })}
+              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              aria-label={copy.sort}
+            >
+              {SORT_KEYS.map((k) => (
+                <option key={k} value={k}>{copy.sortLabels[k]}</option>
+              ))}
+            </select>
             {hasFilters && (
-              <Button type="button" variant="ghost" size="sm" onClick={() => { setQLocal(""); setSearch({ q: undefined, category: undefined, page: undefined }); }}>
+              <Button type="button" variant="ghost" size="sm" onClick={() => { setQLocal(""); setSearch({ q: undefined, category: undefined, sort: undefined, page: undefined }); }}>
+
                 <X className="h-4 w-4" /> {copy.clear}
               </Button>
             )}
