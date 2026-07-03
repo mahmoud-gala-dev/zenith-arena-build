@@ -150,8 +150,10 @@ export const servicesPageQueryOptions = (params: ServicesPageParams) => {
   const pageSize = Math.min(48, Math.max(1, params.pageSize ?? 9));
   const q = (params.q ?? "").trim();
   const category = (params.category ?? "").trim();
+  const sort: ServicesSort = params.sort ?? "featured";
+  const lang: "en" | "ar" = params.lang === "ar" ? "ar" : "en";
   return queryOptions<ServicesPage>({
-    queryKey: ["services", "page", { q, category, page, pageSize }],
+    queryKey: ["services", "page", { q, category, page, pageSize, sort, lang }],
     staleTime: FIVE_MIN,
     gcTime: HALF_HOUR,
     placeholderData: keepPreviousData,
@@ -161,9 +163,7 @@ export const servicesPageQueryOptions = (params: ServicesPageParams) => {
       let query = supabase
         .from("services")
         .select("*", { count: "exact" })
-        .eq("status", "published")
-        .order("sort_order", { ascending: true })
-        .range(from, to);
+        .eq("status", "published");
       if (category) query = query.eq("category", category);
       if (q) {
         const escaped = q.replace(/[%,()]/g, " ").replace(/\s+/g, " ").trim();
@@ -178,6 +178,9 @@ export const servicesPageQueryOptions = (params: ServicesPageParams) => {
           ].join(","),
         );
       }
+      // Apply sort AFTER filters, then range last.
+      query = applySort(query as unknown as { order: (...a: unknown[]) => typeof query }, sort, lang) as typeof query;
+      query = query.range(from, to);
       const { data: rows, error, count } = await query;
       if (error) throw error;
       return {
@@ -189,6 +192,7 @@ export const servicesPageQueryOptions = (params: ServicesPageParams) => {
     },
   });
 };
+
 
 export function useServicesPage(params: ServicesPageParams) {
   const q = useQuery(servicesPageQueryOptions(params));
