@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type ComponentProps, type ElementType, type ReactNode, type JSX } from "react";
+import { useMemo, useRef, useState, type ElementType, type ReactNode, type JSX } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -8,9 +8,8 @@ import { cn } from "@/lib/utils";
  */
 export type RevealDirection = "up" | "down" | "left" | "right" | "none";
 
-type MotionComponent = ReturnType<typeof motion.create>;
-const motionCache = new Map<ElementType, MotionComponent>();
-function getMotionComponent(Tag: ElementType): MotionComponent {
+const motionCache = new Map<ElementType, ReturnType<typeof motion.create>>();
+function getMotionComponent(Tag: ElementType) {
   let cached = motionCache.get(Tag);
   if (!cached) {
     cached = motion.create(Tag as never);
@@ -63,21 +62,26 @@ export function Reveal({
     ? { opacity: 1 }
     : { opacity: 1, x: 0, y: 0, filter: "blur(0px)", scale: 1 };
 
-  // Drop will-change after the reveal completes so the compositor layer is released.
-  const motionProps: ComponentProps<MotionComponent> = {
-    ref: ref as never,
-    id,
-    className: cn(className),
-    initial,
-    animate: inView ? animate : initial,
-    transition: {
-      duration: reduce ? 0.3 : (duration ?? 0.7),
-      delay: (delay || 0) / 1000,
-      ease: [0.22, 1, 0.36, 1],
-    },
-    style: settled ? undefined : { willChange: "transform, opacity, filter" },
-    onAnimationComplete: () => setSettled(true),
-  };
+  // Cast keeps types loose across arbitrary intrinsic tags while preserving runtime correctness.
+  const Tagged = MotionTag as unknown as React.ComponentType<Record<string, unknown>>;
 
-  return <MotionTag {...motionProps}>{children}</MotionTag>;
+  return (
+    <Tagged
+      ref={ref as unknown as React.Ref<HTMLElement>}
+      id={id}
+      className={cn(className)}
+      initial={initial}
+      animate={inView ? animate : initial}
+      transition={{
+        duration: reduce ? 0.3 : (duration ?? 0.7),
+        delay: (delay || 0) / 1000,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      // Drop will-change after the reveal settles so the compositor layer is released.
+      style={settled ? undefined : { willChange: "transform, opacity, filter" }}
+      onAnimationComplete={() => setSettled(true)}
+    >
+      {children}
+    </Tagged>
+  );
 }

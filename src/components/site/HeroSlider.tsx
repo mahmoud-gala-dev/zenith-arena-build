@@ -14,9 +14,9 @@ import { trackEvent } from "@/lib/analytics";
 type Slide = Database["public"]["Tables"]["hero_slides"]["Row"];
 
 type HeroAnim = {
-  initial: Record<string, number>;
-  animate: Record<string, number>;
-  exit: Record<string, number>;
+  initial: Record<string, number | undefined>;
+  animate: Record<string, number | undefined>;
+  exit: Record<string, number | undefined>;
   transition: { duration: number; ease?: "easeOut" };
 };
 
