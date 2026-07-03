@@ -47,6 +47,7 @@ export const Route = createFileRoute("/")({
   loader: ({ context: { queryClient } }) => {
     void queryClient.ensureQueryData(heroSlidesActiveQueryOptions);
     void queryClient.ensureQueryData(homeClientsQueryOptions);
+    void queryClient.ensureQueryData(servicesPublishedQueryOptions);
   },
   head: () => ({
     meta: [
