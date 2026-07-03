@@ -62,7 +62,7 @@ function AuditLogsPage() {
     const needle = q.trim().toLowerCase();
     if (!needle) return rows;
     return rows.filter((r) =>
-      [r.actor_email, r.table_name, r.record_id, (r.changed_fields ?? []).join(",")]
+      [r.actor_email, r.table_name, r.record_id, (r.changes?.changed_fields ?? []).join(",")]
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(needle)),
     );
@@ -126,7 +126,7 @@ function AuditLogsPage() {
                         <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", actionTone(r.action))}>{r.action}</span>
                       </td>
                       <td className="px-3 py-2 text-xs text-muted-foreground">
-                        {r.changed_fields?.length ? r.changed_fields.slice(0, 4).join(", ") + (r.changed_fields.length > 4 ? "…" : "") : "—"}
+                        {r.changes?.changed_fields?.length ? r.changes?.changed_fields.slice(0, 4).join(", ") + (r.changes?.changed_fields.length > 4 ? "…" : "") : "—"}
                       </td>
                     </tr>
                     {isOpen && (
@@ -135,11 +135,11 @@ function AuditLogsPage() {
                           <div className="grid gap-3 md:grid-cols-2">
                             <div>
                               <div className="mb-1 text-xs font-semibold text-muted-foreground">Before</div>
-                              <pre className="max-h-72 overflow-auto rounded bg-background p-2 text-xs">{JSON.stringify(r.old_data ?? {}, null, 2)}</pre>
+                              <pre className="max-h-72 overflow-auto rounded bg-background p-2 text-xs">{JSON.stringify(r.changes?.old ?? {}, null, 2)}</pre>
                             </div>
                             <div>
                               <div className="mb-1 text-xs font-semibold text-muted-foreground">After</div>
-                              <pre className="max-h-72 overflow-auto rounded bg-background p-2 text-xs">{JSON.stringify(r.new_data ?? {}, null, 2)}</pre>
+                              <pre className="max-h-72 overflow-auto rounded bg-background p-2 text-xs">{JSON.stringify(r.changes?.new ?? {}, null, 2)}</pre>
                             </div>
                           </div>
                           <p className="mt-2 text-xs text-muted-foreground">Record id: <span className="font-mono">{r.record_id}</span></p>
