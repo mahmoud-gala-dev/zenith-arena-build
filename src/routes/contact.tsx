@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
+import { submitLead } from "@/lib/leads.functions";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MapPin, Phone, Clock, CheckCircle2, MessageCircle } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
