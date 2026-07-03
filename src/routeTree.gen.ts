@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SitemapEnDotxmlRouteImport } from './routes/sitemap-en[.]xml'
+import { Route as SitemapArDotxmlRouteImport } from './routes/sitemap-ar[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as QuoteRouteImport } from './routes/quote'
 import { Route as ProjectsRouteImport } from './routes/projects'
@@ -75,6 +76,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const SitemapEnDotxmlRoute = SitemapEnDotxmlRouteImport.update({
   id: '/sitemap-en.xml',
   path: '/sitemap-en.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapArDotxmlRoute = SitemapArDotxmlRouteImport.update({
+  id: '/sitemap-ar.xml',
+  path: '/sitemap-ar.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServicesRoute = ServicesRouteImport.update({
@@ -354,6 +360,7 @@ export interface FileRoutesByFullPath {
   '/projects': typeof ProjectsRouteWithChildren
   '/quote': typeof QuoteRoute
   '/services': typeof ServicesRouteWithChildren
+  '/sitemap-ar.xml': typeof SitemapArDotxmlRoute
   '/sitemap-en.xml': typeof SitemapEnDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -403,6 +410,7 @@ export interface FileRoutesByTo {
   '/gallery': typeof GalleryRoute
   '/privacy': typeof PrivacyRoute
   '/quote': typeof QuoteRoute
+  '/sitemap-ar.xml': typeof SitemapArDotxmlRoute
   '/sitemap-en.xml': typeof SitemapEnDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -457,6 +465,7 @@ export interface FileRoutesById {
   '/projects': typeof ProjectsRouteWithChildren
   '/quote': typeof QuoteRoute
   '/services': typeof ServicesRouteWithChildren
+  '/sitemap-ar.xml': typeof SitemapArDotxmlRoute
   '/sitemap-en.xml': typeof SitemapEnDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -512,6 +521,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/quote'
     | '/services'
+    | '/sitemap-ar.xml'
     | '/sitemap-en.xml'
     | '/sitemap.xml'
     | '/terms'
@@ -561,6 +571,7 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/privacy'
     | '/quote'
+    | '/sitemap-ar.xml'
     | '/sitemap-en.xml'
     | '/sitemap.xml'
     | '/terms'
@@ -614,6 +625,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/quote'
     | '/services'
+    | '/sitemap-ar.xml'
     | '/sitemap-en.xml'
     | '/sitemap.xml'
     | '/terms'
@@ -669,6 +681,7 @@ export interface RootRouteChildren {
   ProjectsRoute: typeof ProjectsRouteWithChildren
   QuoteRoute: typeof QuoteRoute
   ServicesRoute: typeof ServicesRouteWithChildren
+  SitemapArDotxmlRoute: typeof SitemapArDotxmlRoute
   SitemapEnDotxmlRoute: typeof SitemapEnDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
@@ -696,6 +709,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap-en.xml'
       fullPath: '/sitemap-en.xml'
       preLoaderRoute: typeof SitemapEnDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-ar.xml': {
+      id: '/sitemap-ar.xml'
+      path: '/sitemap-ar.xml'
+      fullPath: '/sitemap-ar.xml'
+      preLoaderRoute: typeof SitemapArDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/services': {
@@ -1182,6 +1202,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsRoute: ProjectsRouteWithChildren,
   QuoteRoute: QuoteRoute,
   ServicesRoute: ServicesRouteWithChildren,
+  SitemapArDotxmlRoute: SitemapArDotxmlRoute,
   SitemapEnDotxmlRoute: SitemapEnDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
