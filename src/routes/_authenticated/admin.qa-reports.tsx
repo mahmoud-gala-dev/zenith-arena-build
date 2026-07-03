@@ -233,9 +233,10 @@ function QaReportsPage() {
       newId = (insertRes.data as { id: string } | null)?.id ?? null;
       // Persist buffered media rows
       if (newId && editingMedia.length) {
+        const rid = newId;
         const bufferedRows = editingMedia
           .filter((m) => m.id.startsWith("tmp-"))
-          .map((m, idx) => ({ report_id: newId, media_url: m.media_url, caption: m.caption, sort_order: idx }));
+          .map((m, idx) => ({ report_id: rid, media_url: m.media_url, caption: m.caption, sort_order: idx }));
         if (bufferedRows.length) {
           await supabase.from("qa_report_media").insert(bufferedRows);
         }
