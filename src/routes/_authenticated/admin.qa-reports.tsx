@@ -1,8 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, ExternalLink, Gauge, RefreshCw } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { AlertCircle, CheckCircle2, ExternalLink, Gauge, Loader2, Pencil, Plus, RefreshCw, Trash2, Upload } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +33,36 @@ interface Report {
   notes: string | null;
 }
 
+type FormState = {
+  viewport: string;
+  page: string;
+  lcp_ms: string;
+  cls: string;
+  wa_overlap: boolean;
+  more_opened: boolean;
+  branch: string;
+  commit_sha: string;
+  screenshot_url: string;
+  notes: string;
+  run_at: string;
+};
+
+const emptyForm = (): FormState => ({
+  viewport: "iphone-15",
+  page: "/",
+  lcp_ms: "",
+  cls: "",
+  wa_overlap: false,
+  more_opened: true,
+  branch: "main",
+  commit_sha: "",
+  screenshot_url: "",
+  notes: "",
+  run_at: new Date().toISOString().slice(0, 16),
+});
+
+const VIEWPORTS = ["iphone-15", "iphone-se", "pixel-8", "ipad", "desktop-1280", "desktop-1920"];
+
 function tone(lcp: number | null, cls: number | null, overlap: boolean | null) {
   if (overlap) return "fail";
   if ((lcp ?? 0) > 2500 || (cls ?? 0) > 0.1) return "warn";
@@ -34,6 +72,13 @@ function tone(lcp: number | null, cls: number | null, overlap: boolean | null) {
 function QaReportsPage() {
   const [rows, setRows] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
+  const [canWrite, setCanWrite] = useState(false);
+  const [editing, setEditing] = useState<FormState | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   async function load() {
     setLoading(true);
@@ -46,9 +91,94 @@ function QaReportsPage() {
     setLoading(false);
   }
 
-  useEffect(() => { load(); }, []);
+  async function checkStaff() {
+    const { data: u } = await supabase.auth.getUser();
+    if (!u.user) return;
+    const { data } = await supabase.rpc("is_staff", { _user_id: u.user.id });
+    setCanWrite(Boolean(data));
+  }
 
-  // Group by run_at (rounded to minute) + commit
+  useEffect(() => { load(); checkStaff(); }, []);
+
+  function startNew() {
+    setEditingId(null);
+    setEditing(emptyForm());
+  }
+  function startEdit(r: Report) {
+    setEditingId(r.id);
+    setEditing({
+      viewport: r.viewport,
+      page: r.page,
+      lcp_ms: r.lcp_ms?.toString() ?? "",
+      cls: r.cls?.toString() ?? "",
+      wa_overlap: Boolean(r.wa_overlap),
+      more_opened: r.more_opened ?? true,
+      branch: r.branch ?? "main",
+      commit_sha: r.commit_sha ?? "",
+      screenshot_url: r.screenshot_url ?? "",
+      notes: r.notes ?? "",
+      run_at: new Date(r.run_at).toISOString().slice(0, 16),
+    });
+  }
+
+  async function uploadScreenshot(file: File) {
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() ?? "png";
+      const path = `qa-reports/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from("media").upload(path, file, { upsert: false, contentType: file.type });
+      if (error) throw error;
+      const { data } = supabase.storage.from("media").getPublicUrl(path);
+      setEditing((e) => (e ? { ...e, screenshot_url: data.publicUrl } : e));
+      toast.success("Screenshot uploaded");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function save() {
+    if (!editing) return;
+    if (!editing.viewport.trim() || !editing.page.trim()) {
+      return toast.error("Viewport and page are required");
+    }
+    setSaving(true);
+    const payload = {
+      viewport: editing.viewport.trim(),
+      page: editing.page.trim(),
+      lcp_ms: editing.lcp_ms ? Math.round(Number(editing.lcp_ms)) : null,
+      cls: editing.cls ? Number(editing.cls) : null,
+      wa_overlap: editing.wa_overlap,
+      more_opened: editing.more_opened,
+      branch: editing.branch.trim() || null,
+      commit_sha: editing.commit_sha.trim() || null,
+      screenshot_url: editing.screenshot_url.trim() || null,
+      notes: editing.notes.trim() || null,
+      run_at: new Date(editing.run_at).toISOString(),
+    };
+    const res = editingId
+      ? await supabase.from("qa_reports").update(payload).eq("id", editingId)
+      : await supabase.from("qa_reports").insert(payload);
+    setSaving(false);
+    if (res.error) return toast.error(res.error.message);
+    toast.success(editingId ? "Report updated" : "Report added");
+    setEditing(null); setEditingId(null);
+    load();
+  }
+
+  async function remove() {
+    if (!deleteId) return;
+    const { error } = await supabase.from("qa_reports").delete().eq("id", deleteId);
+    if (error) return toast.error(error.message);
+    toast.success("Deleted");
+    setDeleteId(null);
+    load();
+  }
+
+  const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
+    setEditing((e) => (e ? { ...e, [k]: v } : e));
+
   const runs = new Map<string, Report[]>();
   rows.forEach((r) => {
     const key = `${r.run_at.slice(0, 16)}::${r.commit_sha ?? "local"}`;
@@ -67,20 +197,32 @@ function QaReportsPage() {
                 Playwright + Web Vitals history
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Uploaded by CI on every release across iPhone, Android, tablet and desktop. Rows flag when
-                WhatsApp overlaps the tab bar (blocking release) or LCP/CLS breach the "Good" threshold.
+                Log manual QA runs or let CI push here. Rows flag when WhatsApp overlaps the tab bar
+                (blocking release) or LCP/CLS breach the "Good" threshold.
               </p>
+              {!canWrite && (
+                <p className="mt-2 text-xs text-amber-700 dark:text-amber-400">
+                  Read-only — only staff can add or edit reports.
+                </p>
+              )}
             </div>
-            <Button variant="outline" size="sm" onClick={load} disabled={loading} className="shrink-0">
-              <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
-              Refresh
-            </Button>
+            <div className="flex shrink-0 items-center gap-2">
+              <Button variant="outline" size="sm" onClick={load} disabled={loading}>
+                <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+                Refresh
+              </Button>
+              {canWrite && (
+                <Button size="sm" onClick={startNew}>
+                  <Plus className="mr-1 h-4 w-4" /> New report
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
         {runs.size === 0 && !loading && (
           <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
-            No QA runs yet. CI will populate this page after the next release build.
+            No QA runs yet. {canWrite ? 'Click "New report" to add your first entry.' : "CI will populate this page after the next release build."}
           </div>
         )}
 
@@ -123,7 +265,7 @@ function QaReportsPage() {
               </header>
 
               <div className="mt-4 overflow-x-auto">
-                <table className="w-full min-w-[640px] text-sm">
+                <table className="w-full min-w-[720px] text-sm">
                   <thead>
                     <tr className="text-start text-xs uppercase text-muted-foreground">
                       <th className="pb-2 text-start font-medium">Viewport</th>
@@ -132,6 +274,7 @@ function QaReportsPage() {
                       <th className="pb-2 text-end font-medium">CLS</th>
                       <th className="pb-2 text-center font-medium">WA / More</th>
                       <th className="pb-2 text-end font-medium">Shot</th>
+                      {canWrite && <th className="pb-2 text-end font-medium">Actions</th>}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -178,6 +321,18 @@ function QaReportsPage() {
                               <span className="text-xs text-muted-foreground">—</span>
                             )}
                           </td>
+                          {canWrite && (
+                            <td className="py-2 text-end">
+                              <div className="inline-flex gap-1">
+                                <Button size="icon" variant="ghost" onClick={() => startEdit(r)}>
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button size="icon" variant="ghost" onClick={() => setDeleteId(r.id)}>
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </div>
+                            </td>
+                          )}
                         </tr>
                       );
                     })}
@@ -188,6 +343,114 @@ function QaReportsPage() {
           );
         })}
       </div>
+
+      <Dialog open={!!editing} onOpenChange={(o) => !o && (setEditing(null), setEditingId(null))}>
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+          <DialogHeader><DialogTitle>{editingId ? "Edit QA report" : "New QA report"}</DialogTitle></DialogHeader>
+          {editing && (
+            <div className="grid gap-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Viewport *</Label>
+                  <Select value={editing.viewport} onValueChange={(v) => set("viewport", v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {VIEWPORTS.map((v) => <SelectItem key={v} value={v}>{v}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Page *</Label>
+                  <Input placeholder="/" value={editing.page} onChange={(e) => set("page", e.target.value)} />
+                </div>
+                <div>
+                  <Label>LCP (ms)</Label>
+                  <Input type="number" placeholder="2100" value={editing.lcp_ms} onChange={(e) => set("lcp_ms", e.target.value)} />
+                </div>
+                <div>
+                  <Label>CLS</Label>
+                  <Input type="number" step="0.001" placeholder="0.05" value={editing.cls} onChange={(e) => set("cls", e.target.value)} />
+                </div>
+                <div>
+                  <Label>Branch</Label>
+                  <Input placeholder="main" value={editing.branch} onChange={(e) => set("branch", e.target.value)} />
+                </div>
+                <div>
+                  <Label>Commit SHA</Label>
+                  <Input placeholder="a1b2c3d" value={editing.commit_sha} onChange={(e) => set("commit_sha", e.target.value)} />
+                </div>
+                <div>
+                  <Label>Run at</Label>
+                  <Input type="datetime-local" value={editing.run_at} onChange={(e) => set("run_at", e.target.value)} />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-col justify-end">
+                    <Label className="mb-2 text-xs">WhatsApp overlap</Label>
+                    <Switch checked={editing.wa_overlap} onCheckedChange={(v) => set("wa_overlap", v)} />
+                  </div>
+                  <div className="flex flex-col justify-end">
+                    <Label className="mb-2 text-xs">"More" opens</Label>
+                    <Switch checked={editing.more_opened} onCheckedChange={(v) => set("more_opened", v)} />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <Label>Screenshot</Label>
+                <div className="mt-2 flex items-start gap-3">
+                  {editing.screenshot_url ? (
+                    <img src={editing.screenshot_url} alt="" className="h-24 w-40 rounded object-cover ring-1 ring-border" />
+                  ) : (
+                    <div className="flex h-24 w-40 items-center justify-center rounded border border-dashed text-xs text-muted-foreground">no image</div>
+                  )}
+                  <div className="flex flex-col gap-2">
+                    <input
+                      ref={fileRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => e.target.files?.[0] && uploadScreenshot(e.target.files[0])}
+                    />
+                    <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                      {uploading ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Upload className="mr-1 h-4 w-4" />}
+                      {uploading ? "Uploading…" : "Upload"}
+                    </Button>
+                    {editing.screenshot_url && (
+                      <Button variant="ghost" size="sm" onClick={() => set("screenshot_url", "")}>Remove</Button>
+                    )}
+                  </div>
+                </div>
+                <Input className="mt-2" placeholder="…or paste image URL" value={editing.screenshot_url} onChange={(e) => set("screenshot_url", e.target.value)} />
+              </div>
+
+              <div>
+                <Label>Notes</Label>
+                <Textarea rows={3} value={editing.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Any context: device, network throttling, reproduction steps…" />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setEditing(null); setEditingId(null); }}>Cancel</Button>
+            <Button onClick={save} disabled={saving || uploading}>
+              {saving && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+              {editingId ? "Save" : "Create"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this report?</AlertDialogTitle>
+            <AlertDialogDescription>This cannot be undone.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={remove} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminShell>
   );
 }
