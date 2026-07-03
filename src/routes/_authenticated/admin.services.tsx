@@ -51,6 +51,9 @@ type ServiceRow = {
   alt_en: string | null;
   alt_ar: string | null;
   gallery_images: string[];
+  faqs: ServiceFaq[];
+  og_image_ar: string | null;
+  og_image_ar_variants: ImageVariantsManifest | null;
   seo_title_en: string | null;
   seo_title_ar: string | null;
   seo_description_en: string | null;
@@ -69,10 +72,13 @@ const EMPTY: ServiceRow = {
   cover_image_variants: null, header_image_variants: null, og_image_variants: null,
   alt_en: "", alt_ar: "",
   gallery_images: [],
+  faqs: [],
+  og_image_ar: "", og_image_ar_variants: null,
   seo_title_en: "", seo_title_ar: "",
   seo_description_en: "", seo_description_ar: "",
   status: "published", featured: false, sort_order: 0,
 };
+
 
 
 function toArray(g: unknown): string[] {
