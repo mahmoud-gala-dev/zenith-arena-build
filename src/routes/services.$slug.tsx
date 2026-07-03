@@ -35,11 +35,24 @@ export const Route = createFileRoute("/services/$slug")({
     const titleAr = s.seo_title_ar || `${s.title_ar ?? s.title_en} — إيجيتك سبورتس`;
     const descEn = s.seo_description_en || s.description_en || "Turnkey sports construction services by Egytic Sports.";
     const descAr = s.seo_description_ar || s.description_ar || descEn;
-    const ogEn = s.og_image || s.header_image || s.cover_image || undefined;
-    const ogAr = s.og_image_ar || ogEn;
     const altEn = s.alt_en || s.title_en;
     const altAr = s.alt_ar || s.title_ar || s.title_en;
     const arUrl = `${canonical}?lang=ar`;
+
+    // Deterministic per-language og:image with layered fallbacks so social previews
+    // never show a broken URL: language-specific og → shared og → header → cover → site hero.
+    const SITE_FALLBACK = `${SITE_URL}/og-default.jpg`;
+    const enChain = [s.og_image, s.header_image, s.cover_image, SITE_FALLBACK];
+    const arChain = [s.og_image_ar, s.og_image, s.header_image, s.cover_image, SITE_FALLBACK];
+    const pick = (chain: (string | null | undefined)[]) => chain.find((v) => typeof v === "string" && v.trim().length > 0) as string;
+    const ogEn = pick(enChain);
+    const ogAr = pick(arChain);
+    // Emit ONE og:image (meta dedupes by property) — the English one is primary;
+    // Arabic browsers reach the AR variant through the ?lang=ar canonical which
+    // renders its own head with ogAr promoted below.
+    const primaryOg = ogEn;
+    const primaryAlt = altEn;
+
     const serviceLd = {
       "@context": "https://schema.org",
       "@type": "Service",
@@ -48,7 +61,7 @@ export const Route = createFileRoute("/services/$slug")({
       description: descEn,
       serviceType: s.category ?? "Sports Construction",
       url: canonical,
-      image: ogEn ? [ogEn] : undefined,
+      image: [ogEn, ogAr].filter((v, i, a) => v && a.indexOf(v) === i),
       areaServed: { "@type": "Country", name: "Egypt" },
       provider: { "@type": "Organization", name: "Egytic Sports", url: SITE_URL },
     };
@@ -93,23 +106,13 @@ export const Route = createFileRoute("/services/$slug")({
         { property: "og:description", content: descEn },
         { property: "og:locale", content: "en_US" },
         { property: "og:locale:alternate", content: "ar_EG" },
-        ...(ogEn
-          ? [
-              { property: "og:image", content: ogEn },
-              { property: "og:image:alt", content: altEn },
-              { name: "twitter:image", content: ogEn },
-              { name: "twitter:image:alt", content: altEn },
-            ]
-          : []),
-        ...(ogAr && ogAr !== ogEn
-          ? [
-              { property: "og:image", content: ogAr },
-              { property: "og:image:alt", content: altAr },
-            ]
-          : []),
+        { property: "og:image", content: primaryOg },
+        { property: "og:image:alt", content: primaryAlt },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: titleEn },
         { name: "twitter:description", content: descEn },
+        { name: "twitter:image", content: primaryOg },
+        { name: "twitter:image:alt", content: primaryAlt },
       ],
       links: [
         { rel: "canonical", href: canonical },
@@ -124,6 +127,7 @@ export const Route = createFileRoute("/services/$slug")({
       ],
     };
   },
+
   component: ServiceDetailPage,
 });
 
