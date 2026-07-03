@@ -90,17 +90,28 @@ export const homeClientsQueryOptions = queryOptions<HomeClient[]>({
   },
 });
 
-export const heroSlidesActiveQueryOptions = queryOptions<HeroSlide[]>({
-  queryKey: ["hero_slides", "active"],
-  staleTime: HALF_HOUR,
-  gcTime: ONE_HOUR,
-  queryFn: async () => {
-    const { data, error } = await supabase
-      .from("hero_slides")
-      .select("*")
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true });
-    if (error) throw error;
-    return (data ?? []) as HeroSlide[];
-  },
-});
+export const heroSlidesActiveQueryOptions = (locale: "en" | "ar" = "en") =>
+  queryOptions<HeroSlide[]>({
+    queryKey: ["hero_slides", "active", locale],
+    staleTime: HALF_HOUR,
+    gcTime: ONE_HOUR,
+    queryFn: async () => {
+      const nowIso = new Date().toISOString();
+      const { data, error } = await supabase
+        .from("hero_slides")
+        .select("*")
+        .eq("is_active", true)
+        .eq("status", "published")
+        .or(`scheduled_at.is.null,scheduled_at.lte.${nowIso}`);
+      if (error) throw error;
+      const rows = (data ?? []) as HeroSlide[];
+      // Order per-locale: fall back to global sort_order when locale-specific order is missing.
+      const orderKey = locale === "ar" ? "sort_order_ar" : "sort_order";
+      return rows.slice().sort((a, b) => {
+        const av = (a as Record<string, unknown>)[orderKey] as number | null ?? a.sort_order ?? 0;
+        const bv = (b as Record<string, unknown>)[orderKey] as number | null ?? b.sort_order ?? 0;
+        return (av ?? 0) - (bv ?? 0);
+      });
+    },
+  });
+
