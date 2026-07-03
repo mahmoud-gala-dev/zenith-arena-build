@@ -136,8 +136,7 @@ function ContactPage() {
           <div className="space-y-5 lg:col-span-1">
             {[
               { icon: MapPin, label: t.contact.office, value: "Riyadh · Dubai · Doha" },
-              { icon: Phone, label: t.contact.phone, value: "+966 5X XXX XXXX" },
-              { icon: Mail, label: t.contact.email, value: "hello@apexsports.co" },
+              { icon: Mail, label: t.contact.email, value: "hello@egyticsports.com" },
               { icon: Clock, label: t.contact.hours, value: t.contact.hours },
             ].map((c, i) => (
               <div key={i} className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft">
@@ -150,14 +149,16 @@ function ContactPage() {
                 </div>
               </div>
             ))}
-            <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-primary px-5 py-4 font-semibold text-primary-foreground shadow-soft"
-            >
-              <MessageCircle className="h-5 w-5" />
-              {t.cta.whatsapp}
+            {WHATSAPP_NUMBER ? (
+              <a
+                href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-primary px-5 py-4 font-semibold text-primary-foreground shadow-soft"
+              >
+                <MessageCircle className="h-5 w-5" />
+                {t.cta.whatsapp}
+
             </a>
           </div>
 
