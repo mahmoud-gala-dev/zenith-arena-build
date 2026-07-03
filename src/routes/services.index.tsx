@@ -21,7 +21,10 @@ import { ResponsiveImage } from "@/components/site/ResponsiveImage";
 const SITE_URL = "https://zenith-arena-build.lovable.app";
 const DEFAULT_PAGE_SIZE = 9;
 
-type Search = { q?: string; category?: string; page?: number; lang?: "en" | "ar" };
+type SortKey = "featured" | "newest" | "oldest" | "az" | "za";
+type Search = { q?: string; category?: string; page?: number; lang?: "en" | "ar"; sort?: SortKey };
+
+const SORT_KEYS: readonly SortKey[] = ["featured", "newest", "oldest", "az", "za"] as const;
 
 export const Route = createFileRoute("/services/")({
   validateSearch: (raw: Record<string, unknown>): Search => {
@@ -30,16 +33,18 @@ export const Route = createFileRoute("/services/")({
     const pageN = typeof raw.page === "number" ? raw.page : typeof raw.page === "string" ? Number(raw.page) : undefined;
     const page = Number.isFinite(pageN) && (pageN as number) > 1 ? Math.floor(pageN as number) : undefined;
     const lang = raw.lang === "ar" || raw.lang === "en" ? raw.lang : undefined;
-    return { q, category, page, lang };
+    const sort = typeof raw.sort === "string" && (SORT_KEYS as readonly string[]).includes(raw.sort) ? (raw.sort as SortKey) : undefined;
+    return { q, category, page, lang, sort };
   },
-  loaderDeps: ({ search }) => ({ q: search.q, category: search.category, page: search.page }),
+  loaderDeps: ({ search }) => ({ q: search.q, category: search.category, page: search.page, sort: search.sort, lang: search.lang }),
   loader: ({ context: { queryClient }, deps }) => {
     void queryClient.ensureQueryData(
-      servicesPageQueryOptions({ q: deps.q, category: deps.category, page: deps.page ?? 1, pageSize: DEFAULT_PAGE_SIZE }),
+      servicesPageQueryOptions({ q: deps.q, category: deps.category, page: deps.page ?? 1, pageSize: DEFAULT_PAGE_SIZE, sort: deps.sort, lang: deps.lang }),
     );
     void queryClient.ensureQueryData(servicesCategoriesQueryOptions);
   },
   component: ServicesPage,
+
   head: () => ({
     meta: [
       { title: "Sports Construction Services — Egytic Sports" },
@@ -83,11 +88,14 @@ function ServicesPage() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const page = search.page ?? 1;
+  const sort: SortKey = search.sort ?? "featured";
   const { data, loading, fetching } = useServicesPage({
     q: search.q,
     category: search.category,
     page,
     pageSize: DEFAULT_PAGE_SIZE,
+    sort,
+    lang,
   });
   const cats = useQuery(servicesCategoriesQueryOptions).data ?? [];
   const total = data?.total ?? 0;
@@ -98,7 +106,8 @@ function ServicesPage() {
   useEffect(() => { setQLocal(search.q ?? ""); }, [search.q]);
 
   const rows = data?.rows ?? [];
-  const hasFilters = Boolean(search.q || search.category);
+  const hasFilters = Boolean(search.q || search.category || search.sort);
+
 
   const setSearch = (next: Partial<Search>) => {
     navigate({
@@ -106,12 +115,14 @@ function ServicesPage() {
         const merged: Search = { ...prev, ...next };
         if (!merged.q) delete merged.q;
         if (!merged.category) delete merged.category;
+        if (!merged.sort || merged.sort === "featured") delete merged.sort;
         if (!merged.page || merged.page < 2) delete merged.page;
         return merged;
       },
       replace: true,
     });
   };
+
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,10 +131,13 @@ function ServicesPage() {
 
   const copy = useMemo(
     () => ar
-      ? { searchPh: "ابحث في الخدمات...", all: "كل الفئات", results: (n: number) => `${n} خدمة`, empty: "لا توجد نتائج مطابقة.", clear: "مسح", prev: "السابق", next: "التالي", pageOf: (a: number, b: number) => `صفحة ${a} من ${b}`, view: "تفاصيل الخدمة" }
-      : { searchPh: "Search services...", all: "All categories", results: (n: number) => `${n} services`, empty: "No matching services.", clear: "Clear", prev: "Previous", next: "Next", pageOf: (a: number, b: number) => `Page ${a} of ${b}`, view: "View service" },
+      ? { searchPh: "ابحث في الخدمات...", all: "كل الفئات", results: (n: number) => `${n} خدمة`, empty: "لا توجد نتائج مطابقة.", clear: "مسح", prev: "السابق", next: "التالي", pageOf: (a: number, b: number) => `صفحة ${a} من ${b}`, view: "تفاصيل الخدمة",
+          sort: "ترتيب", sortLabels: { featured: "المميزة أولاً", newest: "الأحدث", oldest: "الأقدم", az: "أ إلى ي", za: "ي إلى أ" } as Record<SortKey, string> }
+      : { searchPh: "Search services...", all: "All categories", results: (n: number) => `${n} services`, empty: "No matching services.", clear: "Clear", prev: "Previous", next: "Next", pageOf: (a: number, b: number) => `Page ${a} of ${b}`, view: "View service",
+          sort: "Sort", sortLabels: { featured: "Featured", newest: "Newest", oldest: "Oldest", az: "A – Z", za: "Z – A" } as Record<SortKey, string> },
     [ar],
   );
+
 
   return (
     <SiteLayout>
@@ -154,8 +168,21 @@ function ServicesPage() {
               <option value="">{copy.all}</option>
               {cats.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
+            <label htmlFor="services-sort" className="sr-only">{copy.sort}</label>
+            <select
+              id="services-sort"
+              value={sort}
+              onChange={(e) => setSearch({ sort: (e.target.value as SortKey) || undefined, page: undefined })}
+              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              aria-label={copy.sort}
+            >
+              {SORT_KEYS.map((k) => (
+                <option key={k} value={k}>{copy.sortLabels[k]}</option>
+              ))}
+            </select>
             {hasFilters && (
-              <Button type="button" variant="ghost" size="sm" onClick={() => { setQLocal(""); setSearch({ q: undefined, category: undefined, page: undefined }); }}>
+              <Button type="button" variant="ghost" size="sm" onClick={() => { setQLocal(""); setSearch({ q: undefined, category: undefined, sort: undefined, page: undefined }); }}>
+
                 <X className="h-4 w-4" /> {copy.clear}
               </Button>
             )}

@@ -77,8 +77,32 @@ function normalize(row: Record<string, unknown>): ServiceRow {
   };
 }
 
-export type ServicesPageParams = { q?: string; category?: string; page?: number; pageSize?: number };
+export type ServicesSort = "featured" | "newest" | "oldest" | "az" | "za";
+export type ServicesPageParams = { q?: string; category?: string; page?: number; pageSize?: number; sort?: ServicesSort; lang?: "en" | "ar" };
 export type ServicesPage = { rows: ServiceRow[]; total: number; page: number; pageSize: number };
+
+type SortSpec = { column: "sort_order" | "updated_at" | "title_en" | "title_ar" | "featured"; ascending: boolean; nullsFirst?: boolean };
+function sortSpecs(sort: ServicesSort, lang: "en" | "ar"): SortSpec[] {
+  switch (sort) {
+    case "newest":
+      return [{ column: "updated_at", ascending: false, nullsFirst: false }];
+    case "oldest":
+      return [{ column: "updated_at", ascending: true, nullsFirst: true }];
+    case "az":
+      return [{ column: lang === "ar" ? "title_ar" : "title_en", ascending: true, nullsFirst: false }];
+    case "za":
+      return [{ column: lang === "ar" ? "title_ar" : "title_en", ascending: false, nullsFirst: false }];
+    case "featured":
+    default:
+      return [
+        { column: "featured", ascending: false },
+        { column: "sort_order", ascending: true },
+      ];
+  }
+}
+
+
+
 
 
 const FIVE_MIN = 5 * 60 * 1000;
@@ -131,8 +155,10 @@ export const servicesPageQueryOptions = (params: ServicesPageParams) => {
   const pageSize = Math.min(48, Math.max(1, params.pageSize ?? 9));
   const q = (params.q ?? "").trim();
   const category = (params.category ?? "").trim();
+  const sort: ServicesSort = params.sort ?? "featured";
+  const lang: "en" | "ar" = params.lang === "ar" ? "ar" : "en";
   return queryOptions<ServicesPage>({
-    queryKey: ["services", "page", { q, category, page, pageSize }],
+    queryKey: ["services", "page", { q, category, page, pageSize, sort, lang }],
     staleTime: FIVE_MIN,
     gcTime: HALF_HOUR,
     placeholderData: keepPreviousData,
@@ -142,9 +168,7 @@ export const servicesPageQueryOptions = (params: ServicesPageParams) => {
       let query = supabase
         .from("services")
         .select("*", { count: "exact" })
-        .eq("status", "published")
-        .order("sort_order", { ascending: true })
-        .range(from, to);
+        .eq("status", "published");
       if (category) query = query.eq("category", category);
       if (q) {
         const escaped = q.replace(/[%,()]/g, " ").replace(/\s+/g, " ").trim();
@@ -159,6 +183,12 @@ export const servicesPageQueryOptions = (params: ServicesPageParams) => {
           ].join(","),
         );
       }
+      // Apply sort AFTER filters, then range last.
+      for (const spec of sortSpecs(sort, lang)) {
+        query = query.order(spec.column, { ascending: spec.ascending, nullsFirst: spec.nullsFirst });
+      }
+      query = query.range(from, to);
+
       const { data: rows, error, count } = await query;
       if (error) throw error;
       return {
@@ -170,6 +200,7 @@ export const servicesPageQueryOptions = (params: ServicesPageParams) => {
     },
   });
 };
+
 
 export function useServicesPage(params: ServicesPageParams) {
   const q = useQuery(servicesPageQueryOptions(params));

@@ -21,6 +21,10 @@ import type { ImageVariantsManifest } from "@/hooks/useSignedImage";
 import { invalidateManifestCache } from "@/hooks/useSignedImage";
 import { insertImageVersion } from "@/hooks/useImageVersions";
 import { ImageHistoryButton } from "@/components/admin/ImageHistoryButton";
+import { ArrowDown, ArrowUp, GripVertical } from "lucide-react";
+
+type ServiceFaq = { q_en: string; q_ar?: string; a_en: string; a_ar?: string };
+
 
 
 export const Route = createFileRoute("/_authenticated/admin/services")({
@@ -47,6 +51,9 @@ type ServiceRow = {
   alt_en: string | null;
   alt_ar: string | null;
   gallery_images: string[];
+  faqs: ServiceFaq[];
+  og_image_ar: string | null;
+  og_image_ar_variants: ImageVariantsManifest | null;
   seo_title_en: string | null;
   seo_title_ar: string | null;
   seo_description_en: string | null;
@@ -65,10 +72,13 @@ const EMPTY: ServiceRow = {
   cover_image_variants: null, header_image_variants: null, og_image_variants: null,
   alt_en: "", alt_ar: "",
   gallery_images: [],
+  faqs: [],
+  og_image_ar: "", og_image_ar_variants: null,
   seo_title_en: "", seo_title_ar: "",
   seo_description_en: "", seo_description_ar: "",
   status: "published", featured: false, sort_order: 0,
 };
+
 
 
 function toArray(g: unknown): string[] {
@@ -76,6 +86,26 @@ function toArray(g: unknown): string[] {
   if (typeof g === "string" && g.trim()) { try { const p = JSON.parse(g); return Array.isArray(p) ? p : []; } catch { return []; } }
   return [];
 }
+
+function toFaqs(v: unknown): ServiceFaq[] {
+  const arr = Array.isArray(v)
+    ? v
+    : typeof v === "string" && v.trim()
+      ? (() => { try { return JSON.parse(v); } catch { return []; } })()
+      : [];
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .map((raw: unknown) => {
+      const o = (raw ?? {}) as Record<string, unknown>;
+      return {
+        q_en: typeof o.q_en === "string" ? o.q_en : (typeof o.question === "string" ? (o.question as string) : ""),
+        a_en: typeof o.a_en === "string" ? o.a_en : (typeof o.answer === "string" ? (o.answer as string) : ""),
+        q_ar: typeof o.q_ar === "string" ? (o.q_ar as string) : "",
+        a_ar: typeof o.a_ar === "string" ? (o.a_ar as string) : "",
+      } as ServiceFaq;
+    });
+}
+
 
 const IMAGE_FIELDS = [
   { key: "cover_image" as const, variantsKey: "cover_image_variants" as const, aspect: 16 / 10, label: "Cover" },
@@ -104,7 +134,7 @@ function AdminServicesPage() {
     setLoading(true);
     const { data, error } = await supabase.from("services").select("*").order("sort_order", { ascending: true });
     if (error) toast.error(error.message);
-    setRows(((data ?? []) as unknown as ServiceRow[]).map((r) => ({ ...r, gallery_images: toArray(r.gallery_images) })));
+    setRows(((data ?? []) as unknown as ServiceRow[]).map((r) => ({ ...r, gallery_images: toArray(r.gallery_images), faqs: toFaqs((r as unknown as { faqs: unknown }).faqs) })));
     setLoading(false);
   }
 
@@ -112,7 +142,8 @@ function AdminServicesPage() {
 
   function openEditor(row: ServiceRow) {
     setTabStatus({});
-    setEditing({ ...row, gallery_images: toArray(row.gallery_images) });
+    setEditing({ ...row, gallery_images: toArray(row.gallery_images), faqs: toFaqs((row as unknown as { faqs: unknown }).faqs) });
+
   }
 
   function validate(v: ServiceRow): string | null {
@@ -151,7 +182,15 @@ function AdminServicesPage() {
 
     const { id, updated_at: _u, ...rest } = editing;
     void _u;
-    const payload = { ...rest, gallery_images: rest.gallery_images ?? [] };
+    // Strip empty FAQs (require q_en + a_en) before persisting.
+    const cleanFaqs = (rest.faqs ?? []).filter((f) => f.q_en?.trim() && f.a_en?.trim()).map((f) => ({
+      q_en: f.q_en.trim(),
+      a_en: f.a_en.trim(),
+      q_ar: f.q_ar?.trim() || undefined,
+      a_ar: f.a_ar?.trim() || undefined,
+    }));
+    const payload = { ...rest, gallery_images: rest.gallery_images ?? [], faqs: cleanFaqs };
+
 
     // Snapshot previous image values into image_versions BEFORE overwriting.
     if (id) {
@@ -362,6 +401,14 @@ function AdminServicesPage() {
                   />
                 </div>
 
+                <div className="rounded-lg border border-border bg-secondary/30 p-3">
+                  <FaqEditor
+                    value={editing.faqs}
+                    onChange={(f) => setEditing({ ...editing, faqs: f })}
+                  />
+                </div>
+
+
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   <Field label="SEO title (EN)"><Input value={editing.seo_title_en ?? ""} onChange={(e) => setEditing({ ...editing, seo_title_en: e.target.value })} maxLength={70} /></Field>
@@ -429,4 +476,83 @@ function StatusDot({ s }: { s?: FieldStatus }) {
     s === "ok" ? "Image set" : s === "uploading" ? "Uploading…" : s === "error" ? "Invalid" : "Empty";
   return <span aria-label={title} title={title} className={`inline-block h-2 w-2 rounded-full ${color}`} />;
 }
+
+function FaqEditor({ value, onChange }: { value: ServiceFaq[]; onChange: (v: ServiceFaq[]) => void }) {
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const set = (i: number, patch: Partial<ServiceFaq>) => {
+    const next = value.slice();
+    next[i] = { ...next[i], ...patch };
+    onChange(next);
+  };
+  const move = (from: number, to: number) => {
+    if (to < 0 || to >= value.length || from === to) return;
+    const next = value.slice();
+    const [item] = next.splice(from, 1);
+    next.splice(to, 0, item);
+    onChange(next);
+  };
+  const remove = (i: number) => onChange(value.filter((_, k) => k !== i));
+  const add = () => onChange([...value, { q_en: "", a_en: "", q_ar: "", a_ar: "" }]);
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium">Frequently asked questions</p>
+          <p className="text-xs text-muted-foreground">Powers the on-page FAQ section and FAQPage JSON-LD. Drag to reorder; Arabic fields are optional.</p>
+        </div>
+        <Button type="button" size="sm" variant="outline" onClick={add}><Plus className="h-4 w-4" /> Add FAQ</Button>
+      </div>
+      {value.length === 0 ? (
+        <p className="rounded-md border border-dashed border-border bg-background/60 px-3 py-6 text-center text-sm text-muted-foreground">
+          No FAQs yet. Add your first question to appear on the service page.
+        </p>
+      ) : (
+        <ul className="space-y-2">
+          {value.map((f, i) => (
+            <li
+              key={i}
+              draggable
+              onDragStart={() => setDragIdx(i)}
+              onDragOver={(e) => { e.preventDefault(); }}
+              onDrop={(e) => { e.preventDefault(); if (dragIdx !== null) { move(dragIdx, i); setDragIdx(null); } }}
+              onDragEnd={() => setDragIdx(null)}
+              className={`rounded-md border border-border bg-background p-3 ${dragIdx === i ? "opacity-60" : ""}`}
+            >
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                  <GripVertical className="h-4 w-4 cursor-grab" /> #{i + 1}
+                </span>
+                <div className="flex gap-1">
+                  <Button type="button" size="icon" variant="ghost" aria-label="Move up" disabled={i === 0} onClick={() => move(i, i - 1)}><ArrowUp className="h-4 w-4" /></Button>
+                  <Button type="button" size="icon" variant="ghost" aria-label="Move down" disabled={i === value.length - 1} onClick={() => move(i, i + 1)}><ArrowDown className="h-4 w-4" /></Button>
+                  <Button type="button" size="icon" variant="ghost" aria-label="Delete" onClick={() => remove(i)}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Question (EN) *</Label>
+                  <Input value={f.q_en} onChange={(e) => set(i, { q_en: e.target.value })} maxLength={200} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">السؤال (AR)</Label>
+                  <Input dir="rtl" value={f.q_ar ?? ""} onChange={(e) => set(i, { q_ar: e.target.value })} maxLength={200} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Answer (EN) *</Label>
+                  <Textarea rows={3} value={f.a_en} onChange={(e) => set(i, { a_en: e.target.value })} maxLength={1200} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">الإجابة (AR)</Label>
+                  <Textarea dir="rtl" rows={3} value={f.a_ar ?? ""} onChange={(e) => set(i, { a_ar: e.target.value })} maxLength={1200} />
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 
