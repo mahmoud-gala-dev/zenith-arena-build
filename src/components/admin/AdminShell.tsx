@@ -111,20 +111,24 @@ export function AdminShell({ children, title }: { children: React.ReactNode; tit
       <main className="lg:pl-64">
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-card/80 px-6 py-4 backdrop-blur">
           <h1 className="text-xl font-bold text-foreground">{title}</h1>
-          <div className="flex items-center gap-2 lg:hidden">
-            <select
-              aria-label="Admin section"
-              className="h-9 rounded-md border border-input bg-background px-2 text-sm"
-              value={pathname.startsWith("/admin/") ? pathname : "/admin"}
-              onChange={(event) => navigate({ to: event.target.value as "/admin" })}
-            >
-              {nav.map((item) => <option key={item.to} value={item.to}>{item.label}</option>)}
-            </select>
-            <Button variant="outline" size="sm" onClick={signOut}>
-              <LogOut className="h-4 w-4" />
-            </Button>
+          <div className="flex items-center gap-2">
+            <NotificationsBell />
+            <div className="flex items-center gap-2 lg:hidden">
+              <select
+                aria-label="Admin section"
+                className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+                value={pathname.startsWith("/admin/") ? pathname : "/admin"}
+                onChange={(event) => navigate({ to: event.target.value as "/admin" })}
+              >
+                {nav.map((item) => <option key={item.to} value={item.to}>{item.label}</option>)}
+              </select>
+              <Button variant="outline" size="sm" onClick={signOut}>
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </header>
+
         <div className="p-6">{children}</div>
       </main>
     </div>
