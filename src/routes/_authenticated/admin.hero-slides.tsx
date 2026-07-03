@@ -258,6 +258,10 @@ function AdminHeroSlides() {
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-mono text-muted-foreground">#{s.sort_order}</span>
                     <h3 className="truncate font-semibold">{s.title_en}</h3>
+                    {s.status === "draft" && <span className="rounded bg-amber-500/15 px-2 py-0.5 text-xs text-amber-700 dark:text-amber-400">Draft</span>}
+                    {s.scheduled_at && new Date(s.scheduled_at) > new Date() && (
+                      <span className="rounded bg-blue-500/15 px-2 py-0.5 text-xs text-blue-700 dark:text-blue-400">Scheduled · {new Date(s.scheduled_at).toLocaleString()}</span>
+                    )}
                     {!s.is_active && <span className="rounded bg-muted px-2 py-0.5 text-xs">Hidden</span>}
                   </div>
                   <p className="line-clamp-1 text-sm text-muted-foreground">{s.subtitle_en}</p>
