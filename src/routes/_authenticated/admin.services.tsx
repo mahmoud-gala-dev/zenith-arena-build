@@ -182,7 +182,15 @@ function AdminServicesPage() {
 
     const { id, updated_at: _u, ...rest } = editing;
     void _u;
-    const payload = { ...rest, gallery_images: rest.gallery_images ?? [] };
+    // Strip empty FAQs (require q_en + a_en) before persisting.
+    const cleanFaqs = (rest.faqs ?? []).filter((f) => f.q_en?.trim() && f.a_en?.trim()).map((f) => ({
+      q_en: f.q_en.trim(),
+      a_en: f.a_en.trim(),
+      q_ar: f.q_ar?.trim() || undefined,
+      a_ar: f.a_ar?.trim() || undefined,
+    }));
+    const payload = { ...rest, gallery_images: rest.gallery_images ?? [], faqs: cleanFaqs };
+
 
     // Snapshot previous image values into image_versions BEFORE overwriting.
     if (id) {
