@@ -49,25 +49,48 @@ export const Route = createFileRoute("/")({
     void queryClient.ensureQueryData(homeClientsQueryOptions);
     void queryClient.ensureQueryData(servicesPublishedQueryOptions);
   },
-  head: () => ({
-    meta: [
-      { property: "og:image", content: ogImage.url },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
-      { property: "og:image:alt", content: "Egytic Sports — Sports Construction & Infrastructure" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: ogImage.url },
-      { name: "twitter:image:alt", content: "Egytic Sports" },
-    ],
-    links: [
-      {
-        rel: "preload",
-        as: "image",
-        href: ctaLandmark.url,
-        fetchpriority: "high",
-      },
-    ],
-  }),
+  head: () => {
+    const titleEn = "Egytic Sports — Sports Construction & Infrastructure";
+    const titleAr = "إيجيتك سبورتس — إنشاءات وبنية تحتية رياضية";
+    const descEn =
+      "Egytic Sports designs and builds world-class sports facilities across Egypt — turf, tracks, courts and stadium infrastructure.";
+    const descAr =
+      "إيجيتك سبورتس تصمم وتنفذ منشآت رياضية عالمية المستوى في مصر — أعشاب صناعية، مضامير، ملاعب وبنية تحتية للاستادات.";
+    return {
+      meta: [
+        { title: `${titleEn} | ${titleAr}` },
+        { name: "description", content: `${descEn} — ${descAr}` },
+        { property: "og:type", content: "website" },
+        { property: "og:site_name", content: "Egytic Sports" },
+        { property: "og:url", content: "/" },
+        { property: "og:title", content: titleEn },
+        { property: "og:description", content: descEn },
+        { property: "og:locale", content: "en_US" },
+        { property: "og:locale:alternate", content: "ar_EG" },
+        { property: "og:image", content: ogImage.url },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { property: "og:image:alt", content: titleEn },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: titleEn },
+        { name: "twitter:description", content: descEn },
+        { name: "twitter:image", content: ogImage.url },
+        { name: "twitter:image:alt", content: "Egytic Sports" },
+      ],
+      links: [
+        { rel: "canonical", href: "/" },
+        { rel: "alternate", hreflang: "en", href: "/" },
+        { rel: "alternate", hreflang: "ar", href: "/?lang=ar" },
+        { rel: "alternate", hreflang: "x-default", href: "/" },
+        {
+          rel: "preload",
+          as: "image",
+          href: ctaLandmark.url,
+          fetchpriority: "high",
+        },
+      ],
+    };
+  },
 });
 
 
