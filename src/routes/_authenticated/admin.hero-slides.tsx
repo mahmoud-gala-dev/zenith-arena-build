@@ -58,7 +58,10 @@ function AdminHeroSlides() {
   const [localPreview, setLocalPreview] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const [orderLang, setOrderLang] = useState<"en" | "ar">("en");
   const localPreviewRef = useRef<string | null>(null);
+
+  const orderCol = orderLang === "ar" ? "sort_order_ar" : "sort_order";
 
   useEffect(() => () => {
     if (localPreviewRef.current) URL.revokeObjectURL(localPreviewRef.current);
@@ -66,12 +69,20 @@ function AdminHeroSlides() {
 
   async function load() {
     setLoading(true);
-    const { data, error } = await supabase.from("hero_slides").select("*").order("sort_order", { ascending: true });
+    const { data, error } = await supabase.from("hero_slides").select("*");
     if (error) toast.error(error.message);
-    setSlides(data ?? []);
+    const rows = (data ?? []) as Slide[];
+    // Sort by the language-specific column (fall back to the shared sort_order).
+    rows.sort((a, b) => {
+      const av = ((a as unknown as Record<string, number | null>)[orderCol] ?? a.sort_order ?? 0);
+      const bv = ((b as unknown as Record<string, number | null>)[orderCol] ?? b.sort_order ?? 0);
+      return av - bv;
+    });
+    setSlides(rows);
     setLoading(false);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); /* re-sort when tab changes */ }, [orderLang]);
+
 
   function clearLocalPreview() {
     if (localPreviewRef.current) URL.revokeObjectURL(localPreviewRef.current);
