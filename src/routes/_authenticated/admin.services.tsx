@@ -401,6 +401,14 @@ function AdminServicesPage() {
                   />
                 </div>
 
+                <div className="rounded-lg border border-border bg-secondary/30 p-3">
+                  <FaqEditor
+                    value={editing.faqs}
+                    onChange={(f) => setEditing({ ...editing, faqs: f })}
+                  />
+                </div>
+
+
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   <Field label="SEO title (EN)"><Input value={editing.seo_title_en ?? ""} onChange={(e) => setEditing({ ...editing, seo_title_en: e.target.value })} maxLength={70} /></Field>
