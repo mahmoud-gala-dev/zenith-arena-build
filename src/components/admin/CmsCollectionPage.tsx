@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, Plus, Pencil, Trash2, Loader2, Filter, ArrowUpDown } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, Loader2, Filter, ArrowUpDown, ExternalLink } from "lucide-react";
 import { TableRowsSkeleton } from "@/components/site/Skeletons";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
