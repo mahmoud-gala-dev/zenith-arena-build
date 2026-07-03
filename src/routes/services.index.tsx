@@ -115,12 +115,14 @@ function ServicesPage() {
         const merged: Search = { ...prev, ...next };
         if (!merged.q) delete merged.q;
         if (!merged.category) delete merged.category;
+        if (!merged.sort || merged.sort === "featured") delete merged.sort;
         if (!merged.page || merged.page < 2) delete merged.page;
         return merged;
       },
       replace: true,
     });
   };
+
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
