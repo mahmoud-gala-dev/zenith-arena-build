@@ -97,6 +97,8 @@ function ContactPage() {
     message: z.string().trim().min(1).max(2000),
   });
 
+  const submit = useServerFn(submitLead);
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
@@ -108,15 +110,21 @@ function ContactPage() {
       service: projectType || null,
       budget_range: String(fd.get("budget") ?? "") || null,
       message: String(fd.get("message") ?? ""),
+      website: String(fd.get("website") ?? ""),
     };
     const check = schema.safeParse(payload);
     if (!check.success) return toast.error(check.error.issues[0].message);
     setSubmitting(true);
-    const { error } = await supabase.from("leads").insert(payload as never);
-    setSubmitting(false);
-    if (error) return toast.error(error.message);
-    setSent(true);
+    try {
+      await submit({ data: payload });
+      setSent(true);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Submission failed");
+    } finally {
+      setSubmitting(false);
+    }
   }
+
 
 
   return (
