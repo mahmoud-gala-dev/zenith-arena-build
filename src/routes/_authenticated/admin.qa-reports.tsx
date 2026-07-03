@@ -256,14 +256,19 @@ function QaReportsPage() {
     load();
   }
 
-  async function remove() {
-    if (!deleteId) return;
-    const { error } = await supabase.from("qa_reports").delete().eq("id", deleteId);
+  async function changeStatus(r: Report, next: QaStatus, note?: string) {
+    const patch: Record<string, unknown> = { status: next };
+    if (next === "submitted") patch.submitted_at = new Date().toISOString();
+    if (next === "approved" || next === "rejected") {
+      patch.reviewed_at = new Date().toISOString();
+      if (note !== undefined) patch.reviewer_note = note;
+    }
+    const { error } = await supabase.from("qa_reports").update(patch).eq("id", r.id);
     if (error) return toast.error(error.message);
-    toast.success("Deleted");
-    setDeleteId(null);
+    toast.success(`Marked ${next}`);
     load();
   }
+
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setEditing((e) => (e ? { ...e, [k]: v } : e));
