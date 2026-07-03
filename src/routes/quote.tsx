@@ -52,6 +52,8 @@ function QuotePage() {
     phone: z.string().trim().min(1).max(30),
   });
 
+  const submit = useServerFn(submitLead);
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
@@ -69,16 +71,22 @@ function QuotePage() {
       start_date: String(fd.get("start") ?? "") || null,
       message: String(fd.get("message") ?? "") || null,
       preferred_contact: contactMethod,
+      website: String(fd.get("website") ?? ""),
     };
     const check = submitSchema.safeParse(payload);
     if (!check.success) return toast.error(check.error.issues[0].message);
     setSubmitting(true);
-    const { error } = await supabase.from("leads").insert(payload as never);
-    setSubmitting(false);
-    if (error) return toast.error(error.message);
-    setSent(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    try {
+      await submit({ data: payload });
+      setSent(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Submission failed");
+    } finally {
+      setSubmitting(false);
+    }
   }
+
 
   const tx = ar
     ? {
