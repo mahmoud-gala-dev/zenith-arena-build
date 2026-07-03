@@ -46,7 +46,8 @@ const ACCENTS = ["#c9a84c", "#0f766e", "#1e40af", "#b91c1c", "#7c3aed", "#0369a1
 export const Route = createFileRoute("/")({
   component: Index,
   loader: ({ context: { queryClient } }) => {
-    void queryClient.ensureQueryData(heroSlidesActiveQueryOptions);
+    void queryClient.ensureQueryData(heroSlidesActiveQueryOptions("en"));
+    void queryClient.ensureQueryData(heroSlidesActiveQueryOptions("ar"));
     void queryClient.ensureQueryData(homeClientsQueryOptions);
     void queryClient.ensureQueryData(servicesPublishedQueryOptions);
   },
