@@ -426,7 +426,7 @@ function QaReportsPage() {
         })}
       </div>
 
-      <Dialog open={!!editing} onOpenChange={(o) => !o && (setEditing(null), setEditingId(null))}>
+      <Dialog open={!!editing} onOpenChange={(o) => !o && (setEditing(null), setEditingId(null), setEditingMedia([]))}>
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader><DialogTitle>{editingId ? "Edit QA report" : "New QA report"}</DialogTitle></DialogHeader>
           {editing && (
@@ -558,7 +558,7 @@ function QaReportsPage() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setEditing(null); setEditingId(null); }}>Cancel</Button>
+            <Button variant="outline" onClick={() => { setEditing(null); setEditingId(null); setEditingMedia([]); }}>Cancel</Button>
             <Button onClick={save} disabled={saving || uploading}>
               {saving && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
               {editingId ? "Save" : "Create"}
