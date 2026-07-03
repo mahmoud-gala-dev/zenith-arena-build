@@ -2,13 +2,13 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, Building2, Package, BookOpen, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLang } from "@/i18n/LanguageProvider";
-import { useScrollDirection } from "@/hooks/useScrollDirection";
+import { useScrollIdle } from "@/hooks/useScrollIdle";
 
 export function MobileTabBar({ onOpenMore }: { onOpenMore: () => void }) {
   const { lang } = useLang();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { direction, atTop } = useScrollDirection(10);
-  const hidden = direction === "down" && !atTop;
+  const scrolling = useScrollIdle(220);
+  const hidden = scrolling;
 
   const ar = lang === "ar";
   const tabs = [
