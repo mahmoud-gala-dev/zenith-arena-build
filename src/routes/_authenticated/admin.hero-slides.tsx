@@ -198,9 +198,12 @@ function AdminHeroSlides() {
       [orderCol]: i + 1,
     })) as Slide[];
     setSlides(withOrder);
-    const updates = withOrder.map((s) =>
-      supabase.from("hero_slides").update({ [orderCol]: (s as unknown as Record<string, number>)[orderCol] }).eq("id", s.id),
-    );
+    const updates = withOrder.map((s) => {
+      const val = (s as unknown as Record<string, number>)[orderCol];
+      const patch = (orderCol === "sort_order_ar" ? { sort_order_ar: val } : { sort_order: val }) as SlideInput;
+      return supabase.from("hero_slides").update(patch).eq("id", s.id);
+    });
+
     const results = await Promise.all(updates);
     const err = results.find((r) => r.error)?.error;
     if (err) {
