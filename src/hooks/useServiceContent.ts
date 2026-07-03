@@ -81,8 +81,7 @@ export type ServicesSort = "featured" | "newest" | "oldest" | "az" | "za";
 export type ServicesPageParams = { q?: string; category?: string; page?: number; pageSize?: number; sort?: ServicesSort; lang?: "en" | "ar" };
 export type ServicesPage = { rows: ServiceRow[]; total: number; page: number; pageSize: number };
 
-function applySort(query: ReturnType<typeof supabase.from<"services">>["select"] extends (...a: unknown[]) => infer R ? R : never, sort: ServicesSort, lang: "en" | "ar") {
-  // Chainable order() calls
+function applySort<T extends { order: (...args: unknown[]) => T }>(query: T, sort: ServicesSort, lang: "en" | "ar"): T {
   switch (sort) {
     case "newest":
       return query.order("updated_at", { ascending: false, nullsFirst: false });
@@ -97,6 +96,7 @@ function applySort(query: ReturnType<typeof supabase.from<"services">>["select"]
       return query.order("featured", { ascending: false }).order("sort_order", { ascending: true });
   }
 }
+
 
 
 
