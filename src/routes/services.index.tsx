@@ -102,7 +102,7 @@ function ServicesPage() {
 
   const setSearch = (next: Partial<Search>) => {
     navigate({
-      search: (prev) => {
+      search: (prev: Search) => {
         const merged: Search = { ...prev, ...next };
         if (!merged.q) delete merged.q;
         if (!merged.category) delete merged.category;
