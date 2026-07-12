@@ -130,6 +130,7 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
   }
 
   return (
+    <>
     <section className="relative overflow-hidden border-t border-border bg-gradient-to-b from-secondary/30 via-background to-background py-16">
       {/* Ambient accents */}
       <div className="pointer-events-none absolute -top-24 left-1/2 h-64 w-[600px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" aria-hidden />
