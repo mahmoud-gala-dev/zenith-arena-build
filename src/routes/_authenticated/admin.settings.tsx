@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { CmsCollectionPage } from "@/components/admin/CmsCollectionPage";
 import { BrandingPanel } from "@/components/admin/BrandingPanel";
-import { ContactInfoPanel, SocialLinksPanel, BrandNamePanel } from "@/components/admin/SettingsPanels";
+import { ContactInfoPanel, SocialLinksPanel, BrandNamePanel, SeoDefaultsPanel } from "@/components/admin/SettingsPanels";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { homepageConfig, menusConfig, settingsConfig } from "@/lib/admin-cms-config";
 
