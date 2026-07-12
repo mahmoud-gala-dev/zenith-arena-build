@@ -213,5 +213,7 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
         </div>
       </div>
     </section>
+    <LeadSuccessDialog open={successOpen} onOpenChange={setSuccessOpen} summary={summary} />
+    </>
   );
 }
