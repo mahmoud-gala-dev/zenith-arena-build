@@ -3,6 +3,7 @@ import { z } from "zod";
 import { submitLead } from "@/lib/leads.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { LeadSuccessDialog, type LeadSummary } from "@/components/site/LeadSuccessDialog";
 
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MapPin, Clock, CheckCircle2, MessageCircle } from "lucide-react";
