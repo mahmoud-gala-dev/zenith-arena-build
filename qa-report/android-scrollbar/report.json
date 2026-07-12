@@ -1,0 +1,207 @@
+{
+  "/": {
+    "before": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 839,
+        "scrollY": 0,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-scrollbar/home-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 839,
+        "scrollY": 51,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-scrollbar/home-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 839,
+        "scrollY": 7401,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "visible",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-scrollbar/home-3-after.png"
+    }
+  },
+  "/projects": {
+    "before": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 839,
+        "scrollY": 0,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-scrollbar/projects-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 839,
+        "scrollY": 74,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-scrollbar/projects-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 839,
+        "scrollY": 2191,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-scrollbar/projects-3-after.png"
+    }
+  },
+  "/services": {
+    "before": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 839,
+        "scrollY": 0,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-scrollbar/services-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 839,
+        "scrollY": 51,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-scrollbar/services-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 839,
+        "scrollY": 2785,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-scrollbar/services-3-after.png"
+    }
+  },
+  "/knowledge": {
+    "before": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 839,
+        "scrollY": 0,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-scrollbar/knowledge-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 839,
+        "scrollY": 74,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-scrollbar/knowledge-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 839,
+        "scrollY": 3038,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-scrollbar/knowledge-3-after.png"
+    }
+  },
+  "/gallery": {
+    "before": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 839,
+        "scrollY": 0,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-scrollbar/gallery-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 839,
+        "scrollY": 51,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-scrollbar/gallery-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 839,
+        "scrollY": 1738,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-scrollbar/gallery-3-after.png"
+    }
+  }
+}
