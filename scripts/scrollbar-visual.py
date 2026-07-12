@@ -115,23 +115,56 @@ async def main():
                 await browser.close()
 
     # Validate tokens per engine/theme + assert theme actually changes values.
+    THEMED_KEYS = (
+        "primary",
+        "scrollbarThumb",
+        "scrollbarThumbHover",
+        "scrollbarThumbActive",
+        "scrollbarTrack",
+    )
     for engine_name, per_theme in report.items():
         if "error" in per_theme: continue
         for theme, data in per_theme.items():
             check_tokens(engine_name, theme, data["tokens"], errors)
         light = per_theme["light"]["tokens"]
         dark  = per_theme["dark"]["tokens"]
-        if light.get("primary") == dark.get("primary"):
-            errors.append(f"[{engine_name}] --primary did not change between light/dark")
-        if light.get("scrollbarThumbActive") == dark.get("scrollbarThumbActive"):
-            errors.append(f"[{engine_name}] --scrollbar-thumb-active did not change between themes")
+        # Every themed token MUST flip when --primary flips — otherwise the
+        # scrollbar would visually diverge from the design tokens.
+        for k in THEMED_KEYS:
+            if light.get(k) == dark.get(k):
+                errors.append(
+                    f"[{engine_name}] {k} identical across light/dark "
+                    f"({light.get(k)!r}) — not tracking --primary"
+                )
+        # Static tokens MUST remain stable across themes (radius/size are
+        # geometry, not color, and shouldn't shift on toggle).
+        for k in ("scrollbarRadius", "scrollbarSize"):
+            if light.get(k) != dark.get(k):
+                errors.append(
+                    f"[{engine_name}] {k} changed across themes "
+                    f"({light.get(k)!r} → {dark.get(k)!r}) — geometry should be theme-invariant"
+                )
+        # Coherence: --scrollbar-thumb-active must equal --primary in BOTH
+        # themes (the CSS binds them directly, so any drift = broken var wiring).
+        for theme in THEMES:
+            t = per_theme[theme]["tokens"]
+            if t.get("primary") != t.get("scrollbarThumbActive"):
+                errors.append(
+                    f"[{engine_name}/{theme}] --scrollbar-thumb-active drifted from --primary"
+                )
 
     (OUT / "report.json").write_text(json.dumps(report, indent=2))
-    print(json.dumps(report, indent=2))
     if errors:
-        print("\nFAIL — scrollbar token parity issues:")
+        print(json.dumps(report, indent=2))
+        print("\nFAIL — theme toggle did not propagate to scrollbar tokens:")
         for e in errors: print("  -", e)
         sys.exit(1)
-    print(f"\nOK — scrollbar tokens verified across {len(ENGINES)} engines × {len(THEMES)} themes")
+    # Compact success summary — full report is in qa-report/scrollbar/report.json
+    for engine_name, per_theme in report.items():
+        l = per_theme["light"]["tokens"]; d = per_theme["dark"]["tokens"]
+        print(f"[{engine_name}] light thumb={l['scrollbarThumb']}")
+        print(f"[{engine_name}] dark  thumb={d['scrollbarThumb']}")
+    print(f"\nOK — theme toggle propagates to thumb/hover/active/track across "
+          f"{len(ENGINES)} engines × {len(THEMES)} themes with zero drift")
 
 asyncio.run(main())
