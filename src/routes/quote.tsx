@@ -119,12 +119,8 @@ function QuotePage() {
         successTitle: "تم استلام طلبك",
         successSub: "سيتواصل معك أحد مهندسينا خلال يوم عمل واحد بعرض تفصيلي.",
         another: "طلب آخر",
-        promises: [
-          { icon: Clock, t: "رد خلال 48 ساعة", d: "من قبل مهندس أول." },
-          { icon: Award, t: "عرض مفصّل", d: "بنود شفافة، بدون تكاليف خفية." },
-          { icon: Sparkles, t: "استشارة مجانية", d: "مكالمة أولى لتحديد النطاق." },
-        ],
       }
+
     : {
         eyebrow: "Request a Quote",
         title: "Get an accurate proposal within 48 hours",
