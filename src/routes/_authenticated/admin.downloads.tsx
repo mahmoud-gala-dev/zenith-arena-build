@@ -39,6 +39,12 @@ type DownloadRow = {
   status: "published" | "draft" | "archived";
   featured: boolean;
   sort_order: number;
+  seo_title_en: string | null;
+  seo_title_ar: string | null;
+  seo_description_en: string | null;
+  seo_description_ar: string | null;
+  og_image: string | null;
+  og_image_ar: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -70,7 +76,14 @@ const emptyRow = (): Partial<DownloadRow> => ({
   status: "published",
   featured: false,
   sort_order: 0,
+  seo_title_en: "",
+  seo_title_ar: "",
+  seo_description_en: "",
+  seo_description_ar: "",
+  og_image: "",
+  og_image_ar: "",
 });
+
 
 function slugify(s: string) {
   return s.toLowerCase().trim()
