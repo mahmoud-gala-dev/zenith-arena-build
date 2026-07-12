@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import { cn } from "@/lib/utils";
+import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
 
 type Item = { to: string; label: string };
 
@@ -16,6 +17,9 @@ export function MobileMoreDrawer({
 }) {
   const { lang, t } = useLang();
   const ar = lang === "ar";
+  const contact = useContactInfo();
+  const social = useSocialLinks();
+  const wa = toWhatsAppNumber(social.whatsapp || contact.whatsapp);
   const close = () => onOpenChange(false);
 
   const groups: { label: string; items: Item[] }[] = [
