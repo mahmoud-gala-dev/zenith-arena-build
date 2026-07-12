@@ -166,71 +166,103 @@ function ServiceDetailPage() {
 
   return (
     <SiteLayout>
-      <section className="relative isolate overflow-hidden bg-ink pt-28 pb-20 text-white sm:pt-32 sm:pb-24">
-        {service.header_image ? (
-          <img
-            src={service.header_image}
-            alt={currentAlt}
-            aria-label={`${alt_en} — ${alt_ar}`}
-            width={1920}
-            height={820}
-            loading="eager"
-            decoding="async"
-            fetchPriority="high"
-            className="absolute inset-0 h-full w-full scale-105 object-cover opacity-55"
+      <section className="relative isolate overflow-hidden bg-ink text-white">
+        {/* Background layers */}
+        <div className="absolute inset-0 z-0">
+          {service.header_image ? (
+            <img
+              src={service.header_image}
+              alt={currentAlt}
+              aria-label={`${alt_en} — ${alt_ar}`}
+              width={1920}
+              height={900}
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
+              className="absolute inset-0 h-full w-full scale-105 object-cover opacity-70 motion-safe:animate-[fade-in_1.2s_ease-out]"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-ink via-ink/85 to-primary/40" aria-hidden />
+          )}
+          {/* Cinematic overlays */}
+          <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/80 to-transparent" aria-hidden />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-transparent" aria-hidden />
+          <div
+            className="absolute inset-0 opacity-20 mix-blend-soft-light"
+            style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20L0 20z' fill='%23ffffff' fill-opacity='0.1'/%3E%3C/svg%3E\")" }}
+            aria-hidden
           />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-ink via-ink/85 to-primary/40" aria-hidden />
-        )}
-        {/* Layered overlays for depth + readable text */}
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/85 to-ink/30" aria-hidden />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(212,175,55,0.18),transparent_55%)]" aria-hidden />
-        <div
-          className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
-          style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.9) 1px, transparent 1px)", backgroundSize: "22px 22px" }}
-          aria-hidden
-        />
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background" aria-hidden />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(212,175,55,0.18),transparent_55%)]" aria-hidden />
+          {/* Corner glow */}
+          <div className="pointer-events-none absolute bottom-0 right-0 h-64 w-64 rounded-full bg-gold/10 blur-[100px]" aria-hidden />
+        </div>
 
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Top navigation row */}
+        <div className="relative z-10 mx-auto flex max-w-7xl flex-col gap-6 px-4 pt-28 sm:px-6 sm:pt-32 md:flex-row md:items-center md:justify-between lg:px-8">
           <Breadcrumbs items={[{ label: t.nav.services, to: "/services" }, { label: title }]} />
-          <Link to="/services" className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-white/70 transition hover:text-gold">
-            <ArrowLeft className="h-4 w-4 rtl:rotate-180" /> {copy.back}
+          <Link
+            to="/services"
+            className="group/back inline-flex items-center gap-3 text-white/60 transition hover:text-white"
+          >
+            <span className="rounded-full border border-white/10 p-2 transition group-hover/back:border-gold group-hover/back:bg-gold/10">
+              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover/back:-translate-x-1 rtl:group-hover/back:translate-x-1" />
+            </span>
+            <span className="text-xs font-black uppercase tracking-[0.2em]">{copy.back}</span>
           </Link>
+        </div>
 
-          <div className="mt-10 grid gap-10 md:grid-cols-[auto,1fr] md:items-start">
-            <div className="relative flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-gold text-gold-foreground shadow-[0_20px_45px_-15px_rgba(212,175,55,0.55)] ring-1 ring-gold/40">
-              <Icon name={service.icon || "Goal"} className="h-10 w-10" />
-              <span className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/20" aria-hidden />
+        {/* Hero content */}
+        <div className="relative z-10 mx-auto max-w-7xl px-4 pb-20 pt-14 sm:px-6 sm:pb-24 sm:pt-20 lg:px-8">
+          {service.category && (
+            <div className="mb-8 inline-flex items-center gap-3 rounded-full border border-gold/30 bg-gold/10 px-4 py-1.5 backdrop-blur-md">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-gold" aria-hidden />
+              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-gold">{service.category}</span>
             </div>
-            <div className="min-w-0">
-              {service.category && (
-                <span className="inline-flex items-center rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-gold">
-                  {service.category}
-                </span>
-              )}
-              <h1 className="mt-4 text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-                {title}
-              </h1>
-              {desc && (
-                <p className="mt-5 max-w-3xl text-lg leading-relaxed text-white/75 sm:text-xl">{desc}</p>
-              )}
+          )}
 
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <Button asChild variant="gold" size="lg">
+          <div className="relative">
+            {/* Left gold accent stripe */}
+            <span className="absolute -left-6 top-0 bottom-0 hidden w-1 bg-gradient-to-b from-gold to-transparent md:block rtl:-right-6 rtl:left-auto rtl:bg-gradient-to-b" aria-hidden />
+            <h1 className="text-5xl font-bold leading-[0.9] tracking-tighter sm:text-6xl md:text-7xl lg:text-[5.5rem]">
+              <span className="bg-gradient-to-r from-white via-white to-white/80 bg-clip-text text-transparent">
+                {title}
+              </span>
+            </h1>
+          </div>
+
+          <div className="mt-8 grid gap-10 md:grid-cols-[minmax(0,1fr),auto] md:items-end">
+            <div className="max-w-2xl">
+              {desc && (
+                <p className="mb-8 text-lg font-light leading-relaxed text-white/60 sm:text-xl">{desc}</p>
+              )}
+              <div className="flex flex-wrap items-center gap-4">
+                <Button asChild variant="gold" size="lg" className="shadow-[0_10px_40px_-10px_rgba(212,175,55,0.55)] hover:shadow-[0_14px_50px_-8px_rgba(212,175,55,0.7)]">
                   <Link to="/quote">{copy.quote} <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
                 </Button>
-                <Button asChild variant="outlineLight" size="lg">
+                <Button asChild variant="outlineLight" size="lg" className="backdrop-blur-sm">
                   <a href="https://wa.me/971500000000"><MessageCircle className="h-4 w-4" /> {copy.whatsapp}</a>
                 </Button>
                 {gallery.length > 0 && (
-                  <span className="ms-auto hidden text-sm text-white/60 sm:inline">
+                  <span className="text-sm text-white/50">
                     {gallery.length} {ar ? "صورة" : "images"}
                   </span>
                 )}
               </div>
             </div>
+
+            <div className="hidden text-right md:block rtl:text-left">
+              <div className="relative mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-gold text-gold-foreground shadow-[0_20px_45px_-15px_rgba(212,175,55,0.55)] ring-1 ring-gold/40 ltr:ml-auto rtl:mr-auto">
+                <Icon name={service.icon || "Goal"} className="h-8 w-8" />
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gold/70">Egytic Sports</p>
+            </div>
           </div>
+        </div>
+
+        {/* Bottom accent bar */}
+        <div className="relative z-10 flex h-1.5 w-full">
+          <div className="h-full w-1/3 bg-gold" />
+          <div className="h-full w-2/3 bg-white/5" />
         </div>
       </section>
 
