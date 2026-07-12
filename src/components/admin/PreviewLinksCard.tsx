@@ -52,6 +52,9 @@ export function PreviewLinksCard({
   const [label, setLabel] = useState("");
   const [days, setDays] = useState(7);
   const [creating, setCreating] = useState(false);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [sortKey, setSortKey] = useState<SortKey>("created_desc");
 
   const { data: tokens = [], isLoading } = useQuery({
     queryKey: ["admin", "legal", "preview-tokens", pageId],
