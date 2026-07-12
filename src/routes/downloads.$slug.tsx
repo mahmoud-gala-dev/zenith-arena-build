@@ -184,17 +184,15 @@ function DownloadDetailPage() {
               {categoryLabel && (
                 <p className="mt-1 text-sm text-muted-foreground">{categoryLabel}</p>
               )}
-              {item.file_url ? (
-                <Button asChild className="mt-4 w-full">
-                  <a href={item.file_url} target="_blank" rel="noreferrer">
-                    <Download className="h-4 w-4" /> {downloadLabel}
-                  </a>
-                </Button>
-              ) : (
-                <Button className="mt-4 w-full" disabled>
-                  <Download className="h-4 w-4" /> {downloadLabel}
-                </Button>
-              )}
+              <DownloadGateButton
+                fileUrl={item.file_url}
+                title={title}
+                slug={item.slug_en}
+                requiresLead={item.requires_lead_capture}
+                label={downloadLabel}
+                className="mt-4 w-full"
+              />
+
             </div>
 
             <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
