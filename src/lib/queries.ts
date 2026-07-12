@@ -323,4 +323,39 @@ export const blogPostsPublishedQueryOptions = queryOptions<BlogRow[]>({
   },
 });
 
+export type FaqItem = Database["public"]["Tables"]["faq_items"]["Row"];
+export type JobOpening = Database["public"]["Tables"]["job_openings"]["Row"];
+
+export const faqItemsPublishedQueryOptions = queryOptions<FaqItem[]>({
+  queryKey: ["faq_items", "published"],
+  staleTime: FIFTEEN_MIN,
+  gcTime: ONE_HOUR,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("faq_items")
+      .select("*")
+      .eq("is_published", true)
+      .order("category", { ascending: true })
+      .order("sort_order", { ascending: true });
+    if (error) throw error;
+    return (data ?? []) as FaqItem[];
+  },
+});
+
+export const jobOpeningsOpenQueryOptions = queryOptions<JobOpening[]>({
+  queryKey: ["job_openings", "open"],
+  staleTime: FIVE_MIN,
+  gcTime: HALF_HOUR,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("job_openings")
+      .select("*")
+      .eq("is_open", true)
+      .order("sort_order", { ascending: true });
+    if (error) throw error;
+    return (data ?? []) as JobOpening[];
+  },
+});
+
+
 
