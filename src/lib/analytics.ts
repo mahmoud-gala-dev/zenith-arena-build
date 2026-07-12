@@ -24,7 +24,8 @@ export type AnalyticsEvent =
   | { name: "quick_lead_submit"; source: string; type: "callback" | "quote"; has_phone: boolean }
   | { name: "quick_lead_error"; source: string; message: string }
   | { name: "lead_success_whatsapp_click"; source: string; intent: string }
-  | { name: "lead_success_catalog_click"; source: string; intent: string; catalog: string };
+  | { name: "lead_success_catalog_click"; source: string; intent: string; catalog: string }
+  | { name: "whatsapp_prefilled_click"; source: string; number: string };
 
 
 type AnyEvent = AnalyticsEvent & { [k: string]: unknown };
