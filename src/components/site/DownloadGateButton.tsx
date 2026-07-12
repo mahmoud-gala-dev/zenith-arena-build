@@ -151,9 +151,10 @@ export function DownloadGateButton({
       setOpen(false);
       setForm({ name: "", email: "", phone: "", website: "" });
       void trackDownloadEvent("download", downloadId);
-      window.open(fileUrl!, "_blank", "noopener,noreferrer");
+      await openSignedUrl();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : T.error);
+
     } finally {
       setSubmitting(false);
     }
