@@ -405,8 +405,14 @@ export type Database = {
           featured: boolean
           file_url: string | null
           id: string
+          og_image: string | null
+          og_image_ar: string | null
           preview_image: string | null
           requires_lead_capture: boolean
+          seo_description_ar: string | null
+          seo_description_en: string | null
+          seo_title_ar: string | null
+          seo_title_en: string | null
           slug_ar: string | null
           slug_en: string
           sort_order: number
@@ -423,8 +429,14 @@ export type Database = {
           featured?: boolean
           file_url?: string | null
           id?: string
+          og_image?: string | null
+          og_image_ar?: string | null
           preview_image?: string | null
           requires_lead_capture?: boolean
+          seo_description_ar?: string | null
+          seo_description_en?: string | null
+          seo_title_ar?: string | null
+          seo_title_en?: string | null
           slug_ar?: string | null
           slug_en: string
           sort_order?: number
@@ -441,8 +453,14 @@ export type Database = {
           featured?: boolean
           file_url?: string | null
           id?: string
+          og_image?: string | null
+          og_image_ar?: string | null
           preview_image?: string | null
           requires_lead_capture?: boolean
+          seo_description_ar?: string | null
+          seo_description_en?: string | null
+          seo_title_ar?: string | null
+          seo_title_en?: string | null
           slug_ar?: string | null
           slug_en?: string
           sort_order?: number

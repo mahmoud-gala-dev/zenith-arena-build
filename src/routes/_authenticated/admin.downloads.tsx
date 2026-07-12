@@ -39,6 +39,12 @@ type DownloadRow = {
   status: "published" | "draft" | "archived";
   featured: boolean;
   sort_order: number;
+  seo_title_en: string | null;
+  seo_title_ar: string | null;
+  seo_description_en: string | null;
+  seo_description_ar: string | null;
+  og_image: string | null;
+  og_image_ar: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -70,7 +76,14 @@ const emptyRow = (): Partial<DownloadRow> => ({
   status: "published",
   featured: false,
   sort_order: 0,
+  seo_title_en: "",
+  seo_title_ar: "",
+  seo_description_en: "",
+  seo_description_ar: "",
+  og_image: "",
+  og_image_ar: "",
 });
+
 
 function slugify(s: string) {
   return s.toLowerCase().trim()
@@ -334,7 +347,14 @@ function DownloadEditor({
       status: (values.status ?? "published") as DownloadRow["status"],
       featured: !!values.featured,
       sort_order: Number(values.sort_order ?? 0),
+      seo_title_en: values.seo_title_en?.trim() || null,
+      seo_title_ar: values.seo_title_ar?.trim() || null,
+      seo_description_en: values.seo_description_en?.trim() || null,
+      seo_description_ar: values.seo_description_ar?.trim() || null,
+      og_image: values.og_image?.trim() || null,
+      og_image_ar: values.og_image_ar?.trim() || null,
     };
+
     const { error } = values.id
       ? await supabase.from("downloads").update(payload).eq("id", values.id)
       : await supabase.from("downloads").insert([payload]);
@@ -474,6 +494,86 @@ function DownloadEditor({
               help="Square-ish cover image shown in the catalog list and detail hero. Upload from your device or paste a URL."
             />
           </div>
+
+          <div className="md:col-span-2 rounded-xl border border-border bg-secondary/30 p-4 space-y-4">
+            <div>
+              <Label className="text-sm font-semibold">SEO & social preview</Label>
+              <p className="text-xs text-muted-foreground">
+                Optional overrides used for Google results and shared links. Falls back to the title, description, and thumbnail above.
+              </p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label>SEO title (EN)</Label>
+                <Input
+                  maxLength={70}
+                  value={values.seo_title_en ?? ""}
+                  onChange={(e) => set("seo_title_en", e.target.value)}
+                  placeholder={values.title_en ? `${values.title_en} — Egytic Sports` : "Recommended ≤ 60 chars"}
+                />
+                <p className="text-[11px] text-muted-foreground">{(values.seo_title_en ?? "").length}/70</p>
+              </div>
+              <div className="space-y-1.5">
+                <Label>SEO title (AR)</Label>
+                <Input
+                  dir="rtl"
+                  maxLength={70}
+                  value={values.seo_title_ar ?? ""}
+                  onChange={(e) => set("seo_title_ar", e.target.value)}
+                  placeholder={values.title_ar ? `${values.title_ar} — إيجيتك سبورتس` : "يفضل ≤ 60 حرف"}
+                />
+                <p className="text-[11px] text-muted-foreground">{(values.seo_title_ar ?? "").length}/70</p>
+              </div>
+              <div className="space-y-1.5 md:col-span-2">
+                <Label>Meta description (EN)</Label>
+                <Textarea
+                  rows={2}
+                  maxLength={200}
+                  value={values.seo_description_en ?? ""}
+                  onChange={(e) => set("seo_description_en", e.target.value)}
+                  placeholder="Recommended 120–160 chars. Falls back to the English description."
+                />
+                <p className="text-[11px] text-muted-foreground">{(values.seo_description_en ?? "").length}/200</p>
+              </div>
+              <div className="space-y-1.5 md:col-span-2">
+                <Label>Meta description (AR)</Label>
+                <Textarea
+                  rows={2}
+                  dir="rtl"
+                  maxLength={200}
+                  value={values.seo_description_ar ?? ""}
+                  onChange={(e) => set("seo_description_ar", e.target.value)}
+                  placeholder="يفضل 120–160 حرفًا. يعود تلقائيًا للوصف بالعربية إن ترك فارغًا."
+                />
+                <p className="text-[11px] text-muted-foreground">{(values.seo_description_ar ?? "").length}/200</p>
+              </div>
+              <div className="md:col-span-2">
+                <StrictImageUrlField
+                  label="OG image — English (1200×630 recommended)"
+                  value={values.og_image ?? ""}
+                  onChange={(v) => set("og_image", v)}
+                  aspect="aspect-[1200/630]"
+                  aspectRatio={1200 / 630}
+                  bucket={BUCKET}
+                  folder="og"
+                  help="Optional social share image for English. Falls back to the thumbnail."
+                />
+              </div>
+              <div className="md:col-span-2">
+                <StrictImageUrlField
+                  label="OG image — Arabic (1200×630 recommended)"
+                  value={values.og_image_ar ?? ""}
+                  onChange={(v) => set("og_image_ar", v)}
+                  aspect="aspect-[1200/630]"
+                  aspectRatio={1200 / 630}
+                  bucket={BUCKET}
+                  folder="og"
+                  help="Optional Arabic-only share image. Falls back to the English OG image, then the thumbnail."
+                />
+              </div>
+            </div>
+          </div>
+
 
           <div className="space-y-1.5">
             <Label>Sort order</Label>

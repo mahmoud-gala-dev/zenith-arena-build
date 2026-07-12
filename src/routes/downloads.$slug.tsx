@@ -28,33 +28,83 @@ export const Route = createFileRoute("/downloads/$slug")({
   head: ({ loaderData }) => {
     const d = loaderData?.item as DownloadRow | undefined;
     if (!d) {
-      return { meta: [{ title: "Download not found — Egytic" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Download not found — Egytic Sports" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${d.title_en} — Egytic Downloads`;
-    const desc = d.description_en ?? `Download ${d.title_en} from Egytic Sports.`;
-    const url = `/downloads/${d.slug_en}`;
-    const image = d.preview_image ?? "";
+    const SITE_URL = "https://zenith-arena-build.lovable.app";
+    const abs = (u: string | null | undefined) =>
+      !u ? "" : /^https?:\/\//i.test(u) ? u : `${SITE_URL}${u.startsWith("/") ? "" : "/"}${u}`;
+    const pick = (...vals: (string | null | undefined)[]) =>
+      vals.find((v) => typeof v === "string" && v.trim().length > 0) ?? "";
+
+    const titleEn = pick(d.seo_title_en, `${d.title_en} — Egytic Sports`);
+    const titleAr = pick(d.seo_title_ar, `${d.title_ar || d.title_en} — إيجيتك سبورتس`);
+    const descEn = pick(d.seo_description_en, d.description_en, `Download ${d.title_en} from Egytic Sports.`);
+    const descAr = pick(d.seo_description_ar, d.description_ar, descEn);
+
+    const canonical = `${SITE_URL}/downloads/${d.slug_en}`;
+    const arUrl = d.slug_ar ? `${SITE_URL}/downloads/${d.slug_ar}` : `${canonical}?lang=ar`;
+
+    const SITE_FALLBACK = `${SITE_URL}/og-default.jpg`;
+    const ogEn = abs(pick(d.og_image, d.preview_image)) || SITE_FALLBACK;
+    const ogAr = abs(pick(d.og_image_ar, d.og_image, d.preview_image)) || SITE_FALLBACK;
+
     return {
       meta: [
-        { title },
-        { name: "description", content: desc },
-        { property: "og:title", content: title },
-        { property: "og:description", content: desc },
+        { title: `${titleEn} | ${titleAr}` },
+        { name: "description", content: `${descEn} — ${descAr}` },
         { property: "og:type", content: "article" },
-        { property: "og:url", content: url },
+        { property: "og:site_name", content: "Egytic Sports" },
+        { property: "og:url", content: canonical },
+        { property: "og:title", content: titleEn },
+        { property: "og:description", content: descEn },
+        { property: "og:locale", content: "en_US" },
+        { property: "og:locale:alternate", content: "ar_EG" },
+        { property: "og:image", content: ogEn },
+        { property: "og:image:alt", content: titleEn },
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:title", content: title },
-        { name: "twitter:description", content: desc },
-        ...(image ? [{ property: "og:image", content: image }, { name: "twitter:image", content: image }] : []),
+        { name: "twitter:title", content: titleEn },
+        { name: "twitter:description", content: descEn },
+        { name: "twitter:image", content: ogEn },
+        { name: "twitter:image:alt", content: titleEn },
       ],
       links: [
-        { rel: "canonical", href: url },
-        { rel: "alternate", hrefLang: "en", href: url },
-        { rel: "alternate", hrefLang: "ar", href: d.slug_ar ? `/downloads/${d.slug_ar}` : url },
-        { rel: "alternate", hrefLang: "x-default", href: url },
+        { rel: "canonical", href: canonical },
+        { rel: "alternate", hrefLang: "en", href: canonical },
+        { rel: "alternate", hrefLang: "ar", href: arUrl },
+        { rel: "alternate", hrefLang: "x-default", href: canonical },
+      ],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "DigitalDocument",
+            name: d.title_en,
+            alternateName: d.title_ar || undefined,
+            description: descEn,
+            url: canonical,
+            image: Array.from(new Set([ogEn, ogAr].filter(Boolean))),
+            inLanguage: ["en", "ar"],
+            publisher: { "@type": "Organization", name: "Egytic Sports", url: SITE_URL },
+            ...(d.file_url ? { contentUrl: d.file_url } : {}),
+          }),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+              { "@type": "ListItem", position: 2, name: "Downloads", item: `${SITE_URL}/downloads` },
+              { "@type": "ListItem", position: 3, name: d.title_en, item: canonical },
+            ],
+          }),
+        },
       ],
     };
   },
+
   errorComponent: ({ error }) => (
     <SiteLayout>
       <div className="mx-auto max-w-3xl px-4 py-24 text-center">
