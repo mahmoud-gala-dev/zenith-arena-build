@@ -58,15 +58,16 @@ function GovernoratesPage() {
       ? await supabase.from("governorates").update(payload).eq("id", editing.id)
       : await supabase.from("governorates").insert(payload);
     if (error) return toast.error(error.message);
-    toast.success("Saved"); setEditing(null); load();
+    toast.success("Saved"); setEditing(null); invalidate(); load();
   }
 
   async function remove(id: string) {
     if (!confirm("Delete this governorate? Assigned projects will be unlinked.")) return;
     const { error } = await supabase.from("governorates").delete().eq("id", id);
     if (error) return toast.error(error.message);
-    toast.success("Deleted"); load();
+    toast.success("Deleted"); invalidate(); load();
   }
+
 
   return (
     <AdminShell title="Governorates">
