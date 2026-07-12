@@ -242,7 +242,7 @@ export function PreviewLinksCard({
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid gap-3 sm:grid-cols-[1fr_120px_auto] items-end">
+        <div className="grid gap-3 sm:grid-cols-[1fr_1fr_120px_auto] items-end">
           <div className="space-y-1">
             <Label className="text-xs">Label (optional)</Label>
             <Input
@@ -251,6 +251,25 @@ export function PreviewLinksCard({
               onChange={(e) => setLabel(e.target.value)}
               disabled={disabled || !canPreviewDrafts}
             />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Version</Label>
+            <Select
+              value={selectedVersion}
+              onValueChange={setSelectedVersion}
+              disabled={disabled || !canPreviewDrafts}
+            >
+              <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value={CURRENT_DRAFT}>Current draft (live-updating)</SelectItem>
+                {versions.map((v) => (
+                  <SelectItem key={v.id} value={v.id}>
+                    v{v.version_number} · {new Date(v.created_at).toLocaleDateString()}
+                    {v.actor_email ? ` · ${v.actor_email}` : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-1">
             <Label className="text-xs">Expires in (days)</Label>
@@ -273,6 +292,7 @@ export function PreviewLinksCard({
             {creating ? "Creating…" : "Create link"}
           </Button>
         </div>
+
 
         {tokens.length > 0 && (
           <div className="grid gap-2 sm:grid-cols-[1fr_auto_auto] items-center">
