@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useCallback } from "react";
-import { ArrowLeft, ArrowRight, Download, MessageCircle, Expand } from "lucide-react";
+import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft, ArrowRight, Download, MessageCircle, Expand, CheckCircle2, ShieldCheck, Award, Clock, Wrench, Users, Sparkles } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { DetailPageSkeleton } from "@/components/site/Skeletons";
 
@@ -11,9 +12,11 @@ import { ImageLightbox } from "@/components/site/ImageLightbox";
 import { ServiceQuoteForm } from "@/components/site/ServiceQuoteForm";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
-import { serviceBySlugQueryOptions, useServiceBySlug } from "@/hooks/useServiceContent";
+import { serviceBySlugQueryOptions, servicesPublishedQueryOptions, useServiceBySlug } from "@/hooks/useServiceContent";
+import { projectsPublishedListQueryOptions, dbProjectToView } from "@/lib/queries";
 
 const SITE_URL = "https://zenith-arena-build.lovable.app";
+
 
 type ServiceSearch = { lang?: "en" | "ar" };
 
