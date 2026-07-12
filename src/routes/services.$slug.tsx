@@ -456,7 +456,7 @@ function ServiceDetailPage() {
                   <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <span className="pointer-events-none absolute bottom-3 right-3 rtl:right-auto rtl:left-3 flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium text-foreground opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
                     <Expand className="h-3.5 w-3.5" />
-                    {ar ? "تكبير" : "Expand"}
+                    {t.serviceDetail.expand}
                   </span>
                 </button>
               ))}
