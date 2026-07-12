@@ -1,84 +1,66 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { X, ChevronLeft, ChevronRight, ArrowRight, Search, ZoomIn, ZoomOut } from "lucide-react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { X, ChevronLeft, ChevronRight, Search, ZoomIn, ZoomOut } from "lucide-react";
 import { z } from "zod";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import heroGallery from "@/assets/hero-gallery.jpg.asset.json";
 import { Reveal } from "@/components/site/Reveal";
-import { useLang, useLocalized } from "@/i18n/LanguageProvider";
-import { projects, projectCategories, articles, services, type L as Localized } from "@/lib/site-data";
+import { useLang } from "@/i18n/LanguageProvider";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
+import { galleryPublishedQueryOptions, blogPostsPublishedQueryOptions } from "@/lib/queries";
 
-
-type SourceType = "all" | "projects" | "services" | "knowledge";
+type SourceType = "all" | "projects" | "knowledge";
 
 const searchSchema = z.object({
-  type: z.enum(["all", "projects", "services", "knowledge"]).optional(),
+  type: z.enum(["all", "projects", "knowledge"]).optional(),
   category: z.string().optional(),
-  item: z.string().optional(),
 });
 
 export const Route = createFileRoute("/gallery")({
   validateSearch: searchSchema,
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.ensureQueryData(galleryPublishedQueryOptions),
+      context.queryClient.ensureQueryData(blogPostsPublishedQueryOptions),
+    ]),
   head: () => ({
     meta: [
       { title: "Project Gallery — Egytic Sports" },
-      {
-        name: "description",
-        content:
-          "Visual gallery of football pitches, athletics tracks, indoor arenas, tennis and padel courts, and aquatic centres delivered by Egytic Sports.",
-      },
+      { name: "description", content: "Visual gallery of football pitches, athletics tracks, indoor arenas, tennis and padel courts, and aquatic centres delivered by Egytic Sports." },
       { property: "og:title", content: "Project Gallery — Egytic Sports" },
-      {
-        property: "og:description",
-        content: "A visual gallery of world-class sports facilities delivered by Egytic Sports.",
-      },
+      { property: "og:description", content: "A visual gallery of world-class sports facilities delivered by Egytic Sports." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "/gallery" },
       { property: "og:image", content: heroGallery.url },
-      { property: "og:image:width", content: "1920" },
-      { property: "og:image:height", content: "1080" },
-      { property: "og:image:alt", content: "Collage of sports facility close-ups" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Project Gallery — Egytic Sports" },
-      { name: "twitter:description", content: "Photos from our sports construction portfolio." },
       { name: "twitter:image", content: heroGallery.url },
     ],
     links: [
       { rel: "canonical", href: "/gallery" },
-      { rel: "alternate", hrefLang: "en", href: "/gallery" },
-      { rel: "alternate", hrefLang: "ar", href: "/gallery" },
-      { rel: "alternate", hrefLang: "x-default", href: "/gallery" },
       { rel: "preload", as: "image", href: heroGallery.url, fetchpriority: "high" },
     ],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "ImageGallery",
-          name: "Egytic Project Gallery",
-          description:
-            "Visual portfolio of sports infrastructure projects, services and technical articles by Egytic Sports.",
-          associatedMedia: projects.slice(0, 12).map((p) => ({
-            "@type": "ImageObject",
-            contentUrl: p.image,
-            name: p.title.en,
-            caption: `${p.title.en} — ${p.location.en}`,
-          })),
-        }),
-      },
-    ],
   }),
+  errorComponent: ({ error }) => (
+    <SiteLayout>
+      <div className="mx-auto max-w-7xl px-4 py-24 text-center">
+        <p className="text-muted-foreground">{error.message}</p>
+      </div>
+    </SiteLayout>
+  ),
+  notFoundComponent: () => null,
   component: GalleryPage,
 });
 
 interface GalleryItem {
   image: string;
-  title: Localized;
-  caption: Localized;
+  titleEn: string;
+  titleAr: string;
+  captionEn: string;
+  captionAr: string;
   category: string;
   type: Exclude<SourceType, "all">;
   href?: { to: string; params: Record<string, string> };
@@ -87,10 +69,11 @@ interface GalleryItem {
 
 function GalleryPage() {
   const { lang } = useLang();
-  const L = useLocalized();
   const ar = lang === "ar";
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
+  const { data: galleryRows } = useSuspenseQuery(galleryPublishedQueryOptions);
+  const { data: blogRows } = useSuspenseQuery(blogPostsPublishedQueryOptions);
 
   const [activeType, setActiveType] = useState<SourceType>(search.type ?? "all");
   const [activeCategory, setActiveCategory] = useState<string>(search.category ?? "all");
@@ -104,89 +87,50 @@ function GalleryPage() {
   }, [search.type, search.category]);
 
   const tx = ar
-    ? {
-        eyebrow: "المعرض",
-        title: "مختارات من أعمالنا",
-        sub: "لقطات من الملاعب والمنشآت والمعرفة التقنية التي نقدّمها.",
-        all: "الكل",
-        types: { projects: "المشاريع", services: "الخدمات", knowledge: "المعرفة" },
-        empty: "لا توجد عناصر لهذا الفلتر.",
-        view: "عرض التفاصيل",
-        close: "إغلاق",
-        prev: "السابق",
-        next: "التالي",
-        searchPh: "ابحث في المعرض…",
-        zoomIn: "تكبير",
-        zoomOut: "تصغير",
-      }
-    : {
-        eyebrow: "Gallery",
-        title: "A visual tour of our work",
-        sub: "Snapshots from pitches, arenas, services and technical knowledge we've delivered.",
-        all: "All",
-        types: { projects: "Projects", services: "Services", knowledge: "Knowledge" },
-        empty: "No items match this filter.",
-        view: "View details",
-        close: "Close",
-        prev: "Previous",
-        next: "Next",
-        searchPh: "Search the gallery…",
-        zoomIn: "Zoom in",
-        zoomOut: "Zoom out",
-      };
+    ? { eyebrow: "المعرض", title: "مختارات من أعمالنا", sub: "لقطات من الملاعب والمنشآت والمعرفة التقنية التي نقدّمها.", all: "الكل", types: { projects: "المشاريع", knowledge: "المعرفة" }, empty: "لا توجد عناصر لهذا الفلتر.", close: "إغلاق", prev: "السابق", next: "التالي", searchPh: "ابحث في المعرض…", zoomIn: "تكبير", zoomOut: "تصغير" }
+    : { eyebrow: "Gallery", title: "A visual tour of our work", sub: "Snapshots from pitches, arenas, services and technical knowledge we've delivered.", all: "All", types: { projects: "Projects", knowledge: "Knowledge" }, empty: "No items match this filter.", close: "Close", prev: "Previous", next: "Next", searchPh: "Search the gallery…", zoomIn: "Zoom in", zoomOut: "Zoom out" };
 
-  // Build unified gallery pool from three sources
   const allItems = useMemo<GalleryItem[]>(() => {
-    const projectItems: GalleryItem[] = projects.map((p, idx) => ({
-      image: p.image,
-      title: p.title,
-      caption: p.location,
-      category: p.category,
+    const projectItems: GalleryItem[] = galleryRows.map((g, idx) => ({
+      image: g.image_url,
+      titleEn: g.title_en,
+      titleAr: g.title_ar,
+      captionEn: g.description_en || g.alt_en || g.category || "",
+      captionAr: g.description_ar || g.alt_ar || g.category || "",
+      category: g.category || "other",
       type: "projects",
-      href: { to: "/projects/$slug", params: { slug: p.slug } },
       span: idx % 6 === 0 ? "row-span-2" : "",
     }));
 
-    // Services don't carry their own image; pair each service with a representative
-    // project image so the "Services" filter is still visually rich.
-    const serviceItems: GalleryItem[] = services.slice(0, 12).map((s, idx) => {
-      const match =
-        projects.find((p) => p.category === (s.id.includes("football") ? "football" :
-          s.id.includes("athletic") ? "athletics" :
-          s.id.includes("indoor") || s.id.includes("multi") ? "indoor" :
-          s.id.includes("tennis") || s.id.includes("padel") || s.id.includes("racket") ? "racket" :
-          s.id.includes("aqua") || s.id.includes("swim") ? "aquatics" : "football")) ??
-        projects[idx % projects.length];
-      return {
-        image: match.image,
-        title: s.title,
-        caption: s.short,
-        category: match.category,
-        type: "services",
-        href: { to: "/services/$slug", params: { slug: s.id } },
-      };
-    });
+    const knowledgeItems: GalleryItem[] = blogRows
+      .filter((b) => b.featured_image)
+      .map((b) => ({
+        image: b.featured_image!,
+        titleEn: b.title_en,
+        titleAr: b.title_ar,
+        captionEn: b.excerpt_en || "",
+        captionAr: b.excerpt_ar || "",
+        category: "knowledge",
+        type: "knowledge",
+        href: { to: "/knowledge/$slug", params: { slug: b.slug_en } },
+      }));
 
-    const knowledgeItems: GalleryItem[] = articles.map((a) => ({
-      image: a.image,
-      title: a.title,
-      caption: a.category,
-      category: "knowledge",
-      type: "knowledge",
-      href: { to: "/knowledge/$slug", params: { slug: a.slug } },
-    }));
+    return [...projectItems, ...knowledgeItems];
+  }, [galleryRows, blogRows]);
 
-    return [...projectItems, ...serviceItems, ...knowledgeItems];
-  }, []);
+  const projectCategories = useMemo(() => {
+    const set = new Set<string>();
+    for (const g of galleryRows) if (g.category) set.add(g.category);
+    return Array.from(set);
+  }, [galleryRows]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return allItems.filter((it) => {
       if (activeType !== "all" && it.type !== activeType) return false;
-      if (activeType === "projects" && activeCategory !== "all" && it.category !== activeCategory)
-        return false;
+      if (activeType === "projects" && activeCategory !== "all" && it.category !== activeCategory) return false;
       if (q) {
-        const hay = `${it.title.en} ${it.title.ar} ${it.caption.en} ${it.caption.ar} ${it.category}`.toLowerCase();
+        const hay = `${it.titleEn} ${it.titleAr} ${it.captionEn} ${it.captionAr} ${it.category}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -197,117 +141,43 @@ function GalleryPage() {
     setActiveType(t);
     if (t !== "projects") setActiveCategory("all");
     navigate({ search: { type: t === "all" ? undefined : t, category: undefined }, replace: true });
-    const results = allItems.filter((it) => t === "all" || it.type === t).length;
-    trackEvent({ name: "gallery_filter", filter_type: "type", value: t, results });
+    trackEvent({ name: "gallery_filter", filter_type: "type", value: t, results: filtered.length });
   };
   const setCategory = (c: string) => {
     setActiveCategory(c);
-    navigate({
-      search: {
-        type: activeType === "all" ? undefined : activeType,
-        category: c === "all" ? undefined : c,
-      },
-      replace: true,
-    });
-    const results = allItems.filter(
-      (it) => (activeType === "all" || it.type === activeType) && (c === "all" || it.category === c),
-    ).length;
-    trackEvent({ name: "gallery_filter", filter_type: "category", value: c, results });
+    navigate({ search: { type: activeType === "all" ? undefined : activeType, category: c === "all" ? undefined : c }, replace: true });
+    trackEvent({ name: "gallery_filter", filter_type: "category", value: c, results: filtered.length });
+
   };
 
-  // Debounced gallery search analytics
-  useEffect(() => {
-    const q = query.trim();
-    if (!q) return;
-    const id = window.setTimeout(() => {
-      trackEvent({ name: "gallery_search", query: q, results: filtered.length });
-    }, 500);
-    return () => window.clearTimeout(id);
-  }, [query, filtered.length]);
+  useEffect(() => { setZoomed(false); }, [lightbox]);
 
-  // Reset zoom whenever slide changes / closes
-  useEffect(() => {
-    setZoomed(false);
-  }, [lightbox]);
-
-  // Focus restoration + focus trap refs
   const lastTriggerRef = useRef<HTMLElement | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
-  const prefersReducedMotion =
-    typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
   const openLightbox = (i: number, ev?: React.MouseEvent<HTMLButtonElement>) => {
     lastTriggerRef.current = (ev?.currentTarget as HTMLElement) ?? (document.activeElement as HTMLElement);
     setLightbox(i);
-    const item = filtered[i];
-    if (item) {
-      trackEvent({
-        name: "gallery_lightbox_open",
-        index: i,
-        total: filtered.length,
-        item_title: item.title.en,
-        item_type: item.type,
-      });
-    }
   };
-
   const closeLightbox = () => {
-    if (lightbox !== null) {
-      const item = filtered[lightbox];
-      trackEvent({
-        name: "gallery_lightbox_close",
-        index: lightbox,
-        item_title: item?.title.en ?? "",
-      });
-    }
     setLightbox(null);
-    // return focus after paint
     window.setTimeout(() => lastTriggerRef.current?.focus?.(), 0);
   };
-
-  const navLightbox = (dir: 1 | -1, via: "keyboard" | "button") => {
-    setLightbox((i) => {
-      if (i === null) return null;
-      const next = (i + dir + filtered.length) % filtered.length;
-      trackEvent({ name: "gallery_lightbox_nav", from: i, to: next, via });
-      return next;
-    });
+  const navLightbox = (dir: 1 | -1) => {
+    setLightbox((i) => (i === null ? null : (i + dir + filtered.length) % filtered.length));
   };
 
-  // Lightbox keyboard nav + body scroll lock + focus trap
   useEffect(() => {
     if (lightbox === null) return;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    // move initial focus to close button
     window.setTimeout(() => closeBtnRef.current?.focus?.(), 0);
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        closeLightbox();
-        return;
-      }
-      if (e.key === "ArrowRight") navLightbox(1, "keyboard");
-      if (e.key === "ArrowLeft") navLightbox(-1, "keyboard");
+      if (e.key === "Escape") { e.preventDefault(); closeLightbox(); return; }
+      if (e.key === "ArrowRight") navLightbox(1);
+      if (e.key === "ArrowLeft") navLightbox(-1);
       if (e.key === " " || e.key === "z") setZoomed((z) => !z);
-      if (e.key === "Tab") {
-        const root = dialogRef.current;
-        if (!root) return;
-        const focusables = root.querySelectorAll<HTMLElement>(
-          'button, [href], input, [tabindex]:not([tabindex="-1"])',
-        );
-        if (!focusables.length) return;
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
     };
     window.addEventListener("keydown", onKey);
     return () => {
@@ -317,15 +187,15 @@ function GalleryPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lightbox, filtered.length]);
 
-
   const typeChips: { id: SourceType; label: string }[] = [
     { id: "all", label: tx.all },
     { id: "projects", label: tx.types.projects },
-    { id: "services", label: tx.types.services },
     { id: "knowledge", label: tx.types.knowledge },
   ];
 
   const current = lightbox !== null ? filtered[lightbox] : null;
+  const currentTitle = current ? (ar ? current.titleAr : current.titleEn) : "";
+  const currentCaption = current ? (ar ? current.captionAr : current.captionEn) : "";
 
   return (
     <SiteLayout>
@@ -341,12 +211,7 @@ function GalleryPage() {
                     key={c.id}
                     onClick={() => setType(c.id)}
                     aria-pressed={activeType === c.id}
-                    className={cn(
-                      "rounded-full border px-4 py-2 text-sm font-semibold transition-all",
-                      activeType === c.id
-                        ? "border-primary bg-primary text-primary-foreground shadow-soft"
-                        : "border-border bg-card hover:border-primary/40",
-                    )}
+                    className={cn("rounded-full border px-4 py-2 text-sm font-semibold transition-all", activeType === c.id ? "border-primary bg-primary text-primary-foreground shadow-soft" : "border-border bg-card hover:border-primary/40")}
                   >
                     {c.label}
                   </button>
@@ -366,33 +231,22 @@ function GalleryPage() {
             </div>
           </Reveal>
 
-
-          {activeType === "projects" && (
+          {activeType === "projects" && projectCategories.length > 0 && (
             <Reveal>
               <div className="mb-8 flex flex-wrap gap-2 border-t border-border pt-4">
                 <button
                   onClick={() => setCategory("all")}
-                  className={cn(
-                    "rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
-                    activeCategory === "all"
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border bg-card text-muted-foreground hover:border-primary/40",
-                  )}
+                  className={cn("rounded-full border px-3 py-1.5 text-xs font-medium transition-all", activeCategory === "all" ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/40")}
                 >
                   {tx.all}
                 </button>
                 {projectCategories.map((c) => (
                   <button
-                    key={c.id}
-                    onClick={() => setCategory(c.id)}
-                    className={cn(
-                      "rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
-                      activeCategory === c.id
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border bg-card text-muted-foreground hover:border-primary/40",
-                    )}
+                    key={c}
+                    onClick={() => setCategory(c)}
+                    className={cn("rounded-full border px-3 py-1.5 text-xs font-medium capitalize transition-all", activeCategory === c ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/40")}
                   >
-                    {L(c.label)}
+                    {c}
                   </button>
                 ))}
               </div>
@@ -407,14 +261,11 @@ function GalleryPage() {
                 <button
                   key={i}
                   onClick={(e) => openLightbox(i, e)}
-                  className={cn(
-                    "group relative overflow-hidden rounded-xl bg-secondary shadow-soft",
-                    it.span,
-                  )}
+                  className={cn("group relative overflow-hidden rounded-xl bg-secondary shadow-soft", it.span)}
                 >
                   <img
                     src={it.image}
-                    alt={L(it.title)}
+                    alt={ar ? it.titleAr : it.titleEn}
                     loading="lazy"
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
@@ -423,8 +274,8 @@ function GalleryPage() {
                     {tx.types[it.type as keyof typeof tx.types] ?? ""}
                   </span>
                   <div className="absolute inset-x-0 bottom-0 p-3 text-left rtl:text-right">
-                    <p className="text-sm font-semibold text-white">{L(it.title)}</p>
-                    <p className="text-xs text-white/70">{L(it.caption)}</p>
+                    <p className="text-sm font-semibold text-white">{ar ? it.titleAr : it.titleEn}</p>
+                    <p className="text-xs text-white/70">{ar ? it.captionAr : it.captionEn}</p>
                   </div>
                 </button>
               ))}
@@ -440,88 +291,52 @@ function GalleryPage() {
           onClick={closeLightbox}
           role="dialog"
           aria-modal="true"
-          aria-label={L(current.title)}
-          style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top))" }}
+          aria-label={currentTitle}
         >
           <button
             ref={closeBtnRef}
             aria-label={tx.close}
-            onClick={(e) => {
-              e.stopPropagation();
-              closeLightbox();
-            }}
-            className="absolute right-3 top-3 grid h-12 w-12 place-items-center rounded-full bg-white/15 text-white shadow-lg backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white active:scale-95 sm:right-4 sm:top-4 rtl:left-3 rtl:right-auto sm:rtl:left-4"
+            onClick={(e) => { e.stopPropagation(); closeLightbox(); }}
+            className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
           >
-            <X className="h-6 w-6" />
-          </button>
-          <button
-            aria-label={zoomed ? tx.zoomOut : tx.zoomIn}
-            onClick={(e) => {
-              e.stopPropagation();
-              setZoomed((z) => !z);
-            }}
-            className="absolute right-3 top-[4.5rem] grid h-11 w-11 place-items-center rounded-full bg-white/15 text-white backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white sm:right-4 sm:top-[5rem] rtl:left-3 rtl:right-auto sm:rtl:left-4"
-          >
-            {zoomed ? <ZoomOut className="h-5 w-5" /> : <ZoomIn className="h-5 w-5" />}
+            <X className="h-5 w-5" />
           </button>
           <button
             aria-label={tx.prev}
-            onClick={(e) => {
-              e.stopPropagation();
-              navLightbox(-1, "button");
-            }}
-            className="absolute left-2 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/15 text-white backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white active:scale-95 sm:left-4"
+            onClick={(e) => { e.stopPropagation(); navLightbox(-1); }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
           <button
             aria-label={tx.next}
-            onClick={(e) => {
-              e.stopPropagation();
-              navLightbox(1, "button");
-            }}
-            className="absolute right-2 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/15 text-white backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white active:scale-95 sm:right-4"
+            onClick={(e) => { e.stopPropagation(); navLightbox(1); }}
+            className="absolute right-16 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
           >
             <ChevronRight className="h-6 w-6" />
           </button>
-
-          <div
-            className="flex max-h-[92vh] w-full max-w-6xl flex-col items-center gap-3"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div
-              className={cn(
-                "relative w-full overflow-auto rounded-2xl",
-                zoomed ? "max-h-[80vh] cursor-zoom-out" : "max-h-[75vh] cursor-zoom-in",
-              )}
+          <div className="relative max-h-full max-w-6xl" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={current.image}
+              alt={currentTitle}
+              className={cn("max-h-[80vh] w-auto rounded-xl object-contain transition-transform", zoomed && "scale-150 cursor-zoom-out")}
               onClick={() => setZoomed((z) => !z)}
-            >
-              <img
-                src={current.image}
-                alt={L(current.title)}
-                className={cn(
-                  "mx-auto h-auto rounded-2xl object-contain shadow-elegant",
-                  prefersReducedMotion ? "" : "transition-transform duration-300",
-                  zoomed ? "max-w-none scale-[1.8] origin-center" : "max-h-[75vh] w-auto max-w-full",
+            />
+            <div className="mt-3 flex items-center justify-between text-white">
+              <div>
+                <p className="text-lg font-semibold">{currentTitle}</p>
+                {currentCaption && <p className="text-sm text-white/70">{currentCaption}</p>}
+              </div>
+              <div className="flex items-center gap-2">
+                <button aria-label={zoomed ? tx.zoomOut : tx.zoomIn} onClick={() => setZoomed((z) => !z)} className="rounded-full bg-white/10 p-2 hover:bg-white/20">
+                  {zoomed ? <ZoomOut className="h-4 w-4" /> : <ZoomIn className="h-4 w-4" />}
+                </button>
+                {current.href && (
+                  <Link to={current.href.to} params={current.href.params} className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground">
+                    {ar ? "عرض" : "View"}
+                  </Link>
                 )}
-                draggable={false}
-              />
-            </div>
-
-
-            <div className="w-full rounded-2xl bg-white/5 p-4 text-center backdrop-blur">
-              <p className="text-lg font-semibold text-white">{L(current.title)}</p>
-              <p className="mt-1 text-sm text-white/70">{L(current.caption)}</p>
-              {current.href && (
-                <Link
-                  to={current.href.to}
-                  params={current.href.params}
-                  className="mt-3 inline-flex items-center gap-1 rounded-full bg-gold px-4 py-1.5 text-xs font-semibold text-ink hover:bg-gold/90"
-                >
-                  {tx.view}
-                  <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
-                </Link>
-              )}
+              </div>
             </div>
           </div>
         </div>

@@ -169,4 +169,158 @@ export const heroSlidesActiveQueryOptions = (locale: "en" | "ar" = "en") =>
     },
   });
 
+export type GalleryRow = Database["public"]["Tables"]["gallery"]["Row"];
+export type ClientRow = Database["public"]["Tables"]["clients"]["Row"];
+export type TestimonialRow = Database["public"]["Tables"]["testimonials"]["Row"];
+export type DownloadRow = Database["public"]["Tables"]["downloads"]["Row"];
+export type CertificateRow = Database["public"]["Tables"]["certificates"]["Row"];
+export type ProductRow = Database["public"]["Tables"]["products"]["Row"];
+export type ProductCategoryRow = Database["public"]["Tables"]["product_categories"]["Row"];
+export type BlogRow = {
+  id: string;
+  slug_en: string;
+  title_en: string;
+  title_ar: string;
+  excerpt_en: string | null;
+  excerpt_ar: string | null;
+  featured_image: string | null;
+};
+
+export const galleryPublishedQueryOptions = queryOptions<GalleryRow[]>({
+  queryKey: ["gallery", "published"],
+  staleTime: FIVE_MIN,
+  gcTime: HALF_HOUR,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("gallery")
+      .select("*")
+      .eq("status", "published")
+      .order("sort_order");
+    if (error) throw error;
+    return (data ?? []) as GalleryRow[];
+  },
+});
+
+export const clientsPublishedQueryOptions = queryOptions<ClientRow[]>({
+  queryKey: ["clients", "published"],
+  staleTime: FIFTEEN_MIN,
+  gcTime: TWO_HOUR,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("clients")
+      .select("*")
+      .eq("status", "published")
+      .order("sort_order");
+    if (error) throw error;
+    return (data ?? []) as ClientRow[];
+  },
+});
+
+export const testimonialsPublishedQueryOptions = queryOptions<TestimonialRow[]>({
+  queryKey: ["testimonials", "published"],
+  staleTime: FIFTEEN_MIN,
+  gcTime: TWO_HOUR,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("testimonials")
+      .select("*")
+      .eq("status", "published")
+      .order("sort_order");
+    if (error) throw error;
+    return (data ?? []) as TestimonialRow[];
+  },
+});
+
+export const downloadsPublishedQueryOptions = queryOptions<DownloadRow[]>({
+  queryKey: ["downloads", "published"],
+  staleTime: FIFTEEN_MIN,
+  gcTime: TWO_HOUR,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("downloads")
+      .select("*")
+      .eq("status", "published")
+      .order("sort_order");
+    if (error) throw error;
+    return (data ?? []) as DownloadRow[];
+  },
+});
+
+export const certificatesPublishedQueryOptions = queryOptions<CertificateRow[]>({
+  queryKey: ["certificates", "published"],
+  staleTime: FIFTEEN_MIN,
+  gcTime: TWO_HOUR,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("certificates")
+      .select("*")
+      .eq("status", "published")
+      .order("sort_order");
+    if (error) throw error;
+    return (data ?? []) as CertificateRow[];
+  },
+});
+
+export const productsPublishedQueryOptions = queryOptions<ProductRow[]>({
+  queryKey: ["products", "published"],
+  staleTime: FIVE_MIN,
+  gcTime: HALF_HOUR,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("status", "published")
+      .order("sort_order");
+    if (error) throw error;
+    return (data ?? []) as ProductRow[];
+  },
+});
+
+export const productCategoriesQueryOptions = queryOptions<ProductCategoryRow[]>({
+  queryKey: ["product_categories", "published"],
+  staleTime: FIFTEEN_MIN,
+  gcTime: TWO_HOUR,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("product_categories")
+      .select("*")
+      .eq("status", "published")
+      .order("sort_order");
+    if (error) throw error;
+    return (data ?? []) as ProductCategoryRow[];
+  },
+});
+
+export const productBySlugQueryOptions = (slug: string) =>
+  queryOptions<ProductRow | null>({
+    queryKey: ["products", "by-slug", slug],
+    staleTime: FIVE_MIN,
+    gcTime: HALF_HOUR,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("status", "published")
+        .or(`slug_en.eq.${slug},slug_ar.eq.${slug}`)
+        .maybeSingle();
+      if (error) throw error;
+      return (data ?? null) as ProductRow | null;
+    },
+  });
+
+export const blogPostsPublishedQueryOptions = queryOptions<BlogRow[]>({
+  queryKey: ["blog_posts", "published-min"],
+  staleTime: FIVE_MIN,
+  gcTime: HALF_HOUR,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select("id,slug_en,title_en,title_ar,excerpt_en,excerpt_ar,featured_image")
+      .eq("status", "published")
+      .order("published_at", { ascending: false });
+    if (error) throw error;
+    return (data ?? []) as BlogRow[];
+  },
+});
+
 
