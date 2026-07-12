@@ -17,9 +17,11 @@ import {
   blogPostsPublishedQueryOptions,
   testimonialsPublishedQueryOptions,
   homeHeroSettingsQueryOptions,
+  homepageSectionsQueryOptions,
   type HomeClient,
 } from "@/lib/queries";
 import { servicesPublishedQueryOptions } from "@/hooks/useServiceContent";
+
 import ogImage from "@/assets/apex-og.jpg.asset.json";
 import ctaLandmark from "@/assets/cta-landmark.jpg.asset.json";
 import fallbackHeroImg from "@/assets/hero.jpg";
@@ -51,7 +53,9 @@ export const Route = createFileRoute("/")({
     void queryClient.ensureQueryData(homeClientsQueryOptions);
     void queryClient.ensureQueryData(servicesPublishedQueryOptions);
     void queryClient.ensureQueryData(homeHeroSettingsQueryOptions);
+    void queryClient.ensureQueryData(homepageSectionsQueryOptions);
   },
+
 
   head: () => {
     const SITE_URL = "https://zenith-arena-build.lovable.app";
@@ -141,6 +145,20 @@ function Index() {
   const { data: dbProjects } = useQuery(projectsPublishedListQueryOptions);
   const { data: dbArticles } = useQuery(blogPostsPublishedQueryOptions);
   const { data: dbTestimonials } = useQuery(testimonialsPublishedQueryOptions);
+  const { data: sectionsMap } = useQuery(homepageSectionsQueryOptions);
+
+  // Resolve a homepage section header from DB with static-dict fallback.
+  const section = (
+    key: string,
+    fallback: { title: string; subtitle?: string },
+  ): { title: string; subtitle?: string } => {
+    const row = sectionsMap?.[key];
+    if (!row) return fallback;
+    const title = (lang === "ar" ? row.title_ar : row.title_en) || fallback.title;
+    const subtitleRaw = lang === "ar" ? row.subtitle_ar : row.subtitle_en;
+    return { title, subtitle: subtitleRaw ?? fallback.subtitle };
+  };
+
 
   const servicesList = dbServices ?? [];
   const withSlug = servicesList.filter((s) => Boolean(s.slug_en));
@@ -358,12 +376,14 @@ function Index() {
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+            {(() => { const s = section("featured_services", { title: t.sections.servicesTitle, subtitle: t.sections.servicesSub }); return (
             <SectionHeader
               align="start"
               eyebrow={t.nav.services}
-              title={t.sections.servicesTitle}
-              subtitle={t.sections.servicesSub}
-            />
+              title={s.title}
+              subtitle={s.subtitle}
+            />); })()}
+
             <LangToggle />
           </div>
           <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -454,12 +474,14 @@ function Index() {
       <section className="bg-secondary/50 py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+            {(() => { const s = section("featured_projects", { title: t.sections.projectsTitle, subtitle: t.sections.projectsSub }); return (
             <SectionHeader
               align="start"
               eyebrow={t.nav.projects}
-              title={t.sections.projectsTitle}
-              subtitle={t.sections.projectsSub}
-            />
+              title={s.title}
+              subtitle={s.subtitle}
+            />); })()}
+
             <Button asChild variant="outline" className="shrink-0">
               <Link to="/projects">
                 {t.cta.viewAll}
@@ -509,12 +531,14 @@ function Index() {
       <section className="relative overflow-hidden bg-hero py-24 text-white">
         <div className="absolute inset-0 grid-texture opacity-20" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {(() => { const s = section("why", { title: t.sections.whyTitle, subtitle: t.sections.whySub }); return (
           <SectionHeader
             light
-            eyebrow={t.sections.whyTitle}
-            title={t.sections.whyTitle}
-            subtitle={t.sections.whySub}
-          />
+            eyebrow={s.title}
+            title={s.title}
+            subtitle={s.subtitle}
+          />); })()}
+
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {([
               [t.why.i1t, t.why.i1d],
@@ -542,11 +566,13 @@ function Index() {
       {/* Process */}
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {(() => { const s = section("process", { title: t.sections.processTitle, subtitle: t.sections.processSub }); return (
           <SectionHeader
-            eyebrow={t.sections.processTitle}
-            title={t.sections.processTitle}
-            subtitle={t.sections.processSub}
-          />
+            eyebrow={s.title}
+            title={s.title}
+            subtitle={s.subtitle}
+          />); })()}
+
           <div className="mt-14 grid gap-8 md:grid-cols-4">
             {([
               [t.process.s1t, t.process.s1d],
@@ -567,7 +593,7 @@ function Index() {
       {/* Testimonials */}
       <section className="bg-secondary/50 py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeader title={t.sections.testimonialsTitle} />
+          <SectionHeader title={section("testimonials", { title: t.sections.testimonialsTitle }).title} />
           <div className="mt-14 grid gap-6 lg:grid-cols-3">
             {homeTestimonials.map((tm, i) => (
               <Reveal key={tm.id} delay={i * 70}>
@@ -596,11 +622,13 @@ function Index() {
           }}
         />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {(() => { const s = section("clients", { title: t.sections.clientsTitle, subtitle: t.sections.clientsSub }); return (
           <SectionHeader
-            eyebrow={t.sections.clientsTitle}
-            title={t.sections.clientsTitle}
-            subtitle={t.sections.clientsSub}
-          />
+            eyebrow={s.title}
+            title={s.title}
+            subtitle={s.subtitle}
+          />); })()}
+
           <div
             role="list"
             className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-6"
@@ -677,12 +705,14 @@ function Index() {
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+            {(() => { const s = section("knowledge", { title: t.sections.knowledgeTitle, subtitle: t.sections.knowledgeSub }); return (
             <SectionHeader
               align="start"
               eyebrow={t.nav.knowledge}
-              title={t.sections.knowledgeTitle}
-              subtitle={t.sections.knowledgeSub}
-            />
+              title={s.title}
+              subtitle={s.subtitle}
+            />); })()}
+
             <Button asChild variant="outline" className="shrink-0">
               <Link to="/knowledge">
                 {t.cta.viewAll}
