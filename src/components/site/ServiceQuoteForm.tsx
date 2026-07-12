@@ -133,7 +133,7 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
                   <p className="mt-2 text-sm text-muted-foreground max-w-sm">{t.successBody}</p>
                   <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                     <Button variant="hero" onClick={() => setSuccessOpen(true)}>
-                      {ar ? "عرض ملخص الطلب" : "View submission"}
+                      {t.viewSubmission}
                     </Button>
                     <Button variant="outline" onClick={() => setSent(false)}>{t.another}</Button>
                   </div>
@@ -167,7 +167,7 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
                     </Button>
                     <WhatsAppSendButton
                       variant="solid"
-                      label={ar ? "إرسال عبر واتساب" : "Send via WhatsApp"}
+                      label={t.sendViaWhatsapp}
                       source={`service_quote_form_inline:${serviceSlug}`}
                       fields={{ name, email, phone, message, service: serviceTitle }}
                     />
