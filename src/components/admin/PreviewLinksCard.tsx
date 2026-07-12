@@ -132,6 +132,48 @@ export function PreviewLinksCard({
     return { label: "Active", className: "bg-emerald-500/15 text-emerald-700" };
   }
 
+  function statusKey(t: Token): Exclude<StatusFilter, "all"> {
+    if (t.revoked_at) return "revoked";
+    if (new Date(t.expires_at) <= new Date()) return "expired";
+    return "active";
+  }
+
+  const counts = useMemo(() => {
+    const c = { all: tokens.length, active: 0, expired: 0, revoked: 0 };
+    for (const t of tokens) c[statusKey(t)] += 1;
+    return c;
+  }, [tokens]);
+
+  const filteredTokens = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const list = tokens.filter((t) => {
+      if (statusFilter !== "all" && statusKey(t) !== statusFilter) return false;
+      if (!q) return true;
+      return (
+        (t.label ?? "").toLowerCase().includes(q) ||
+        (t.created_by_email ?? "").toLowerCase().includes(q) ||
+        t.token.toLowerCase().includes(q)
+      );
+    });
+    const ts = (v: string | null) => (v ? new Date(v).getTime() : 0);
+    const sorted = list.slice().sort((a, b) => {
+      switch (sortKey) {
+        case "expires_asc":
+          return ts(a.expires_at) - ts(b.expires_at);
+        case "expires_desc":
+          return ts(b.expires_at) - ts(a.expires_at);
+        case "last_viewed_desc":
+          return ts(b.last_viewed_at) - ts(a.last_viewed_at);
+        case "views_desc":
+          return (b.view_count ?? 0) - (a.view_count ?? 0);
+        case "created_desc":
+        default:
+          return ts(b.created_at) - ts(a.created_at);
+      }
+    });
+    return sorted;
+  }, [tokens, search, statusFilter, sortKey]);
+
   return (
     <Card className="mt-6">
       <CardHeader>
