@@ -218,7 +218,7 @@ function DownloadsPage() {
                         <div className="mt-4 flex flex-wrap items-center gap-2">
                           <Button asChild size="sm" variant="outline">
                             <Link to="/downloads/$slug" params={{ slug: r.slug_en }}>
-                              {ar ? "التفاصيل" : "Details"}
+                              {T.pages.downloads.details}
                             </Link>
                           </Button>
                           <DownloadGateButton
