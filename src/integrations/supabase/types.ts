@@ -404,6 +404,8 @@ export type Database = {
           description_en: string | null
           featured: boolean
           file_url: string | null
+          files: Json
+          gallery: Json
           id: string
           og_image: string | null
           og_image_ar: string | null
@@ -428,6 +430,8 @@ export type Database = {
           description_en?: string | null
           featured?: boolean
           file_url?: string | null
+          files?: Json
+          gallery?: Json
           id?: string
           og_image?: string | null
           og_image_ar?: string | null
@@ -452,6 +456,8 @@ export type Database = {
           description_en?: string | null
           featured?: boolean
           file_url?: string | null
+          files?: Json
+          gallery?: Json
           id?: string
           og_image?: string | null
           og_image_ar?: string | null
