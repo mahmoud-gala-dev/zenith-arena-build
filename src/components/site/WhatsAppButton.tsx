@@ -1,13 +1,17 @@
 import { MessageCircle } from "lucide-react";
-import { WHATSAPP_NUMBER } from "@/lib/site-data";
+import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
 import { useLang } from "@/i18n/LanguageProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export function WhatsAppButton() {
   const { t, isRTL } = useLang();
   const isMobile = useIsMobile();
-  if (!WHATSAPP_NUMBER) return null;
-  const href = `https://wa.me/${WHATSAPP_NUMBER}`;
+  const contact = useContactInfo();
+  const social = useSocialLinks();
+  const number = toWhatsAppNumber(social.whatsapp || contact.whatsapp);
+  if (!number) return null;
+  const href = `https://wa.me/${number}`;
+
 
 
   // On mobile, clear the bottom tab bar (≈74px) + safe area with breathing room.

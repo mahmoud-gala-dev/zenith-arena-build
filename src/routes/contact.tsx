@@ -21,7 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
-import { services, WHATSAPP_NUMBER } from "@/lib/site-data";
+import { services } from "@/lib/site-data";
+import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
+
 
 export const Route = createFileRoute("/contact")({
   component: ContactPage,
@@ -85,11 +87,20 @@ export const Route = createFileRoute("/contact")({
 
 
 function ContactPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const L = useLocalized();
+  const contact = useContactInfo();
+  const social = useSocialLinks();
+  const wa = toWhatsAppNumber(social.whatsapp || contact.whatsapp);
+  const ar = lang === "ar";
+  const officeLine = contact.offices
+    .map((o) => (ar ? o.city_ar || o.city_en : o.city_en))
+    .filter(Boolean)
+    .join(" · ") || "—";
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [projectType, setProjectType] = useState("");
+
 
   const schema = z.object({
     name: z.string().trim().min(1).max(100),
@@ -135,32 +146,34 @@ function ContactPage() {
         <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-3 lg:px-8">
           <div className="space-y-5 lg:col-span-1">
             {[
-              { icon: MapPin, label: t.contact.office, value: "Riyadh · Dubai · Doha" },
-              { icon: Mail, label: t.contact.email, value: "hello@egyticsports.com" },
-              { icon: Clock, label: t.contact.hours, value: t.contact.hours },
-            ].map((c, i) => (
-              <div key={i} className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-primary">
-                  <c.icon className="h-5 w-5" />
+              { icon: MapPin, label: t.contact.office, value: officeLine },
+              { icon: Mail, label: t.contact.email, value: contact.email },
+              { icon: Clock, label: t.contact.hours, value: ar ? contact.hours_ar : contact.hours_en },
+            ]
+              .filter((c) => Boolean(c.value))
+              .map((c, i) => (
+                <div key={i} className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-primary">
+                    <c.icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">{c.label}</p>
+                    <p className="font-medium text-foreground">{c.value}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">{c.label}</p>
-                  <p className="font-medium text-foreground">{c.value}</p>
-                </div>
-              </div>
-            ))}
-            {WHATSAPP_NUMBER ? (
+              ))}
+            {wa ? (
               <a
-                href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                href={`https://wa.me/${wa}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-primary px-5 py-4 font-semibold text-primary-foreground shadow-soft"
               >
                 <MessageCircle className="h-5 w-5" />
                 {t.cta.whatsapp}
-
               </a>
             ) : null}
+
           </div>
 
 

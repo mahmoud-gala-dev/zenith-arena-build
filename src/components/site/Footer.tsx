@@ -1,22 +1,32 @@
 import { Link } from "@tanstack/react-router";
-import { Mail, MapPin, Facebook, Instagram, Linkedin, Youtube, Twitter } from "lucide-react";
+import { Mail, MapPin, Facebook, Instagram, Linkedin, Youtube, Twitter, MessageCircle } from "lucide-react";
 import { Logo } from "./Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLang } from "@/i18n/LanguageProvider";
+import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
 
-const socialLinks = [
-  { name: "LinkedIn", href: "https://www.linkedin.com/company/apexsports", Icon: Linkedin },
-  { name: "Instagram", href: "https://www.instagram.com/apexsports", Icon: Instagram },
-  { name: "Facebook", href: "https://www.facebook.com/apexsports", Icon: Facebook },
-  { name: "X (Twitter)", href: "https://twitter.com/apexsports", Icon: Twitter },
-  { name: "YouTube", href: "https://www.youtube.com/@apexsports", Icon: Youtube },
-];
 
 export function Footer() {
   const { t, lang } = useLang();
+  const contact = useContactInfo();
+  const social = useSocialLinks();
   const year = new Date().getFullYear();
   const ar = lang === "ar";
+  const wa = toWhatsAppNumber(social.whatsapp || contact.whatsapp);
+  const socialLinks: { name: string; href: string; Icon: typeof Linkedin }[] = [
+    { name: "LinkedIn", href: social.linkedin, Icon: Linkedin },
+    { name: "Instagram", href: social.instagram, Icon: Instagram },
+    { name: "Facebook", href: social.facebook, Icon: Facebook },
+    { name: "X (Twitter)", href: social.x, Icon: Twitter },
+    { name: "YouTube", href: social.youtube, Icon: Youtube },
+    ...(wa ? [{ name: "WhatsApp", href: `https://wa.me/${wa}`, Icon: MessageCircle }] : []),
+  ].filter((s) => Boolean(s.href));
+  const officeLine = contact.offices
+    .map((o) => (ar ? o.city_ar || o.city_en : o.city_en))
+    .filter(Boolean)
+    .join(" · ");
+
 
   const resources = ar
     ? [
@@ -54,12 +64,18 @@ export function Footer() {
             <Logo light />
             <p className="mt-4 max-w-xs text-sm text-white/60">{t.footer.tagline}</p>
             <div className="mt-6 space-y-2 text-sm text-white/70">
-              <p className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-primary" /> Riyadh · Dubai · Doha
-              </p>
-              <p className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-primary" /> hello@egyticsports.com
-              </p>
+              {officeLine && (
+                <p className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-primary" /> {officeLine}
+                </p>
+              )}
+              {contact.email && (
+                <p className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-primary" />
+                  <a href={`mailto:${contact.email}`} className="hover:text-white">{contact.email}</a>
+                </p>
+              )}
+
 
             </div>
             <div className="mt-6 flex flex-wrap gap-2">
