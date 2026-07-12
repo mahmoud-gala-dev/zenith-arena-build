@@ -129,13 +129,28 @@ function ServicesPage() {
     setSearch({ q: qLocal.trim() || undefined, page: undefined });
   };
 
+  const L = t.servicesList;
   const copy = useMemo(
-    () => ar
-      ? { searchPh: "ابحث في الخدمات...", all: "كل الفئات", results: (n: number) => `${n} خدمة`, empty: "لا توجد نتائج مطابقة.", clear: "مسح", prev: "السابق", next: "التالي", pageOf: (a: number, b: number) => `صفحة ${a} من ${b}`, view: "تفاصيل الخدمة",
-          sort: "ترتيب", sortLabels: { featured: "المميزة أولاً", newest: "الأحدث", oldest: "الأقدم", az: "أ إلى ي", za: "ي إلى أ" } as Record<SortKey, string> }
-      : { searchPh: "Search services...", all: "All categories", results: (n: number) => `${n} services`, empty: "No matching services.", clear: "Clear", prev: "Previous", next: "Next", pageOf: (a: number, b: number) => `Page ${a} of ${b}`, view: "View service",
-          sort: "Sort", sortLabels: { featured: "Featured", newest: "Newest", oldest: "Oldest", az: "A – Z", za: "Z – A" } as Record<SortKey, string> },
-    [ar],
+    () => ({
+      searchPh: L.searchPh,
+      all: L.all,
+      results: (n: number) => `${n} ${L.resultsSuffix}`,
+      empty: L.empty,
+      clear: L.clear,
+      prev: L.prev,
+      next: L.next,
+      pageOf: (a: number, b: number) => `${L.pageWord} ${a} ${L.ofWord} ${b}`,
+      view: L.view,
+      sort: L.sort,
+      sortLabels: {
+        featured: L.sortFeatured,
+        newest: L.sortNewest,
+        oldest: L.sortOldest,
+        az: L.sortAz,
+        za: L.sortZa,
+      } as Record<SortKey, string>,
+    }),
+    [L],
   );
 
 

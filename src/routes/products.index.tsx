@@ -40,7 +40,7 @@ function ProductsPage() {
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {products.length === 0 ? (
-            <p className="py-16 text-center text-muted-foreground">{ar ? "لا توجد منتجات بعد." : "No products yet."}</p>
+            <p className="py-16 text-center text-muted-foreground">{t.productsList.empty}</p>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {products.map((p, i) => {
