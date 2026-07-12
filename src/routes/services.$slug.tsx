@@ -8,6 +8,7 @@ import { Icon } from "@/components/site/Icon";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ShareButtons } from "@/components/site/ShareButtons";
 import { ImageLightbox } from "@/components/site/ImageLightbox";
+import { ServiceQuoteForm } from "@/components/site/ServiceQuoteForm";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import { serviceBySlugQueryOptions, useServiceBySlug } from "@/hooks/useServiceContent";
@@ -379,6 +380,7 @@ function ServiceDetailPage() {
         </section>
       )}
 
+      <ServiceQuoteForm serviceSlug={slug} serviceTitle={title} />
 
 
       <section className="bg-hero py-16 text-white">
