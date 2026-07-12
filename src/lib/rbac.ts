@@ -84,15 +84,51 @@ export function useCan(perm: PermissionKey | null | undefined) {
   return { can: (data ?? []).includes(perm), isLoading };
 }
 
-const DENY_MSG_EN = "Access denied — you don't have permission for this action.";
-const DENY_MSG_AR = "لا تملك الصلاحية لتنفيذ هذا الإجراء.";
+/**
+ * Human-readable, bilingual labels for each permission. Kept intentionally
+ * generic — we surface *why* an action was blocked without exposing internal
+ * policy keys, table names, or record identifiers to the UI.
+ */
+const PERMISSION_LABELS: Record<PermissionKey, { en: string; ar: string }> = {
+  "dashboard.view": { en: "View admin dashboard", ar: "عرض لوحة التحكم" },
+  "pages.manage": { en: "Manage site pages", ar: "إدارة صفحات الموقع" },
+  "services.manage": { en: "Manage services", ar: "إدارة الخدمات" },
+  "products.manage": { en: "Manage products", ar: "إدارة المنتجات" },
+  "projects.manage": { en: "Manage projects", ar: "إدارة المشاريع" },
+  "blog.manage": { en: "Manage knowledge center", ar: "إدارة مركز المعرفة" },
+  "leads.manage": { en: "Manage leads", ar: "إدارة العملاء المحتملين" },
+  "media.manage": { en: "Manage media library", ar: "إدارة مكتبة الوسائط" },
+  "settings.manage": { en: "Manage site settings", ar: "إدارة إعدادات الموقع" },
+  "users.manage": { en: "Manage users & roles", ar: "إدارة المستخدمين والأدوار" },
+};
+
+const DENY_TITLE_EN = "Access denied";
+const DENY_TITLE_AR = "تم رفض الوصول";
+const DENY_FALLBACK_EN = "You don't have permission for this action.";
+const DENY_FALLBACK_AR = "لا تملك الصلاحية لتنفيذ هذا الإجراء.";
+
+function describeMissingPermission(perm?: PermissionKey | null) {
+  if (perm && PERMISSION_LABELS[perm]) {
+    const { en, ar } = PERMISSION_LABELS[perm];
+    return {
+      title: `${DENY_TITLE_EN} · ${DENY_TITLE_AR}`,
+      description: `Requires: ${en} — يتطلب صلاحية: ${ar}`,
+    };
+  }
+  return {
+    title: `${DENY_TITLE_EN} · ${DENY_TITLE_AR}`,
+    description: `${DENY_FALLBACK_EN} — ${DENY_FALLBACK_AR}`,
+  };
+}
 
 export function notifyAccessDenied(
   perm?: PermissionKey | null,
   context?: { resource?: string; recordId?: string | null; action?: string },
 ) {
-  toast.error(DENY_MSG_EN, {
-    description: perm ? `${DENY_MSG_AR}  (${perm})` : DENY_MSG_AR,
+  const { title, description } = describeMissingPermission(perm);
+  toast.error(title, {
+    id: `access-denied:${perm ?? "unknown"}`,
+    description,
   });
   void logAdminAudit({
     action: "PERMISSION_DENIED",
@@ -107,6 +143,7 @@ export function notifyAccessDenied(
     },
   });
 }
+
 
 /**
  * Returns a guard() wrapper that blocks the action with a toast when the
