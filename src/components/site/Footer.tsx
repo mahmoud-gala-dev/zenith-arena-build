@@ -1,10 +1,16 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Mail, MapPin, Facebook, Instagram, Linkedin, Youtube, Twitter, MessageCircle } from "lucide-react";
+import { toast } from "sonner";
 import { Logo } from "./Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLang } from "@/i18n/LanguageProvider";
 import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
+import { subscribeNewsletter } from "@/lib/newsletter.functions";
+
+
 
 
 export function Footer() {

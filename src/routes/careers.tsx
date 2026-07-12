@@ -1,119 +1,71 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
 import { MapPin, Briefcase, Users, TrendingUp, Heart, Globe, ArrowRight } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "sonner";
 import { useLang } from "@/i18n/LanguageProvider";
+import { jobOpeningsOpenQueryOptions, type JobOpening } from "@/lib/queries";
+import { submitApplication } from "@/lib/applications.functions";
 
 export const Route = createFileRoute("/careers")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(jobOpeningsOpenQueryOptions),
   head: () => ({
     meta: [
       { title: "Careers at Egytic — Build the World's Best Sports Facilities" },
-      {
-        name: "description",
-        content:
-          "Join Egytic and help build FIFA-grade pitches, Olympic tracks and world-class arenas across the Middle East and North Africa. Open roles in engineering, project management and operations.",
-      },
+      { name: "description", content: "Join Egytic and help build FIFA-grade pitches, Olympic tracks and world-class arenas across the Middle East and North Africa." },
       { property: "og:title", content: "Careers at Egytic Sports" },
-      {
-        property: "og:description",
-        content: "Open roles in engineering, project management and operations.",
-      },
+      { property: "og:description", content: "Open roles in engineering, project management and operations." },
     ],
   }),
+  errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">{error.message}</div>,
+  notFoundComponent: () => <div className="p-8 text-center">Not found</div>,
   component: CareersPage,
 });
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      resolve(result.split(",", 2)[1] ?? "");
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
 
 function CareersPage() {
   const { lang } = useLang();
   const ar = lang === "ar";
+  const { data: jobs } = useSuspenseQuery(jobOpeningsOpenQueryOptions);
+
+  const [selected, setSelected] = useState<JobOpening | null>(null);
+  const [open, setOpen] = useState(false);
 
   const tx = ar
-    ? {
-        eyebrow: "الوظائف",
-        title: "ابنِ مسيرتك مع إيجيتك",
-        sub: "انضم إلى فريق يصمم وينفّذ أرقى المنشآت الرياضية في المنطقة.",
-        whyTitle: "لماذا إيجيتك",
-        openTitle: "الوظائف المتاحة",
-        apply: "قدّم الآن",
-        noJobsTitle: "لا ترى وظيفتك المناسبة؟",
-        noJobsSub: "أرسل سيرتك الذاتية وسنتواصل معك عند توفر الفرصة المناسبة.",
-        sendCv: "أرسل السيرة الذاتية",
-      }
-    : {
-        eyebrow: "Careers",
-        title: "Build your career with Egytic",
-        sub: "Join a team designing and delivering the finest sports facilities in the region.",
-        whyTitle: "Why Egytic",
-        openTitle: "Open positions",
-        apply: "Apply now",
-        noJobsTitle: "Don't see the right role?",
-        noJobsSub: "Send us your CV and we'll be in touch when a matching role opens.",
-        sendCv: "Send your CV",
-      };
+    ? { eyebrow: "الوظائف", title: "ابنِ مسيرتك مع إيجيتك", sub: "انضم إلى فريق يصمم وينفّذ أرقى المنشآت الرياضية في المنطقة.", whyTitle: "لماذا إيجيتك", openTitle: "الوظائف المتاحة", apply: "قدّم الآن", noJobsTitle: "لا ترى وظيفتك المناسبة؟", noJobsSub: "أرسل سيرتك الذاتية وسنتواصل معك عند توفر الفرصة المناسبة.", sendCv: "أرسل السيرة الذاتية" }
+    : { eyebrow: "Careers", title: "Build your career with Egytic", sub: "Join a team designing and delivering the finest sports facilities in the region.", whyTitle: "Why Egytic", openTitle: "Open positions", apply: "Apply now", noJobsTitle: "Don't see the right role?", noJobsSub: "Send us your CV and we'll be in touch when a matching role opens.", sendCv: "Send your CV" };
 
   const perks = [
-    {
-      icon: TrendingUp,
-      title: { en: "Career growth", ar: "نمو مهني" },
-      desc: { en: "Clear paths, mentorship and international project exposure.", ar: "مسارات واضحة وتوجيه وتعرّض لمشاريع دولية." },
-    },
-    {
-      icon: Heart,
-      title: { en: "Great benefits", ar: "مزايا مميّزة" },
-      desc: { en: "Competitive salary, healthcare, relocation and family support.", ar: "راتب تنافسي ورعاية صحية ودعم انتقال وعائلة." },
-    },
-    {
-      icon: Users,
-      title: { en: "World-class team", ar: "فريق عالمي المستوى" },
-      desc: { en: "Work alongside FIFA & World Athletics-certified engineers.", ar: "اعمل بجانب مهندسين معتمدين من الفيفا والاتحاد الدولي." },
-    },
-    {
-      icon: Globe,
-      title: { en: "Iconic projects", ar: "مشاريع مميزة" },
-      desc: { en: "Stadiums, Olympic tracks and landmark arenas across the region.", ar: "استادات ومضامير أولمبية ومنشآت بارزة في المنطقة." },
-    },
+    { icon: TrendingUp, title: { en: "Career growth", ar: "نمو مهني" }, desc: { en: "Clear paths, mentorship and international project exposure.", ar: "مسارات واضحة وتوجيه وتعرّض لمشاريع دولية." } },
+    { icon: Heart, title: { en: "Great benefits", ar: "مزايا مميّزة" }, desc: { en: "Competitive salary, healthcare, relocation and family support.", ar: "راتب تنافسي ورعاية صحية ودعم انتقال وعائلة." } },
+    { icon: Users, title: { en: "World-class team", ar: "فريق عالمي المستوى" }, desc: { en: "Work alongside FIFA & World Athletics-certified engineers.", ar: "اعمل بجانب مهندسين معتمدين من الفيفا والاتحاد الدولي." } },
+    { icon: Globe, title: { en: "Iconic projects", ar: "مشاريع مميزة" }, desc: { en: "Stadiums, Olympic tracks and landmark arenas across the region.", ar: "استادات ومضامير أولمبية ومنشآت بارزة في المنطقة." } },
   ];
 
-  const jobs = [
-    {
-      title: { en: "Senior Civil Engineer — Sports Structures", ar: "مهندس مدني أول — الهياكل الرياضية" },
-      dept: { en: "Engineering", ar: "الهندسة" },
-      location: { en: "Riyadh, Saudi Arabia", ar: "الرياض، السعودية" },
-      type: { en: "Full-time", ar: "دوام كامل" },
-    },
-    {
-      title: { en: "Project Manager — Football Turf", ar: "مدير مشروع — عشب كرة القدم" },
-      dept: { en: "Delivery", ar: "التنفيذ" },
-      location: { en: "Dubai, UAE", ar: "دبي، الإمارات" },
-      type: { en: "Full-time", ar: "دوام كامل" },
-    },
-    {
-      title: { en: "Track Surfacing Specialist", ar: "أخصائي أسطح المضامير" },
-      dept: { en: "Operations", ar: "العمليات" },
-      location: { en: "Doha, Qatar", ar: "الدوحة، قطر" },
-      type: { en: "Full-time", ar: "دوام كامل" },
-    },
-    {
-      title: { en: "BIM / CAD Designer", ar: "مصمم BIM / كاد" },
-      dept: { en: "Engineering", ar: "الهندسة" },
-      location: { en: "Remote / Regional", ar: "عن بُعد / إقليمي" },
-      type: { en: "Contract", ar: "عقد" },
-    },
-    {
-      title: { en: "HSE Manager", ar: "مدير الصحة والسلامة والبيئة" },
-      dept: { en: "Safety", ar: "السلامة" },
-      location: { en: "Riyadh, Saudi Arabia", ar: "الرياض، السعودية" },
-      type: { en: "Full-time", ar: "دوام كامل" },
-    },
-    {
-      title: { en: "Sales Engineer — Aquatics", ar: "مهندس مبيعات — الرياضات المائية" },
-      dept: { en: "Commercial", ar: "التجاري" },
-      location: { en: "Kuwait / Bahrain", ar: "الكويت / البحرين" },
-      type: { en: "Full-time", ar: "دوام كامل" },
-    },
-  ];
+  function openApply(job: JobOpening | null) {
+    setSelected(job);
+    setOpen(true);
+  }
 
   return (
     <SiteLayout>
@@ -121,9 +73,7 @@ function CareersPage() {
 
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Reveal>
-            <h2 className="text-2xl font-bold text-foreground">{tx.whyTitle}</h2>
-          </Reveal>
+          <Reveal><h2 className="text-2xl font-bold text-foreground">{tx.whyTitle}</h2></Reveal>
           <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {perks.map((p, i) => (
               <Reveal key={i}>
@@ -142,30 +92,40 @@ function CareersPage() {
 
       <section className="border-t border-border bg-secondary/40 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Reveal>
-            <h2 className="text-2xl font-bold text-foreground">{tx.openTitle}</h2>
-          </Reveal>
+          <Reveal><h2 className="text-2xl font-bold text-foreground">{tx.openTitle}</h2></Reveal>
           <div className="mt-8 space-y-3">
-            {jobs.map((j, i) => (
-              <Reveal key={i}>
+            {jobs.length === 0 && (
+              <p className="text-muted-foreground">{ar ? "لا توجد وظائف متاحة حالياً." : "No open positions right now."}</p>
+            )}
+            {jobs.map((j) => (
+              <Reveal key={j.id}>
                 <div className="group flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elegant sm:flex-row sm:items-center sm:justify-between sm:p-6">
                   <div>
                     <h3 className="text-lg font-semibold text-foreground group-hover:text-primary">
-                      {ar ? j.title.ar : j.title.en}
+                      {ar ? j.title_ar || j.title_en : j.title_en}
                     </h3>
                     <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
-                      <span className="inline-flex items-center gap-1.5">
-                        <Briefcase className="h-4 w-4" /> {ar ? j.dept.ar : j.dept.en}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <MapPin className="h-4 w-4" /> {ar ? j.location.ar : j.location.en}
-                      </span>
+                      {(ar ? j.department_ar : j.department_en) && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <Briefcase className="h-4 w-4" /> {ar ? j.department_ar : j.department_en}
+                        </span>
+                      )}
+                      {(ar ? j.location_ar : j.location_en) && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <MapPin className="h-4 w-4" /> {ar ? j.location_ar : j.location_en}
+                        </span>
+                      )}
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-0.5 text-xs font-semibold text-primary">
-                        {ar ? j.type.ar : j.type.en}
+                        {j.employment_type}
                       </span>
                     </div>
+                    {(ar ? j.description_ar : j.description_en) && (
+                      <p className="mt-3 text-sm text-muted-foreground line-clamp-2">
+                        {ar ? j.description_ar : j.description_en}
+                      </p>
+                    )}
                   </div>
-                  <Button variant="hero" size="sm">
+                  <Button variant="hero" size="sm" onClick={() => openApply(j)}>
                     {tx.apply}
                     <ArrowRight className="h-4 w-4 rtl:rotate-180" />
                   </Button>
@@ -180,11 +140,104 @@ function CareersPage() {
         <div className="mx-auto max-w-3xl rounded-3xl bg-ink p-10 text-center text-ink-foreground shadow-elegant sm:p-14">
           <h3 className="text-2xl font-bold sm:text-3xl">{tx.noJobsTitle}</h3>
           <p className="mt-3 text-white/70">{tx.noJobsSub}</p>
-          <Button variant="gold" size="lg" className="mt-6">
+          <Button variant="gold" size="lg" className="mt-6" onClick={() => openApply(null)}>
             {tx.sendCv}
           </Button>
         </div>
       </section>
+
+      <ApplyDialog open={open} onOpenChange={setOpen} job={selected} ar={ar} />
     </SiteLayout>
+  );
+}
+
+function ApplyDialog({ open, onOpenChange, job, ar }: { open: boolean; onOpenChange: (v: boolean) => void; job: JobOpening | null; ar: boolean }) {
+  const submit = useServerFn(submitApplication);
+  const [busy, setBusy] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    if (!file) {
+      toast.error(ar ? "يرجى إرفاق السيرة الذاتية (PDF/Word)." : "Please attach your CV (PDF/Word).");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(ar ? "الحجم الأقصى 5 ميجابايت." : "Max file size is 5 MB.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const b64 = await fileToBase64(file);
+      await submit({
+        data: {
+          job_id: job?.id ?? null,
+          job_title: job ? (ar ? job.title_ar || job.title_en : job.title_en) : undefined,
+          applicant_name: String(fd.get("applicant_name") || "").trim(),
+          email: String(fd.get("email") || "").trim(),
+          phone: String(fd.get("phone") || "").trim() || undefined,
+          cover_letter: String(fd.get("cover_letter") || "").trim() || undefined,
+          cv_filename: file.name,
+          cv_mime: file.type || "application/pdf",
+          cv_base64: b64,
+          website: String(fd.get("website") || ""),
+        },
+      });
+      toast.success(ar ? "تم إرسال طلبك، سنتواصل معك قريباً." : "Application received. We'll be in touch.");
+      onOpenChange(false);
+      form.reset();
+      setFile(null);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Something went wrong.";
+      toast.error(msg);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>
+            {job
+              ? (ar ? `التقديم لوظيفة: ${job.title_ar || job.title_en}` : `Apply — ${job.title_en}`)
+              : (ar ? "أرسل سيرتك الذاتية" : "Send your CV")}
+          </DialogTitle>
+        </DialogHeader>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+          <div>
+            <Label htmlFor="applicant_name">{ar ? "الاسم الكامل" : "Full name"}</Label>
+            <Input id="applicant_name" name="applicant_name" required maxLength={120} />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="email">{ar ? "البريد الإلكتروني" : "Email"}</Label>
+              <Input id="email" name="email" type="email" required maxLength={255} />
+            </div>
+            <div>
+              <Label htmlFor="phone">{ar ? "الهاتف" : "Phone"}</Label>
+              <Input id="phone" name="phone" type="tel" maxLength={40} />
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="cv">{ar ? "السيرة الذاتية (PDF / Word، حتى 5MB)" : "CV (PDF / Word, up to 5MB)"}</Label>
+            <Input id="cv" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+          </div>
+          <div>
+            <Label htmlFor="cover_letter">{ar ? "رسالة تعريفية (اختياري)" : "Cover letter (optional)"}</Label>
+            <Textarea id="cover_letter" name="cover_letter" maxLength={3000} rows={4} />
+          </div>
+          <DialogFooter>
+            <Button type="submit" variant="hero" disabled={busy}>
+              {busy ? (ar ? "جارٍ الإرسال..." : "Sending...") : (ar ? "إرسال الطلب" : "Submit application")}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
