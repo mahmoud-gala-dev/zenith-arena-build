@@ -237,5 +237,21 @@ export function Can({
   return createElement(Fragment, null, can ? children : fallback);
 }
 
+/**
+ * Convenience: returns a `useGuard()` bound to the permission that controls
+ * the current admin route (via `permissionForPath`). Lets any admin page
+ * disable its mutating buttons/forms consistently without hardcoding the
+ * permission key it already inherits from the router:
+ *
+ *   const { can, buttonProps, submitProps } = useAdminPageGuard();
+ *   <Button {...buttonProps({ pending: isSaving })}>Save</Button>
+ */
+export function useAdminPageGuard() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const perm = permissionForPath(pathname);
+  return useGuard(perm);
+}
+
+
 
 
