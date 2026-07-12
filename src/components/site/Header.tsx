@@ -115,13 +115,26 @@ export function Header() {
     : fallbackLinks);
 
   const wa = toWhatsAppNumber(social.whatsapp || contact.whatsapp);
+  const buildWaHref = (surface: string) =>
+    wa
+      ? buildWhatsAppUrl(wa, {
+          brand: ar ? brand.site_name_ar : brand.site_name_en,
+          service: inferServiceFromPath(pathname, ar),
+          pageUrl: typeof window !== "undefined" ? window.location.href : pathname,
+          phone: contact.phone,
+          ar,
+        })
+      : "#";
+  const handleWaClick = (surface: "top_bar" | "mobile" | "social") => {
+    trackEvent({ name: "header_whatsapp_click", surface, number: wa, page: pathname });
+  };
   const topSocials = [
     social.facebook && { href: social.facebook, Icon: Facebook, name: "Facebook" },
     social.instagram && { href: social.instagram, Icon: Instagram, name: "Instagram" },
     social.linkedin && { href: social.linkedin, Icon: Linkedin, name: "LinkedIn" },
     social.youtube && { href: social.youtube, Icon: Youtube, name: "YouTube" },
-    wa && { href: `https://wa.me/${wa}`, Icon: MessageCircle, name: "WhatsApp" },
-  ].filter(Boolean) as { href: string; Icon: typeof Facebook; name: string }[];
+    wa && { href: buildWaHref("social"), Icon: MessageCircle, name: "WhatsApp", isWa: true },
+  ].filter(Boolean) as { href: string; Icon: typeof Facebook; name: string; isWa?: boolean }[];
 
   const officeLine = contact.offices
     ?.map((o) => (ar ? o.city_ar || o.city_en : o.city_en))
