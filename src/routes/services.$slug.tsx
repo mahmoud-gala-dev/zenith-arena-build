@@ -337,7 +337,7 @@ function ServiceDetailPage() {
                 </Button>
                 {gallery.length > 0 && (
                   <span className="text-sm text-white/50">
-                    {gallery.length} {ar ? "صورة" : "images"}
+                    {gallery.length} {t.serviceDetail.imagesLabel}
                   </span>
                 )}
               </div>
