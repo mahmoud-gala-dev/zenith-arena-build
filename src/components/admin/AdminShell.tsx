@@ -48,6 +48,10 @@ const nav: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exac
   { to: "/admin/certificates", label: "Certificates", icon: Award },
   { to: "/admin/gallery", label: "Gallery", icon: Images },
   { to: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
+  { to: "/admin/faqs", label: "FAQ Items", icon: ClipboardList },
+  { to: "/admin/careers", label: "Job Openings", icon: Users },
+  { to: "/admin/applications", label: "Applications", icon: Inbox },
+  { to: "/admin/newsletter", label: "Newsletter", icon: Inbox },
   { to: "/admin/seo", label: "SEO Manager", icon: Search },
   { to: "/admin/social-cache", label: "Social cache", icon: RefreshCw },
   { to: "/admin/qa-reports", label: "QA Reports", icon: LayoutDashboard },
@@ -55,6 +59,7 @@ const nav: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exac
   { to: "/admin/media", label: "Media Library", icon: ImageIcon },
   { to: "/admin/settings", label: "Settings", icon: Settings },
   { to: "/admin/users", label: "Users & Roles", icon: Users },
+
 ];
 
 interface Notification { id: string; title: string; body: string | null; link: string | null; created_at: string; read_at: string | null }
