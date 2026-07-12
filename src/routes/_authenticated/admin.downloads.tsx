@@ -610,6 +610,145 @@ function DownloadEditor({
             />
           </div>
 
+          {/* Multiple downloadable files */}
+          <div className="md:col-span-2 rounded-xl border border-border bg-secondary/30 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm font-semibold">Additional files (multi-file catalog)</Label>
+                <p className="text-xs text-muted-foreground">
+                  Attach as many files as you need. Set a language tag (EN / AR / both) and bilingual button labels.
+                </p>
+              </div>
+              <Button
+                type="button" size="sm" variant="secondary"
+                onClick={() => multiInputRef.current?.click()}
+                disabled={multiUploading}
+              >
+                {multiUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                <span className="ml-1">Upload files</span>
+              </Button>
+              <input
+                ref={multiInputRef} type="file" multiple className="hidden"
+                onChange={(e) => { if (e.target.files?.length) void handleMultiFilePick(e.target.files); }}
+              />
+            </div>
+
+            {files.length === 0 ? (
+              <p className="text-xs text-muted-foreground italic">No extra files yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {files.map((f, i) => (
+                  <div key={i} className="rounded-lg border border-border bg-background p-3 space-y-2">
+                    <div className="flex items-start gap-2">
+                      <GripVertical className="mt-2 h-4 w-4 text-muted-foreground shrink-0" />
+                      <div className="grid flex-1 gap-2 md:grid-cols-2">
+                        <Input
+                          placeholder="Label (EN)"
+                          value={f.label_en}
+                          onChange={(e) => { const n = [...files]; n[i] = { ...n[i], label_en: e.target.value }; updateFiles(n); }}
+                        />
+                        <Input
+                          dir="rtl" placeholder="التسمية (AR)"
+                          value={f.label_ar}
+                          onChange={(e) => { const n = [...files]; n[i] = { ...n[i], label_ar: e.target.value }; updateFiles(n); }}
+                        />
+                        <Input
+                          className="md:col-span-2"
+                          placeholder="File URL"
+                          value={f.url}
+                          onChange={(e) => { const n = [...files]; n[i] = { ...n[i], url: e.target.value }; updateFiles(n); }}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <Button size="icon" variant="ghost" onClick={() => moveFile(i, -1)} disabled={i === 0} aria-label="Move up"><ArrowUp className="h-4 w-4" /></Button>
+                        <Button size="icon" variant="ghost" onClick={() => moveFile(i, 1)} disabled={i === files.length - 1} aria-label="Move down"><ArrowDown className="h-4 w-4" /></Button>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 pl-6">
+                      <Select
+                        value={f.lang ?? "both"}
+                        onValueChange={(v) => { const n = [...files]; n[i] = { ...n[i], lang: v as DownloadFile["lang"] }; updateFiles(n); }}
+                      >
+                        <SelectTrigger className="h-8 w-32"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="both">EN + AR</SelectItem>
+                          <SelectItem value="en">English only</SelectItem>
+                          <SelectItem value="ar">Arabic only</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {f.size ? <Badge variant="outline" className="text-[11px]">{formatBytes(f.size)}</Badge> : null}
+                      {f.mime ? <Badge variant="outline" className="text-[11px]">{f.mime}</Badge> : null}
+                      <div className="ml-auto flex gap-1">
+                        {f.url && (
+                          <Button asChild size="sm" variant="ghost">
+                            <a href={f.url} target="_blank" rel="noreferrer" className="gap-1">
+                              <DownloadIcon className="h-4 w-4" /> Test
+                            </a>
+                          </Button>
+                        )}
+                        <Button size="sm" variant="ghost" onClick={() => updateFiles(files.filter((_, j) => j !== i))}>
+                          <X className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <Button
+              type="button" size="sm" variant="outline"
+              onClick={() => updateFiles([...files, { label_en: "", label_ar: "", url: "", lang: "both" }])}
+            >
+              <Plus className="mr-1 h-4 w-4" /> Add empty row
+            </Button>
+          </div>
+
+          {/* Gallery preview images */}
+          <div className="md:col-span-2 rounded-xl border border-border bg-secondary/30 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm font-semibold">Preview gallery images</Label>
+                <p className="text-xs text-muted-foreground">
+                  Extra preview images shown on the catalog detail page (in addition to the thumbnail above).
+                </p>
+              </div>
+              <Button
+                type="button" size="sm" variant="secondary"
+                onClick={() => galleryInputRef.current?.click()}
+                disabled={galleryUploading}
+              >
+                {galleryUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
+                <span className="ml-1">Upload images</span>
+              </Button>
+              <input
+                ref={galleryInputRef} type="file" multiple accept="image/*" className="hidden"
+                onChange={(e) => { if (e.target.files?.length) void handleGalleryPick(e.target.files); }}
+              />
+            </div>
+            {gallery.length === 0 ? (
+              <p className="text-xs text-muted-foreground italic">No preview images yet.</p>
+            ) : (
+              <div className="grid grid-cols-3 gap-3 md:grid-cols-4">
+                {gallery.map((src, i) => (
+                  <div key={i} className="group relative overflow-hidden rounded-lg border border-border bg-background">
+                    <div className="aspect-[4/3]">
+                      <img src={src} alt={`Preview ${i + 1}`} className="h-full w-full object-cover" loading="lazy" />
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 flex justify-between gap-1 bg-background/90 p-1 opacity-0 transition group-hover:opacity-100">
+                      <div className="flex gap-1">
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => moveImage(i, -1)} disabled={i === 0}><ArrowUp className="h-3.5 w-3.5" /></Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => moveImage(i, 1)} disabled={i === gallery.length - 1}><ArrowDown className="h-3.5 w-3.5" /></Button>
+                      </div>
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => updateGallery(gallery.filter((_, j) => j !== i))}>
+                        <X className="h-3.5 w-3.5 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="md:col-span-2 rounded-xl border border-border bg-secondary/30 p-4 space-y-4">
             <div>
               <Label className="text-sm font-semibold">SEO & social preview</Label>
