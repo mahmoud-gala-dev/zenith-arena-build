@@ -294,7 +294,32 @@ function ArticleDetail() {
             </div>
           </div>
         </section>
+
+        {/* Mobile floating TOC button + drawer */}
+        {toc.length > 0 && (
+          <Sheet open={mobileTocOpen} onOpenChange={setMobileTocOpen}>
+            <SheetTrigger asChild>
+              <button
+                type="button"
+                aria-label={ar ? "قائمة المحتوى" : "Table of contents"}
+                className="fixed bottom-6 end-6 z-40 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-elegant transition hover:brightness-110 lg:hidden"
+              >
+                <ListOrdered className="h-4 w-4" />
+                <span>{ar ? "المحتوى" : "Contents"}</span>
+              </button>
+            </SheetTrigger>
+            <SheetContent side={ar ? "right" : "left"} className="w-[85vw] max-w-sm overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>{ar ? "قائمة المحتوى" : "Table of Contents"}</SheetTitle>
+              </SheetHeader>
+              <div className="mt-6">
+                <TocList toc={toc} activeId={activeId} onNavigate={handleTocClick} />
+              </div>
+            </SheetContent>
+          </Sheet>
+        )}
       </article>
+
 
 
       {post.featured_image && (
