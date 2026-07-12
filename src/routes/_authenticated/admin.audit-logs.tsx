@@ -5,10 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, FileText, RefreshCw, Search, X } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Download, FileText, RefreshCw, Search, X, Copy, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+
 
 
 export const Route = createFileRoute("/_authenticated/admin/audit-logs")({
@@ -27,8 +30,10 @@ interface AuditRow {
     changed_fields?: string[];
     old?: Record<string, unknown> | null;
     new?: Record<string, unknown> | null;
+    details?: Record<string, unknown> | null;
   } | null;
 }
+
 
 const ACTIONS = ["all", "INSERT", "UPDATE", "DELETE", "PERMISSION_DENIED", "SENSITIVE_CHANGE"] as const;
 
@@ -55,7 +60,7 @@ function AuditLogsPage() {
   const [q, setQ] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [selected, setSelected] = useState<AuditRow | null>(null);
   const [tableOptions, setTableOptions] = useState<string[]>([]);
   const [actors, setActors] = useState<string[]>([]);
 
@@ -283,48 +288,221 @@ function AuditLogsPage() {
               {filtered.length === 0 && !loading && (
                 <tr><td colSpan={6} className="px-3 py-8 text-center text-sm text-muted-foreground">No audit events match these filters.</td></tr>
               )}
-              {filtered.map((r) => {
-                const isOpen = expanded === r.id;
-                return (
-                  <>
-                    <tr key={r.id} className="cursor-pointer hover:bg-muted/30" onClick={() => setExpanded(isOpen ? null : r.id)}>
-                      <td className="px-3 py-2 tabular-nums text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</td>
-                      <td className="px-3 py-2">{r.actor_email ?? <span className="text-muted-foreground">system</span>}</td>
-                      <td className="px-3 py-2 font-mono text-xs">{r.table_name}</td>
-                      <td className="px-3 py-2">
-                        <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", actionTone(r.action))}>{r.action}</span>
-                      </td>
-                      <td className="px-3 py-2 font-mono text-[11px] text-muted-foreground">
-                        {r.record_id ? r.record_id.slice(0, 8) + (r.record_id.length > 8 ? "…" : "") : "—"}
-                      </td>
-                      <td className="px-3 py-2 text-xs text-muted-foreground">
-                        {r.changes?.changed_fields?.length ? r.changes?.changed_fields.slice(0, 4).join(", ") + (r.changes?.changed_fields.length > 4 ? "…" : "") : "—"}
-                      </td>
-                    </tr>
-                    {isOpen && (
-                      <tr key={`${r.id}-detail`} className="bg-muted/20">
-                        <td colSpan={6} className="px-3 py-3">
-                          <div className="grid gap-3 md:grid-cols-2">
-                            <div>
-                              <div className="mb-1 text-xs font-semibold text-muted-foreground">Before</div>
-                              <pre className="max-h-72 overflow-auto rounded bg-background p-2 text-xs">{JSON.stringify(r.changes?.old ?? {}, null, 2)}</pre>
-                            </div>
-                            <div>
-                              <div className="mb-1 text-xs font-semibold text-muted-foreground">After</div>
-                              <pre className="max-h-72 overflow-auto rounded bg-background p-2 text-xs">{JSON.stringify(r.changes?.new ?? {}, null, 2)}</pre>
-                            </div>
-                          </div>
-                          <p className="mt-2 text-xs text-muted-foreground">Record id: <span className="font-mono">{r.record_id}</span></p>
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                );
-              })}
+              {filtered.map((r) => (
+                <tr
+                  key={r.id}
+                  className="cursor-pointer hover:bg-muted/30"
+                  onClick={() => setSelected(r)}
+                >
+                  <td className="px-3 py-2 tabular-nums text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</td>
+                  <td className="px-3 py-2">{r.actor_email ?? <span className="text-muted-foreground">system</span>}</td>
+                  <td className="px-3 py-2 font-mono text-xs">{r.table_name}</td>
+                  <td className="px-3 py-2">
+                    <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", actionTone(r.action))}>{r.action}</span>
+                  </td>
+                  <td className="px-3 py-2 font-mono text-[11px] text-muted-foreground">
+                    {r.record_id ? r.record_id.slice(0, 8) + (r.record_id.length > 8 ? "…" : "") : "—"}
+                  </td>
+                  <td className="px-3 py-2 text-xs text-muted-foreground">
+                    {r.changes?.changed_fields?.length ? r.changes.changed_fields.slice(0, 4).join(", ") + (r.changes.changed_fields.length > 4 ? "…" : "") : "—"}
+                  </td>
+                </tr>
+              ))}
+
             </tbody>
           </table>
         </div>
       </div>
+
+      <AuditDetailDrawer row={selected} onClose={() => setSelected(null)} />
+
     </AdminShell>
+  );
+}
+
+// ---------------- Detail Drawer ----------------
+
+interface AuditDetailDrawerProps {
+  row: AuditRow | null;
+  onClose: () => void;
+}
+
+function AuditDetailDrawer({ row, onClose }: AuditDetailDrawerProps) {
+  const open = row !== null;
+  if (!row) {
+    return (
+      <Sheet open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+        <SheetContent className="w-full sm:max-w-2xl" />
+      </Sheet>
+    );
+  }
+
+  const changes = row.changes ?? {};
+  const changedFields = changes.changed_fields ?? [];
+  const before = (changes.old ?? {}) as Record<string, unknown>;
+  const after = (changes.new ?? {}) as Record<string, unknown>;
+  const details = (changes.details ?? {}) as Record<string, unknown>;
+  const isDenial = row.action === "PERMISSION_DENIED";
+  const isSensitive = row.action === "SENSITIVE_CHANGE";
+  const hasDiff = changedFields.length > 0 || Object.keys(before).length > 0 || Object.keys(after).length > 0;
+
+  const permission = typeof details.permission === "string" ? details.permission : null;
+  const attemptedAction = typeof details.attempted_action === "string" ? details.attempted_action : null;
+  const pathname = typeof details.pathname === "string" ? details.pathname : null;
+  const summary = typeof details.summary === "string" ? details.summary : null;
+
+  function copy(value: unknown, label: string) {
+    try {
+      navigator.clipboard.writeText(typeof value === "string" ? value : JSON.stringify(value, null, 2));
+      toast.success(`${label} copied`);
+    } catch {
+      toast.error("Copy failed");
+    }
+  }
+
+  function fmt(v: unknown): string {
+    if (v === null || v === undefined) return "—";
+    if (typeof v === "string") return v;
+    if (typeof v === "number" || typeof v === "boolean") return String(v);
+    try { return JSON.stringify(v); } catch { return String(v); }
+  }
+
+  return (
+    <Sheet open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <SheetContent className="w-full overflow-y-auto sm:max-w-2xl">
+        <SheetHeader className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", actionTone(row.action))}>{row.action}</span>
+            <span className="font-mono text-xs text-muted-foreground">{row.table_name}</span>
+          </div>
+          <SheetTitle className="text-lg">
+            {summary ?? (isDenial ? "Permission denied" : hasDiff ? `${changedFields.length || Object.keys(after).length} field${(changedFields.length || Object.keys(after).length) === 1 ? "" : "s"} changed` : "Event details")}
+          </SheetTitle>
+          <SheetDescription className="text-xs">
+            {new Date(row.created_at).toLocaleString()} · {row.actor_email ?? "system"}
+          </SheetDescription>
+        </SheetHeader>
+
+        <div className="mt-5 space-y-5">
+          {/* Request metadata */}
+          <section className="rounded-xl border border-border bg-muted/20 p-3">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Request metadata</h3>
+            <dl className="grid grid-cols-1 gap-x-4 gap-y-1.5 text-xs sm:grid-cols-2">
+              <MetaRow label="Event id" value={row.id} mono onCopy={() => copy(row.id, "Event id")} />
+              <MetaRow label="Timestamp" value={new Date(row.created_at).toISOString()} mono />
+              <MetaRow label="Actor email" value={row.actor_email ?? "system"} />
+              <MetaRow label="Actor id" value={row.actor_id ?? "—"} mono onCopy={row.actor_id ? () => copy(row.actor_id!, "Actor id") : undefined} />
+              <MetaRow label="Table / resource" value={row.table_name} mono />
+              <MetaRow label="Record id" value={row.record_id ?? "—"} mono onCopy={row.record_id ? () => copy(row.record_id!, "Record id") : undefined} />
+              {pathname && <MetaRow label="Path" value={pathname} mono />}
+            </dl>
+          </section>
+
+          {/* Permission denial context */}
+          {isDenial && (
+            <section className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-3">
+              <div className="mb-2 flex items-center gap-2 text-amber-700 dark:text-amber-400">
+                <ShieldAlert className="h-4 w-4" />
+                <h3 className="text-xs font-semibold uppercase tracking-wide">Permission denial context</h3>
+              </div>
+              <dl className="grid grid-cols-1 gap-x-4 gap-y-1.5 text-xs sm:grid-cols-2">
+                <MetaRow label="Missing permission" value={permission ?? "—"} mono />
+                <MetaRow label="Attempted action" value={attemptedAction ?? "—"} />
+                <MetaRow label="Route" value={pathname ?? "—"} mono />
+                <MetaRow label="Actor" value={row.actor_email ?? "anonymous"} />
+              </dl>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                The user attempted a guarded action without the required permission. Grant it via <span className="font-mono">/admin/users</span> or adjust the role matrix.
+              </p>
+            </section>
+          )}
+
+          {/* Diff view */}
+          {hasDiff && (
+            <section className="rounded-xl border border-border p-3">
+              <div className="mb-2 flex items-center justify-between">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Before / After diff {changedFields.length > 0 && <span className="ml-1 font-normal normal-case text-muted-foreground/80">({changedFields.length} changed)</span>}
+                </h3>
+                <Button size="sm" variant="ghost" onClick={() => copy(changes, "Full change payload")}>
+                  <Copy className="h-3.5 w-3.5" /> Copy JSON
+                </Button>
+              </div>
+              {changedFields.length > 0 ? (
+                <div className="overflow-hidden rounded-lg border border-border">
+                  <table className="w-full text-xs">
+                    <thead className="bg-muted/40 text-[10px] uppercase text-muted-foreground">
+                      <tr>
+                        <th className="px-2 py-1.5 text-start font-medium">Field</th>
+                        <th className="px-2 py-1.5 text-start font-medium">Before</th>
+                        <th className="px-2 py-1.5 text-start font-medium">After</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {changedFields.map((f) => (
+                        <tr key={f} className="align-top">
+                          <td className="px-2 py-1.5 font-mono text-[11px]">{f}</td>
+                          <td className="px-2 py-1.5 text-destructive/90"><code className="break-all">{fmt(before[f])}</code></td>
+                          <td className="px-2 py-1.5 text-emerald-700 dark:text-emerald-400"><code className="break-all">{fmt(after[f])}</code></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="grid gap-2 md:grid-cols-2">
+                  <div>
+                    <div className="mb-1 text-[11px] font-semibold text-muted-foreground">Before</div>
+                    <pre className="max-h-72 overflow-auto rounded bg-background p-2 text-[11px]">{JSON.stringify(before, null, 2)}</pre>
+                  </div>
+                  <div>
+                    <div className="mb-1 text-[11px] font-semibold text-muted-foreground">After</div>
+                    <pre className="max-h-72 overflow-auto rounded bg-background p-2 text-[11px]">{JSON.stringify(after, null, 2)}</pre>
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* Sensitive change / app-level details */}
+          {(isSensitive || (!isDenial && Object.keys(details).length > 0)) && (
+            <section className="rounded-xl border border-border p-3">
+              <div className="mb-2 flex items-center justify-between">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Application context</h3>
+                <Button size="sm" variant="ghost" onClick={() => copy(details, "Details payload")}>
+                  <Copy className="h-3.5 w-3.5" /> Copy
+                </Button>
+              </div>
+              <pre className="max-h-80 overflow-auto rounded bg-muted/30 p-2 text-[11px]">{JSON.stringify(details, null, 2)}</pre>
+            </section>
+          )}
+
+          {!hasDiff && !isDenial && !isSensitive && Object.keys(details).length === 0 && (
+            <p className="text-xs text-muted-foreground">No structured payload was recorded for this event.</p>
+          )}
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+function MetaRow({ label, value, mono, onCopy }: { label: string; value: string; mono?: boolean; onCopy?: () => void }) {
+  return (
+    <div className="flex min-w-0 items-start justify-between gap-2 border-b border-border/40 py-1 last:border-b-0">
+      <dt className="shrink-0 text-muted-foreground">{label}</dt>
+      <dd className={cn("min-w-0 flex-1 break-all text-end", mono && "font-mono text-[11px]")}>
+        {value}
+        {onCopy && (
+          <button
+            type="button"
+            onClick={onCopy}
+            className="ms-1.5 inline-flex align-middle text-muted-foreground hover:text-foreground"
+            aria-label={`Copy ${label}`}
+          >
+            <Copy className="h-3 w-3" />
+          </button>
+        )}
+      </dd>
+    </div>
   );
 }
