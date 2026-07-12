@@ -2054,6 +2054,7 @@ export type Database = {
           title_ar: string
           title_en: string
           updated_at: string
+          version_number: number
         }[]
       }
       has_role: {
