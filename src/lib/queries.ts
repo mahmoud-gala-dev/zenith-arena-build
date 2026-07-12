@@ -3,7 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
 const FIVE_MIN = 5 * 60 * 1000;
+const FIFTEEN_MIN = 15 * 60 * 1000;
 const HALF_HOUR = 30 * 60 * 1000;
+const ONE_HOUR = 60 * 60 * 1000;
+const TWO_HOUR = 2 * 60 * 60 * 1000;
+
 const ONE_HOUR = 60 * 60 * 1000;
 
 export type Gov = {

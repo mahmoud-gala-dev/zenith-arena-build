@@ -25,13 +25,15 @@ function OverviewPage() {
 
   useEffect(() => {
     (async () => {
+      const since = new Date(Date.now() - 30 * 86400000).toISOString();
       const [leadsAll, leadsNew, projects, media, recentLeads, everyLead] = await Promise.all([
         supabase.from("leads").select("*", { count: "exact", head: true }),
         supabase.from("leads").select("*", { count: "exact", head: true }).eq("status", "new"),
         supabase.from("projects").select("*", { count: "exact", head: true }),
         supabase.from("media_files").select("*", { count: "exact", head: true }),
         supabase.from("leads").select("id,name,email,service,status,created_at").order("created_at", { ascending: false }).limit(6),
-        supabase.from("leads").select("id,name,email,service,status,created_at"),
+        // Only fetch fields needed for the charts, and only the last 30 days.
+        supabase.from("leads").select("id,status,created_at").gte("created_at", since),
       ]);
       setStats({
         leads: leadsAll.count ?? 0,
@@ -44,6 +46,7 @@ function OverviewPage() {
       setLoading(false);
     })();
   }, []);
+
 
   const cards = [
     { label: "Total leads", value: stats.leads, icon: Inbox, tone: "from-primary to-primary/80" },
