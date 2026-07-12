@@ -1,7 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Clock, User } from "lucide-react";
+import { ArrowLeft, Clock, User, ListOrdered } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Reveal } from "@/components/site/Reveal";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
@@ -210,6 +211,16 @@ function ArticleDetail() {
     return () => observer.disconnect();
   }, [toc.map((h) => h.id).join("|")]);
 
+  const [mobileTocOpen, setMobileTocOpen] = useState(false);
+  const handleTocClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    e.preventDefault();
+    setMobileTocOpen(false);
+    const top = el.getBoundingClientRect().top + window.scrollY - 88;
+    window.scrollTo({ top, behavior: "smooth" });
+    if (typeof history !== "undefined") history.replaceState(null, "", `#${id}`);
+  };
 
 
   return (
@@ -239,36 +250,14 @@ function ArticleDetail() {
 
         <section className="py-14">
           <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-[240px_1fr] lg:px-8">
-            {/* Table of Contents */}
+            {/* Table of Contents (desktop) */}
             {toc.length > 0 && (
-              <aside className="lg:sticky lg:top-24 lg:h-fit">
+              <aside className="hidden lg:sticky lg:top-24 lg:block lg:h-fit">
                 <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
                   <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     {ar ? "قائمة المحتوى" : "Table of Contents"}
                   </p>
-                  <nav aria-label={ar ? "قائمة المحتوى" : "Table of contents"}>
-                    <ol className="space-y-2 text-sm">
-                      {toc.map((h, i) => {
-                        const active = activeId === h.id;
-                        return (
-                          <li key={h.id}>
-                            <a
-                              href={`#${h.id}`}
-                              aria-current={active ? "location" : undefined}
-                              className={`flex gap-2 border-s-2 ps-3 transition ${
-                                active
-                                  ? "border-primary font-medium text-primary"
-                                  : "border-transparent text-muted-foreground hover:text-primary"
-                              }`}
-                            >
-                              <span className={active ? "text-primary" : "text-primary/60"}>{i + 1}.</span>
-                              <span className="line-clamp-2">{h.text}</span>
-                            </a>
-                          </li>
-                        );
-                      })}
-                    </ol>
-                  </nav>
+                  <TocList toc={toc} activeId={activeId} onNavigate={handleTocClick} />
                 </div>
               </aside>
             )}
@@ -305,7 +294,32 @@ function ArticleDetail() {
             </div>
           </div>
         </section>
+
+        {/* Mobile floating TOC button + drawer */}
+        {toc.length > 0 && (
+          <Sheet open={mobileTocOpen} onOpenChange={setMobileTocOpen}>
+            <SheetTrigger asChild>
+              <button
+                type="button"
+                aria-label={ar ? "قائمة المحتوى" : "Table of contents"}
+                className="fixed bottom-6 end-6 z-40 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-elegant transition hover:brightness-110 lg:hidden"
+              >
+                <ListOrdered className="h-4 w-4" />
+                <span>{ar ? "المحتوى" : "Contents"}</span>
+              </button>
+            </SheetTrigger>
+            <SheetContent side={ar ? "right" : "left"} className="w-[85vw] max-w-sm overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>{ar ? "قائمة المحتوى" : "Table of Contents"}</SheetTitle>
+              </SheetHeader>
+              <div className="mt-6">
+                <TocList toc={toc} activeId={activeId} onNavigate={handleTocClick} />
+              </div>
+            </SheetContent>
+          </Sheet>
+        )}
       </article>
+
 
 
       {post.featured_image && (
@@ -343,3 +357,41 @@ function ArticleDetail() {
     </SiteLayout>
   );
 }
+
+function TocList({
+  toc,
+  activeId,
+  onNavigate,
+}: {
+  toc: { id: string; text: string }[];
+  activeId: string;
+  onNavigate: (e: React.MouseEvent<HTMLAnchorElement>, id: string) => void;
+}) {
+  return (
+    <nav aria-label="Table of contents">
+      <ol className="space-y-2 text-sm">
+        {toc.map((h, i) => {
+          const active = activeId === h.id;
+          return (
+            <li key={h.id}>
+              <a
+                href={`#${h.id}`}
+                onClick={(e) => onNavigate(e, h.id)}
+                aria-current={active ? "location" : undefined}
+                className={`flex gap-2 border-s-2 ps-3 py-1 transition ${
+                  active
+                    ? "border-primary font-medium text-primary"
+                    : "border-transparent text-muted-foreground hover:text-primary"
+                }`}
+              >
+                <span className={active ? "text-primary" : "text-primary/60"}>{i + 1}.</span>
+                <span className="line-clamp-2">{h.text}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
+
