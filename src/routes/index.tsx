@@ -319,7 +319,7 @@ function Index() {
         </div>
       </section>
 
-      {/* Why Apex */}
+      {/* Why Egytic */}
       <section className="relative overflow-hidden bg-hero py-24 text-white">
         <div className="absolute inset-0 grid-texture opacity-20" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

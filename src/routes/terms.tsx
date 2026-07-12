@@ -35,7 +35,7 @@ function TermsPage() {
           { h: "المحتوى المُقدَّم", p: "بإرسالك أي معلومات (مثل طلبات عروض الأسعار)، تؤكد أنها دقيقة وأنك مخوّل بتقديمها." },
           { h: "إخلاء المسؤولية", p: "يُقدَّم هذا الموقع كما هو دون ضمانات. لا نتحمّل مسؤولية أي أضرار غير مباشرة ناتجة عن استخدامه." },
           { h: "القانون المعمول به", p: "تخضع هذه الشروط لقوانين المملكة العربية السعودية، وأي نزاع يخضع للاختصاص الحصري لمحاكمها." },
-          { h: "التواصل", p: "لأي استفسار قانوني، تواصل معنا على legal@apexsports.co." },
+          { h: "التواصل", p: "لأي استفسار قانوني، تواصل معنا على legal@egyticsports.com." },
         ],
       }
     : {
@@ -49,7 +49,7 @@ function TermsPage() {
           { h: "Submitted content", p: "By submitting any information (such as a quote request), you confirm it is accurate and that you are authorised to submit it." },
           { h: "Disclaimer", p: "This site is provided \"as is\" without warranties. We are not liable for any indirect damages arising from its use." },
           { h: "Governing law", p: "These terms are governed by the laws of the Kingdom of Saudi Arabia, and any dispute is subject to the exclusive jurisdiction of its courts." },
-          { h: "Contact", p: "For legal inquiries, contact legal@apexsports.co." },
+          { h: "Contact", p: "For legal inquiries, contact legal@egyticsports.com." },
         ],
       };
 

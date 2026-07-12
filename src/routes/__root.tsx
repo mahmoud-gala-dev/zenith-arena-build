@@ -105,14 +105,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Apex designs and builds FIFA-grade football pitches, World Athletics tracks, indoor arenas, courts and aquatic centers. Turnkey sports infrastructure engineered to last.",
+          "Egytic Sports designs and builds FIFA-grade football pitches, World Athletics tracks, indoor arenas, courts and aquatic centers. Turnkey sports infrastructure engineered to last.",
       },
-      { name: "author", content: "Apex Sports Infrastructure" },
+      { name: "author", content: "Egytic Sports Infrastructure" },
       { property: "og:title", content: "Egytic — Sports Construction & Infrastructure" },
       {
         property: "og:description",
         content:
-          "Apex designs and builds FIFA-grade football pitches, World Athletics tracks, indoor arenas, courts and aquatic centers. Turnkey sports infrastructure engineered to last.",
+          "Egytic Sports designs and builds FIFA-grade football pitches, World Athletics tracks, indoor arenas, courts and aquatic centers. Turnkey sports infrastructure engineered to last.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -122,7 +122,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "Egytic" },
       { name: "twitter:title", content: "Egytic — Sports Construction & Infrastructure" },
-      { name: "twitter:description", content: "Apex designs and builds FIFA-grade football pitches, World Athletics tracks, indoor arenas, courts and aquatic centers. Turnkey sports infrastructure engineered to last." },
+      { name: "twitter:description", content: "Egytic Sports designs and builds FIFA-grade football pitches, World Athletics tracks, indoor arenas, courts and aquatic centers. Turnkey sports infrastructure engineered to last." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f71b7f40-6781-48c9-a005-9a671759e2cd/id-preview-6612edba--d6c67e6e-f41c-480e-8a57-28a93a2e36b1.lovable.app-1783068660044.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f71b7f40-6781-48c9-a005-9a671759e2cd/id-preview-6612edba--d6c67e6e-f41c-480e-8a57-28a93a2e36b1.lovable.app-1783068660044.png" },
     ],
