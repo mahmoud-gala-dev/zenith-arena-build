@@ -750,3 +750,34 @@ export const translationsAllQueryOptions = queryOptions<TranslationRow[]>({
   },
 });
 
+export type HomepageSection = {
+  section_key: string;
+  title_en: string | null;
+  title_ar: string | null;
+  subtitle_en: string | null;
+  subtitle_ar: string | null;
+  sort_order: number | null;
+  status: string;
+};
+
+export type HomepageSectionsMap = Record<string, HomepageSection>;
+
+export const homepageSectionsQueryOptions = queryOptions<HomepageSectionsMap>({
+  queryKey: ["homepage_sections"],
+  staleTime: 5 * 60_000,
+  gcTime: 30 * 60_000,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("homepage_sections")
+      .select("section_key,title_en,title_ar,subtitle_en,subtitle_ar,sort_order,status")
+      .eq("status", "published");
+    if (error) throw error;
+    const map: HomepageSectionsMap = {};
+    for (const row of (data ?? []) as HomepageSection[]) {
+      map[row.section_key] = row;
+    }
+    return map;
+  },
+});
+
+
