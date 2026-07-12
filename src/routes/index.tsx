@@ -566,11 +566,13 @@ function Index() {
       {/* Process */}
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {(() => { const s = section("process", { title: t.sections.processTitle, subtitle: t.sections.processSub }); return (
           <SectionHeader
-            eyebrow={t.sections.processTitle}
-            title={t.sections.processTitle}
-            subtitle={t.sections.processSub}
-          />
+            eyebrow={s.title}
+            title={s.title}
+            subtitle={s.subtitle}
+          />); })()}
+
           <div className="mt-14 grid gap-8 md:grid-cols-4">
             {([
               [t.process.s1t, t.process.s1d],
