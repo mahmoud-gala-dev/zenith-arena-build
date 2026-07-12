@@ -1,68 +1,72 @@
-# تقرير الفحص الشامل — Egytic Sports
+# تقرير الفحص الشامل — Egytic Sports (تحديث 2026-07-12)
 
 ## 1) نطاق الفحص
 - **34 صفحة أدمن** تحت `_authenticated/admin.*`
 - **28 صفحة عامة** تحت `src/routes/`
-- **36 جدول** في قاعدة البيانات (Cloud) — كلها بـ RLS ومربوطة بـ `src/lib/queries.ts`
-- المكونات المشتركة: `Header`, `Footer`, `Logo`, `HeroSlider`, `SplashScreen`, `MobileShell`, `QuickLeadDialog`, `DownloadGateButton`, `ServiceQuoteForm`, `PageHero`, `Breadcrumbs`
+- **36 جدول** DB — كلها بـ RLS ومربوطة عبر `src/lib/queries.ts`
+- المكونات المشتركة: `Header`, `Footer`, `HeroSlider`, `QuickLeadDialog`, `DownloadGateButton`, `ServiceQuoteForm`, `MobileShell`, `ShareButtons`, `ImageLightbox`
 
 ## 2) نتيجة الربط Admin ↔ Frontend
 
 ### ✅ موديولات مربوطة بالكامل (Admin CRUD ← DB → Frontend)
-Services · Projects · Products · Governorates · Certificates · Clients · Testimonials · Blog · FAQ items · Gallery · Downloads · Hero Slides · Menus · Translations · SEO Settings · Job Openings · Applications · Leads · Newsletter · About Content · Legal Pages · Settings · Users/Roles · Audit Logs · Cache Refresh · Media · Product Categories · Service Categories · Project Categories · Download Analytics · QA Reports · Page Versions/Preview
+Services · Projects · Products · Governorates · Certificates · Clients · Testimonials · Blog · Categories · Tags · FAQ · Gallery · Downloads · Hero Slides · Menus · Translations · SEO Settings · Job Openings · Applications · Leads (+ Timeline/Audit) · Newsletter · About · Legal Pages · Settings · Users/Roles/Permissions · Audit Logs · Cache Refresh · Media · Download Analytics · QA Reports · Page Versions/Preview · Homepage Sections
 
-### ⚠️ فجوات مكتشفة (بيانات ثابتة داخل الفرونت)
+### ⚠️ فجوات — كلها UI copy ثابت داخل الفرونت (بدون بيانات مجالية)
 
-| # | الملف | الثابت | الجدول المفترض |
+فحص `rg` أرجع **38 ملف** يحتوي شرطيات `lang === 'ar' ? … : …`. لا توجد بيانات محتوى ثابتة (خدمات/منتجات/مقالات) — كل الفجوات نصوص واجهة فقط.
+
+| # | الملف | العدد التقريبي | الوجهة |
 |---|---|---|---|
-| A1 | `src/routes/index.tsx` (9 مواضع `lang==='ar'?`) | Hero CTAs, chips, poster titles/subs, "Watch reel", "Warranty…", "Design–build turnkey" | `homepage_sections` (موجود بالأدمن، غير مستهلَك) |
-| A2 | `src/routes/index.tsx` L58-106 | JSON-LD name/description الثابت | `seo_settings` (موجود) |
-| B1 | `src/routes/certificates.tsx` L43-55 | eyebrow/title/sub بالعربي والإنجليزي | `translations` |
-| B2 | `src/routes/clients.tsx` L44-45 | eyebrow/title/sub/testimonialsTitle/cta/empty… | `translations` |
-| B3 | `src/routes/faq.tsx` L47-48 | eyebrow/title/sub/ctaTitle/ctaBtn | `translations` |
-| B4 | `src/routes/quote.tsx` L101-127 | title/sub/feature bullets | `translations` |
-| B5 | `src/routes/gallery.tsx` | Empty state + filter labels | `translations` |
-| B6 | `src/routes/downloads.tsx` (7 مواضع) | Section titles, empty states, filters | `translations` |
-| B7 | `src/routes/careers.tsx` (12 موضع) | Empty state, apply CTA labels | `translations` |
-| C1 | `src/components/site/Header.tsx` (25 موضع) | aria-labels, "Call now / اتصل الآن", "Instant chat", CTA fallback | `translations` |
-| C2 | `src/components/site/Footer.tsx` (12 موضع) | Column titles, trust badges, newsletter labels | `translations` |
-| C3 | `src/components/site/QuickLeadDialog.tsx` (17 موضع) | Form labels, success/error toasts | `translations` |
-| C4 | `src/components/site/DownloadGateButton.tsx` L148 | Consent copy | `translations` |
-| C5 | `src/components/site/ServiceQuoteForm.tsx` L65 | Success body | `translations` |
-| C6 | `src/components/site/ShareButtons.tsx` / `ImageLightbox.tsx` | UI labels | `translations` |
-| D1 | `src/routes/projects.index.tsx` (18 موضع) · `governorates.$slug.tsx` (13 موضع) | Filter labels, sort options, empty states | `translations` |
+| A1 | `routes/index.tsx` | 9 | `homepage_sections` + `translations` |
+| A2 | `routes/index.tsx` (JSON-LD) | 3 | `seo_settings` (row=`home`) |
+| B1 | `routes/certificates.tsx` | 6 | `translations` ns=`page.certificates` |
+| B2 | `routes/clients.tsx` | 7 | `translations` ns=`page.clients` |
+| B3 | `routes/faq.tsx` | 5 | `translations` ns=`page.faq` |
+| B4 | `routes/quote.tsx` | 8 | `translations` ns=`page.quote` |
+| B5 | `routes/gallery.tsx` | 6 | `translations` ns=`page.gallery` |
+| B6 | `routes/downloads.tsx` + `downloads.$slug.tsx` | 12 | `translations` ns=`page.downloads` |
+| B7 | `routes/careers.tsx` | 12 | `translations` ns=`page.careers` |
+| B8 | `routes/about.tsx` · `contact.tsx` · `knowledge.index.tsx` · `knowledge.$slug.tsx` · `products.$slug.tsx` · `projects.index.tsx` · `products.index.tsx` · `governorates.$slug.tsx` · `services.index.tsx` · `services.$slug.tsx` | 30+ | `translations` بحسب الصفحة |
+| C1 | `components/site/Header.tsx` | 14 | `translations` ns=`header` |
+| C2 | `components/site/Footer.tsx` | 12 | `translations` ns=`footer` |
+| C3 | `components/site/QuickLeadDialog.tsx` | 17 | `translations` ns=`dialog.lead` |
+| C4 | `DownloadGateButton.tsx` · `ServiceQuoteForm.tsx` · `WhatsAppSendButton.tsx` · `LeadSuccessDialog.tsx` | 15 | `translations` ns=`form.*` |
+| C5 | `ShareButtons.tsx` · `ImageLightbox.tsx` · `GallerySection.tsx` · `Cards.tsx` · `HeroSlider.tsx` · `LegalPage.tsx` | 12 | `translations` ns=`ui.*` |
+| C6 | `mobile/MobileTopBar.tsx` · `MobileTabBar.tsx` · `MobileMoreDrawer.tsx` | 9 | `translations` ns=`mobile` |
 
-**الإجمالي:** ~155 حرفياً ثنائي اللغة موزّعة على 15 ملف. لا توجد بيانات مجالية (خدمات/منتجات/إلخ) ثابتة — كل الفجوات في **UI copy فقط**.
+**الإجمالي:** ~180 حرفياً ثنائي اللغة موزعة على 38 ملف.
 
-## 3) خطة تنفيذ على 4 دفعات متوازية
+## 3) خطة تنفيذ — 4 دفعات متوازية
 
-### Batch 1 — الصفحة الرئيسية (`index.tsx`)
-- استهلاك `homepage_sections` عبر `queries.ts` لعرض chips, poster titles/subs, CTAs.
-- استهلاك `seo_settings` (row=`home`) لـ JSON-LD organization/website بدل الثوابت.
-- إضافة seeds SQL لأي مفتاح ناقص في `homepage_sections` بلغتين.
+### Batch 1 — الصفحة الرئيسية + JSON-LD
+- استهلاك `homepage_sections` (chips, poster titles, CTAs) عبر `queries.ts`.
+- استهلاك `seo_settings` (`page_key='home'`) لـ Organization/WebSite JSON-LD.
+- Migration: seed لأي مفتاح ناقص في الجدولين بلغتين (`INSERT … ON CONFLICT DO NOTHING`).
 
-### Batch 2 — صفحات الدعم (certificates / clients / faq / quote / gallery / downloads / careers)
-- إضافة مفاتيح translation namespace لكل صفحة (`page.certificates.hero.title` …).
-- استبدال كل كتلة `ar ? … : …` باستدعاء `t(key)` من `useTranslations`.
-- تشغيل migration واحد يزرع كل المفاتيح بلغتين (INSERT … ON CONFLICT).
+### Batch 2 — الصفحات العامة (13 ملف)
+- إضافة مفاتيح `translations` لكل صفحة بـ namespace واضح (`page.<name>.<key>`).
+- استبدال كل `lang === 'ar' ? … : …` بـ `t('page.<name>.<key>')` من `useTranslations`.
+- Migration واحد يزرع ~120 مفتاح بلغتين.
 
-### Batch 3 — المكونات المشتركة (Header / Footer / QuickLeadDialog / DownloadGate / ServiceQuoteForm / ShareButtons / ImageLightbox)
-- توسيع namespaces: `header.*`, `footer.*`, `dialog.lead.*`, `form.quote.*`, `share.*`.
-- استبدال داخل كل مكوّن ثم اختبار a11y (aria-labels تبقى ديناميكية).
-- Migration seed للمفاتيح الجديدة.
+### Batch 3 — المكونات المشتركة (12 ملف)
+- Namespaces: `header.*`, `footer.*`, `dialog.lead.*`, `form.quote.*`, `form.download.*`, `ui.share.*`, `ui.gallery.*`, `mobile.*`.
+- استبدال داخل كل مكوّن مع الحفاظ على a11y (`aria-label` ديناميكية عبر `t()`).
+- Migration seed ~60 مفتاح.
 
-### Batch 4 — قوائم/فلاتر (`projects.index.tsx`, `governorates.$slug.tsx`) + توثيق ونهائي
-- Namespace `filters.*` (all / featured / newest / sort / empty …).
-- تشغيل `bunx tsgo` + سكان security + مراجعة أن لا تبقى `ar ? "` في `src/routes`/`src/components/site`.
-- تحديث `admin.translations.tsx` لعرض الـ namespaces الجديدة مجمّعة.
+### Batch 4 — الفلاتر/القوائم + التحقق النهائي
+- Namespace `filters.*` (all / featured / newest / sort / empty …) للـ `projects.index.tsx`, `products.index.tsx`, `governorates.$slug.tsx`, `services.index.tsx`.
+- تحديث `admin.translations.tsx` لعرض الـ namespaces مجمعة مع فلترة سريعة.
+- تشغيل `bunx tsgo --noEmit`, vitest, security scan.
+- شرط النجاح: `rg "lang === 'ar' \?" src/routes src/components/site` = صفر مطابقات.
 
-## 4) القرارات المطلوبة قبل البدء
-1. **Batch 1 يستلزم إضافة صفوف افتراضية إلى `homepage_sections`** (~12 مفتاح) — هل تريدني أن أزرعها الآن؟
-2. **Batches 2–4** تعتمد على جدول `translations` الحالي — سأزرع ~140 مفتاحاً بلغتين. موافق؟
-3. هل تريد تنفيذ **الأربع دفعات بالتوازي في نفس الدور** أم واحدة تلو الأخرى (لسهولة المراجعة)؟
+## 4) تفاصيل تقنية
+- الجداول جاهزة: `translations(key, ar, en, namespace)`, `homepage_sections(...)`, `seo_settings(page_key, ...)`.
+- Hook `useTranslations()` موجود في `src/i18n/LanguageProvider.tsx` ويقرأ من Query cache.
+- كل migrations تستخدم `ON CONFLICT (key) DO NOTHING`.
+- لن تتغير أي واجهات RLS/API — استهلاك بيانات موجودة + زرع نصوص فقط.
+- الأدمن سيصبح مصدر الحقيقة الوحيد لكل نص UI ثنائي اللغة.
 
-## تفاصيل تقنية
-- الجداول جاهزة: `translations(key, ar, en, namespace, …)`, `homepage_sections(key, title_ar, title_en, subtitle_ar, subtitle_en, cta_label_*, cta_href, order_index, is_active)`, `seo_settings(page_key, …)`.
-- الـ hook `useTranslations()` موجود في `src/lib/i18n` ويقرأ من cache Query.
-- كل الـ migrations ستستخدم `INSERT ... ON CONFLICT (key) DO NOTHING` للأمان.
-- لن تتغير أي واجهات API/RLS — فقط استهلاك بيانات موجودة + زرع نصوص.
+## 5) قرارات مطلوبة قبل البدء
+1. **زرع صفوف افتراضية في `homepage_sections`** (~12 مفتاح) الآن؟
+2. **زرع ~180 مفتاح translations** بلغتين الآن؟
+3. **تنفيذ الأربع دفعات بالتوازي في نفس الدور** أم دفعة تلو الأخرى للمراجعة؟
