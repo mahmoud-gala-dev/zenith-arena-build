@@ -499,6 +499,14 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
               <Button
                 type="button"
                 variant="outline"
+                disabled={!canPreview || (form.status !== "published" && !canPreviewDrafts)}
+                title={
+                  !canPreview
+                    ? `Your role (${roles.join(", ") || "none"}) cannot open previews`
+                    : form.status !== "published" && !canPreviewDrafts
+                      ? "Only admin/editor roles can preview unpublished drafts"
+                      : undefined
+                }
                 onClick={() => {
                   const iso = form.effectiveAt
                     ? new Date(form.effectiveAt).toISOString()
