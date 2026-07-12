@@ -520,6 +520,7 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
       </Card>
 
       <AuditHistory recordId={form.id} />
+      <VersionHistory pageId={form.id} slug={slug} />
     </div>
   );
 }
