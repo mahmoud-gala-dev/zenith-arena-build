@@ -1076,6 +1076,7 @@ export type Database = {
           effective_at: string | null
           featured: boolean
           id: string
+          live_notified_at: string | null
           seo_description_ar: string | null
           seo_description_en: string | null
           seo_keywords_ar: string | null
@@ -1098,6 +1099,7 @@ export type Database = {
           effective_at?: string | null
           featured?: boolean
           id?: string
+          live_notified_at?: string | null
           seo_description_ar?: string | null
           seo_description_en?: string | null
           seo_keywords_ar?: string | null
@@ -1120,6 +1122,7 @@ export type Database = {
           effective_at?: string | null
           featured?: boolean
           id?: string
+          live_notified_at?: string | null
           seo_description_ar?: string | null
           seo_description_en?: string | null
           seo_keywords_ar?: string | null
@@ -1992,6 +1995,7 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      notify_pages_now_live: { Args: never; Returns: number }
       publish_due_hero_slides: { Args: never; Returns: number }
     }
     Enums: {
