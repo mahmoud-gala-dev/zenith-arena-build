@@ -356,6 +356,24 @@ function ArticleEditor({
         </div>
       </div>
 
+      {value.id && value.translation_group_id && (
+        <TranslationLinkPanel
+          post={{
+            id: value.id,
+            translation_group_id: value.translation_group_id,
+            title_en: value.title_en,
+            title_ar: value.title_ar,
+            slug_en: value.slug_en,
+          }}
+        />
+      )}
+      {!value.id && (
+        <div className="rounded-lg border border-dashed border-border/60 p-3 text-xs text-muted-foreground">
+          Save the article first to link it to an existing translation.
+        </div>
+      )}
+
+
       <Tabs defaultValue="en" className="w-full">
         <TabsList>
           <TabsTrigger value="en" className="gap-2"><Languages className="h-3 w-3" /> English</TabsTrigger>
