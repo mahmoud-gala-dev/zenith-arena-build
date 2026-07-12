@@ -173,8 +173,7 @@ export function DownloadGateButton({
         },
       });
       toast.success(T.success);
-      setOpen(false);
-      setForm({ name: "", email: "", phone: "", website: "" });
+      setSubmitted(true);
       void trackDownloadEvent("download", downloadId);
       await openSignedUrl();
     } catch (err) {
