@@ -165,6 +165,7 @@ function AdminBlogPage() {
       if (error) throw error;
       toast.success(id ? "Article updated" : "Article created");
       setEditing(null);
+      invalidate();
       load();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Save failed");
@@ -177,7 +178,7 @@ function AdminBlogPage() {
     if (!deleteId) return;
     const { error } = await supabase.from("blog_posts").delete().eq("id", deleteId);
     if (error) toast.error(error.message);
-    else { toast.success("Deleted"); load(); }
+    else { toast.success("Deleted"); invalidate(); load(); }
     setDeleteId(null);
   }
 
@@ -186,7 +187,9 @@ function AdminBlogPage() {
     const { error } = await supabase.from("blog_posts").update({ [key]: value } as never).eq("id", row.id);
     if (error) return toast.error(error.message);
     setRows((rs) => rs.map((r) => (r.id === row.id ? { ...r, [key]: value } : r)));
+    invalidate();
   }
+
 
   return (
     <AdminShell title="Knowledge Center — Articles">
