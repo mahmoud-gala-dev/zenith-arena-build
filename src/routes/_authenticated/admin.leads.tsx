@@ -260,10 +260,39 @@ function LeadsPage() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-1">
-                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setEditing(l); setFormOpen(true); }}>
+                    {l.phone && (
+                      <>
+                        <Button asChild variant="ghost" size="sm" title="Call">
+                          <a href={`tel:${l.phone}`} onClick={(e) => e.stopPropagation()}>
+                            <Phone className="h-4 w-4" />
+                          </a>
+                        </Button>
+                        <Button asChild variant="ghost" size="sm" title="WhatsApp">
+                          <a
+                            href={`https://wa.me/${l.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Hi ${l.name}, regarding your inquiry with Egytic Sports`)}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <MessageCircle className="h-4 w-4 text-emerald-600" />
+                          </a>
+                        </Button>
+                      </>
+                    )}
+                    {l.email && (
+                      <Button asChild variant="ghost" size="sm" title="Email">
+                        <a
+                          href={`mailto:${l.email}?subject=${encodeURIComponent("Egytic Sports — Your inquiry")}`}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Mail className="h-4 w-4" />
+                        </a>
+                      </Button>
+                    )}
+                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setEditing(l); setFormOpen(true); }} title="Edit">
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); deleteLead(l.id); }}>
+                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); deleteLead(l.id); }} title="Delete">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
