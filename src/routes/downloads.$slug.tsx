@@ -299,7 +299,41 @@ function DownloadDetailPage() {
                 className="mt-4 w-full"
               />
 
+              {localizedFiles.length > 0 && (
+                <div className="mt-5 space-y-2 border-t border-border pt-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    {ar ? "ملفات إضافية" : "Additional files"}
+                  </p>
+                  <ul className="space-y-2">
+                    {localizedFiles.map((f, i) => {
+                      const label = (ar ? f.label_ar : f.label_en) || f.label_en || f.label_ar || (ar ? "تحميل" : "Download");
+                      return (
+                        <li key={i}>
+                          <a
+                            href={f.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2 text-sm transition hover:border-primary hover:bg-accent"
+                          >
+                            <span className="flex min-w-0 items-center gap-2">
+                              <Download className="h-4 w-4 shrink-0 text-primary" />
+                              <span className="truncate font-medium">{label}</span>
+                            </span>
+                            {f.size ? (
+                              <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+                                {formatBytes(f.size)}
+                              </span>
+                            ) : null}
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+
             </div>
+
 
             <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
               <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
