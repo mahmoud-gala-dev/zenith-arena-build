@@ -143,7 +143,7 @@ export function Header() {
     >
       {/* Skip to content — a11y for keyboard users */}
       <a
-        href="#main"
+        href="#main-content"
         className={cn(
           "sr-only focus:not-sr-only focus:absolute focus:z-[60] focus:top-2 focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-foreground focus:shadow-lg focus:ring-2 focus:ring-primary",
           ar ? "focus:right-2" : "focus:left-2",
