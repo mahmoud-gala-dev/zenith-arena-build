@@ -705,12 +705,14 @@ function Index() {
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+            {(() => { const s = section("knowledge", { title: t.sections.knowledgeTitle, subtitle: t.sections.knowledgeSub }); return (
             <SectionHeader
               align="start"
               eyebrow={t.nav.knowledge}
-              title={t.sections.knowledgeTitle}
-              subtitle={t.sections.knowledgeSub}
-            />
+              title={s.title}
+              subtitle={s.subtitle}
+            />); })()}
+
             <Button asChild variant="outline" className="shrink-0">
               <Link to="/knowledge">
                 {t.cta.viewAll}
