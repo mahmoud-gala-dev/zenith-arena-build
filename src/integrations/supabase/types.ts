@@ -385,6 +385,45 @@ export type Database = {
         }
         Relationships: []
       }
+      faq_items: {
+        Row: {
+          answer_ar: string | null
+          answer_en: string
+          category: string
+          created_at: string
+          id: string
+          is_published: boolean
+          question_ar: string | null
+          question_en: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          answer_ar?: string | null
+          answer_en: string
+          category?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          question_ar?: string | null
+          question_en: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          answer_ar?: string | null
+          answer_en?: string
+          category?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          question_ar?: string | null
+          question_en?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       gallery: {
         Row: {
           alt_ar: string | null
@@ -657,6 +696,119 @@ export type Database = {
         }
         Relationships: []
       }
+      job_applications: {
+        Row: {
+          applicant_name: string
+          cover_letter: string | null
+          created_at: string
+          cv_url: string | null
+          email: string
+          id: string
+          job_id: string | null
+          job_title: string | null
+          notes: string | null
+          phone: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          applicant_name: string
+          cover_letter?: string | null
+          created_at?: string
+          cv_url?: string | null
+          email: string
+          id?: string
+          job_id?: string | null
+          job_title?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          applicant_name?: string
+          cover_letter?: string | null
+          created_at?: string
+          cv_url?: string | null
+          email?: string
+          id?: string
+          job_id?: string | null
+          job_title?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_openings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_openings: {
+        Row: {
+          created_at: string
+          department_ar: string | null
+          department_en: string | null
+          description_ar: string | null
+          description_en: string | null
+          employment_type: string
+          id: string
+          is_open: boolean
+          location_ar: string | null
+          location_en: string | null
+          requirements_ar: string | null
+          requirements_en: string | null
+          slug: string
+          sort_order: number
+          title_ar: string | null
+          title_en: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          department_ar?: string | null
+          department_en?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          employment_type?: string
+          id?: string
+          is_open?: boolean
+          location_ar?: string | null
+          location_en?: string | null
+          requirements_ar?: string | null
+          requirements_en?: string | null
+          slug: string
+          sort_order?: number
+          title_ar?: string | null
+          title_en: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          department_ar?: string | null
+          department_en?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          employment_type?: string
+          id?: string
+          is_open?: boolean
+          location_ar?: string | null
+          location_en?: string | null
+          requirements_ar?: string | null
+          requirements_en?: string | null
+          slug?: string
+          sort_order?: number
+          title_ar?: string | null
+          title_en?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           assigned_to: string | null
@@ -817,6 +969,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          locale: string
+          source: string | null
+          subscribed_at: string
+          unsubscribed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          locale?: string
+          source?: string | null
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          locale?: string
+          source?: string | null
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       pages: {
         Row: {
