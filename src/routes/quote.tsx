@@ -11,7 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
-import { services } from "@/lib/site-data";
+import { useQuery } from "@tanstack/react-query";
+import { servicesPublishedQueryOptions } from "@/hooks/useServiceContent";
 import { submitLead } from "@/lib/leads.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -45,6 +46,7 @@ function QuotePage() {
   const [serviceValue, setServiceValue] = useState("");
   const [budgetValue, setBudgetValue] = useState("");
   const [contactMethod, setContactMethod] = useState("email");
+  const { data: dbServices } = useQuery(servicesPublishedQueryOptions);
 
   const submitSchema = z.object({
     name: z.string().trim().min(1).max(100),
@@ -217,8 +219,10 @@ function QuotePage() {
                   <Select value={serviceValue} onValueChange={setServiceValue}>
                     <SelectTrigger><SelectValue placeholder={tx.service} /></SelectTrigger>
                     <SelectContent>
-                      {services.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>{L(s.title)}</SelectItem>
+                      {(dbServices ?? []).filter((s) => s.slug_en).map((s) => (
+                        <SelectItem key={s.id} value={s.slug_en}>
+                          {L({ en: s.title_en, ar: s.title_ar ?? s.title_en })}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
