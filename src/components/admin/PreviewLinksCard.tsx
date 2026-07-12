@@ -67,6 +67,8 @@ export function PreviewLinksCard({
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [sortKey, setSortKey] = useState<SortKey>("created_desc");
 
+  const [selectedVersion, setSelectedVersion] = useState<string>(CURRENT_DRAFT);
+
   const { data: tokens = [], isLoading } = useQuery({
     queryKey: ["admin", "legal", "preview-tokens", pageId],
     enabled: !!pageId,
@@ -77,9 +79,30 @@ export function PreviewLinksCard({
         .eq("page_id", pageId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as Token[];
+      return ((data ?? []) as unknown) as Token[];
     },
   });
+
+  const { data: versions = [] } = useQuery({
+    queryKey: ["admin", "legal", "page-versions", pageId],
+    enabled: !!pageId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("page_versions")
+        .select("id, version_number, created_at, action, actor_email")
+        .eq("page_id", pageId!)
+        .order("version_number", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return (data ?? []) as Version[];
+    },
+  });
+
+  const versionLabel = (id: string | null) => {
+    if (!id) return null;
+    const v = versions.find((x) => x.id === id);
+    return v ? `v${v.version_number}` : "version";
+  };
 
   async function createToken() {
     if (!pageId) return;
@@ -94,14 +117,16 @@ export function PreviewLinksCard({
       if (!uid) throw new Error("Not authenticated");
       const token = randomToken(40);
       const expires = new Date(Date.now() + Math.max(1, days) * 24 * 60 * 60 * 1000).toISOString();
-      const { error } = await supabase.from("page_preview_tokens").insert({
+      const payload: Record<string, unknown> = {
         page_id: pageId,
         token,
         label: label.trim() || null,
         expires_at: expires,
         created_by: uid,
         created_by_email: userRes.user?.email ?? null,
-      });
+        version_id: selectedVersion === CURRENT_DRAFT ? null : selectedVersion,
+      };
+      const { error } = await supabase.from("page_preview_tokens").insert(payload as never);
       if (error) throw error;
       setLabel("");
       qc.invalidateQueries({ queryKey: ["admin", "legal", "preview-tokens", pageId] });
