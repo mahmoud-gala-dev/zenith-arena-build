@@ -43,7 +43,7 @@ export const Route = createFileRoute("/quote")({
 });
 
 function QuotePage() {
-  const { lang } = useLang();
+  const { lang, t: T } = useLang();
   const L = useLocalized();
   const ar = lang === "ar";
   const [sent, setSent] = useState(false);
@@ -115,7 +115,7 @@ function QuotePage() {
   }
 
 
-  const tx = L({ en: null, ar: null }) as unknown as typeof import("@/i18n/translations").translations.en.pages.quote;
+  const tx = T.pages.quote;
 
   const budgetRanges = ar
     ? (quotePage?.budget_ranges_ar ?? [])
@@ -240,7 +240,7 @@ function QuotePage() {
                   <WhatsAppSendButton
                     variant="solid"
                     className="sm:w-auto"
-                    label={ar ? "إرسال عبر واتساب" : "Send via WhatsApp"}
+                    label={tx.sendViaWhatsapp}
                     source="quote_page"
                     fields={{
                       name: nameVal,
