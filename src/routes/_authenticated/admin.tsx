@@ -8,7 +8,9 @@ export const Route = createFileRoute("/_authenticated/admin")({
     const uid = userData.user?.id;
     if (!uid) throw redirect({ to: "/auth" });
     const { data: isStaff } = await supabase.rpc("is_staff", { _user_id: uid });
-    return { userId: uid, isStaff: !!isStaff };
+    const { data: permRows } = await supabase.rpc("get_my_permissions");
+    const permissions = ((permRows as string[] | null) ?? []);
+    return { userId: uid, isStaff: !!isStaff, permissions };
   },
   component: AdminGate,
 });
