@@ -308,10 +308,11 @@ function AdminUsersPage() {
                     <td className="px-4 py-3"><Badge variant="secondary" className="capitalize">{currentRole.replaceAll("_", " ")}</Badge></td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <Select value={currentRole} onValueChange={(value) => setRole(profile.id, value as Role)} disabled={savingId === profile.id}>
+                        <Select value={currentRole} onValueChange={guard((value: string) => setRole(profile.id, value as Role))} disabled={savingId === profile.id || !canManage}>
                           <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
                           <SelectContent>{roles.map((role) => <SelectItem key={role} value={role} className="capitalize">{role.replaceAll("_", " ")}</SelectItem>)}</SelectContent>
                         </Select>
+
                         {savingId === profile.id && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
                       </div>
                     </td>
