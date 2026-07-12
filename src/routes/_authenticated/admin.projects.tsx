@@ -85,6 +85,7 @@ function ProjectsPage() {
     if (error) return toast.error(error.message);
     toast.success("Saved");
     setEditing(null);
+    invalidate();
     load();
   }
 
@@ -93,8 +94,10 @@ function ProjectsPage() {
     const { error } = await supabase.from("projects").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted");
+    invalidate();
     load();
   }
+
 
   return (
     <AdminShell title="Projects">
