@@ -145,6 +145,20 @@ function Index() {
   const { data: dbProjects } = useQuery(projectsPublishedListQueryOptions);
   const { data: dbArticles } = useQuery(blogPostsPublishedQueryOptions);
   const { data: dbTestimonials } = useQuery(testimonialsPublishedQueryOptions);
+  const { data: sectionsMap } = useQuery(homepageSectionsQueryOptions);
+
+  // Resolve a homepage section header from DB with static-dict fallback.
+  const section = (
+    key: string,
+    fallback: { title: string; subtitle?: string },
+  ): { title: string; subtitle?: string } => {
+    const row = sectionsMap?.[key];
+    if (!row) return fallback;
+    const title = (lang === "ar" ? row.title_ar : row.title_en) || fallback.title;
+    const subtitleRaw = lang === "ar" ? row.subtitle_ar : row.subtitle_en;
+    return { title, subtitle: subtitleRaw ?? fallback.subtitle };
+  };
+
 
   const servicesList = dbServices ?? [];
   const withSlug = servicesList.filter((s) => Boolean(s.slug_en));
