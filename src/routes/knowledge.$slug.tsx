@@ -182,6 +182,34 @@ function ArticleDetail() {
     });
   const toc = blocks.filter((b: Block): b is Extract<Block, { kind: "h2" }> => b.kind === "h2");
 
+  const [activeId, setActiveId] = useState<string>("");
+  useEffect(() => {
+    if (toc.length === 0) return;
+    setActiveId(toc[0].id);
+    const els = toc.map((h) => document.getElementById(h.id)).filter((el): el is HTMLElement => Boolean(el));
+    if (els.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible.length > 0) {
+          setActiveId(visible[0].target.id);
+        } else {
+          // Fallback: pick the last heading above the viewport top
+          const above = els
+            .map((el) => ({ id: el.id, top: el.getBoundingClientRect().top }))
+            .filter((x) => x.top < 120)
+            .sort((a, b) => b.top - a.top);
+          if (above[0]) setActiveId(above[0].id);
+        }
+      },
+      { rootMargin: "-100px 0px -60% 0px", threshold: [0, 1] },
+    );
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [toc.map((h) => h.id).join("|")]);
+
 
 
   return (
