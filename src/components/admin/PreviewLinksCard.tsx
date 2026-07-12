@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Copy, Link2, Trash2, Ban, Search } from "lucide-react";
+import { Copy, Link2, Trash2, Ban, Search, RefreshCw } from "lucide-react";
 import { useMyRoles } from "@/hooks/useMyRoles";
 
 type StatusFilter = "all" | "active" | "expired" | "revoked";
@@ -119,6 +119,26 @@ export function PreviewLinksCard({
     if (error) return toast.error(error.message);
     qc.invalidateQueries({ queryKey: ["admin", "legal", "preview-tokens", pageId] });
     toast.success("Link deleted");
+  }
+
+  async function renew(t: Token) {
+    if (!canPreviewDrafts) {
+      toast.error("Your role cannot renew preview links");
+      return;
+    }
+    const raw = window.prompt(`Extend "${t.label || "Untitled link"}" by how many days?`, "7");
+    if (raw === null) return;
+    const n = Math.max(1, Math.min(90, Math.floor(Number(raw))));
+    if (!Number.isFinite(n) || n <= 0) return toast.error("Enter a number between 1 and 90");
+    const base = !t.revoked_at && new Date(t.expires_at) > new Date() ? new Date(t.expires_at) : new Date();
+    const next = new Date(base.getTime() + n * 24 * 60 * 60 * 1000).toISOString();
+    const { error } = await supabase
+      .from("page_preview_tokens")
+      .update({ expires_at: next, revoked_at: null })
+      .eq("id", t.id);
+    if (error) return toast.error(error.message);
+    qc.invalidateQueries({ queryKey: ["admin", "legal", "preview-tokens", pageId] });
+    toast.success(`Extended by ${n} day${n === 1 ? "" : "s"} — views preserved`);
   }
 
   function urlFor(t: Token) {
@@ -284,6 +304,21 @@ export function PreviewLinksCard({
                         }}
                       >
                         <Copy className="h-3 w-3 mr-1" /> Copy
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => renew(t)}
+                        disabled={!canPreviewDrafts}
+                        title={
+                          !canPreviewDrafts
+                            ? "Your role cannot renew preview links"
+                            : t.revoked_at
+                            ? "Reactivate and extend this link"
+                            : "Extend expiration; keeps the same token and view count"
+                        }
+                      >
+                        <RefreshCw className="h-3 w-3 mr-1" /> Renew
                       </Button>
                       {!t.revoked_at && (
                         <Button size="sm" variant="outline" onClick={() => revoke(t.id)}>
