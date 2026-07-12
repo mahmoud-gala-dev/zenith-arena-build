@@ -36,7 +36,7 @@ function AboutPage() {
 
   return (
     <SiteLayout>
-      <PageHero eyebrow={heroEyebrow || t.nav.about} title={heroTitle || t.brandFull} subtitle={heroSubtitle || t.footer.tagline} image={heroImg} />
+      <PageHero eyebrow={heroEyebrow || t.nav.about} title={heroTitle || t.brandFull} subtitle={heroSubtitle || t.footer.tagline} bgImage={heroImg} />
 
       <section className="py-20">
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
