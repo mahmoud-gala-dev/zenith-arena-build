@@ -415,14 +415,14 @@ function Index() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader title={t.sections.testimonialsTitle} />
           <div className="mt-14 grid gap-6 lg:grid-cols-3">
-            {testimonials.map((tm, i) => (
-              <Reveal key={i} delay={i * 70}>
+            {homeTestimonials.map((tm, i) => (
+              <Reveal key={tm.id} delay={i * 70}>
                 <figure className="flex h-full flex-col rounded-2xl border border-border bg-card p-7 shadow-soft">
                   <div className="text-4xl leading-none text-primary/30">"</div>
-                  <blockquote className="mt-2 flex-1 text-foreground/85">{L(tm.quote)}</blockquote>
+                  <blockquote className="mt-2 flex-1 text-foreground/85">{L({ en: tm.quote_en, ar: tm.quote_ar ?? tm.quote_en })}</blockquote>
                   <figcaption className="mt-6">
-                    <p className="font-semibold text-foreground">{tm.name}</p>
-                    <p className="text-sm text-muted-foreground">{L(tm.role)}</p>
+                    <p className="font-semibold text-foreground">{L({ en: tm.author_name_en, ar: tm.author_name_ar ?? tm.author_name_en })}</p>
+                    <p className="text-sm text-muted-foreground">{L({ en: tm.author_title_en ?? "", ar: tm.author_title_ar ?? tm.author_title_en ?? "" })}</p>
                   </figcaption>
                 </figure>
               </Reveal>
@@ -536,11 +536,29 @@ function Index() {
             </Button>
           </div>
           <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {articles.slice(0, 3).map((a, i) => (
-              <Reveal key={a.slug} delay={i * 60}>
-                <ArticleCard article={a} />
-              </Reveal>
-            ))}
+            {homeArticles.map((a, i) => {
+              const title = L({ en: a.title_en, ar: a.title_ar ?? a.title_en });
+              const excerpt = L({ en: a.excerpt_en ?? "", ar: a.excerpt_ar ?? a.excerpt_en ?? "" });
+              return (
+                <Reveal key={a.id} delay={i * 60}>
+                  <Link to="/knowledge/$slug" params={{ slug: a.slug_en }} className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+                    <div className="relative aspect-[16/9] overflow-hidden">
+                      {a.featured_image && (
+                        <img src={a.featured_image} alt={title} loading="lazy" decoding="async" sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                      )}
+                    </div>
+                    <div className="flex flex-1 flex-col p-6">
+                      <h3 className="text-lg font-semibold leading-snug text-foreground group-hover:text-primary">{title}</h3>
+                      {excerpt && <p className="mt-2 flex-1 text-sm text-muted-foreground">{excerpt}</p>}
+                      <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                        {t.cta.readArticle}
+                        <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                      </span>
+                    </div>
+                  </Link>
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </section>
