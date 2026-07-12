@@ -226,7 +226,7 @@ function ProjectsPage() {
                   )}
 
                   <h3 className="text-lg font-semibold text-foreground">
-                    {lang === "ar" ? "مشاريع في" : "Projects in"} {selectedGov ? (lang === "ar" ? selectedGov.name_ar : selectedGov.name_en) : ""}
+                    {t.projects.projectsIn} {selectedGov ? (lang === "ar" ? selectedGov.name_ar : selectedGov.name_en) : ""}
                   </h3>
                 </div>
                 {selectedGov && (
