@@ -96,6 +96,8 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
       setForm({
         en: { title: label, intro: "", sections: [] },
         ar: { title: label, intro: "", sections: [] },
+        status: "draft",
+        effectiveAt: "",
       });
       return;
     }
@@ -106,11 +108,20 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
         id: data.id,
         en: { title: data.title_en ?? label, intro: en.intro, sections: en.sections },
         ar: { title: data.title_ar ?? label, intro: ar.intro, sections: ar.sections },
+        status: (data.status as "published" | "draft") ?? "draft",
+        effectiveAt: toLocalInput((data as { effective_at?: string | null }).effective_at ?? null),
       });
     }
   }, [data, isLoading, label]);
 
   const canSave = useMemo(() => !!form && !saving, [form, saving]);
+
+  const isLive = useMemo(() => {
+    if (!form) return false;
+    if (form.status !== "published") return false;
+    if (!form.effectiveAt) return true;
+    return new Date(form.effectiveAt).getTime() <= Date.now();
+  }, [form]);
 
   async function save() {
     if (!form) return;
@@ -124,7 +135,8 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
         content_en: serialize(form.en.intro, form.en.sections),
         content_ar: serialize(form.ar.intro, form.ar.sections),
         template: "legal",
-        status: "published" as const,
+        status: form.status,
+        effective_at: form.effectiveAt ? new Date(form.effectiveAt).toISOString() : null,
       };
       const q = form.id
         ? supabase.from("pages").update(payload).eq("id", form.id)
