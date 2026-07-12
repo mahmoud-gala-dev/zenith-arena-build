@@ -78,8 +78,17 @@ export function QuickLeadDialog({ open, onOpenChange, source, intent = "callback
         has_phone: Boolean(phone.trim()),
       });
       toast.success(ar ? "تم إرسال طلبك — سنتواصل قريبًا." : "Thanks! We'll be in touch shortly.");
+      setSummary({
+        name: name.trim(),
+        email: email.trim(),
+        phone: phone.trim() || null,
+        message: message.trim() || null,
+        intent: intent === "quote" ? "quote" : "callback",
+        source,
+      });
       setName(""); setPhone(""); setEmail(""); setMessage("");
       onOpenChange(false);
+      setSuccessOpen(true);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong.";
       trackEvent({ name: "quick_lead_error", source, message: msg });
