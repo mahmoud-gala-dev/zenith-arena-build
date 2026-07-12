@@ -147,7 +147,7 @@ function formatBytes(n?: number | null) {
 
 function DownloadDetailPage() {
   const { slug } = Route.useParams();
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const ar = lang === "ar";
   const { data: item } = useSuspenseQuery(downloadBySlugQueryOptions(slug));
   const { data: allItems } = useSuspenseQuery(downloadsPublishedQueryOptions);
