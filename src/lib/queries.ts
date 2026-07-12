@@ -401,3 +401,22 @@ export const jobOpeningsOpenQueryOptions = queryOptions<JobOpening[]>({
 
 
 
+export type PageRow = Database["public"]["Tables"]["pages"]["Row"];
+
+export const pageBySlugQueryOptions = (slug: string) =>
+  queryOptions<PageRow | null>({
+    queryKey: ["pages", "by-slug", slug],
+    staleTime: FIFTEEN_MIN,
+    gcTime: TWO_HOUR,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("pages")
+        .select("*")
+        .eq("status", "published")
+        .or(`slug_en.eq.${slug},slug_ar.eq.${slug}`)
+        .maybeSingle();
+      if (error) throw error;
+      return (data ?? null) as PageRow | null;
+    },
+  });
+
