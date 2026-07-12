@@ -320,7 +320,7 @@ export function Header() {
                   className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold text-foreground transition hover:bg-accent"
                 >
                   <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-primary">
-                    <Phone className="h-4 w-4" />
+                    <Phone aria-hidden="true" className="h-4 w-4" />
                   </span>
                   <span className="flex-1">
                     <span className="block">{ar ? "اتصل الآن" : "Call now"}</span>
@@ -336,7 +336,7 @@ export function Header() {
                     className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold text-foreground transition hover:bg-accent"
                   >
                     <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600">
-                      <MessageCircle className="h-4 w-4" />
+                      <MessageCircle aria-hidden="true" className="h-4 w-4" />
                     </span>
                     <span className="flex-1">
                       <span className="block">WhatsApp</span>
@@ -350,7 +350,7 @@ export function Header() {
                   className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-start text-sm font-semibold text-foreground transition hover:bg-accent"
                 >
                   <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--gold)]/15 text-[color:var(--gold)]">
-                    <MessageCircle className="h-4 w-4" />
+                    <MessageCircle aria-hidden="true" className="h-4 w-4" />
                   </span>
                   <span className="flex-1">
                     <span className="block">{ar ? "اطلب مكالمة" : "Request callback"}</span>
