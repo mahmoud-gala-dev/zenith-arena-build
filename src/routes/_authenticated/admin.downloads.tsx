@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus, Pencil, Trash2, Loader2, Search, Upload, X, FileText, ExternalLink, Download as DownloadIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Search, Upload, X, FileText, ExternalLink, Download as DownloadIcon, GripVertical, Image as ImageIcon, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { StrictImageUrlField } from "@/components/admin/StrictImageUrlField";
