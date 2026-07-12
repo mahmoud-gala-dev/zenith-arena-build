@@ -331,23 +331,58 @@ function AdminBlogPage() {
 }
 
 function ArticleEditor({
-  value, onChange, cats, suggestedTags,
+  value, onChange, cats, tags, onTagsChanged,
 }: {
   value: Article;
   onChange: (v: Article) => void;
   cats: Category[];
-  suggestedTags: string[];
+  tags: Tag[];
+  onTagsChanged: () => void;
 }) {
   const set = (patch: Partial<Article>) => onChange({ ...value, ...patch });
-  const [tagInput, setTagInput] = useState("");
+  const [tagSearch, setTagSearch] = useState("");
+  const [tagPickerOpen, setTagPickerOpen] = useState(false);
+  const [creatingTag, setCreatingTag] = useState(false);
 
-  function addTag(raw: string) {
-    const t = raw.trim().replace(/,$/, "");
-    if (!t) return;
-    const next = Array.from(new Set([...(value.tags ?? []), t]));
+  const selectedSlugs = new Set(value.tags ?? []);
+  const tagsBySlug = useMemo(() => Object.fromEntries(tags.map((t) => [t.slug, t] as const)), [tags]);
+  const unknownSelected = (value.tags ?? []).filter((s) => !tagsBySlug[s]);
+  const filteredTags = useMemo(() => {
+    const q = tagSearch.trim().toLowerCase();
+    return tags.filter((t) => {
+      if (selectedSlugs.has(t.slug)) return false;
+      if (!q) return true;
+      return [t.slug, t.name_en, t.name_ar].some((v) => v.toLowerCase().includes(q));
+    });
+  }, [tags, selectedSlugs, tagSearch]);
+
+  function toggleTag(slug: string) {
+    const next = selectedSlugs.has(slug)
+      ? (value.tags ?? []).filter((s) => s !== slug)
+      : Array.from(new Set([...(value.tags ?? []), slug]));
     set({ tags: next });
-    setTagInput("");
   }
+
+  async function createTagFromSearch() {
+    const raw = tagSearch.trim();
+    if (!raw) return;
+    const slug = slugifyTag(raw);
+    if (!slug) return toast.error("Invalid tag name");
+    if (tagsBySlug[slug]) {
+      toggleTag(slug);
+      setTagSearch("");
+      return;
+    }
+    setCreatingTag(true);
+    const { error } = await supabase.from("tags").insert({ slug, name_en: raw, name_ar: raw } as never);
+    setCreatingTag(false);
+    if (error) return toast.error(error.message);
+    toast.success(`Tag "${raw}" created — remember to add its Arabic name in Manage tags.`);
+    set({ tags: Array.from(new Set([...(value.tags ?? []), slug])) });
+    setTagSearch("");
+    onTagsChanged();
+  }
+
 
   return (
     <div className="space-y-5">
