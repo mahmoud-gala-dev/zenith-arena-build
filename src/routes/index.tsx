@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ArrowUpRight, Award, ShieldCheck, Cpu, Wrench } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Award, ShieldCheck, Cpu, Wrench, Trophy, Ruler, PlayCircle, ChevronDown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
