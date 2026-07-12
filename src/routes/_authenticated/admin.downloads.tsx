@@ -347,7 +347,14 @@ function DownloadEditor({
       status: (values.status ?? "published") as DownloadRow["status"],
       featured: !!values.featured,
       sort_order: Number(values.sort_order ?? 0),
+      seo_title_en: values.seo_title_en?.trim() || null,
+      seo_title_ar: values.seo_title_ar?.trim() || null,
+      seo_description_en: values.seo_description_en?.trim() || null,
+      seo_description_ar: values.seo_description_ar?.trim() || null,
+      og_image: values.og_image?.trim() || null,
+      og_image_ar: values.og_image_ar?.trim() || null,
     };
+
     const { error } = values.id
       ? await supabase.from("downloads").update(payload).eq("id", values.id)
       : await supabase.from("downloads").insert([payload]);
