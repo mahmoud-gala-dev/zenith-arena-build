@@ -173,15 +173,11 @@ function DownloadsPage() {
           {filtered.length === 0 ? (
             <div className="py-16 text-center">
               <p className="text-muted-foreground">
-                {items.length === 0
-                  ? tx.empty
-                  : ar
-                  ? "لا توجد نتائج مطابقة."
-                  : "No matching results."}
+                {items.length === 0 ? tx.empty : T.pages.downloads.noMatching}
               </p>
               {hasFilters && (
                 <Button variant="outline" className="mt-4" onClick={clearAll}>
-                  {ar ? "إعادة ضبط الفلاتر" : "Reset filters"}
+                  {T.pages.downloads.resetFilters}
                 </Button>
               )}
             </div>
