@@ -35,7 +35,7 @@ export const Route = createFileRoute("/clients")({
 });
 
 function ClientsPage() {
-  const { lang } = useLang();
+  const { lang, t: T } = useLang();
   const ar = lang === "ar";
   const { data: clients } = useSuspenseQuery(clientsPublishedQueryOptions);
   const { data: testimonials } = useSuspenseQuery(testimonialsPublishedQueryOptions);
