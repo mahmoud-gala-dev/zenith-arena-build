@@ -108,8 +108,9 @@ function GovernoratePage() {
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Breadcrumbs
             items={[
-              { label: lang === "ar" ? "الرئيسية" : "Home", to: "/" },
-              { label: lang === "ar" ? "المشاريع" : "Projects", to: "/projects" },
+              { label: t.nav.home, to: "/" },
+              { label: t.nav.projects, to: "/projects" },
+
               { label: name },
             ]}
           />
