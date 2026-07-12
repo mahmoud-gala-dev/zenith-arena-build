@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Plus, ArrowUp, ArrowDown } from "lucide-react";
 import { IconPicker } from "@/components/admin/IconPicker";
 import { aboutContentQueryOptions, type AboutContent, type AboutValueItem, type AboutStatItem } from "@/lib/queries";
+import { useAdminPageGuard } from "@/lib/rbac";
 
 export const Route = createFileRoute("/_authenticated/admin/about")({
   component: AdminAboutPage,
