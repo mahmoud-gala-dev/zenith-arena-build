@@ -30,12 +30,14 @@ interface AuditRow {
   } | null;
 }
 
-const TABLES = ["all", "hero_slides", "blog_posts", "qa_reports"] as const;
-const ACTIONS = ["all", "INSERT", "UPDATE", "DELETE"] as const;
+const TABLES = ["all", "hero_slides", "blog_posts", "qa_reports", "admin"] as const;
+const ACTIONS = ["all", "INSERT", "UPDATE", "DELETE", "PERMISSION_DENIED", "SENSITIVE_CHANGE"] as const;
 
 function actionTone(a: string) {
   if (a === "INSERT") return "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400";
   if (a === "DELETE") return "bg-destructive/10 text-destructive";
+  if (a === "PERMISSION_DENIED") return "bg-amber-500/10 text-amber-700 dark:text-amber-400";
+  if (a === "SENSITIVE_CHANGE") return "bg-purple-500/10 text-purple-700 dark:text-purple-400";
   return "bg-blue-500/10 text-blue-700 dark:text-blue-400";
 }
 
