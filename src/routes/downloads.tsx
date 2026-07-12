@@ -227,6 +227,7 @@ function DownloadsPage() {
                             fileUrl={r.file_url}
                             title={ar ? r.title_ar : r.title_en}
                             slug={r.slug_en}
+                            downloadId={r.id}
                             requiresLead={r.requires_lead_capture}
                             label={tx.download}
                             size="sm"
