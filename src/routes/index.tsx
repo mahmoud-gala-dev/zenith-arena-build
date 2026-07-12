@@ -129,7 +129,7 @@ export const Route = createFileRoute("/")({
 const whyIcons = [ShieldCheck, Cpu, Wrench, Award];
 
 function Index() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const L = useLocalized();
 
   const { data: heroSettings } = useQuery(homeHeroSettingsQueryOptions);
