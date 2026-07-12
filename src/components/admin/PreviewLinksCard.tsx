@@ -30,7 +30,18 @@ type Token = {
   last_viewed_at: string | null;
   view_count: number;
   created_at: string;
+  version_id: string | null;
 };
+
+type Version = {
+  id: string;
+  version_number: number;
+  created_at: string;
+  action: string;
+  actor_email: string | null;
+};
+
+const CURRENT_DRAFT = "__current__";
 
 function randomToken(len = 40) {
   const bytes = new Uint8Array(len);
@@ -56,6 +67,8 @@ export function PreviewLinksCard({
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [sortKey, setSortKey] = useState<SortKey>("created_desc");
 
+  const [selectedVersion, setSelectedVersion] = useState<string>(CURRENT_DRAFT);
+
   const { data: tokens = [], isLoading } = useQuery({
     queryKey: ["admin", "legal", "preview-tokens", pageId],
     enabled: !!pageId,
@@ -66,9 +79,30 @@ export function PreviewLinksCard({
         .eq("page_id", pageId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as Token[];
+      return ((data ?? []) as unknown) as Token[];
     },
   });
+
+  const { data: versions = [] } = useQuery({
+    queryKey: ["admin", "legal", "page-versions", pageId],
+    enabled: !!pageId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("page_versions")
+        .select("id, version_number, created_at, action, actor_email")
+        .eq("page_id", pageId!)
+        .order("version_number", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return (data ?? []) as Version[];
+    },
+  });
+
+  const versionLabel = (id: string | null) => {
+    if (!id) return null;
+    const v = versions.find((x) => x.id === id);
+    return v ? `v${v.version_number}` : "version";
+  };
 
   async function createToken() {
     if (!pageId) return;
@@ -83,14 +117,16 @@ export function PreviewLinksCard({
       if (!uid) throw new Error("Not authenticated");
       const token = randomToken(40);
       const expires = new Date(Date.now() + Math.max(1, days) * 24 * 60 * 60 * 1000).toISOString();
-      const { error } = await supabase.from("page_preview_tokens").insert({
+      const payload: Record<string, unknown> = {
         page_id: pageId,
         token,
         label: label.trim() || null,
         expires_at: expires,
         created_by: uid,
         created_by_email: userRes.user?.email ?? null,
-      });
+        version_id: selectedVersion === CURRENT_DRAFT ? null : selectedVersion,
+      };
+      const { error } = await supabase.from("page_preview_tokens").insert(payload as never);
       if (error) throw error;
       setLabel("");
       qc.invalidateQueries({ queryKey: ["admin", "legal", "preview-tokens", pageId] });
@@ -206,7 +242,7 @@ export function PreviewLinksCard({
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid gap-3 sm:grid-cols-[1fr_120px_auto] items-end">
+        <div className="grid gap-3 sm:grid-cols-[1fr_1fr_120px_auto] items-end">
           <div className="space-y-1">
             <Label className="text-xs">Label (optional)</Label>
             <Input
@@ -215,6 +251,25 @@ export function PreviewLinksCard({
               onChange={(e) => setLabel(e.target.value)}
               disabled={disabled || !canPreviewDrafts}
             />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Version</Label>
+            <Select
+              value={selectedVersion}
+              onValueChange={setSelectedVersion}
+              disabled={disabled || !canPreviewDrafts}
+            >
+              <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value={CURRENT_DRAFT}>Current draft (live-updating)</SelectItem>
+                {versions.map((v) => (
+                  <SelectItem key={v.id} value={v.id}>
+                    v{v.version_number} · {new Date(v.created_at).toLocaleDateString()}
+                    {v.actor_email ? ` · ${v.actor_email}` : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-1">
             <Label className="text-xs">Expires in (days)</Label>
@@ -237,6 +292,7 @@ export function PreviewLinksCard({
             {creating ? "Creating…" : "Create link"}
           </Button>
         </div>
+
 
         {tokens.length > 0 && (
           <div className="grid gap-2 sm:grid-cols-[1fr_auto_auto] items-center">
@@ -288,6 +344,16 @@ export function PreviewLinksCard({
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className={`rounded px-2 py-0.5 text-xs font-medium ${st.className}`}>{st.label}</span>
                       <span className="font-medium">{t.label || "Untitled link"}</span>
+                      <span
+                        className={`rounded px-2 py-0.5 text-xs font-medium ${
+                          t.version_id
+                            ? "bg-indigo-500/15 text-indigo-700"
+                            : "bg-sky-500/15 text-sky-700"
+                        }`}
+                        title={t.version_id ? "Pinned to a saved version" : "Follows the current draft"}
+                      >
+                        {t.version_id ? `Pinned ${versionLabel(t.version_id)}` : "Current draft"}
+                      </span>
                       <span className="text-xs text-muted-foreground">
                         by {t.created_by_email ?? "unknown"} · expires {new Date(t.expires_at).toLocaleString()} ·{" "}
                         {t.view_count} view{t.view_count === 1 ? "" : "s"}

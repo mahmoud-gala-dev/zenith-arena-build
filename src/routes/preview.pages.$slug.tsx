@@ -72,6 +72,7 @@ function PublicPreview() {
         title_en: string | null; title_ar: string | null;
         content_en: string | null; content_ar: string | null;
         status: string; effective_at: string | null;
+        version_number: number | null;
       }>;
       const match = rows.find((r) => r.slug_en === slug || r.slug_ar === slug);
       return match ?? null;
@@ -92,7 +93,7 @@ function PublicPreview() {
     <>
       <div className="sticky top-0 z-50 border-b bg-amber-500/95 text-black px-4 py-2 text-xs flex flex-wrap items-center gap-3 justify-between">
         <span className="font-medium">
-          Private preview · status={data.status}
+          Private preview · {data.version_number != null ? `pinned to v${data.version_number}` : "current draft"} · status={data.status}
           {data.effective_at ? ` · effective ${new Date(data.effective_at).toLocaleString()}` : ""}
           {" · "}
           <span className={isLive ? "text-emerald-900" : "text-red-900"}>
