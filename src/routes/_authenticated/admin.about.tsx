@@ -25,6 +25,7 @@ const db = supabase as unknown as {
 };
 
 function AdminAboutPage() {
+  const { can, guard, buttonProps } = useAdminPageGuard();
   const qc = useQueryClient();
   const { data, isLoading } = useQuery(aboutContentQueryOptions);
   const [state, setState] = useState<AboutContent | null>(null);
