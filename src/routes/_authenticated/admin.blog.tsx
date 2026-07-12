@@ -195,6 +195,7 @@ function AdminBlogPage() {
             </SelectContent>
           </Select>
           <BlogCategoriesManager onChanged={load} />
+          <TagsManager onChanged={load} />
           <Button onClick={() => setEditing({ ...EMPTY })}><Plus className="h-4 w-4" /> New article</Button>
         </div>
 
