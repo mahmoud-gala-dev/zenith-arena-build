@@ -219,14 +219,17 @@ function AdminHeroSlides() {
       load();
     } else {
       toast.success(`Saved ${orderLang.toUpperCase()} order`);
+      invalidate();
     }
   }
 
 
   async function toggleActive(s: Slide) {
     await supabase.from("hero_slides").update({ is_active: !s.is_active }).eq("id", s.id);
+    invalidate();
     load();
   }
+
 
   const set = <K extends keyof SlideInput>(k: K, v: SlideInput[K]) => setEditing((e) => (e ? { ...e, [k]: v } : e));
 
