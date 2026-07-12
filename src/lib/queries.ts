@@ -76,8 +76,48 @@ export const homeHeroSettingsQueryOptions = queryOptions({
   staleTime: FIFTEEN_MIN,
 });
 
+export type QuotePromise = {
+  icon: string;
+  title_en: string;
+  title_ar: string;
+  desc_en: string;
+  desc_ar: string;
+};
 
+export type QuotePageSettings = {
+  budget_ranges_en: string[];
+  budget_ranges_ar: string[];
+  promises: QuotePromise[];
+};
 
+const DEFAULT_QUOTE_PAGE: QuotePageSettings = {
+  budget_ranges_en: ["Under $100k", "$100k – $500k", "$500k – $1M", "$1M – $5M", "Over $5M"],
+  budget_ranges_ar: ["أقل من 100 ألف $", "100 ألف – 500 ألف $", "500 ألف – 1 مليون $", "1 مليون – 5 مليون $", "أكثر من 5 مليون $"],
+  promises: [
+    { icon: "Clock", title_en: "48-hour response", title_ar: "رد خلال 48 ساعة", desc_en: "From a senior engineer.", desc_ar: "من قبل مهندس أول." },
+    { icon: "Award", title_en: "Detailed proposal", title_ar: "عرض مفصّل", desc_en: "Transparent line items, no hidden costs.", desc_ar: "بنود شفافة، بدون تكاليف خفية." },
+    { icon: "Sparkles", title_en: "Free consultation", title_ar: "استشارة مجانية", desc_en: "Initial call to scope your project.", desc_ar: "مكالمة أولى لتحديد النطاق." },
+  ],
+};
+
+export const quotePageSettingsQueryOptions = queryOptions({
+  queryKey: ["settings", "quote_page"],
+  queryFn: async (): Promise<QuotePageSettings> => {
+    const { data, error } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "quote_page")
+      .maybeSingle();
+    if (error) throw error;
+    const v = (data?.value ?? {}) as Partial<QuotePageSettings>;
+    return {
+      budget_ranges_en: Array.isArray(v.budget_ranges_en) && v.budget_ranges_en.length ? v.budget_ranges_en : DEFAULT_QUOTE_PAGE.budget_ranges_en,
+      budget_ranges_ar: Array.isArray(v.budget_ranges_ar) && v.budget_ranges_ar.length ? v.budget_ranges_ar : DEFAULT_QUOTE_PAGE.budget_ranges_ar,
+      promises: Array.isArray(v.promises) && v.promises.length ? v.promises : DEFAULT_QUOTE_PAGE.promises,
+    };
+  },
+  staleTime: FIFTEEN_MIN,
+});
 
 
 export type Gov = {
