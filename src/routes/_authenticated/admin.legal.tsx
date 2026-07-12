@@ -18,7 +18,13 @@ export const Route = createFileRoute("/_authenticated/admin/legal")({
 
 type Section = { h: string; body: string };
 type LangContent = { title: string; intro: string; sections: Section[] };
-type PageForm = { id?: string; en: LangContent; ar: LangContent };
+type PageForm = {
+  id?: string;
+  en: LangContent;
+  ar: LangContent;
+  status: "published" | "draft";
+  effectiveAt: string; // datetime-local value or ""
+};
 
 const SLUGS = [
   { slug: "privacy", label: "Privacy Policy" },
