@@ -519,7 +519,7 @@ function ServiceDetailPage() {
                       {ar ? p.title.ar : p.title.en}
                     </h3>
                     <p className="mt-2 text-sm text-muted-foreground">
-                      {[p.city, p.year].filter(Boolean).join(" · ")}
+                      {[ar ? p.location.ar : p.location.en, p.year].filter(Boolean).join(" · ")}
                     </p>
                     <span className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-primary">
                       {copy.viewProject}<ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
