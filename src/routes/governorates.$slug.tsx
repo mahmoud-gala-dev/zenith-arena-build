@@ -159,7 +159,7 @@ function GovernoratePage() {
                   onClick={() => setSport("all")}
                   className={cn("rounded-full border px-3 py-1.5 text-xs font-medium", sport === "all" ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:bg-accent")}
                 >
-                  {lang === "ar" ? "الكل" : "All"}
+                  {t.governorate.allSports}
                 </button>
                 {sportOptions.map((s) => (
                   <button
