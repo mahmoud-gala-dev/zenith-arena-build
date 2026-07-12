@@ -66,6 +66,7 @@ import { Route as AuthenticatedAdminCareersRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminBlogRouteImport } from './routes/_authenticated/admin.blog'
 import { Route as AuthenticatedAdminAuditLogsRouteImport } from './routes/_authenticated/admin.audit-logs'
 import { Route as AuthenticatedAdminApplicationsRouteImport } from './routes/_authenticated/admin.applications'
+import { Route as AuthenticatedAdminAboutRouteImport } from './routes/_authenticated/admin.about'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -369,6 +370,11 @@ const AuthenticatedAdminApplicationsRoute =
     path: '/applications',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminAboutRoute = AuthenticatedAdminAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -401,6 +407,7 @@ export interface FileRoutesByFullPath {
   '/products/': typeof ProductsIndexRoute
   '/projects/': typeof ProjectsIndexRoute
   '/services/': typeof ServicesIndexRoute
+  '/admin/about': typeof AuthenticatedAdminAboutRoute
   '/admin/applications': typeof AuthenticatedAdminApplicationsRoute
   '/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
   '/admin/blog': typeof AuthenticatedAdminBlogRoute
@@ -454,6 +461,7 @@ export interface FileRoutesByTo {
   '/products': typeof ProductsIndexRoute
   '/projects': typeof ProjectsIndexRoute
   '/services': typeof ServicesIndexRoute
+  '/admin/about': typeof AuthenticatedAdminAboutRoute
   '/admin/applications': typeof AuthenticatedAdminApplicationsRoute
   '/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
   '/admin/blog': typeof AuthenticatedAdminBlogRoute
@@ -514,6 +522,7 @@ export interface FileRoutesById {
   '/products/': typeof ProductsIndexRoute
   '/projects/': typeof ProjectsIndexRoute
   '/services/': typeof ServicesIndexRoute
+  '/_authenticated/admin/about': typeof AuthenticatedAdminAboutRoute
   '/_authenticated/admin/applications': typeof AuthenticatedAdminApplicationsRoute
   '/_authenticated/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
   '/_authenticated/admin/blog': typeof AuthenticatedAdminBlogRoute
@@ -574,6 +583,7 @@ export interface FileRouteTypes {
     | '/products/'
     | '/projects/'
     | '/services/'
+    | '/admin/about'
     | '/admin/applications'
     | '/admin/audit-logs'
     | '/admin/blog'
@@ -627,6 +637,7 @@ export interface FileRouteTypes {
     | '/products'
     | '/projects'
     | '/services'
+    | '/admin/about'
     | '/admin/applications'
     | '/admin/audit-logs'
     | '/admin/blog'
@@ -686,6 +697,7 @@ export interface FileRouteTypes {
     | '/products/'
     | '/projects/'
     | '/services/'
+    | '/_authenticated/admin/about'
     | '/_authenticated/admin/applications'
     | '/_authenticated/admin/audit-logs'
     | '/_authenticated/admin/blog'
@@ -1140,10 +1152,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminApplicationsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/about': {
+      id: '/_authenticated/admin/about'
+      path: '/about'
+      fullPath: '/admin/about'
+      preLoaderRoute: typeof AuthenticatedAdminAboutRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAboutRoute: typeof AuthenticatedAdminAboutRoute
   AuthenticatedAdminApplicationsRoute: typeof AuthenticatedAdminApplicationsRoute
   AuthenticatedAdminAuditLogsRoute: typeof AuthenticatedAdminAuditLogsRoute
   AuthenticatedAdminBlogRoute: typeof AuthenticatedAdminBlogRoute
@@ -1173,6 +1193,7 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAboutRoute: AuthenticatedAdminAboutRoute,
   AuthenticatedAdminApplicationsRoute: AuthenticatedAdminApplicationsRoute,
   AuthenticatedAdminAuditLogsRoute: AuthenticatedAdminAuditLogsRoute,
   AuthenticatedAdminBlogRoute: AuthenticatedAdminBlogRoute,
