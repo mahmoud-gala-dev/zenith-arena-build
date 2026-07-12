@@ -531,12 +531,14 @@ function Index() {
       <section className="relative overflow-hidden bg-hero py-24 text-white">
         <div className="absolute inset-0 grid-texture opacity-20" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {(() => { const s = section("why", { title: t.sections.whyTitle, subtitle: t.sections.whySub }); return (
           <SectionHeader
             light
-            eyebrow={t.sections.whyTitle}
-            title={t.sections.whyTitle}
-            subtitle={t.sections.whySub}
-          />
+            eyebrow={s.title}
+            title={s.title}
+            subtitle={s.subtitle}
+          />); })()}
+
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {([
               [t.why.i1t, t.why.i1d],
