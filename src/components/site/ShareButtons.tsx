@@ -10,7 +10,7 @@ interface ShareButtonsProps {
 }
 
 export function ShareButtons({ title, path, summary }: ShareButtonsProps) {
-  const { lang } = useLang();
+  const { t, lang } = useLang();
   const [copied, setCopied] = useState(false);
   const ar = lang === "ar";
 

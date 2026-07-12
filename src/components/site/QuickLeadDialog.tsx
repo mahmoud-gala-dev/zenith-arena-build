@@ -24,7 +24,7 @@ type Props = {
 };
 
 export function QuickLeadDialog({ open, onOpenChange, source, intent = "callback" }: Props) {
-  const { lang } = useLang();
+  const { t, lang } = useLang();
   const ar = lang === "ar";
   const Arrow = ar ? ArrowLeft : ArrowRight;
   const contact = useContactInfo();

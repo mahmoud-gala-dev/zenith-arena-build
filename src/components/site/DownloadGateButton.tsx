@@ -46,7 +46,7 @@ export function DownloadGateButton({
   variant = "default",
   className,
 }: Props) {
-  const { lang } = useLang();
+  const { t, lang } = useLang();
   const ar = lang === "ar";
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);

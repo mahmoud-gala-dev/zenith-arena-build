@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function ImageLightbox({ images, index, onClose, onNavigate, alt }: Props) {
-  const { lang } = useLang();
+  const { t, lang } = useLang();
   const ar = lang === "ar";
   const [zoomed, setZoomed] = useState(false);
   const touchX = useRef<number | null>(null);
