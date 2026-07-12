@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { trackDownloadEvent } from "@/lib/downloadTracking";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
@@ -48,6 +49,7 @@ export const Route = createFileRoute("/downloads")({
 });
 
 function DownloadsPage() {
+  useEffect(() => { trackDownloadEvent("view_index"); }, []);
   const { lang } = useLang();
   const ar = lang === "ar";
   const { q, cat } = Route.useSearch();
@@ -225,6 +227,7 @@ function DownloadsPage() {
                             fileUrl={r.file_url}
                             title={ar ? r.title_ar : r.title_en}
                             slug={r.slug_en}
+                            downloadId={r.id}
                             requiresLead={r.requires_lead_capture}
                             label={tx.download}
                             size="sm"

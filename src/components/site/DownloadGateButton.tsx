@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { submitLead } from "@/lib/leads.functions";
+import { trackDownloadEvent } from "@/lib/downloadTracking";
 import { useLang } from "@/i18n/LanguageProvider";
 
 type Size = "default" | "sm" | "lg";
@@ -23,6 +24,7 @@ interface Props {
   fileUrl: string | null;
   title: string;
   slug: string;
+  downloadId?: string | null;
   requiresLead: boolean;
   label: string;
   size?: Size;
@@ -35,6 +37,7 @@ export function DownloadGateButton({
   fileUrl,
   title,
   slug,
+  downloadId = null,
   requiresLead,
   label,
   size = "default",
@@ -59,7 +62,12 @@ export function DownloadGateButton({
   if (!requiresLead) {
     return (
       <Button asChild size={size} variant={variant} className={className}>
-        <a href={fileUrl} target="_blank" rel="noreferrer">
+        <a
+          href={fileUrl}
+          target="_blank"
+          rel="noreferrer"
+          onClick={() => { void trackDownloadEvent("download", downloadId); }}
+        >
           <Download className="h-4 w-4" /> {label}
         </a>
       </Button>
@@ -116,6 +124,7 @@ export function DownloadGateButton({
       toast.success(T.success);
       setOpen(false);
       setForm({ name: "", email: "", phone: "", website: "" });
+      void trackDownloadEvent("download", downloadId);
       window.open(fileUrl!, "_blank", "noopener,noreferrer");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : T.error);

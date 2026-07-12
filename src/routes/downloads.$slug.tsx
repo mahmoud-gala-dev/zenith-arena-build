@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { trackDownloadEvent } from "@/lib/downloadTracking";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeft, Download, FileText, Tag } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -84,6 +86,8 @@ function DownloadDetailPage() {
   const { data: allItems } = useSuspenseQuery(downloadsPublishedQueryOptions);
   const { data: page } = useSuspenseQuery(downloadsPageSettingsQueryOptions);
 
+  useEffect(() => { if (item?.id) trackDownloadEvent("view_detail", item.id); }, [item?.id]);
+
   if (!item) return null;
 
   const L = page.labels;
@@ -129,6 +133,7 @@ function DownloadDetailPage() {
               fileUrl={item.file_url}
               title={title}
               slug={item.slug_en}
+              downloadId={item.id}
               requiresLead={item.requires_lead_capture}
               label={downloadLabel}
               size="lg"
@@ -186,6 +191,7 @@ function DownloadDetailPage() {
                 fileUrl={item.file_url}
                 title={title}
                 slug={item.slug_en}
+                downloadId={item.id}
                 requiresLead={item.requires_lead_capture}
                 label={downloadLabel}
                 className="mt-4 w-full"
