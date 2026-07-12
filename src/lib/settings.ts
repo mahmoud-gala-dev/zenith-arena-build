@@ -122,6 +122,12 @@ export const brandNameQueryOptions = queryOptions({
   staleTime: FIVE_MIN,
 });
 
+export const seoDefaultsQueryOptions = queryOptions({
+  queryKey: ["settings", "seo_defaults"],
+  queryFn: () => fetchSetting<SeoDefaults>("seo_defaults", DEFAULT_SEO_DEFAULTS),
+  staleTime: FIVE_MIN,
+});
+
 export function useContactInfo(): ContactInfo {
   return useQuery(contactInfoQueryOptions).data ?? DEFAULT_CONTACT_INFO;
 }
@@ -132,6 +138,10 @@ export function useSocialLinks(): SocialLinks {
 
 export function useBrandName(): BrandName {
   return useQuery(brandNameQueryOptions).data ?? DEFAULT_BRAND_NAME;
+}
+
+export function useSeoDefaults(): SeoDefaults {
+  return useQuery(seoDefaultsQueryOptions).data ?? DEFAULT_SEO_DEFAULTS;
 }
 
 /** Digits-only phone for WhatsApp / tel links. */
