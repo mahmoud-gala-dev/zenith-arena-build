@@ -218,13 +218,48 @@ export function PreviewLinksCard({
           </Button>
         </div>
 
+        {tokens.length > 0 && (
+          <div className="grid gap-2 sm:grid-cols-[1fr_auto_auto] items-center">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by label, email, or token…"
+                className="pl-7 h-9"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+              <SelectTrigger className="h-9 w-[160px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All ({counts.all})</SelectItem>
+                <SelectItem value="active">Active ({counts.active})</SelectItem>
+                <SelectItem value="expired">Expired ({counts.expired})</SelectItem>
+                <SelectItem value="revoked">Revoked ({counts.revoked})</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
+              <SelectTrigger className="h-9 w-[200px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="created_desc">Newest first</SelectItem>
+                <SelectItem value="last_viewed_desc">Last viewed</SelectItem>
+                <SelectItem value="expires_asc">Expiring soonest</SelectItem>
+                <SelectItem value="expires_desc">Expiring latest</SelectItem>
+                <SelectItem value="views_desc">Most viewed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Loading links…</p>
         ) : tokens.length === 0 ? (
           <p className="text-sm text-muted-foreground">No preview links yet.</p>
+        ) : filteredTokens.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No links match the current filters.</p>
         ) : (
           <ul className="space-y-2">
-            {tokens.map((t) => {
+            {filteredTokens.map((t) => {
               const st = statusOf(t);
               const url = urlFor(t);
               return (
