@@ -474,12 +474,14 @@ function Index() {
       <section className="bg-secondary/50 py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+            {(() => { const s = section("featured_projects", { title: t.sections.projectsTitle, subtitle: t.sections.projectsSub }); return (
             <SectionHeader
               align="start"
               eyebrow={t.nav.projects}
-              title={t.sections.projectsTitle}
-              subtitle={t.sections.projectsSub}
-            />
+              title={s.title}
+              subtitle={s.subtitle}
+            />); })()}
+
             <Button asChild variant="outline" className="shrink-0">
               <Link to="/projects">
                 {t.cta.viewAll}
