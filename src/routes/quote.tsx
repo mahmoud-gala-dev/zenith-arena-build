@@ -19,6 +19,7 @@ import { submitLead } from "@/lib/leads.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { LeadSuccessDialog, type LeadSummary } from "@/components/site/LeadSuccessDialog";
+import { WhatsAppSendButton } from "@/components/site/WhatsAppSendButton";
 
 
 
