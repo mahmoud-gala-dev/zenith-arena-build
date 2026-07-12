@@ -70,6 +70,12 @@ jobs:
             sleep 1
           done
 
+      - name: PWA cache-freshness (manifest + icons cannot serve stale)
+        # Runs two additional builds itself to prove the precache revision bumps
+        # when an icon file changes. Must run BEFORE any code changes are made
+        # by later steps so build-1 reflects the shipped bytes.
+        run: node scripts/pwa-cache-freshness.mjs
+
       - name: Run scrollbar visual scripts (desktop + iOS + iPad + Android Chrome + Android Firefox)
         run: |
           python scripts/scrollbar-visual.py
