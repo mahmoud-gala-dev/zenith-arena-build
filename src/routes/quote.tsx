@@ -88,7 +88,19 @@ function QuotePage() {
     setSubmitting(true);
     try {
       await submit({ data: payload });
+      const svcLabel = dbServices?.find((s) => s.slug_en === serviceValue);
+      setSummary({
+        name: payload.name,
+        email: payload.email,
+        phone: payload.phone,
+        service: serviceValue || null,
+        serviceLabel: svcLabel ? (ar ? svcLabel.title_ar ?? svcLabel.title_en : svcLabel.title_en) : null,
+        message: payload.message,
+        intent: "quote",
+        source: "quote_page",
+      });
       setSent(true);
+      setSuccessOpen(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Submission failed");
