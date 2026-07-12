@@ -20,6 +20,7 @@ import {
   Plus, Pencil, Trash2, Loader2, Search, ExternalLink, Upload, X, Languages, Star, ImageIcon,
 } from "lucide-react";
 import { BlogCategoriesManager } from "@/components/admin/BlogCategoriesManager";
+import { TranslationLinkPanel } from "@/components/admin/TranslationLinkPanel";
 
 export const Route = createFileRoute("/_authenticated/admin/blog")({
   component: AdminBlogPage,
