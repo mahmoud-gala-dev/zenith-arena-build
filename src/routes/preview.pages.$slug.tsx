@@ -72,6 +72,7 @@ function PublicPreview() {
         title_en: string | null; title_ar: string | null;
         content_en: string | null; content_ar: string | null;
         status: string; effective_at: string | null;
+        version_number: number | null;
       }>;
       const match = rows.find((r) => r.slug_en === slug || r.slug_ar === slug);
       return match ?? null;
