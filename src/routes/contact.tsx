@@ -21,7 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
-import { services, WHATSAPP_NUMBER } from "@/lib/site-data";
+import { services } from "@/lib/site-data";
+import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
+
 
 export const Route = createFileRoute("/contact")({
   component: ContactPage,
@@ -85,11 +87,20 @@ export const Route = createFileRoute("/contact")({
 
 
 function ContactPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const L = useLocalized();
+  const contact = useContactInfo();
+  const social = useSocialLinks();
+  const wa = toWhatsAppNumber(social.whatsapp || contact.whatsapp);
+  const ar = lang === "ar";
+  const officeLine = contact.offices
+    .map((o) => (ar ? o.city_ar || o.city_en : o.city_en))
+    .filter(Boolean)
+    .join(" · ") || "—";
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [projectType, setProjectType] = useState("");
+
 
   const schema = z.object({
     name: z.string().trim().min(1).max(100),
