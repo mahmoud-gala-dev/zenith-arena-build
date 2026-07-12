@@ -78,6 +78,7 @@ export const Route = createFileRoute("/knowledge/$slug")({
     const descAr = p.seo_description_ar?.trim() || p.excerpt_ar || p.title_ar;
     const image = p.og_image?.trim() || p.featured_image || undefined;
     const path = `/knowledge/${p.slug_en}`;
+    const alt = loaderData?.alternates ?? { en: path, ar: `${path}?lang=ar` };
 
     const meta: Array<Record<string, string>> = [
       { title },
@@ -109,9 +110,9 @@ export const Route = createFileRoute("/knowledge/$slug")({
       meta,
       links: [
         { rel: "canonical", href: path },
-        { rel: "alternate", hrefLang: "en", href: path },
-        { rel: "alternate", hrefLang: "ar", href: path },
-        { rel: "alternate", hrefLang: "x-default", href: path },
+        { rel: "alternate", hrefLang: "en", href: alt.en },
+        { rel: "alternate", hrefLang: "ar", href: alt.ar },
+        { rel: "alternate", hrefLang: "x-default", href: alt.en },
       ],
       scripts: [{
         type: "application/ld+json",
