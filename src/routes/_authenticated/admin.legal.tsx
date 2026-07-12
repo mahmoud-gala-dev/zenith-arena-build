@@ -151,7 +151,31 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
     }
   }, [data, isLoading, label]);
 
-  const canSave = useMemo(() => !!form && !saving, [form, saving]);
+  const validation = useMemo(() => {
+    const errors: { en: string[]; ar: string[] } = { en: [], ar: [] };
+    if (!form) return { errors, valid: false };
+    (["en", "ar"] as const).forEach((lang) => {
+      const c = form[lang];
+      const label = lang === "en" ? "English" : "Arabic";
+      if (!c.title.trim()) errors[lang].push(`${label}: title is required`);
+      if (!c.intro.trim()) errors[lang].push(`${label}: intro paragraph is required`);
+      if (c.sections.length === 0) {
+        errors[lang].push(`${label}: at least one section is required`);
+      } else {
+        c.sections.forEach((s, i) => {
+          if (!s.h.trim()) errors[lang].push(`${label}: section ${i + 1} is missing a heading`);
+          if (!s.body.trim()) errors[lang].push(`${label}: section ${i + 1} is missing body content`);
+        });
+      }
+      if (form.en.sections.length !== form.ar.sections.length && lang === "ar") {
+        errors.ar.push("Arabic must have the same number of sections as English");
+      }
+    });
+    const valid = errors.en.length === 0 && errors.ar.length === 0;
+    return { errors, valid };
+  }, [form]);
+
+  const canSave = useMemo(() => !!form && !saving && validation.valid, [form, saving, validation.valid]);
 
   const isLive = useMemo(() => {
     if (!form) return false;
@@ -162,6 +186,10 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
 
   async function save() {
     if (!form) return;
+    if (!validation.valid) {
+      toast.error("Please complete all required fields in EN and AR before saving");
+      return;
+    }
     setSaving(true);
     try {
       const payload = {
@@ -265,6 +293,29 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
               </p>
             </div>
           </div>
+          {!validation.valid && (
+            <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-xs">
+              <p className="mb-2 font-medium text-destructive">
+                Complete these items to enable saving:
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {(["en", "ar"] as const).map((lang) => (
+                  <div key={lang}>
+                    <p className="mb-1 font-medium">{lang === "en" ? "English" : "العربية"}</p>
+                    {validation.errors[lang].length === 0 ? (
+                      <p className="text-emerald-600">✓ All required fields filled</p>
+                    ) : (
+                      <ul className="list-disc space-y-0.5 pl-4 text-destructive/90">
+                        {validation.errors[lang].map((msg, i) => (
+                          <li key={i}>{msg}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="flex items-center justify-between border-t pt-3">
             <span
               className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${
@@ -278,7 +329,9 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
                   ? "Unpublished — hidden from visitors"
                   : "Scheduled — not live yet"}
             </span>
-            <Button onClick={save} disabled={!canSave}>{saving ? "Saving…" : "Save"}</Button>
+            <Button onClick={save} disabled={!canSave} title={!validation.valid ? "Fill required EN & AR content" : undefined}>
+              {saving ? "Saving…" : "Save"}
+            </Button>
           </div>
         </CardContent>
       </Card>
