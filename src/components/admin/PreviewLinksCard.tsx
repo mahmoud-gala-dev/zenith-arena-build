@@ -121,6 +121,26 @@ export function PreviewLinksCard({
     toast.success("Link deleted");
   }
 
+  async function renew(t: Token) {
+    if (!canPreviewDrafts) {
+      toast.error("Your role cannot renew preview links");
+      return;
+    }
+    const raw = window.prompt(`Extend "${t.label || "Untitled link"}" by how many days?`, "7");
+    if (raw === null) return;
+    const n = Math.max(1, Math.min(90, Math.floor(Number(raw))));
+    if (!Number.isFinite(n) || n <= 0) return toast.error("Enter a number between 1 and 90");
+    const base = !t.revoked_at && new Date(t.expires_at) > new Date() ? new Date(t.expires_at) : new Date();
+    const next = new Date(base.getTime() + n * 24 * 60 * 60 * 1000).toISOString();
+    const { error } = await supabase
+      .from("page_preview_tokens")
+      .update({ expires_at: next, revoked_at: null })
+      .eq("id", t.id);
+    if (error) return toast.error(error.message);
+    qc.invalidateQueries({ queryKey: ["admin", "legal", "preview-tokens", pageId] });
+    toast.success(`Extended by ${n} day${n === 1 ? "" : "s"} — views preserved`);
+  }
+
   function urlFor(t: Token) {
     return `${window.location.origin}/preview/pages/${slug}?token=${t.token}`;
   }
