@@ -1,0 +1,104 @@
+{
+  "chromium": {
+    "light": {
+      "tokens": {
+        "primary": "oklch(52% .13 162)",
+        "radius": ".75rem",
+        "scrollbarSize": "12px",
+        "scrollbarRadius": ".75rem",
+        "scrollbarThumb": "color-mix(in oklch, oklch(52% .13 162) 45%, transparent)",
+        "scrollbarThumbHover": "color-mix(in oklch, oklch(52% .13 162) 75%, transparent)",
+        "scrollbarThumbActive": "oklch(52% .13 162)",
+        "scrollbarTrack": "color-mix(in oklch, oklch(90% .01 160) 30%, transparent)",
+        "htmlScrollbarWidth": "thin",
+        "htmlScrollbarColor": "oklch(0.52 0.13 162 / 0.45) rgba(0, 0, 0, 0)",
+        "htmlScrollbarGutter": "stable"
+      },
+      "screenshot": "qa-report/scrollbar/chromium-light-scrollbar-strip.png"
+    },
+    "dark": {
+      "tokens": {
+        "primary": "oklch(66% .14 158)",
+        "radius": ".75rem",
+        "scrollbarSize": "12px",
+        "scrollbarRadius": ".75rem",
+        "scrollbarThumb": "color-mix(in oklch, oklch(66% .14 158) 45%, transparent)",
+        "scrollbarThumbHover": "color-mix(in oklch, oklch(66% .14 158) 75%, transparent)",
+        "scrollbarThumbActive": "oklch(66% .14 158)",
+        "scrollbarTrack": "color-mix(in oklch, oklch(100% 0 0 / .12) 30%, transparent)",
+        "htmlScrollbarWidth": "thin",
+        "htmlScrollbarColor": "oklch(0.66 0.14 158 / 0.45) rgba(0, 0, 0, 0)",
+        "htmlScrollbarGutter": "stable"
+      },
+      "screenshot": "qa-report/scrollbar/chromium-dark-scrollbar-strip.png"
+    }
+  },
+  "firefox": {
+    "light": {
+      "tokens": {
+        "primary": "oklch(52% .13 162)",
+        "radius": ".75rem",
+        "scrollbarSize": "12px",
+        "scrollbarRadius": ".75rem",
+        "scrollbarThumb": "color-mix(in oklch, oklch(52% .13 162) 45%, transparent)",
+        "scrollbarThumbHover": "color-mix(in oklch, oklch(52% .13 162) 75%, transparent)",
+        "scrollbarThumbActive": "oklch(52% .13 162)",
+        "scrollbarTrack": "color-mix(in oklch, oklch(90% .01 160) 30%, transparent)",
+        "htmlScrollbarWidth": "none",
+        "htmlScrollbarColor": "oklch(0.52 0.13 162 / 0.45) rgba(0, 0, 0, 0)",
+        "htmlScrollbarGutter": "stable"
+      },
+      "screenshot": "qa-report/scrollbar/firefox-light-scrollbar-strip.png"
+    },
+    "dark": {
+      "tokens": {
+        "primary": "oklch(66% .14 158)",
+        "radius": ".75rem",
+        "scrollbarSize": "12px",
+        "scrollbarRadius": ".75rem",
+        "scrollbarThumb": "color-mix(in oklch, oklch(66% .14 158) 45%, transparent)",
+        "scrollbarThumbHover": "color-mix(in oklch, oklch(66% .14 158) 75%, transparent)",
+        "scrollbarThumbActive": "oklch(66% .14 158)",
+        "scrollbarTrack": "color-mix(in oklch, oklch(100% 0 0 / .12) 30%, transparent)",
+        "htmlScrollbarWidth": "none",
+        "htmlScrollbarColor": "oklch(0.66 0.14 158 / 0.45) rgba(0, 0, 0, 0)",
+        "htmlScrollbarGutter": "stable"
+      },
+      "screenshot": "qa-report/scrollbar/firefox-dark-scrollbar-strip.png"
+    }
+  },
+  "webkit": {
+    "light": {
+      "tokens": {
+        "primary": "oklch(52% .13 162)",
+        "radius": ".75rem",
+        "scrollbarSize": "12px",
+        "scrollbarRadius": ".75rem",
+        "scrollbarThumb": "color-mix(in oklch, oklch(52% .13 162) 45%, transparent)",
+        "scrollbarThumbHover": "color-mix(in oklch, oklch(52% .13 162) 75%, transparent)",
+        "scrollbarThumbActive": "oklch(52% .13 162)",
+        "scrollbarTrack": "color-mix(in oklch, oklch(90% .01 160) 30%, transparent)",
+        "htmlScrollbarWidth": "thin",
+        "htmlScrollbarColor": "",
+        "htmlScrollbarGutter": "stable"
+      },
+      "screenshot": "qa-report/scrollbar/webkit-light-scrollbar-strip.png"
+    },
+    "dark": {
+      "tokens": {
+        "primary": "oklch(66% .14 158)",
+        "radius": ".75rem",
+        "scrollbarSize": "12px",
+        "scrollbarRadius": ".75rem",
+        "scrollbarThumb": "color-mix(in oklch, oklch(66% .14 158) 45%, transparent)",
+        "scrollbarThumbHover": "color-mix(in oklch, oklch(66% .14 158) 75%, transparent)",
+        "scrollbarThumbActive": "oklch(66% .14 158)",
+        "scrollbarTrack": "color-mix(in oklch, oklch(100% 0 0 / .12) 30%, transparent)",
+        "htmlScrollbarWidth": "thin",
+        "htmlScrollbarColor": "",
+        "htmlScrollbarGutter": "stable"
+      },
+      "screenshot": "qa-report/scrollbar/webkit-dark-scrollbar-strip.png"
+    }
+  }
+}
