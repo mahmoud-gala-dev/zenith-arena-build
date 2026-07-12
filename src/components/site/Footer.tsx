@@ -9,8 +9,24 @@ import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings
 
 export function Footer() {
   const { t, lang } = useLang();
+  const contact = useContactInfo();
+  const social = useSocialLinks();
   const year = new Date().getFullYear();
   const ar = lang === "ar";
+  const wa = toWhatsAppNumber(social.whatsapp || contact.whatsapp);
+  const socialLinks: { name: string; href: string; Icon: typeof Linkedin }[] = [
+    { name: "LinkedIn", href: social.linkedin, Icon: Linkedin },
+    { name: "Instagram", href: social.instagram, Icon: Instagram },
+    { name: "Facebook", href: social.facebook, Icon: Facebook },
+    { name: "X (Twitter)", href: social.x, Icon: Twitter },
+    { name: "YouTube", href: social.youtube, Icon: Youtube },
+    ...(wa ? [{ name: "WhatsApp", href: `https://wa.me/${wa}`, Icon: MessageCircle }] : []),
+  ].filter((s) => Boolean(s.href));
+  const officeLine = contact.offices
+    .map((o) => (ar ? o.city_ar || o.city_en : o.city_en))
+    .filter(Boolean)
+    .join(" · ");
+
 
   const resources = ar
     ? [
