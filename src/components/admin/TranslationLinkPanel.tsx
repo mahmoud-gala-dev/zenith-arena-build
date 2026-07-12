@@ -128,21 +128,21 @@ export function TranslationLinkPanel({
   async function syncShared() {
     if (siblings.length === 0) return;
     setBusy(true);
-    // Copy selected shared fields from this post to all siblings in the same group.
     const { data: src, error: e1 } = await supabase
       .from("blog_posts")
       .select(["id", ...SHARED_FIELDS].join(","))
       .eq("id", post.id)
       .maybeSingle();
     if (e1 || !src) { setBusy(false); return toast.error(e1?.message ?? "Failed to load source"); }
+    const srcRow = src as unknown as Record<string, unknown>;
     const payload: Record<string, unknown> = {};
     for (const key of SHARED_FIELDS) {
-      if (pickedFields.has(key)) payload[key] = (src as Record<string, unknown>)[key];
+      if (pickedFields.has(key)) payload[key] = srcRow[key];
     }
     if (Object.keys(payload).length === 0) { setBusy(false); return toast.error("Pick at least one field."); }
     const { error } = await supabase
       .from("blog_posts")
-      .update(payload)
+      .update(payload as never)
       .eq("translation_group_id", post.translation_group_id)
       .neq("id", post.id);
     setBusy(false);
