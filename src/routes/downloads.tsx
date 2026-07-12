@@ -163,9 +163,7 @@ function DownloadsPage() {
           </div>
 
           <p className="mt-4 text-sm text-muted-foreground" aria-live="polite">
-            {ar
-              ? `${filtered.length} من ${items.length} نتيجة`
-              : `${filtered.length} of ${items.length} results`}
+            {T.pages.downloads.resultsOf(filtered.length, items.length)}
           </p>
         </div>
       </section>
