@@ -203,7 +203,7 @@ function GovernoratePage() {
 
           <div className="mt-12 text-center">
             <Link to="/projects" search={{ gov: gov.slug, category: "all", q: "" }} className="text-sm font-medium text-primary hover:underline">
-              {lang === "ar" ? "عرض هذه المحافظة في صفحة المشاريع ←" : "View this governorate in projects filter →"}
+              {t.governorate.viewInFilter}
             </Link>
           </div>
         </div>
