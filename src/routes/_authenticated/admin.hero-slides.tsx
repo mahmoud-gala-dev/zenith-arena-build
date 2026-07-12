@@ -50,8 +50,10 @@ const empty: SlideInput = {
 } as SlideInput;
 
 function AdminHeroSlides() {
+  const invalidate = useInvalidateTables(["hero_slides"]);
   const [slides, setSlides] = useState<Slide[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [editing, setEditing] = useState<SlideInput | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
