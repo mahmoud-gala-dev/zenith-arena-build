@@ -165,6 +165,8 @@ export const translations = {
         all: "All",
         resetFilters: "Reset filters",
         details: "Details",
+        noMatching: "No matching results.",
+        resultsOf: (a: number, b: number) => `${a} of ${b} results`,
       },
       careers: {
         applyNow: "Apply now",
