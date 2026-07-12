@@ -30,8 +30,10 @@ interface AuditRow {
     changed_fields?: string[];
     old?: Record<string, unknown> | null;
     new?: Record<string, unknown> | null;
+    details?: Record<string, unknown> | null;
   } | null;
 }
+
 
 const ACTIONS = ["all", "INSERT", "UPDATE", "DELETE", "PERMISSION_DENIED", "SENSITIVE_CHANGE"] as const;
 
