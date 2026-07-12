@@ -113,7 +113,7 @@ function AdminBlogPage() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return rows.filter((r) => {
-      if (statusFilter !== "all" && r.status !== statusFilter) return false;
+      if (statusFilter !== "all" && derivePublishState(r) !== statusFilter && r.status !== statusFilter) return false;
       if (categoryFilter !== "all" && (r.category_id ?? "") !== categoryFilter) return false;
       if (translationFilter === "complete" && !(r.title_en && r.title_ar)) return false;
       if (translationFilter === "en-only" && !(r.title_en && !r.title_ar)) return false;
