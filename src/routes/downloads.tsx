@@ -126,16 +126,16 @@ function DownloadsPage() {
               <Input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder={ar ? "ابحث في التحميلات..." : "Search downloads..."}
+                placeholder={T.pages.downloads.searchPlaceholder}
                 className="ps-9"
-                aria-label={ar ? "بحث" : "Search"}
+                aria-label={T.pages.downloads.search}
               />
               {q && (
                 <button
                   type="button"
                   onClick={() => setQ("")}
                   className="absolute inset-y-0 end-2 my-auto rounded-md p-1 text-muted-foreground hover:text-foreground"
-                  aria-label={ar ? "مسح" : "Clear"}
+                  aria-label={T.pages.downloads.clear}
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -143,7 +143,7 @@ function DownloadsPage() {
             </div>
             {hasFilters && (
               <Button variant="outline" size="sm" onClick={clearAll}>
-                {ar ? "إعادة ضبط" : "Reset"}
+                {T.pages.downloads.reset}
               </Button>
             )}
           </div>
