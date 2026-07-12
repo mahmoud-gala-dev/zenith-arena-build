@@ -43,7 +43,7 @@ type Article = {
   updated_at?: string;
 };
 
-type Category = { id: string; slug: string; name_en: string; name_ar: string };
+type Category = { id: string; slug_en: string; title_en: string; title_ar: string };
 
 const EMPTY: Article = {
   slug_en: "", slug_ar: "", title_en: "", title_ar: "",
