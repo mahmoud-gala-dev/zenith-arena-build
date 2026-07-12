@@ -8,20 +8,18 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import heroImg from "@/assets/hero-projects.jpg";
 import { Reveal } from "@/components/site/Reveal";
-import { ProjectCard } from "@/components/site/Cards";
 import { CardSkeleton } from "@/components/site/Skeletons";
 import { VirtualCardGrid } from "@/components/site/VirtualCardGrid";
 import { PerfProfiler } from "@/lib/perf";
 import { cn } from "@/lib/utils";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
-import { projectCategories } from "@/lib/site-data";
-import { dbProjectToView } from "@/lib/queries";
 import {
   governoratesActiveQueryOptions,
   projectsPublishedListQueryOptions,
   type Gov,
   type DbProject,
 } from "@/lib/queries";
+
 
 
 const searchSchema = z.object({
@@ -43,7 +41,8 @@ export const Route = createFileRoute("/projects/")({
 
 function ProjectsPage() {
   const { t, lang } = useLang();
-  const L = useLocalized();
+  // L is unused now (all category labels come from DB text)
+
   const { gov, category, q } = Route.useSearch();
   const navigate = useNavigate({ from: "/projects/" });
   const [qInput, setQInput] = useState(q);
@@ -69,18 +68,20 @@ function ProjectsPage() {
   const selectedGov = gov !== "all" ? govBySlug.get(gov) ?? null : null;
   const qLower = q.trim().toLowerCase();
 
-  const staticFiltered = useMemo(() => {
-    let list = dbProjects.map(dbProjectToView);
-    if (category !== "all") list = list.filter((p) => p.category === category);
-    if (qLower) list = list.filter((p) => `${p.title.en} ${p.title.ar} ${p.location.en} ${p.location.ar}`.toLowerCase().includes(qLower));
-    return list;
-  }, [dbProjects, category, qLower]);
+  // Derive category chips from distinct sport_type values in DB.
+  const categoryOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of dbProjects) if (p.sport_type) set.add(p.sport_type);
+    return Array.from(set).sort();
+  }, [dbProjects]);
 
   const dbFiltered = useMemo(() => {
     let list = selectedGov ? dbProjects.filter((p) => p.governorate_id === selectedGov.id) : dbProjects;
+    if (!selectedGov && category !== "all") list = list.filter((p) => p.sport_type === category);
     if (qLower) list = list.filter((p) => `${p.title_en} ${p.title_ar ?? ""} ${p.location ?? ""} ${p.sport_type ?? ""}`.toLowerCase().includes(qLower));
     return list;
-  }, [dbProjects, selectedGov, qLower]);
+  }, [dbProjects, selectedGov, category, qLower]);
+
 
   const setSearch = (patch: Partial<{ gov: string; category: string; q: string }>) =>
     navigate({ search: (prev: { gov: string; category: string; q: string }) => ({ ...prev, ...patch }) });
@@ -197,20 +198,21 @@ function ProjectsPage() {
               >
                 {t.projects.filterAll}
               </button>
-              {projectCategories.map((c) => (
+              {categoryOptions.map((c) => (
                 <button
-                  key={c.id}
-                  onClick={() => setSearch({ category: c.id })}
+                  key={c}
+                  onClick={() => setSearch({ category: c })}
                   className={cn(
-                    "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-                    category === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:bg-accent",
+                    "rounded-full border px-4 py-2 text-sm font-medium capitalize transition-colors",
+                    category === c ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:bg-accent",
                   )}
                 >
-                  {L(c.label)}
+                  {c}
                 </button>
               ))}
             </div>
           )}
+
 
           {showingGov ? (
             <div className="mt-6">
@@ -273,17 +275,31 @@ function ProjectsPage() {
             </div>
           ) : (
             <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {staticFiltered.length === 0 ? (
+              {dbFiltered.length === 0 ? (
                 <p className="col-span-full rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground">
                   {lang === "ar" ? "لا توجد نتائج مطابقة." : "No matching results."}
                 </p>
-              ) : staticFiltered.map((p, i) => (
-                <Reveal key={p.slug} delay={i * 50}>
-                  <ProjectCard project={p} />
+              ) : dbFiltered.map((p, i) => (
+                <Reveal key={p.id} delay={i * 50}>
+                  <Link to="/projects/$slug" params={{ slug: p.slug_en }} className="group block overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">
+                    {p.cover_image && (
+                      <div className="aspect-[16/10] overflow-hidden bg-secondary">
+                        <img src={p.cover_image} alt={lang === "ar" ? p.title_ar ?? p.title_en : p.title_en} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                      </div>
+                    )}
+                    <div className="p-5">
+                      <div className="text-xs uppercase tracking-wide text-muted-foreground">{p.sport_type ?? p.service_category}</div>
+                      <div className="mt-1 text-base font-semibold text-foreground">{lang === "ar" ? p.title_ar ?? p.title_en : p.title_en}</div>
+                      <div className="mt-1 text-sm text-muted-foreground">
+                        {p.location}{p.year ? ` · ${p.year}` : ""}
+                      </div>
+                    </div>
+                  </Link>
                 </Reveal>
               ))}
             </div>
           )}
+
         </div>
       </section>
     </SiteLayout>

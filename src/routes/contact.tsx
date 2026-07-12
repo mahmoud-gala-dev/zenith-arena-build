@@ -21,7 +21,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
-import { services } from "@/lib/site-data";
+import { useQuery } from "@tanstack/react-query";
+import { servicesPublishedQueryOptions } from "@/hooks/useServiceContent";
 import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
 
 
@@ -100,6 +101,7 @@ function ContactPage() {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [projectType, setProjectType] = useState("");
+  const { data: dbServices } = useQuery(servicesPublishedQueryOptions);
 
 
   const schema = z.object({
@@ -209,8 +211,10 @@ function ContactPage() {
                       <SelectValue placeholder={t.contact.projectType} />
                     </SelectTrigger>
                     <SelectContent>
-                      {services.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>{L(s.title)}</SelectItem>
+                      {(dbServices ?? []).filter((s) => s.slug_en).map((s) => (
+                        <SelectItem key={s.id} value={s.slug_en}>
+                          {L({ en: s.title_en, ar: s.title_ar ?? s.title_en })}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

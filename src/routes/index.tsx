@@ -1,33 +1,32 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Award, ShieldCheck, Cpu, Wrench } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Award, ShieldCheck, Cpu, Wrench } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { SectionHeader } from "@/components/site/SectionHeader";
 import { Reveal } from "@/components/site/Reveal";
-import { ProjectCard, ArticleCard } from "@/components/site/Cards";
 import { HeroSlider } from "@/components/site/HeroSlider";
 import { Icon } from "@/components/site/Icon";
 import { ResponsiveImage } from "@/components/site/ResponsiveImage";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { LangToggle } from "@/components/site/LangToggle";
-import { heroSlidesActiveQueryOptions, homeClientsQueryOptions, type HomeClient } from "@/lib/queries";
+import {
+  heroSlidesActiveQueryOptions,
+  homeClientsQueryOptions,
+  projectsPublishedListQueryOptions,
+  blogPostsPublishedQueryOptions,
+  testimonialsPublishedQueryOptions,
+  type HomeClient,
+} from "@/lib/queries";
 import { servicesPublishedQueryOptions } from "@/hooks/useServiceContent";
 import ogImage from "@/assets/apex-og.jpg.asset.json";
 import ctaLandmark from "@/assets/cta-landmark.jpg.asset.json";
 
-import {
-  projects,
-  articles,
-  testimonials,
-  clients as fallbackClients,
-  heroStats,
-  heroImg,
-  type ClientLogo,
-} from "@/lib/site-data";
+import { heroStats, heroImg } from "@/lib/site-data";
 
 
-type TrustClient = ClientLogo & { logo_url?: string | null; description?: { en: string; ar: string } };
+type TrustClient = { name: { en: string; ar: string }; sector: { en: string; ar: string }; monogram: string; accent: string; logo_url?: string | null; description?: { en: string; ar: string } };
+
 
 function monogramFor(name: string): string {
   return name
@@ -132,24 +131,29 @@ function Index() {
 
   const { data: dbClients } = useQuery<HomeClient[]>(homeClientsQueryOptions);
   const { data: dbServices, isLoading: servicesLoading } = useQuery(servicesPublishedQueryOptions);
+  const { data: dbProjects } = useQuery(projectsPublishedListQueryOptions);
+  const { data: dbArticles } = useQuery(blogPostsPublishedQueryOptions);
+  const { data: dbTestimonials } = useQuery(testimonialsPublishedQueryOptions);
   const servicesList = dbServices ?? [];
   const withSlug = servicesList.filter((s) => Boolean(s.slug_en));
   const featuredServices = (withSlug.filter((s) => s.featured).length > 0
     ? withSlug.filter((s) => s.featured)
     : withSlug
   ).slice(0, 6);
+  const homeProjects = (dbProjects ?? []).slice(0, 6);
+  const homeArticles = (dbArticles ?? []).slice(0, 3);
+  const homeTestimonials = (dbTestimonials ?? []).slice(0, 3);
 
   const clients: TrustClient[] =
-    dbClients && dbClients.length > 0
-      ? dbClients.map((c, i) => ({
-          name: { en: c.name_en, ar: c.name_ar },
-          sector: { en: c.industry ?? "Client", ar: c.industry ?? "عميل" },
-          monogram: monogramFor(c.name_en),
-          accent: ACCENTS[i % ACCENTS.length],
-          logo_url: c.logo_url,
-          description: { en: c.description_en ?? "", ar: c.description_ar ?? "" },
-        }))
-      : fallbackClients;
+    (dbClients ?? []).map((c, i) => ({
+      name: { en: c.name_en, ar: c.name_ar },
+      sector: { en: c.industry ?? "Client", ar: c.industry ?? "عميل" },
+      monogram: monogramFor(c.name_en),
+      accent: ACCENTS[i % ACCENTS.length],
+      logo_url: c.logo_url,
+      description: { en: c.description_en ?? "", ar: c.description_ar ?? "" },
+    }));
+
 
 
 
@@ -310,14 +314,42 @@ function Index() {
             </Button>
           </div>
           <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {projects.slice(0, 6).map((p, i) => (
-              <Reveal key={p.slug} delay={i * 60}>
-                <ProjectCard project={p} />
-              </Reveal>
-            ))}
+            {homeProjects.map((p, i) => {
+              const slug = p.slug_en;
+              const title = L({ en: p.title_en, ar: p.title_ar ?? p.title_en });
+              const loc = L({ en: p.location ?? p.city ?? p.country ?? "", ar: p.location ?? p.city ?? p.country ?? "" });
+              const scope = L({ en: p.service_category ?? "", ar: p.service_category ?? "" });
+              return (
+                <Reveal key={p.id} delay={i * 60}>
+                  <Link to="/projects/$slug" params={{ slug }} className="group relative block overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      {p.cover_image && (
+                        <img src={p.cover_image} alt={title} loading="lazy" decoding="async" sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/10 to-transparent" />
+                      {p.year && (
+                        <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-ink rtl:left-auto rtl:right-4">{p.year}</span>
+                      )}
+                      <div className="absolute inset-x-0 bottom-0 p-5">
+                        <h3 className="text-lg font-semibold text-white">{title}</h3>
+                        {loc && <p className="mt-1 text-sm text-white/70">{loc}</p>}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between p-5">
+                      <span className="text-sm text-muted-foreground">{scope}</span>
+                      <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                        {t.cta.viewProject}
+                        <ArrowUpRight className="h-4 w-4 rtl:-scale-x-100" />
+                      </span>
+                    </div>
+                  </Link>
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </section>
+
 
       {/* Why Egytic */}
       <section className="relative overflow-hidden bg-hero py-24 text-white">
@@ -383,14 +415,14 @@ function Index() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader title={t.sections.testimonialsTitle} />
           <div className="mt-14 grid gap-6 lg:grid-cols-3">
-            {testimonials.map((tm, i) => (
-              <Reveal key={i} delay={i * 70}>
+            {homeTestimonials.map((tm, i) => (
+              <Reveal key={tm.id} delay={i * 70}>
                 <figure className="flex h-full flex-col rounded-2xl border border-border bg-card p-7 shadow-soft">
                   <div className="text-4xl leading-none text-primary/30">"</div>
-                  <blockquote className="mt-2 flex-1 text-foreground/85">{L(tm.quote)}</blockquote>
+                  <blockquote className="mt-2 flex-1 text-foreground/85">{L({ en: tm.quote_en, ar: tm.quote_ar ?? tm.quote_en })}</blockquote>
                   <figcaption className="mt-6">
-                    <p className="font-semibold text-foreground">{tm.name}</p>
-                    <p className="text-sm text-muted-foreground">{L(tm.role)}</p>
+                    <p className="font-semibold text-foreground">{L({ en: tm.name_en, ar: tm.name_ar ?? tm.name_en })}</p>
+                    <p className="text-sm text-muted-foreground">{L({ en: tm.company_en ?? "", ar: tm.company_ar ?? tm.company_en ?? "" })}</p>
                   </figcaption>
                 </figure>
               </Reveal>
@@ -504,11 +536,29 @@ function Index() {
             </Button>
           </div>
           <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {articles.slice(0, 3).map((a, i) => (
-              <Reveal key={a.slug} delay={i * 60}>
-                <ArticleCard article={a} />
-              </Reveal>
-            ))}
+            {homeArticles.map((a, i) => {
+              const title = L({ en: a.title_en, ar: a.title_ar ?? a.title_en });
+              const excerpt = L({ en: a.excerpt_en ?? "", ar: a.excerpt_ar ?? a.excerpt_en ?? "" });
+              return (
+                <Reveal key={a.id} delay={i * 60}>
+                  <Link to="/knowledge/$slug" params={{ slug: a.slug_en }} className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+                    <div className="relative aspect-[16/9] overflow-hidden">
+                      {a.featured_image && (
+                        <img src={a.featured_image} alt={title} loading="lazy" decoding="async" sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                      )}
+                    </div>
+                    <div className="flex flex-1 flex-col p-6">
+                      <h3 className="text-lg font-semibold leading-snug text-foreground group-hover:text-primary">{title}</h3>
+                      {excerpt && <p className="mt-2 flex-1 text-sm text-muted-foreground">{excerpt}</p>}
+                      <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                        {t.cta.readArticle}
+                        <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                      </span>
+                    </div>
+                  </Link>
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </section>
