@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { createElement, Fragment, type ReactNode } from "react";
+import { logAdminAudit } from "@/lib/admin-audit";
 
 
 
@@ -86,9 +87,24 @@ export function useCan(perm: PermissionKey | null | undefined) {
 const DENY_MSG_EN = "Access denied — you don't have permission for this action.";
 const DENY_MSG_AR = "لا تملك الصلاحية لتنفيذ هذا الإجراء.";
 
-export function notifyAccessDenied(perm?: PermissionKey | null) {
+export function notifyAccessDenied(
+  perm?: PermissionKey | null,
+  context?: { resource?: string; recordId?: string | null; action?: string },
+) {
   toast.error(DENY_MSG_EN, {
     description: perm ? `${DENY_MSG_AR}  (${perm})` : DENY_MSG_AR,
+  });
+  void logAdminAudit({
+    action: "PERMISSION_DENIED",
+    resource:
+      context?.resource ??
+      (typeof window !== "undefined" ? window.location.pathname : "admin"),
+    recordId: context?.recordId ?? null,
+    details: {
+      permission: perm ?? null,
+      attempted_action: context?.action ?? null,
+      pathname: typeof window !== "undefined" ? window.location.pathname : null,
+    },
   });
 }
 
@@ -101,10 +117,13 @@ export function notifyAccessDenied(perm?: PermissionKey | null) {
  */
 export function useGuard(perm: PermissionKey | null | undefined) {
   const { can, isLoading } = useCan(perm);
-  function guard<T extends unknown[], R>(fn: (...args: T) => R) {
+  function guard<T extends unknown[], R>(
+    fn: (...args: T) => R,
+    context?: { resource?: string; action?: string; recordId?: string | null },
+  ) {
     return (...args: T): R | undefined => {
       if (!can) {
-        notifyAccessDenied(perm ?? null);
+        notifyAccessDenied(perm ?? null, context);
         return undefined;
       }
       return fn(...args);

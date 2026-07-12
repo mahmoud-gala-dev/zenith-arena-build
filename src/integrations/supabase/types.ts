@@ -2180,6 +2180,15 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      log_admin_event: {
+        Args: {
+          _action: string
+          _changes?: Json
+          _record_id?: string
+          _table_name: string
+        }
+        Returns: string
+      }
       notify_pages_now_live: { Args: never; Returns: number }
       publish_due_blog_posts: { Args: never; Returns: number }
       publish_due_hero_slides: { Args: never; Returns: number }
