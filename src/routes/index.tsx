@@ -593,7 +593,7 @@ function Index() {
       {/* Testimonials */}
       <section className="bg-secondary/50 py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeader title={t.sections.testimonialsTitle} />
+          <SectionHeader title={section("testimonials", { title: t.sections.testimonialsTitle }).title} />
           <div className="mt-14 grid gap-6 lg:grid-cols-3">
             {homeTestimonials.map((tm, i) => (
               <Reveal key={tm.id} delay={i * 70}>
