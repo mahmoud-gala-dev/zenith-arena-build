@@ -39,6 +39,7 @@ import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
 import { Route as KnowledgeSlugRouteImport } from './routes/knowledge.$slug'
 import { Route as GovernoratesSlugRouteImport } from './routes/governorates.$slug'
+import { Route as DownloadsSlugRouteImport } from './routes/downloads.$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as PreviewPagesSlugRouteImport } from './routes/preview.pages.$slug'
@@ -220,6 +221,11 @@ const GovernoratesSlugRoute = GovernoratesSlugRouteImport.update({
   id: '/governorates/$slug',
   path: '/governorates/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadsSlugRoute = DownloadsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => DownloadsRoute,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
@@ -410,7 +416,7 @@ export interface FileRoutesByFullPath {
   '/certificates': typeof CertificatesRoute
   '/clients': typeof ClientsRoute
   '/contact': typeof ContactRoute
-  '/downloads': typeof DownloadsRoute
+  '/downloads': typeof DownloadsRouteWithChildren
   '/faq': typeof FaqRoute
   '/gallery': typeof GalleryRoute
   '/knowledge': typeof KnowledgeRouteWithChildren
@@ -424,6 +430,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/downloads/$slug': typeof DownloadsSlugRoute
   '/governorates/$slug': typeof GovernoratesSlugRoute
   '/knowledge/$slug': typeof KnowledgeSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -473,7 +480,7 @@ export interface FileRoutesByTo {
   '/certificates': typeof CertificatesRoute
   '/clients': typeof ClientsRoute
   '/contact': typeof ContactRoute
-  '/downloads': typeof DownloadsRoute
+  '/downloads': typeof DownloadsRouteWithChildren
   '/faq': typeof FaqRoute
   '/gallery': typeof GalleryRoute
   '/privacy': typeof PrivacyRoute
@@ -482,6 +489,7 @@ export interface FileRoutesByTo {
   '/sitemap-en.xml': typeof SitemapEnDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/downloads/$slug': typeof DownloadsSlugRoute
   '/governorates/$slug': typeof GovernoratesSlugRoute
   '/knowledge/$slug': typeof KnowledgeSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -533,7 +541,7 @@ export interface FileRoutesById {
   '/certificates': typeof CertificatesRoute
   '/clients': typeof ClientsRoute
   '/contact': typeof ContactRoute
-  '/downloads': typeof DownloadsRoute
+  '/downloads': typeof DownloadsRouteWithChildren
   '/faq': typeof FaqRoute
   '/gallery': typeof GalleryRoute
   '/knowledge': typeof KnowledgeRouteWithChildren
@@ -547,6 +555,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/downloads/$slug': typeof DownloadsSlugRoute
   '/governorates/$slug': typeof GovernoratesSlugRoute
   '/knowledge/$slug': typeof KnowledgeSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -612,6 +621,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin'
+    | '/downloads/$slug'
     | '/governorates/$slug'
     | '/knowledge/$slug'
     | '/products/$slug'
@@ -670,6 +680,7 @@ export interface FileRouteTypes {
     | '/sitemap-en.xml'
     | '/sitemap.xml'
     | '/terms'
+    | '/downloads/$slug'
     | '/governorates/$slug'
     | '/knowledge/$slug'
     | '/products/$slug'
@@ -734,6 +745,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/_authenticated/admin'
+    | '/downloads/$slug'
     | '/governorates/$slug'
     | '/knowledge/$slug'
     | '/products/$slug'
@@ -785,7 +797,7 @@ export interface RootRouteChildren {
   CertificatesRoute: typeof CertificatesRoute
   ClientsRoute: typeof ClientsRoute
   ContactRoute: typeof ContactRoute
-  DownloadsRoute: typeof DownloadsRoute
+  DownloadsRoute: typeof DownloadsRouteWithChildren
   FaqRoute: typeof FaqRoute
   GalleryRoute: typeof GalleryRoute
   KnowledgeRoute: typeof KnowledgeRouteWithChildren
@@ -1013,6 +1025,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/governorates/$slug'
       preLoaderRoute: typeof GovernoratesSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/downloads/$slug': {
+      id: '/downloads/$slug'
+      path: '/$slug'
+      fullPath: '/downloads/$slug'
+      preLoaderRoute: typeof DownloadsSlugRouteImport
+      parentRoute: typeof DownloadsRoute
     }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
@@ -1334,6 +1353,18 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface DownloadsRouteChildren {
+  DownloadsSlugRoute: typeof DownloadsSlugRoute
+}
+
+const DownloadsRouteChildren: DownloadsRouteChildren = {
+  DownloadsSlugRoute: DownloadsSlugRoute,
+}
+
+const DownloadsRouteWithChildren = DownloadsRoute._addFileChildren(
+  DownloadsRouteChildren,
+)
+
 interface KnowledgeRouteChildren {
   KnowledgeSlugRoute: typeof KnowledgeSlugRoute
   KnowledgeIndexRoute: typeof KnowledgeIndexRoute
@@ -1399,7 +1430,7 @@ const rootRouteChildren: RootRouteChildren = {
   CertificatesRoute: CertificatesRoute,
   ClientsRoute: ClientsRoute,
   ContactRoute: ContactRoute,
-  DownloadsRoute: DownloadsRoute,
+  DownloadsRoute: DownloadsRouteWithChildren,
   FaqRoute: FaqRoute,
   GalleryRoute: GalleryRoute,
   KnowledgeRoute: KnowledgeRouteWithChildren,
