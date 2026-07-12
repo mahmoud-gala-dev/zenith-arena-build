@@ -1,93 +1,100 @@
-# Smooth Scroll + Mobile-App Experience
+# Complete Dynamic Content Wiring Plan
 
-Two coordinated upgrades: buttery scrolling everywhere, and a native-app feel when the site is viewed on a phone.
+Comprehensive plan to eliminate every hardcoded content block identified in the audit and connect the entire frontend to Supabase + Admin panel.
 
-## 1) Site-wide smooth scrolling
+## Phase 1 — Critical Fix (immediate)
+**`/projects/$slug` reads from static data → 404 for admin-created projects**
+- Refactor `src/routes/projects.$slug.tsx` to fetch from `projects` table via `queryOptions` (lookup by `slug_en`/`slug_ar` in current locale).
+- Keep `head()` SEO derived from loader data.
+- Add owner-side query helper in `src/lib/queries.ts` (`projectBySlugQueryOptions`).
+- Static `site-data.ts` projects deprecated as fallback only.
 
-- Add Lenis (industry-standard smooth scroll) wired at the root layout via a `SmoothScroll` provider.
-- Respect `prefers-reduced-motion` — users with reduced motion get native scroll, no interference.
-- Sync with anchor links (`#section`) and route changes (scroll to top on navigation, restore position on back).
-- Add momentum easing for touch devices without breaking pull-to-refresh or overscroll on iOS.
-- Enable CSS `scroll-behavior: smooth` fallback and `overscroll-behavior: contain` on modal/sheet containers to prevent scroll chaining.
+## Phase 2 — Wire Public Pages to Existing Tables
+For each page: add `queryOptions` in `src/lib/queries.ts`, use `ensureQueryData` in loader, `useSuspenseQuery` in component, map DB row → view model, preserve current UI/design.
 
-## 2) Mobile-app-like shell (only when viewport < md)
+| Page | Table | Notes |
+|---|---|---|
+| `/gallery` | `gallery` | Filter chips derived from distinct categories in DB |
+| `/clients` | `clients` + `testimonials` | Two parallel queries |
+| `/downloads` | `downloads` | Signed URLs from storage if private |
+| `/certificates` | `certificates` | Sort by `sort_order` |
+| `/products` + `/products/$slug` | `products` + `product_categories` | Same pattern as projects |
+| Home (projects/articles/testimonials sections) | `projects`, `blog_posts`, `testimonials` | Limit 3–6 featured rows |
 
-A dedicated mobile layer that overlays the existing responsive site — desktop/tablet stay untouched.
+## Phase 3 — Centralize Contact & Social in `settings`
+- Seed `settings` rows: `contact_info` (email, offices[]), `social_links` (linkedin, instagram, facebook, x, youtube, whatsapp), `brand_name`.
+- Build `src/lib/settings.ts` with `useSettings(key)` hook + server-safe `getSetting()`.
+- Refactor `Footer.tsx`, `contact.tsx`, `WhatsAppButton.tsx`, root Organization JSON-LD (`sameAs`) to consume settings.
+- Extend `src/routes/_authenticated/admin.settings.tsx` with dedicated tabs: **Contact Info**, **Social Links** (typed form, not raw JSON).
 
-### Bottom tab bar (fixed)
-- 5 tabs: Home · Projects · Products · Knowledge · More
-- Active tab highlighted with primary color pill + label; icons from lucide.
-- Safe-area padding (`env(safe-area-inset-bottom)`) so it clears the iOS home indicator.
-- Hides on scroll-down, reveals on scroll-up (app-style behavior).
+## Phase 4 — New Tables + Admin + Frontend
 
-### Mobile top bar
-- Compact 56px header: logo (left), page title (center, contextual), search + language toggle (right).
-- Replaces the current desktop header on mobile only.
-- Sticky with translucent backdrop-blur when scrolled.
+### 4a. FAQ
+- Table `faq_items` (question_en/ar, answer_en/ar, category, sort_order, is_published).
+- Admin page `/admin/faqs` (CRUD, drag-reorder, bilingual, category tabs).
+- Refactor `/faq` to load from DB; keep FAQPage JSON-LD.
 
-### Full-screen drawer for "More"
-- Slide-in sheet with: Services, Gallery, Clients, About, Contact, Careers, FAQ, Downloads, Certificates, Legal, Theme, Language.
-- Grouped with section labels, chevrons, and 44px min tap targets.
+### 4b. Careers (Job Openings)
+- Table `job_openings` (title_en/ar, department, location, type, description_en/ar, requirements, is_open, sort_order).
+- Table `job_applications` (job_id, applicant_name, email, phone, cv_url, cover_letter, status).
+- Storage bucket `applications` (private) for CVs.
+- Admin: `/admin/careers` (jobs CRUD) + `/admin/applications` (inbox with status workflow).
+- Refactor `/careers` to load from DB. Apply button opens dialog → uploads CV → `submitApplication` server fn.
 
-### App-style page transitions
-- Framer Motion page transitions between routes (slide + fade on mobile only).
-- Wrapped around `<Outlet />` with `AnimatePresence`.
+### 4c. Newsletter
+- Table `newsletter_subscribers` (email unique, locale, subscribed_at, unsubscribed_at, source).
+- Server fn `subscribeNewsletter` (rate-limited, email validation, upsert).
+- Footer form wired to it with toast feedback.
+- Admin page `/admin/newsletter` (list, search, CSV export, unsubscribe).
 
-### Native touch interactions
-- Cards get press-scale (`active:scale-[0.98]`) feedback.
-- Horizontal snap-scroll rails for governorate chips, category filters, and featured items on mobile (like App Store shelves).
-- Pull-to-refresh visual affordance on listing pages (Projects, Products, Knowledge).
-- Bottom-sheet variant for filters on Projects page instead of the current inline grid.
+## Phase 5 — Brand Cleanup
+- Grep all `apex`/`ApexSports` references → replace with `Egytic Sports` or read from `settings.brand_name`.
+- Rename `site-data.ts` static leftovers or gut it entirely once all pages migrated.
 
-### Standalone / installable feel
-- Update `manifest.webmanifest` with `display: standalone`, theme color, maskable icons.
-- iOS meta tags: `apple-mobile-web-app-capable`, status bar style.
-- Splash screen already exists — tune timing on mobile.
+## Technical Details
 
-## 3) Responsive polish pass across all breakpoints
+**Data loading pattern (per project convention):**
+```ts
+// src/lib/queries.ts
+export const galleryQueryOptions = queryOptions({
+  queryKey: ['gallery'],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from('gallery').select('*').eq('is_published', true)
+      .order('sort_order');
+    if (error) throw error; return data;
+  },
+  staleTime: 5 * 60_000,
+});
+```
 
-Systematic sweep on all 14 routes at 360 / 390 / 414 / 768 / 1024 / 1280 / 1536:
+**Loader shape:**
+```ts
+loader: ({ context }) => context.queryClient.ensureQueryData(galleryQueryOptions)
+```
 
-- Typography scale: introduce fluid clamp-based sizes for hero titles and section headings.
-- Spacing: replace fixed paddings on hero/sections with fluid tokens (`clamp()` where useful).
-- Grid audits: enforce `min-w-0` on flex/grid text children; `shrink-0` on avatars/logos/badges.
-- Tables (admin): wrap in horizontal-scroll containers with sticky first column on mobile.
-- Long strings (bilingual): `text-balance` on titles, `hyphens-auto` on Arabic paragraphs.
-- Buttons/inputs: enforce 44px min height on touch viewports.
-- Images: verify `sizes` attributes on responsive images to save mobile bandwidth.
+**Settings hook (real-time):**
+```ts
+export function useSetting<T>(key: string, fallback: T): T {
+  const { data } = useSuspenseQuery(settingQueryOptions(key));
+  return (data?.value as T) ?? fallback;
+}
+```
 
-## 4) Performance guardrails
+**Migrations sequence:** run one migration per new table (faq_items, job_openings, job_applications, newsletter_subscribers) + one migration adding `contact_info`/`social_links`/`brand_name` rows to `settings`. All follow the mandatory `CREATE → GRANT → RLS → POLICY` pattern with audit-log triggers attached where applicable.
 
-- Playwright audit script (already exists) re-run after implementation on all viewports to verify LCP < 2.5s and CLS < 0.1.
-- No layout shift from the new bottom bar (reserve space via `padding-bottom` on `<main>` when mobile shell is active).
+**RLS:**
+- `faq_items`, `job_openings` → public SELECT where `is_published`/`is_open`, staff write.
+- `job_applications`, `newsletter_subscribers` → no public SELECT; INSERT via server fn (service role); staff SELECT.
 
-## Technical details
+## Delivery Order
+1. Phase 1 (critical, ~1 message).
+2. Phase 2 (~2 messages, batched per page group).
+3. Phase 3 (~1 message).
+4. Phase 4a → 4b → 4c (~3 messages, one per feature).
+5. Phase 5 cleanup (~1 message).
 
-- New files:
-  - `src/components/site/SmoothScroll.tsx` — Lenis provider, RAF loop, cleanup, reduced-motion guard.
-  - `src/components/site/mobile/MobileShell.tsx` — orchestrator; renders top bar + bottom tabs + drawer when `useIsMobile()` is true.
-  - `src/components/site/mobile/MobileTopBar.tsx`
-  - `src/components/site/mobile/MobileTabBar.tsx` — scroll-hide behavior via `useScrollDirection` hook.
-  - `src/components/site/mobile/MobileMoreDrawer.tsx` — uses existing shadcn `Sheet`.
-  - `src/components/site/PageTransition.tsx` — Framer Motion wrapper (mobile-only).
-  - `src/hooks/useScrollDirection.ts`
-  - `src/hooks/useIsMobile.ts` (if not already present).
-- Edits:
-  - `src/routes/__root.tsx` — mount `<SmoothScroll>`, add iOS meta tags.
-  - `src/components/site/SiteLayout.tsx` — swap in `<MobileShell>` on mobile, hide desktop `Header`/`Footer` accordingly, reserve bottom padding.
-  - `src/routes/projects.index.tsx` — convert governorate grid to horizontal snap-scroll on mobile; filters into bottom sheet.
-  - `public/manifest.webmanifest` — PWA polish.
-  - `src/styles.css` — safe-area utilities, snap-scroll utility, fluid type tokens.
-- Deps to add: `lenis` (Studio Freight's rebrand of `@studio-freight/lenis`), already have `framer-motion`.
-
-## Out of scope
-
-- Real service worker / offline caching (can be a follow-up if you want true PWA install).
-- Rebuilding desktop layouts — desktop stays as-is.
-- Changing content, copy, or branding.
-
-## Verification
-
-- Playwright screenshots at 375px on: Home, Projects, Products, Knowledge, Gallery, a detail page — confirming bottom tab bar, top bar, drawer, and page transitions.
-- Console: 0 errors; scroll feel verified with a manual test snippet.
-- CLS/LCP re-audit after changes.
+## Out of Scope
+- Redesign / visual changes (audit was structural).
+- Rewriting existing admin panels that already work.
+- Migration of static blog articles into `blog_posts` (already partially wired).
