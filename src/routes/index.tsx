@@ -665,10 +665,10 @@ function Index() {
                     )}
                   </div>
 
-                </li>
+                </div>
               </Reveal>
             ))}
-          </ul>
+          </div>
         </div>
       </section>
 
