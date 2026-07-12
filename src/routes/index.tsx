@@ -17,9 +17,11 @@ import {
   blogPostsPublishedQueryOptions,
   testimonialsPublishedQueryOptions,
   homeHeroSettingsQueryOptions,
+  homepageSectionsQueryOptions,
   type HomeClient,
 } from "@/lib/queries";
 import { servicesPublishedQueryOptions } from "@/hooks/useServiceContent";
+
 import ogImage from "@/assets/apex-og.jpg.asset.json";
 import ctaLandmark from "@/assets/cta-landmark.jpg.asset.json";
 import fallbackHeroImg from "@/assets/hero.jpg";
