@@ -118,7 +118,7 @@ function ProjectsPage() {
                 onClick={() => { setQInput(""); navigate({ search: { gov: "all", category: "all", q: "" } }); }}
                 className="inline-flex h-11 items-center gap-1.5 rounded-full border border-border px-4 text-sm text-foreground hover:bg-accent"
               >
-                <X className="h-4 w-4" /> {lang === "ar" ? "مسح" : "Reset"}
+                <X className="h-4 w-4" /> {t.projects.resetBtn}
               </button>
             )}
           </form>
