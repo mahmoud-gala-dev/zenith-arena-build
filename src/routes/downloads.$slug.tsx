@@ -249,7 +249,36 @@ function DownloadDetailPage() {
                 <p className="mt-3 whitespace-pre-line text-muted-foreground">{description}</p>
               </Reveal>
             )}
+
+            {gallery.length > 0 && (
+              <Reveal className="mt-8">
+                <h2 className="text-xl font-bold text-foreground">
+                  {ar ? "معاينات إضافية" : "More previews"}
+                </h2>
+                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {gallery.map((src, i) => (
+                    <a
+                      key={i}
+                      href={src}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group block overflow-hidden rounded-xl border border-border bg-card"
+                    >
+                      <div className="aspect-[4/3] overflow-hidden">
+                        <img
+                          src={src}
+                          alt={`${title} preview ${i + 1}`}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </Reveal>
+            )}
           </div>
+
 
           <aside className="space-y-6">
             <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
