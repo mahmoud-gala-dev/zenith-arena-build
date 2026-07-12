@@ -36,7 +36,8 @@ import { readFileSync, writeFileSync, existsSync, copyFileSync, unlinkSync } fro
 import { execSync } from "node:child_process";
 import { join } from "node:path";
 
-const DIST_SW = "dist/client/sw.js";
+// Nitro copies public/ + generated SW into dist/ (client bundle sits alongside).
+const DIST_SW = existsSync("dist/sw.js") ? "dist/sw.js" : "dist/client/sw.js";
 const REQUIRED_PRECACHE = [
   "icon.svg",
   "icon-maskable.svg",
