@@ -912,6 +912,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          intent: string | null
           internal_notes: string | null
           message: string | null
           name: string
@@ -920,6 +921,7 @@ export type Database = {
           project_area: string | null
           project_type: string | null
           service: string | null
+          source: string | null
           sport_type: string | null
           start_date: string | null
           status: Database["public"]["Enums"]["lead_status"]
@@ -936,6 +938,7 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          intent?: string | null
           internal_notes?: string | null
           message?: string | null
           name: string
@@ -944,6 +947,7 @@ export type Database = {
           project_area?: string | null
           project_type?: string | null
           service?: string | null
+          source?: string | null
           sport_type?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
@@ -960,6 +964,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          intent?: string | null
           internal_notes?: string | null
           message?: string | null
           name?: string
@@ -968,6 +973,7 @@ export type Database = {
           project_area?: string | null
           project_type?: string | null
           service?: string | null
+          source?: string | null
           sport_type?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
