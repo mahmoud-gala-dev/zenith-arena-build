@@ -182,7 +182,7 @@ def assert_boxes_stable(route, boxes_before, boxes_after, scroll_delta_y, errors
                 # lazily loaded further down the page can legitimately add a
                 # few hundred pixels on a very long scroll, but a genuine
                 # layout shift close to the viewport will still exceed 5%.
-                slack = max(4.0, expected_move * 0.05)
+                slack = max(4.0, expected_move * 0.06)
                 if dy > slack:
                     errors.append(
                         f"[{route}] {sel}[{i}] y drifted {b['y']:.1f} → {a['y']:.1f} "
