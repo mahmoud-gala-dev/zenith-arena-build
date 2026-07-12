@@ -466,10 +466,10 @@ export function Header() {
                     )}
                     {wa && (
                       <a
-                        href={`https://wa.me/${wa}`}
+                        href={buildWaHref("mobile")}
                         target="_blank"
                         rel="noreferrer noopener"
-                        onClick={() => trackEvent({ name: "header_whatsapp_click", surface: "mobile", number: wa })}
+                        onClick={() => handleWaClick("mobile")}
                         aria-label={`WhatsApp ${ar ? "(يفتح في نافذة جديدة)" : "(opens in new tab)"}`}
                         className="flex min-h-11 items-center justify-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:text-emerald-300"
                       >
