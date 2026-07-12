@@ -113,6 +113,52 @@ export const aboutPageSettingsQueryOptions = queryOptions({
   staleTime: FIFTEEN_MIN,
 });
 
+export type DownloadsPageLabels = {
+  eyebrow_en: string; eyebrow_ar: string;
+  title_en: string; title_ar: string;
+  sub_en: string; sub_ar: string;
+  download_en: string; download_ar: string;
+  empty_en: string; empty_ar: string;
+};
+export type DownloadsCategory = { key: string; label_en: string; label_ar: string };
+export type DownloadsPageSettings = { labels: DownloadsPageLabels; categories: DownloadsCategory[] };
+
+const DEFAULT_DOWNLOADS_PAGE: DownloadsPageSettings = {
+  labels: {
+    eyebrow_en: "Downloads", eyebrow_ar: "التحميلات",
+    title_en: "Catalogs & technical documents", title_ar: "الكتالوجات والملفات التقنية",
+    sub_en: "Download our company profile, product catalogs, certifications, installation and maintenance guides.",
+    sub_ar: "حمّل ملف الشركة وكتالوجات المنتجات وشهادات الاعتماد وأدلة التركيب والصيانة.",
+    download_en: "Download", download_ar: "تحميل",
+    empty_en: "No downloads yet.", empty_ar: "لا توجد ملفات بعد.",
+  },
+  categories: [
+    { key: "profile", label_en: "Company Profile", label_ar: "ملف الشركة" },
+    { key: "catalog", label_en: "Product Catalogs", label_ar: "كتالوجات المنتجات" },
+    { key: "datasheet", label_en: "Technical Datasheets", label_ar: "بيانات فنية" },
+    { key: "certificate", label_en: "Certifications", label_ar: "شهادات" },
+    { key: "guide", label_en: "Installation & Maintenance", label_ar: "أدلة التركيب والصيانة" },
+  ],
+};
+
+export const downloadsPageSettingsQueryOptions = queryOptions({
+  queryKey: ["settings", "downloads_page"],
+  queryFn: async (): Promise<DownloadsPageSettings> => {
+    const { data, error } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "downloads_page")
+      .maybeSingle();
+    if (error) throw error;
+    const v = (data?.value ?? {}) as Partial<DownloadsPageSettings>;
+    return {
+      labels: { ...DEFAULT_DOWNLOADS_PAGE.labels, ...(v.labels ?? {}) },
+      categories: Array.isArray(v.categories) && v.categories.length ? v.categories : DEFAULT_DOWNLOADS_PAGE.categories,
+    };
+  },
+  staleTime: FIFTEEN_MIN,
+});
+
 export type QuotePromise = {
   icon: string;
   title_en: string;

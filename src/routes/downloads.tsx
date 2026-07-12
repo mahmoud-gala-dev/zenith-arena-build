@@ -7,10 +7,13 @@ import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
-import { downloadsPublishedQueryOptions } from "@/lib/queries";
+import { downloadsPublishedQueryOptions, downloadsPageSettingsQueryOptions } from "@/lib/queries";
 
 export const Route = createFileRoute("/downloads")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(downloadsPublishedQueryOptions),
+  loader: ({ context }) => Promise.all([
+    context.queryClient.ensureQueryData(downloadsPublishedQueryOptions),
+    context.queryClient.ensureQueryData(downloadsPageSettingsQueryOptions),
+  ]),
   head: () => ({
     meta: [
       { title: "Catalogs & Technical Downloads — Egytic Sports" },
@@ -34,22 +37,26 @@ export const Route = createFileRoute("/downloads")({
   component: DownloadsPage,
 });
 
-const CATEGORY_LABELS: Record<string, { en: string; ar: string }> = {
-  profile: { en: "Company Profile", ar: "ملف الشركة" },
-  catalog: { en: "Product Catalogs", ar: "كتالوجات المنتجات" },
-  datasheet: { en: "Technical Datasheets", ar: "بيانات فنية" },
-  certificate: { en: "Certifications", ar: "شهادات" },
-  guide: { en: "Installation & Maintenance", ar: "أدلة التركيب والصيانة" },
-};
-
 function DownloadsPage() {
   const { lang } = useLang();
   const ar = lang === "ar";
   const { data: items } = useSuspenseQuery(downloadsPublishedQueryOptions);
+  const { data: page } = useSuspenseQuery(downloadsPageSettingsQueryOptions);
 
-  const tx = ar
-    ? { eyebrow: "التحميلات", title: "الكتالوجات والملفات التقنية", sub: "حمّل ملف الشركة وكتالوجات المنتجات وشهادات الاعتماد وأدلة التركيب والصيانة.", download: "تحميل", empty: "لا توجد ملفات بعد." }
-    : { eyebrow: "Downloads", title: "Catalogs & technical documents", sub: "Download our company profile, product catalogs, certifications, installation and maintenance guides.", download: "Download", empty: "No downloads yet." };
+  const L = page.labels;
+  const tx = {
+    eyebrow: ar ? L.eyebrow_ar : L.eyebrow_en,
+    title: ar ? L.title_ar : L.title_en,
+    sub: ar ? L.sub_ar : L.sub_en,
+    download: ar ? L.download_ar : L.download_en,
+    empty: ar ? L.empty_ar : L.empty_en,
+  };
+
+  const categoryMap = useMemo(() => {
+    const m = new Map<string, { en: string; ar: string }>();
+    for (const c of page.categories) m.set(c.key, { en: c.label_en, ar: c.label_ar });
+    return m;
+  }, [page.categories]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, typeof items>();
@@ -62,10 +69,11 @@ function DownloadsPage() {
   }, [items]);
 
   const labelFor = (key: string) => {
-    const preset = CATEGORY_LABELS[key];
+    const preset = categoryMap.get(key);
     if (preset) return ar ? preset.ar : preset.en;
     return key.charAt(0).toUpperCase() + key.slice(1);
   };
+
 
   return (
     <SiteLayout>
