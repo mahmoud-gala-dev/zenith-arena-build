@@ -177,7 +177,7 @@ function GovernoratePage() {
           <div className="mt-8">
             {filtered.length === 0 ? (
               <p className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground">
-                {lang === "ar" ? "لا توجد مشاريع مطابقة لهذه المحافظة بعد." : "No matching projects in this governorate yet."}
+                {t.governorate.noMatchInGov}
               </p>
             ) : (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
