@@ -213,7 +213,7 @@ function QuotePage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="q-name">{tx.name}*</Label>
-                  <Input id="q-name" name="name" required maxLength={100} />
+                  <Input id="q-name" name="name" required maxLength={100} value={nameVal} onChange={(e) => setNameVal(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="q-company">{tx.company}</Label>
@@ -221,11 +221,11 @@ function QuotePage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="q-email">{tx.email}*</Label>
-                  <Input id="q-email" name="email" type="email" required maxLength={255} />
+                  <Input id="q-email" name="email" type="email" required maxLength={255} value={emailVal} onChange={(e) => setEmailVal(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="q-phone">{tx.phone}*</Label>
-                  <Input id="q-phone" name="phone" type="tel" required maxLength={30} />
+                  <Input id="q-phone" name="phone" type="tel" required maxLength={30} value={phoneVal} onChange={(e) => setPhoneVal(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="q-country">{tx.country}</Label>
