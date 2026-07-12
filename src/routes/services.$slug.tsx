@@ -139,6 +139,7 @@ function ServiceDetailPage() {
   const { lang, t } = useLang();
   const { data: service, loading } = useServiceBySlug(slug);
   const ar = lang === "ar";
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const copy = ar
     ? { back: "العودة للخدمات", overview: "نظرة عامة", gallery: "معرض الخدمة", brochure: "تحميل البروشور", whatsapp: "واتساب", quote: "اطلب عرض سعر", notFound: "لم يتم العثور على الخدمة", faq: "الأسئلة الشائعة" }
@@ -310,10 +311,19 @@ function ServiceDetailPage() {
       {gallery.length > 0 && (
         <section className="bg-secondary/40 py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold text-foreground">{copy.gallery}</h2>
+            <div className="flex items-end justify-between gap-4">
+              <h2 className="text-2xl font-bold text-foreground">{copy.gallery}</h2>
+              <span className="text-sm text-muted-foreground tabular-nums">{gallery.length} {ar ? "صورة" : "images"}</span>
+            </div>
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {gallery.map((url, i) => (
-                <figure key={`${url}-${i}`} className="overflow-hidden rounded-xl border border-border bg-card shadow-soft">
+                <button
+                  key={`${url}-${i}`}
+                  type="button"
+                  onClick={() => setLightboxIndex(i)}
+                  aria-label={`${ar ? "افتح الصورة" : "Open image"} ${i + 1}`}
+                  className="group relative overflow-hidden rounded-xl border border-border bg-card shadow-soft focus:outline-none focus:ring-2 focus:ring-primary"
+                >
                   <img
                     src={url}
                     alt={`${currentAlt} — ${i + 1}`}
@@ -323,12 +333,24 @@ function ServiceDetailPage() {
                     loading="lazy"
                     decoding="async"
                     sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                    className="aspect-[4/3] w-full object-cover transition-transform duration-500 hover:scale-105"
+                    className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
-                </figure>
+                  <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <span className="pointer-events-none absolute bottom-3 right-3 rtl:right-auto rtl:left-3 flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium text-foreground opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
+                    <Expand className="h-3.5 w-3.5" />
+                    {ar ? "تكبير" : "Expand"}
+                  </span>
+                </button>
               ))}
             </div>
           </div>
+          <ImageLightbox
+            images={gallery}
+            index={lightboxIndex}
+            onClose={() => setLightboxIndex(null)}
+            onNavigate={(dir) => setLightboxIndex((i) => i === null ? null : (i + dir + gallery.length) % gallery.length)}
+            alt={currentAlt}
+          />
         </section>
       )}
 
