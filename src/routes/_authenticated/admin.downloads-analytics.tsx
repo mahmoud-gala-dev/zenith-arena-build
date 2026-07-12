@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { useAdminPageGuard } from "@/lib/rbac";
 
 export const Route = createFileRoute("/_authenticated/admin/downloads-analytics")({
   component: DownloadsAnalyticsPage,
