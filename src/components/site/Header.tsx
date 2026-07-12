@@ -113,7 +113,11 @@ export function Header() {
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2 text-xs sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-5 text-white/85">
             {contact.phone && (
-              <a href={`tel:${contact.phone}`} className="inline-flex items-center gap-1.5 transition-colors hover:text-[color:var(--gold)]">
+              <a
+                href={`tel:${contact.phone}`}
+                onClick={() => trackEvent({ name: "header_phone_click", surface: "top_bar", phone: contact.phone })}
+                className="inline-flex items-center gap-1.5 transition-colors hover:text-[color:var(--gold)]"
+              >
                 <Phone className="h-3.5 w-3.5" />
                 <span dir="ltr" className="tabular-nums">{contact.phone}</span>
               </a>
