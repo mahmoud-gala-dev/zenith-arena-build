@@ -352,6 +352,8 @@ export const translations = {
         all: "الكل",
         resetFilters: "إعادة ضبط الفلاتر",
         details: "التفاصيل",
+        noMatching: "لا توجد نتائج مطابقة.",
+        resultsOf: (a: number, b: number) => `${a} من ${b} نتيجة`,
       },
       careers: {
         applyNow: "قدّم الآن",
