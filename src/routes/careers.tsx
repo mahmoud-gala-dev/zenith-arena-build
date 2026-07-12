@@ -54,7 +54,7 @@ function fileToBase64(file: File): Promise<string> {
 }
 
 function CareersPage() {
-  const { lang } = useLang();
+  const { lang, t: T } = useLang();
   const ar = lang === "ar";
   const { data: jobs } = useSuspenseQuery(jobOpeningsOpenQueryOptions);
   const { data: cfg } = useSuspenseQuery(careersPageSettingsQueryOptions);
@@ -69,7 +69,7 @@ function CareersPage() {
     sub: ar ? L.sub_ar : L.sub_en,
     whyTitle: ar ? L.why_title_ar : L.why_title_en,
     openTitle: ar ? L.open_title_ar : L.open_title_en,
-    apply: ar ? "قدّم الآن" : "Apply now",
+    apply: T.pages.careers.applyNow,
     noJobsTitle: ar ? L.no_jobs_title_ar : L.no_jobs_title_en,
     noJobsSub: ar ? L.no_jobs_sub_ar : L.no_jobs_sub_en,
     sendCv: ar ? L.send_cv_ar : L.send_cv_en,
