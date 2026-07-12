@@ -1027,6 +1027,56 @@ export type Database = {
         }
         Relationships: []
       }
+      page_preview_tokens: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          created_by_email: string | null
+          expires_at: string
+          id: string
+          label: string | null
+          last_viewed_at: string | null
+          page_id: string
+          revoked_at: string | null
+          token: string
+          view_count: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          created_by_email?: string | null
+          expires_at: string
+          id?: string
+          label?: string | null
+          last_viewed_at?: string | null
+          page_id: string
+          revoked_at?: string | null
+          token: string
+          view_count?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          created_by_email?: string | null
+          expires_at?: string
+          id?: string
+          label?: string | null
+          last_viewed_at?: string | null
+          page_id?: string
+          revoked_at?: string | null
+          token?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "page_preview_tokens_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       page_versions: {
         Row: {
           action: string
@@ -1987,6 +2037,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_page_by_preview_token: {
+        Args: { _token: string }
+        Returns: {
+          content_ar: string
+          content_en: string
+          effective_at: string
+          id: string
+          seo_description_ar: string
+          seo_description_en: string
+          seo_title_ar: string
+          seo_title_en: string
+          slug_ar: string
+          slug_en: string
+          status: string
+          title_ar: string
+          title_en: string
+          updated_at: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

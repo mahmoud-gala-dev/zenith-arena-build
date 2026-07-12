@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { useMyRoles } from "@/hooks/useMyRoles";
+import { PreviewLinksCard } from "@/components/admin/PreviewLinksCard";
 
 export const Route = createFileRoute("/_authenticated/admin/legal")({
   component: AdminLegalPage,
@@ -529,6 +530,7 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
         </CardContent>
       </Card>
 
+      <PreviewLinksCard pageId={form.id} slug={slug} />
       <AuditHistory recordId={form.id} />
       <VersionHistory pageId={form.id} slug={slug} />
     </div>
