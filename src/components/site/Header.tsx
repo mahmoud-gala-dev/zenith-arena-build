@@ -48,7 +48,8 @@ export function Header() {
   }, []);
 
   const ar = lang === "ar";
-  const links = [
+  const { data: menuItems } = useQuery(menusByLocationQueryOptions("header"));
+  const fallbackLinks = [
     { to: "/", label: t.nav.home },
     { to: "/services", label: t.nav.services },
     { to: "/projects", label: t.nav.projects },
@@ -57,7 +58,11 @@ export function Header() {
     { to: "/knowledge", label: t.nav.knowledge },
     { to: "/about", label: t.nav.about },
     { to: "/contact", label: t.nav.contact },
-  ] as const;
+  ];
+  const links = (menuItems && menuItems.length
+    ? menuItems.map((m) => ({ to: m.href, label: ar ? m.label_ar || m.label_en : m.label_en }))
+    : fallbackLinks);
+
 
   return (
     <header
