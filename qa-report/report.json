@@ -1,0 +1,1220 @@
+{
+  "generated_at": "2026-07-12T09:12:27.196Z",
+  "commit": null,
+  "run_id": null,
+  "status": "pass",
+  "totals": {
+    "suites": 8,
+    "assertion_errors": 0,
+    "pixel_diff_failed": 0,
+    "pixel_diff_passed": 0,
+    "pixel_diff_seeded": 0
+  },
+  "suites": [
+    {
+      "suite": "android-firefox-scrollbar",
+      "/": {
+        "before": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 915,
+            "scrollY": 0,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-firefox-scrollbar/home-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 915,
+            "scrollY": 228,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-firefox-scrollbar/home-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 915,
+            "scrollY": 12821,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-firefox-scrollbar/home-3-after.png"
+        }
+      },
+      "/projects": {
+        "before": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 915,
+            "scrollY": 0,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-firefox-scrollbar/projects-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 915,
+            "scrollY": 409,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-firefox-scrollbar/projects-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 915,
+            "scrollY": 3211,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-firefox-scrollbar/projects-3-after.png"
+        }
+      },
+      "/services": {
+        "before": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 915,
+            "scrollY": 0,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-firefox-scrollbar/services-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 915,
+            "scrollY": 436,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-firefox-scrollbar/services-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 915,
+            "scrollY": 4320,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-firefox-scrollbar/services-3-after.png"
+        }
+      },
+      "/knowledge": {
+        "before": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 915,
+            "scrollY": 0,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-firefox-scrollbar/knowledge-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 915,
+            "scrollY": 332,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-firefox-scrollbar/knowledge-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 915,
+            "scrollY": 4760,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-firefox-scrollbar/knowledge-3-after.png"
+        }
+      },
+      "/gallery": {
+        "before": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 915,
+            "scrollY": 0,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-firefox-scrollbar/gallery-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 915,
+            "scrollY": 409,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-firefox-scrollbar/gallery-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 915,
+            "scrollY": 1883,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-firefox-scrollbar/gallery-3-after.png"
+        }
+      }
+    },
+    {
+      "suite": "android-scrollbar",
+      "/": {
+        "before": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 839,
+            "scrollY": 0,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-scrollbar/home-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 839,
+            "scrollY": 51,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-scrollbar/home-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 839,
+            "scrollY": 7401,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "visible",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-scrollbar/home-3-after.png"
+        }
+      },
+      "/projects": {
+        "before": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 839,
+            "scrollY": 0,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-scrollbar/projects-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 839,
+            "scrollY": 74,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-scrollbar/projects-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 839,
+            "scrollY": 2191,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-scrollbar/projects-3-after.png"
+        }
+      },
+      "/services": {
+        "before": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 839,
+            "scrollY": 0,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-scrollbar/services-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 839,
+            "scrollY": 51,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-scrollbar/services-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 839,
+            "scrollY": 2785,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-scrollbar/services-3-after.png"
+        }
+      },
+      "/knowledge": {
+        "before": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 839,
+            "scrollY": 0,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-scrollbar/knowledge-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 839,
+            "scrollY": 74,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-scrollbar/knowledge-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 839,
+            "scrollY": 3038,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-scrollbar/knowledge-3-after.png"
+        }
+      },
+      "/gallery": {
+        "before": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 839,
+            "scrollY": 0,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-scrollbar/gallery-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 839,
+            "scrollY": 51,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-scrollbar/gallery-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 412,
+            "scrollWidth": 412,
+            "clientHeight": 839,
+            "scrollY": 1738,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/android-scrollbar/gallery-3-after.png"
+        }
+      }
+    },
+    {
+      "suite": "ios-admin-scrollbar",
+      "skipped": "signed_out"
+    },
+    {
+      "suite": "ios-scrollbar",
+      "/": {
+        "before": {
+          "metrics": {
+            "clientWidth": 390,
+            "scrollWidth": 390,
+            "clientHeight": 664,
+            "scrollY": 0,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden"
+          },
+          "screenshot": "qa-report/ios-scrollbar/home-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 390,
+            "scrollWidth": 390,
+            "clientHeight": 664,
+            "scrollY": 663,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden"
+          },
+          "screenshot": "qa-report/ios-scrollbar/home-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 390,
+            "scrollWidth": 390,
+            "clientHeight": 664,
+            "scrollY": 12711,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden"
+          },
+          "screenshot": "qa-report/ios-scrollbar/home-3-after.png"
+        }
+      },
+      "/projects": {
+        "before": {
+          "metrics": {
+            "clientWidth": 390,
+            "scrollWidth": 390,
+            "clientHeight": 664,
+            "scrollY": 0,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "visible"
+          },
+          "screenshot": "qa-report/ios-scrollbar/projects-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 390,
+            "scrollWidth": 390,
+            "clientHeight": 664,
+            "scrollY": 660,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden"
+          },
+          "screenshot": "qa-report/ios-scrollbar/projects-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 390,
+            "scrollWidth": 390,
+            "clientHeight": 664,
+            "scrollY": 664,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden"
+          },
+          "screenshot": "qa-report/ios-scrollbar/projects-3-after.png"
+        }
+      },
+      "/services": {
+        "before": {
+          "metrics": {
+            "clientWidth": 390,
+            "scrollWidth": 390,
+            "clientHeight": 664,
+            "scrollY": 0,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden"
+          },
+          "screenshot": "qa-report/ios-scrollbar/services-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 390,
+            "scrollWidth": 390,
+            "clientHeight": 664,
+            "scrollY": 377,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden"
+          },
+          "screenshot": "qa-report/ios-scrollbar/services-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 390,
+            "scrollWidth": 390,
+            "clientHeight": 664,
+            "scrollY": 4462,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden"
+          },
+          "screenshot": "qa-report/ios-scrollbar/services-3-after.png"
+        }
+      },
+      "/knowledge": {
+        "before": {
+          "metrics": {
+            "clientWidth": 390,
+            "scrollWidth": 390,
+            "clientHeight": 664,
+            "scrollY": 0,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden"
+          },
+          "screenshot": "qa-report/ios-scrollbar/knowledge-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 390,
+            "scrollWidth": 390,
+            "clientHeight": 664,
+            "scrollY": 557,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden"
+          },
+          "screenshot": "qa-report/ios-scrollbar/knowledge-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 390,
+            "scrollWidth": 390,
+            "clientHeight": 664,
+            "scrollY": 5066,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden"
+          },
+          "screenshot": "qa-report/ios-scrollbar/knowledge-3-after.png"
+        }
+      },
+      "/gallery": {
+        "before": {
+          "metrics": {
+            "clientWidth": 390,
+            "scrollWidth": 390,
+            "clientHeight": 664,
+            "scrollY": 0,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden"
+          },
+          "screenshot": "qa-report/ios-scrollbar/gallery-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 390,
+            "scrollWidth": 390,
+            "clientHeight": 664,
+            "scrollY": 664,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden"
+          },
+          "screenshot": "qa-report/ios-scrollbar/gallery-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 390,
+            "scrollWidth": 390,
+            "clientHeight": 664,
+            "scrollY": 2200,
+            "scrollbarWidth": "none",
+            "scrollbarGutter": "auto",
+            "bodyOverflowX": "hidden"
+          },
+          "screenshot": "qa-report/ios-scrollbar/gallery-3-after.png"
+        }
+      }
+    },
+    {
+      "suite": "ipad-scrollbar",
+      "/": {
+        "before": {
+          "metrics": {
+            "clientWidth": 834,
+            "scrollWidth": 834,
+            "clientHeight": 1194,
+            "scrollY": 0,
+            "scrollbarWidth": "thin",
+            "scrollbarGutter": "stable",
+            "bodyOverflowX": "visible",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/ipad-scrollbar/home-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 834,
+            "scrollWidth": 834,
+            "clientHeight": 1194,
+            "scrollY": 14,
+            "scrollbarWidth": "thin",
+            "scrollbarGutter": "stable",
+            "bodyOverflowX": "visible",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/ipad-scrollbar/home-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 834,
+            "scrollWidth": 834,
+            "clientHeight": 1194,
+            "scrollY": 0,
+            "scrollbarWidth": "thin",
+            "scrollbarGutter": "stable",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/ipad-scrollbar/home-3-after.png"
+        }
+      },
+      "/projects": {
+        "before": {
+          "metrics": {
+            "clientWidth": 834,
+            "scrollWidth": 834,
+            "clientHeight": 1194,
+            "scrollY": 0,
+            "scrollbarWidth": "thin",
+            "scrollbarGutter": "stable",
+            "bodyOverflowX": "visible",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/ipad-scrollbar/projects-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 834,
+            "scrollWidth": 834,
+            "clientHeight": 1194,
+            "scrollY": 0,
+            "scrollbarWidth": "thin",
+            "scrollbarGutter": "stable",
+            "bodyOverflowX": "visible",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/ipad-scrollbar/projects-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 834,
+            "scrollWidth": 834,
+            "clientHeight": 1194,
+            "scrollY": 0,
+            "scrollbarWidth": "thin",
+            "scrollbarGutter": "stable",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/ipad-scrollbar/projects-3-after.png"
+        }
+      },
+      "/services": {
+        "before": {
+          "metrics": {
+            "clientWidth": 834,
+            "scrollWidth": 834,
+            "clientHeight": 1194,
+            "scrollY": 0,
+            "scrollbarWidth": "thin",
+            "scrollbarGutter": "stable",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/ipad-scrollbar/services-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 834,
+            "scrollWidth": 834,
+            "clientHeight": 1194,
+            "scrollY": 641,
+            "scrollbarWidth": "thin",
+            "scrollbarGutter": "stable",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/ipad-scrollbar/services-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 834,
+            "scrollWidth": 834,
+            "clientHeight": 1194,
+            "scrollY": 3229,
+            "scrollbarWidth": "thin",
+            "scrollbarGutter": "stable",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/ipad-scrollbar/services-3-after.png"
+        }
+      },
+      "/knowledge": {
+        "before": {
+          "metrics": {
+            "clientWidth": 834,
+            "scrollWidth": 834,
+            "clientHeight": 1194,
+            "scrollY": 0,
+            "scrollbarWidth": "thin",
+            "scrollbarGutter": "stable",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/ipad-scrollbar/knowledge-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 834,
+            "scrollWidth": 834,
+            "clientHeight": 1194,
+            "scrollY": 1194,
+            "scrollbarWidth": "thin",
+            "scrollbarGutter": "stable",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/ipad-scrollbar/knowledge-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 834,
+            "scrollWidth": 834,
+            "clientHeight": 1194,
+            "scrollY": 3161,
+            "scrollbarWidth": "thin",
+            "scrollbarGutter": "stable",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/ipad-scrollbar/knowledge-3-after.png"
+        }
+      },
+      "/gallery": {
+        "before": {
+          "metrics": {
+            "clientWidth": 834,
+            "scrollWidth": 834,
+            "clientHeight": 1194,
+            "scrollY": 0,
+            "scrollbarWidth": "thin",
+            "scrollbarGutter": "stable",
+            "bodyOverflowX": "visible",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/ipad-scrollbar/gallery-1-before.png"
+        },
+        "during": {
+          "metrics": {
+            "clientWidth": 834,
+            "scrollWidth": 834,
+            "clientHeight": 1194,
+            "scrollY": 0,
+            "scrollbarWidth": "thin",
+            "scrollbarGutter": "stable",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/ipad-scrollbar/gallery-2-during.png"
+        },
+        "after": {
+          "metrics": {
+            "clientWidth": 834,
+            "scrollWidth": 834,
+            "clientHeight": 1194,
+            "scrollY": 2035,
+            "scrollbarWidth": "thin",
+            "scrollbarGutter": "stable",
+            "bodyOverflowX": "hidden",
+            "htmlOverflowX": "visible"
+          },
+          "screenshot": "qa-report/ipad-scrollbar/gallery-3-after.png"
+        }
+      }
+    },
+    {
+      "suite": "pwa-offline",
+      "base": "http://127.0.0.1:18426",
+      "problems": [],
+      "recovery_status": 200
+    },
+    {
+      "suite": "pwa-update",
+      "base": "http://127.0.0.1:39156",
+      "marker": "/* pwa-e2e v2 4e1db5a6 */",
+      "unloaded": true,
+      "controllerChanged": true,
+      "navType": "reload",
+      "before": "http://127.0.0.1:39156/sw.js",
+      "after": "http://127.0.0.1:39156/sw.js"
+    },
+    {
+      "suite": "scrollbar",
+      "chromium": {
+        "light": {
+          "tokens": {
+            "primary": "oklch(52% .13 162)",
+            "radius": ".75rem",
+            "scrollbarSize": "12px",
+            "scrollbarRadius": ".75rem",
+            "scrollbarThumb": "color-mix(in oklch, oklch(52% .13 162) 45%, transparent)",
+            "scrollbarThumbHover": "color-mix(in oklch, oklch(52% .13 162) 75%, transparent)",
+            "scrollbarThumbActive": "oklch(52% .13 162)",
+            "scrollbarTrack": "color-mix(in oklch, oklch(90% .01 160) 30%, transparent)",
+            "htmlScrollbarWidth": "thin",
+            "htmlScrollbarColor": "oklch(0.52 0.13 162 / 0.45) rgba(0, 0, 0, 0)",
+            "htmlScrollbarGutter": "stable"
+          },
+          "screenshot": "qa-report/scrollbar/chromium-light-scrollbar-strip.png"
+        },
+        "dark": {
+          "tokens": {
+            "primary": "oklch(66% .14 158)",
+            "radius": ".75rem",
+            "scrollbarSize": "12px",
+            "scrollbarRadius": ".75rem",
+            "scrollbarThumb": "color-mix(in oklch, oklch(66% .14 158) 45%, transparent)",
+            "scrollbarThumbHover": "color-mix(in oklch, oklch(66% .14 158) 75%, transparent)",
+            "scrollbarThumbActive": "oklch(66% .14 158)",
+            "scrollbarTrack": "color-mix(in oklch, oklch(100% 0 0 / .12) 30%, transparent)",
+            "htmlScrollbarWidth": "thin",
+            "htmlScrollbarColor": "oklch(0.66 0.14 158 / 0.45) rgba(0, 0, 0, 0)",
+            "htmlScrollbarGutter": "stable"
+          },
+          "screenshot": "qa-report/scrollbar/chromium-dark-scrollbar-strip.png"
+        }
+      },
+      "firefox": {
+        "light": {
+          "tokens": {
+            "primary": "oklch(52% .13 162)",
+            "radius": ".75rem",
+            "scrollbarSize": "12px",
+            "scrollbarRadius": ".75rem",
+            "scrollbarThumb": "color-mix(in oklch, oklch(52% .13 162) 45%, transparent)",
+            "scrollbarThumbHover": "color-mix(in oklch, oklch(52% .13 162) 75%, transparent)",
+            "scrollbarThumbActive": "oklch(52% .13 162)",
+            "scrollbarTrack": "color-mix(in oklch, oklch(90% .01 160) 30%, transparent)",
+            "htmlScrollbarWidth": "none",
+            "htmlScrollbarColor": "oklch(0.52 0.13 162 / 0.45) rgba(0, 0, 0, 0)",
+            "htmlScrollbarGutter": "stable"
+          },
+          "screenshot": "qa-report/scrollbar/firefox-light-scrollbar-strip.png"
+        },
+        "dark": {
+          "tokens": {
+            "primary": "oklch(66% .14 158)",
+            "radius": ".75rem",
+            "scrollbarSize": "12px",
+            "scrollbarRadius": ".75rem",
+            "scrollbarThumb": "color-mix(in oklch, oklch(66% .14 158) 45%, transparent)",
+            "scrollbarThumbHover": "color-mix(in oklch, oklch(66% .14 158) 75%, transparent)",
+            "scrollbarThumbActive": "oklch(66% .14 158)",
+            "scrollbarTrack": "color-mix(in oklch, oklch(100% 0 0 / .12) 30%, transparent)",
+            "htmlScrollbarWidth": "none",
+            "htmlScrollbarColor": "oklch(0.66 0.14 158 / 0.45) rgba(0, 0, 0, 0)",
+            "htmlScrollbarGutter": "stable"
+          },
+          "screenshot": "qa-report/scrollbar/firefox-dark-scrollbar-strip.png"
+        }
+      },
+      "webkit": {
+        "light": {
+          "tokens": {
+            "primary": "oklch(52% .13 162)",
+            "radius": ".75rem",
+            "scrollbarSize": "12px",
+            "scrollbarRadius": ".75rem",
+            "scrollbarThumb": "color-mix(in oklch, oklch(52% .13 162) 45%, transparent)",
+            "scrollbarThumbHover": "color-mix(in oklch, oklch(52% .13 162) 75%, transparent)",
+            "scrollbarThumbActive": "oklch(52% .13 162)",
+            "scrollbarTrack": "color-mix(in oklch, oklch(90% .01 160) 30%, transparent)",
+            "htmlScrollbarWidth": "thin",
+            "htmlScrollbarColor": "",
+            "htmlScrollbarGutter": "stable"
+          },
+          "screenshot": "qa-report/scrollbar/webkit-light-scrollbar-strip.png"
+        },
+        "dark": {
+          "tokens": {
+            "primary": "oklch(66% .14 158)",
+            "radius": ".75rem",
+            "scrollbarSize": "12px",
+            "scrollbarRadius": ".75rem",
+            "scrollbarThumb": "color-mix(in oklch, oklch(66% .14 158) 45%, transparent)",
+            "scrollbarThumbHover": "color-mix(in oklch, oklch(66% .14 158) 75%, transparent)",
+            "scrollbarThumbActive": "oklch(66% .14 158)",
+            "scrollbarTrack": "color-mix(in oklch, oklch(100% 0 0 / .12) 30%, transparent)",
+            "htmlScrollbarWidth": "thin",
+            "htmlScrollbarColor": "",
+            "htmlScrollbarGutter": "stable"
+          },
+          "screenshot": "qa-report/scrollbar/webkit-dark-scrollbar-strip.png"
+        }
+      }
+    }
+  ],
+  "pixelmatch": {
+    "qaDir": "qa-report",
+    "baselineDir": "qa-baselines",
+    "pixelmatchThreshold": 0.1,
+    "diffRatioMax": 0.005,
+    "total": 36,
+    "seeded": 0,
+    "failed": 0,
+    "results": [
+      {
+        "file": "android-scrollbar/gallery-1-before.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2382564,
+        "ratio": 0
+      },
+      {
+        "file": "android-scrollbar/gallery-2-during.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2382564,
+        "ratio": 0
+      },
+      {
+        "file": "android-scrollbar/gallery-3-after.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2382564,
+        "ratio": 0
+      },
+      {
+        "file": "android-scrollbar/home-1-before.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2382564,
+        "ratio": 0
+      },
+      {
+        "file": "android-scrollbar/home-2-during.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2382564,
+        "ratio": 0
+      },
+      {
+        "file": "android-scrollbar/home-3-after.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2382564,
+        "ratio": 0
+      },
+      {
+        "file": "android-scrollbar/knowledge-1-before.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2382564,
+        "ratio": 0
+      },
+      {
+        "file": "android-scrollbar/knowledge-2-during.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2382564,
+        "ratio": 0
+      },
+      {
+        "file": "android-scrollbar/knowledge-3-after.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2382564,
+        "ratio": 0
+      },
+      {
+        "file": "android-scrollbar/projects-1-before.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2382564,
+        "ratio": 0
+      },
+      {
+        "file": "android-scrollbar/projects-2-during.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2382564,
+        "ratio": 0
+      },
+      {
+        "file": "android-scrollbar/projects-3-after.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2382564,
+        "ratio": 0
+      },
+      {
+        "file": "android-scrollbar/services-1-before.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2382564,
+        "ratio": 0
+      },
+      {
+        "file": "android-scrollbar/services-2-during.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2382564,
+        "ratio": 0
+      },
+      {
+        "file": "android-scrollbar/services-3-after.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2382564,
+        "ratio": 0
+      },
+      {
+        "file": "ios-scrollbar/gallery-1-before.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2330640,
+        "ratio": 0
+      },
+      {
+        "file": "ios-scrollbar/gallery-2-during.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2330640,
+        "ratio": 0
+      },
+      {
+        "file": "ios-scrollbar/gallery-3-after.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2330640,
+        "ratio": 0
+      },
+      {
+        "file": "ios-scrollbar/home-1-before.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2330640,
+        "ratio": 0
+      },
+      {
+        "file": "ios-scrollbar/home-2-during.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2330640,
+        "ratio": 0
+      },
+      {
+        "file": "ios-scrollbar/home-3-after.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2330640,
+        "ratio": 0
+      },
+      {
+        "file": "ios-scrollbar/knowledge-1-before.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2330640,
+        "ratio": 0
+      },
+      {
+        "file": "ios-scrollbar/knowledge-2-during.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2330640,
+        "ratio": 0
+      },
+      {
+        "file": "ios-scrollbar/knowledge-3-after.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2330640,
+        "ratio": 0
+      },
+      {
+        "file": "ios-scrollbar/projects-1-before.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2330640,
+        "ratio": 0
+      },
+      {
+        "file": "ios-scrollbar/projects-2-during.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2330640,
+        "ratio": 0
+      },
+      {
+        "file": "ios-scrollbar/projects-3-after.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2330640,
+        "ratio": 0
+      },
+      {
+        "file": "ios-scrollbar/services-1-before.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2330640,
+        "ratio": 0
+      },
+      {
+        "file": "ios-scrollbar/services-2-during.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2330640,
+        "ratio": 0
+      },
+      {
+        "file": "ios-scrollbar/services-3-after.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 2330640,
+        "ratio": 0
+      },
+      {
+        "file": "scrollbar/chromium-dark-scrollbar-strip.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 14400,
+        "ratio": 0
+      },
+      {
+        "file": "scrollbar/chromium-light-scrollbar-strip.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 14400,
+        "ratio": 0
+      },
+      {
+        "file": "scrollbar/firefox-dark-scrollbar-strip.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 14400,
+        "ratio": 0
+      },
+      {
+        "file": "scrollbar/firefox-light-scrollbar-strip.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 14400,
+        "ratio": 0
+      },
+      {
+        "file": "scrollbar/webkit-dark-scrollbar-strip.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 14400,
+        "ratio": 0
+      },
+      {
+        "file": "scrollbar/webkit-light-scrollbar-strip.png",
+        "status": "ok",
+        "diffPixels": 0,
+        "totalPixels": 14400,
+        "ratio": 0
+      }
+    ]
+  }
+}
