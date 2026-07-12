@@ -133,7 +133,19 @@ function ContactPage() {
     setSubmitting(true);
     try {
       await submit({ data: payload });
+      const svc = dbServices?.find((s) => s.slug_en === projectType);
+      setSummary({
+        name: payload.name,
+        email: payload.email,
+        phone: payload.phone,
+        service: projectType || null,
+        serviceLabel: svc ? (ar ? svc.title_ar ?? svc.title_en : svc.title_en) : null,
+        message: payload.message,
+        intent: "contact",
+        source: "contact_page",
+      });
       setSent(true);
+      setSuccessOpen(true);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Submission failed");
     } finally {
