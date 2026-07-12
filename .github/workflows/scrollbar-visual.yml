@@ -1,0 +1,86 @@
+name: scrollbar-visual-regression
+
+on:
+  pull_request:
+    paths:
+      - "src/styles.css"
+      - "src/**/*.tsx"
+      - "scripts/*scrollbar*.py"
+      - "scripts/visual-diff.mjs"
+      - "qa-baselines/**"
+      - ".github/workflows/scrollbar-visual.yml"
+  workflow_dispatch:
+    inputs:
+      update_baselines:
+        description: "Overwrite baselines from this run (commit the artifact)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: scrollbar-visual-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Pixelmatch per-pixel color threshold (0 strict → 1 permissive).
+      PIXELMATCH_THRESHOLD: "0.1"
+      # Fail when > 0.5% of pixels differ from the baseline.
+      DIFF_RATIO_MAX: "0.005"
+      BASE_URL: "http://localhost:8080"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with: { bun-version: latest }
+
+      - name: Install JS deps
+        run: bun install --frozen-lockfile
+
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+
+      - name: Install Playwright + browsers
+        run: |
+          python -m pip install --no-cache-dir playwright
+          python -m playwright install --with-deps chromium firefox webkit
+
+      - name: Build & start preview
+        run: |
+          bun run build
+          bun run preview --port 8080 --host 127.0.0.1 &
+          for i in $(seq 1 60); do
+            curl -sf "$BASE_URL" > /dev/null && break
+            sleep 1
+          done
+
+      - name: Run scrollbar visual scripts (desktop + iOS + Android)
+        run: |
+          python scripts/scrollbar-visual.py
+          python scripts/ios-scrollbar-visual.py
+          python scripts/android-scrollbar-visual.py
+
+      - name: Pixelmatch against baselines
+        env:
+          UPDATE_BASELINES: ${{ github.event.inputs.update_baselines == 'true' && '1' || '' }}
+          CI_ALLOW_SEED: ${{ github.event.inputs.update_baselines == 'true' && '1' || '' }}
+        run: node scripts/visual-diff.mjs
+
+      - name: Upload qa-report (screenshots + diffs + JSON)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scrollbar-qa-report-${{ github.run_id }}
+          path: qa-report/
+          retention-days: 14
+
+      - name: Upload updated baselines
+        if: ${{ github.event.inputs.update_baselines == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: scrollbar-baselines-${{ github.run_id }}
+          path: qa-baselines/
+          retention-days: 30

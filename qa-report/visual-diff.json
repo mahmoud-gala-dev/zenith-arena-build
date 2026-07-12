@@ -1,0 +1,263 @@
+{
+  "qaDir": "qa-report",
+  "baselineDir": "qa-baselines",
+  "pixelmatchThreshold": 0.1,
+  "diffRatioMax": 0.005,
+  "total": 36,
+  "seeded": 0,
+  "failed": 0,
+  "results": [
+    {
+      "file": "android-scrollbar/gallery-1-before.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2382564,
+      "ratio": 0
+    },
+    {
+      "file": "android-scrollbar/gallery-2-during.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2382564,
+      "ratio": 0
+    },
+    {
+      "file": "android-scrollbar/gallery-3-after.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2382564,
+      "ratio": 0
+    },
+    {
+      "file": "android-scrollbar/home-1-before.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2382564,
+      "ratio": 0
+    },
+    {
+      "file": "android-scrollbar/home-2-during.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2382564,
+      "ratio": 0
+    },
+    {
+      "file": "android-scrollbar/home-3-after.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2382564,
+      "ratio": 0
+    },
+    {
+      "file": "android-scrollbar/knowledge-1-before.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2382564,
+      "ratio": 0
+    },
+    {
+      "file": "android-scrollbar/knowledge-2-during.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2382564,
+      "ratio": 0
+    },
+    {
+      "file": "android-scrollbar/knowledge-3-after.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2382564,
+      "ratio": 0
+    },
+    {
+      "file": "android-scrollbar/projects-1-before.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2382564,
+      "ratio": 0
+    },
+    {
+      "file": "android-scrollbar/projects-2-during.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2382564,
+      "ratio": 0
+    },
+    {
+      "file": "android-scrollbar/projects-3-after.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2382564,
+      "ratio": 0
+    },
+    {
+      "file": "android-scrollbar/services-1-before.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2382564,
+      "ratio": 0
+    },
+    {
+      "file": "android-scrollbar/services-2-during.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2382564,
+      "ratio": 0
+    },
+    {
+      "file": "android-scrollbar/services-3-after.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2382564,
+      "ratio": 0
+    },
+    {
+      "file": "ios-scrollbar/gallery-1-before.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2330640,
+      "ratio": 0
+    },
+    {
+      "file": "ios-scrollbar/gallery-2-during.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2330640,
+      "ratio": 0
+    },
+    {
+      "file": "ios-scrollbar/gallery-3-after.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2330640,
+      "ratio": 0
+    },
+    {
+      "file": "ios-scrollbar/home-1-before.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2330640,
+      "ratio": 0
+    },
+    {
+      "file": "ios-scrollbar/home-2-during.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2330640,
+      "ratio": 0
+    },
+    {
+      "file": "ios-scrollbar/home-3-after.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2330640,
+      "ratio": 0
+    },
+    {
+      "file": "ios-scrollbar/knowledge-1-before.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2330640,
+      "ratio": 0
+    },
+    {
+      "file": "ios-scrollbar/knowledge-2-during.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2330640,
+      "ratio": 0
+    },
+    {
+      "file": "ios-scrollbar/knowledge-3-after.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2330640,
+      "ratio": 0
+    },
+    {
+      "file": "ios-scrollbar/projects-1-before.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2330640,
+      "ratio": 0
+    },
+    {
+      "file": "ios-scrollbar/projects-2-during.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2330640,
+      "ratio": 0
+    },
+    {
+      "file": "ios-scrollbar/projects-3-after.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2330640,
+      "ratio": 0
+    },
+    {
+      "file": "ios-scrollbar/services-1-before.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2330640,
+      "ratio": 0
+    },
+    {
+      "file": "ios-scrollbar/services-2-during.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2330640,
+      "ratio": 0
+    },
+    {
+      "file": "ios-scrollbar/services-3-after.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 2330640,
+      "ratio": 0
+    },
+    {
+      "file": "scrollbar/chromium-dark-scrollbar-strip.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 14400,
+      "ratio": 0
+    },
+    {
+      "file": "scrollbar/chromium-light-scrollbar-strip.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 14400,
+      "ratio": 0
+    },
+    {
+      "file": "scrollbar/firefox-dark-scrollbar-strip.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 14400,
+      "ratio": 0
+    },
+    {
+      "file": "scrollbar/firefox-light-scrollbar-strip.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 14400,
+      "ratio": 0
+    },
+    {
+      "file": "scrollbar/webkit-dark-scrollbar-strip.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 14400,
+      "ratio": 0
+    },
+    {
+      "file": "scrollbar/webkit-light-scrollbar-strip.png",
+      "status": "ok",
+      "diffPixels": 0,
+      "totalPixels": 14400,
+      "ratio": 0
+    }
+  ]
+}
