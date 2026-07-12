@@ -24,11 +24,13 @@ type MediaFile = {
 };
 
 function MediaPage() {
+  const { can, guard, buttonProps } = useAdminPageGuard();
   const [files, setFiles] = useState<MediaFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [q, setQ] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
+
 
   async function load() {
     setLoading(true);
