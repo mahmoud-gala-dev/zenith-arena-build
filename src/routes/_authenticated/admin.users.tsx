@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Loader2, Search, ShieldCheck } from "lucide-react";
+import { Check, Loader2, Search, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { AdminShell } from "@/components/admin/AdminShell";
@@ -14,33 +14,46 @@ export const Route = createFileRoute("/_authenticated/admin/users")({
   component: AdminUsersPage,
 });
 
+
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Role = Database["public"]["Enums"]["app_role"];
 type UserRole = Database["public"]["Tables"]["user_roles"]["Row"];
+type Permission = Database["public"]["Tables"]["permissions"]["Row"];
+type RolePermission = Database["public"]["Tables"]["role_permissions"]["Row"];
 
 const roles: Role[] = ["super_admin", "admin", "editor", "content_manager", "sales_viewer"];
 
 function AdminUsersPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [userRoles, setUserRoles] = useState<UserRole[]>([]);
+  const [permissions, setPermissions] = useState<Permission[]>([]);
+  const [rolePerms, setRolePerms] = useState<RolePermission[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [savingId, setSavingId] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
-    const [profilesResult, rolesResult] = await Promise.all([
+    const [profilesResult, rolesResult, permsResult, rpResult] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("user_roles").select("*"),
+      supabase.from("permissions").select("*").order("key"),
+      supabase.from("role_permissions").select("*"),
     ]);
     if (profilesResult.error) toast.error(profilesResult.error.message);
     if (rolesResult.error) toast.error(rolesResult.error.message);
     setProfiles((profilesResult.data ?? []) as Profile[]);
     setUserRoles((rolesResult.data ?? []) as UserRole[]);
+    setPermissions((permsResult.data ?? []) as Permission[]);
+    setRolePerms((rpResult.data ?? []) as RolePermission[]);
     setLoading(false);
   }
 
   useEffect(() => { load(); }, []);
+
+  const hasPerm = (role: Role, permId: string) =>
+    rolePerms.some((rp) => rp.role === role && rp.permission_id === permId);
+
 
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -87,10 +100,43 @@ function AdminUsersPage() {
           </div>
         </div>
 
+        <div className="rounded-xl border border-border bg-card shadow-soft">
+          <div className="flex items-center justify-between border-b border-border px-5 py-3">
+            <h2 className="font-semibold text-foreground">Role permissions matrix</h2>
+            <span className="text-xs text-muted-foreground">{permissions.length} permissions × {roles.length} roles</span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-secondary/40 text-left text-xs uppercase text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-2">Permission</th>
+                  {roles.map((r) => <th key={r} className="px-3 py-2 text-center">{r.replaceAll("_", " ")}</th>)}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {permissions.map((p) => (
+                  <tr key={p.id}>
+                    <td className="px-4 py-2">
+                      <p className="font-medium text-foreground">{p.label}</p>
+                      <p className="text-xs text-muted-foreground">{p.description}</p>
+                    </td>
+                    {roles.map((r) => (
+                      <td key={r} className="px-3 py-2 text-center">
+                        {hasPerm(r, p.id) ? <Check className="mx-auto h-4 w-4 text-emerald-600" /> : <span className="text-muted-foreground/40">—</span>}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search users…" className="pl-9" />
         </div>
+
 
         <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-soft">
           <table className="w-full text-sm">
