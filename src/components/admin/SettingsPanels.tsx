@@ -23,9 +23,10 @@ import {
 async function saveSetting(key: string, value: unknown) {
   const { error } = await supabase
     .from("settings")
-    .upsert({ key, value, is_public: true }, { onConflict: "key" });
+    .upsert({ key, value: value as never, is_public: true }, { onConflict: "key" });
   if (error) throw error;
 }
+
 
 export function ContactInfoPanel() {
   const initial = useContactInfo();
