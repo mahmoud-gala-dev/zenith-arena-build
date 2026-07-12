@@ -218,17 +218,10 @@ export function AdminShell({ children, title }: { children: React.ReactNode; tit
           ) : canView ? (
             children
           ) : (
-            <div className="mx-auto flex max-w-md flex-col items-center gap-3 rounded-xl border border-border bg-card p-8 text-center shadow-soft">
-              <h2 className="text-xl font-bold">Access denied — لا تملك الصلاحية</h2>
-              <p className="text-sm text-muted-foreground">
-                Your role doesn't include the <code className="rounded bg-muted px-1">{requiredForPage}</code> permission required for this page.
-                <br />
-                لا يحتوي دورك على الصلاحية اللازمة للوصول إلى هذه الصفحة.
-              </p>
-              <Link to="/admin" className="text-sm text-primary underline">← Back to overview</Link>
-            </div>
+            <AccessDeniedPanel perm={requiredForPage} />
           )}
         </div>
+
       </main>
     </div>
   );
