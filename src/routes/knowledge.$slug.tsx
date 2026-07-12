@@ -162,7 +162,23 @@ function ArticleDetail() {
   const title = ar ? post.title_ar : post.title_en;
   const excerpt = ar ? post.excerpt_ar : post.excerpt_en;
   const content = ar ? post.content_ar : post.content_en;
-  const paragraphs = (content || "").split(/\n\n+/).filter(Boolean);
+
+  // Parse content into blocks: `## Heading` → h2 with id, otherwise paragraph.
+  const slugify = (s: string) =>
+    s.toLowerCase().trim().replace(/[^\p{L}\p{N}\s-]/gu, "").replace(/\s+/g, "-").slice(0, 80);
+  const blocks = (content || "")
+    .split(/\n\n+/)
+    .map((b) => b.trim())
+    .filter(Boolean)
+    .map((b, i) => {
+      const m = /^##\s+(.+)$/.exec(b);
+      if (m) {
+        const text = m[1].trim();
+        return { kind: "h2" as const, id: `${slugify(text)}-${i}`, text };
+      }
+      return { kind: "p" as const, id: `p-${i}`, text: b };
+    });
+  const toc = blocks.filter((b) => b.kind === "h2") as Array<{ id: string; text: string }>;
 
   return (
     <SiteLayout>
@@ -172,7 +188,7 @@ function ArticleDetail() {
             <img src={post.featured_image} alt={title} className="absolute inset-0 h-full w-full object-cover opacity-30" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/40" />
-          <div className="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
             <Breadcrumbs items={[{ label: t.nav.knowledge, to: "/knowledge" }, { label: title }]} />
             <Link to="/knowledge" className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white">
               <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
@@ -190,26 +206,67 @@ function ArticleDetail() {
         </section>
 
         <section className="py-14">
-          <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-            {excerpt && <p className="text-lg font-medium leading-relaxed text-foreground">{excerpt}</p>}
-            <div className="mt-6 space-y-6">
-              {paragraphs.map((p: string, i: number) => (
-                <p key={i} className="leading-relaxed text-muted-foreground whitespace-pre-line">{p}</p>
-              ))}
-            </div>
-            <div className="mt-10 border-t border-border pt-6">
-              <ShareButtons title={title} path={`/knowledge/${post.slug_en}`} />
-            </div>
-            <div className="mt-12 rounded-2xl bg-hero px-8 py-10 text-center">
-              <h3 className="text-xl font-bold text-white">{t.sections.ctaTitle}</h3>
-              <p className="mx-auto mt-2 max-w-md text-white/70">{t.sections.ctaSub}</p>
-              <Button asChild variant="gold" className="mt-6">
-                <Link to="/contact">{t.cta.getConsultation}</Link>
-              </Button>
+          <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-[240px_1fr] lg:px-8">
+            {/* Table of Contents */}
+            {toc.length > 0 && (
+              <aside className="lg:sticky lg:top-24 lg:h-fit">
+                <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    {ar ? "قائمة المحتوى" : "Table of Contents"}
+                  </p>
+                  <nav aria-label={ar ? "قائمة المحتوى" : "Table of contents"}>
+                    <ol className="space-y-2 text-sm">
+                      {toc.map((h, i) => (
+                        <li key={h.id}>
+                          <a
+                            href={`#${h.id}`}
+                            className="flex gap-2 text-muted-foreground transition hover:text-primary"
+                          >
+                            <span className="text-primary/60">{i + 1}.</span>
+                            <span className="line-clamp-2">{h.text}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ol>
+                  </nav>
+                </div>
+              </aside>
+            )}
+
+            <div className={toc.length > 0 ? "min-w-0" : "min-w-0 lg:col-span-2"}>
+              {excerpt && <p className="text-lg font-medium leading-relaxed text-foreground">{excerpt}</p>}
+              <div className="mt-6 space-y-6">
+                {blocks.map((b) =>
+                  b.kind === "h2" ? (
+                    <h2
+                      key={b.id}
+                      id={b.id}
+                      className="scroll-mt-24 pt-2 text-2xl font-bold text-foreground"
+                    >
+                      {b.text}
+                    </h2>
+                  ) : (
+                    <p key={b.id} className="leading-relaxed text-muted-foreground whitespace-pre-line">
+                      {b.text}
+                    </p>
+                  ),
+                )}
+              </div>
+              <div className="mt-10 border-t border-border pt-6">
+                <ShareButtons title={title} path={`/knowledge/${post.slug_en}`} />
+              </div>
+              <div className="mt-12 rounded-2xl bg-hero px-8 py-10 text-center">
+                <h3 className="text-xl font-bold text-white">{t.sections.ctaTitle}</h3>
+                <p className="mx-auto mt-2 max-w-md text-white/70">{t.sections.ctaSub}</p>
+                <Button asChild variant="gold" className="mt-6">
+                  <Link to="/contact">{t.cta.getConsultation}</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </section>
       </article>
+
 
       {post.featured_image && (
         <GallerySection image={post.featured_image} title={title} source="knowledge" />
