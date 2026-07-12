@@ -269,7 +269,7 @@ function QuotePage() {
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="q-message">{tx.message}</Label>
-                  <Textarea id="q-message" name="message" rows={5} maxLength={2000} />
+                  <Textarea id="q-message" name="message" rows={5} maxLength={2000} value={messageVal} onChange={(e) => setMessageVal(e.target.value)} />
                 </div>
                 <div className="space-y-3 sm:col-span-2">
                   <Label>{tx.contactMethod}</Label>
@@ -282,10 +282,28 @@ function QuotePage() {
                     ))}
                   </RadioGroup>
                 </div>
-                <div className="sm:col-span-2">
-                  <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
+                <div className="sm:col-span-2 flex flex-col gap-3 sm:flex-row">
+                  <Button type="submit" variant="hero" size="lg" className="flex-1" disabled={submitting}>
                     {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : tx.submit}
                   </Button>
+                  <WhatsAppSendButton
+                    variant="solid"
+                    className="sm:w-auto"
+                    label={ar ? "إرسال عبر واتساب" : "Send via WhatsApp"}
+                    source="quote_page"
+                    fields={{
+                      name: nameVal,
+                      email: emailVal,
+                      phone: phoneVal,
+                      message: messageVal,
+                      service:
+                        dbServices?.find((s) => s.slug_en === serviceValue)
+                          ? (ar
+                              ? dbServices.find((s) => s.slug_en === serviceValue)!.title_ar ?? dbServices.find((s) => s.slug_en === serviceValue)!.title_en
+                              : dbServices.find((s) => s.slug_en === serviceValue)!.title_en)
+                          : null,
+                    }}
+                  />
                 </div>
               </form>
             )}
