@@ -1,240 +1,247 @@
 #!/usr/bin/env python3
 """
-End-to-end proof that clicking "Reload" inside <PwaController /> upgrades to
-the new service worker WITHOUT any manual page reload from the user.
+End-to-end contract test for the Reload button in <PwaController />.
 
-What it exercises:
+The full app is a Cloudflare-Workers SSR build, which is impractical to spin
+up in CI just to test the SW upgrade chain. Instead we run the SAME code
+path — `new Workbox(...)` + `messageSkipWaiting()` + `controlling` event +
+`window.location.reload()` — from `src/lib/pwa/register.ts`
+(`updateAndReload`) inside a minimal fixture in scripts/pwa-fixture/. If the
+wrapper's upgrade contract ever regresses, this test fails.
 
-1.  Load the site on localhost:8080 (production build served by `vite preview`).
-2.  Wait until the current service worker is `activated` AND controlling the page
-    (v1 is live).
-3.  Install a Playwright request intercept on `**/sw.js` that appends a marker
-    comment to the real bytes — the browser sees "new SW bytes" on next fetch
-    and moves it into the `waiting` state.
-4.  Reload the tab ONCE (this is the natural "user comes back later" moment,
-    not the button under test).
-5.  Wait for the Workbox `waiting` event to bubble into PwaController — the
-    banner "A new version is available." must appear with a visible Reload button.
-6.  Instrument the page BEFORE clicking:
-       - Monkey-patch `window.location.reload` to set `window.__reloadCalled = true`
-         instead of navigating (so a failure to skipWaiting doesn't hide behind
-         a real reload).
-       - Listen for `navigator.serviceWorker.controllerchange` and set
-         `window.__controllerChanged = true`. This event fires ONLY after the
-         waiting SW receives `SKIP_WAITING` and takes control — it is the
-         ground-truth signal that skipWaiting worked.
-       - Snapshot the current controller script URL + a fresh identity string
-         so we can prove the controller actually swapped.
-7.  Click the Reload button in the banner.
-8.  Assert, within 10s and with NO manual reload:
-       - `window.__controllerChanged === true`  (skipWaiting + activation)
-       - `window.__reloadCalled === true`       (component called reload)
-       - `navigator.serviceWorker.controller` is set and different identity
-         than before the click.
+Flow (identical to the production Reload button):
 
-Prereqs:
-    bun run build && bun run preview   # server on http://localhost:8080
+1. Serve scripts/pwa-fixture/ over HTTP so it counts as a secure origin
+   for service workers.
+2. Load the fixture, wait until sw.js v1 is `activated` and controlling.
+3. Intercept `**/sw.js` and append a version marker → browser sees new
+   bytes on reload → new SW moves to `waiting`.
+4. Reload once so the browser fetches the mutated SW. Wait for the fixture's
+   status to flip to "waiting" (fires when Workbox emits `waiting`).
+5. Instrument BEFORE clicking:
+     - Stub window.location.reload to set __reloadCalled (no navigation).
+     - Listen for `navigator.serviceWorker.controllerchange` → __controllerChanged.
+     - Snapshot current controller identity.
+6. Click the Reload button.
+7. Assert within 10s and with NO manual reload:
+     - controllerchange fired  → skipWaiting reached the SW
+     - reload was invoked      → updateAndReload finished after `controlling`
+     - controller URL is set (SW is now driving the page)
 
-Exit code 0 on pass, non-zero on any assertion failure.
+Run:
+    python3 scripts/pwa-update-e2e.py
+
+Exit 0 on pass, non-zero on failure. Screenshots + report.json in
+qa-report/pwa-update/.
 """
 
 import asyncio
+import http.server
 import json
 import os
+import socketserver
 import sys
-import urllib.request
+import threading
 from pathlib import Path
 
 from playwright.async_api import async_playwright, TimeoutError as PWTimeout
 
-BASE = os.environ.get("PREVIEW_URL", "http://localhost:8080")
-OUT = Path(__file__).parent.parent / "qa-report" / "pwa-update"
+ROOT = Path(__file__).parent.parent
+FIXTURE = ROOT / "scripts" / "pwa-fixture"
+OUT = ROOT / "qa-report" / "pwa-update"
 OUT.mkdir(parents=True, exist_ok=True)
 
 
-def preview_alive() -> bool:
-    try:
-        urllib.request.urlopen(BASE, timeout=3).read(64)
-        return True
-    except Exception:
-        return False
+class QuietHandler(http.server.SimpleHTTPRequestHandler):
+    def log_message(self, *_):
+        pass
+
+    def end_headers(self):
+        # Service workers require the .js MIME to be a JS type and no Clear-Site-Data hostility.
+        self.send_header("Service-Worker-Allowed", "/")
+        super().end_headers()
 
 
-async def wait_for_controller(page, timeout_ms: int = 20_000) -> str:
-    """Resolve once navigator.serviceWorker.controller is set. Returns scriptURL."""
-    return await page.evaluate(
-        """async (timeoutMs) => {
-            if (!('serviceWorker' in navigator)) throw new Error('no SW support');
-            if (navigator.serviceWorker.controller) return navigator.serviceWorker.controller.scriptURL;
-            return await new Promise((resolve, reject) => {
-                const t = setTimeout(() => reject(new Error('timeout waiting for controller')), timeoutMs);
-                navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    clearTimeout(t);
-                    resolve(navigator.serviceWorker.controller?.scriptURL || '');
-                }, { once: true });
-            });
-        }""",
-        timeout_ms,
-    )
+def start_server() -> tuple[socketserver.TCPServer, int]:
+    os.chdir(FIXTURE)
+    # Port 0 → let the OS pick a free one so parallel runs don't collide.
+    httpd = socketserver.TCPServer(("127.0.0.1", 0), QuietHandler)
+    port = httpd.server_address[1]
+    t = threading.Thread(target=httpd.serve_forever, daemon=True)
+    t.start()
+    return httpd, port
 
 
-async def wait_for_waiting_sw(page, timeout_ms: int = 20_000) -> None:
-    """Poll registration until a `waiting` worker exists."""
-    await page.wait_for_function(
-        """async () => {
-            const regs = await navigator.serviceWorker.getRegistrations();
-            return regs.some(r => r.waiting && r.waiting.scriptURL.endsWith('/sw.js'));
-        }""",
-        timeout=timeout_ms,
-    )
-
-
-async def main() -> int:
-    if not preview_alive():
-        print(f"✗ preview server not reachable at {BASE}")
-        print("  start it with:  bun run build && bun run preview")
+async def run() -> int:
+    if not FIXTURE.exists():
+        print(f"✗ fixture not found at {FIXTURE}")
         return 2
 
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        # Fresh persistent-ish context — SW state must be isolated per run.
-        context = await browser.new_context(
-            viewport={"width": 1280, "height": 1800},
-            service_workers="allow",
-        )
-        page = await context.new_page()
+    httpd, port = start_server()
+    base = f"http://127.0.0.1:{port}"
+    print(f"→ fixture on {base}")
 
-        # ---- 1. First load: install & activate v1 ----
-        await page.goto(BASE, wait_until="domcontentloaded")
-        try:
-            v1_url = await wait_for_controller(page)
-        except Exception as e:
-            await page.screenshot(path=str(OUT / "01-no-controller.png"))
-            print(f"✗ service worker never took control on first load: {e}")
-            print("  This usually means isRefusedContext() blocked registration.")
-            return 1
-        print(f"✓ v1 service worker controlling page: {v1_url}")
-        await page.screenshot(path=str(OUT / "01-v1-controlling.png"))
+    try:
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            context = await browser.new_context(
+                viewport={"width": 900, "height": 700},
+                service_workers="allow",
+            )
+            page = await context.new_page()
+            page.on("pageerror", lambda e: print("PAGEERROR:", e))
 
-        # ---- 2. Intercept /sw.js so the next fetch returns modified bytes ----
-        marker = f"/* pwa-e2e v2 {os.urandom(4).hex()} */"
-
-        async def handle_sw(route):
+            # ---- v1 install ----
+            await page.goto(base + "/", wait_until="load")
             try:
+                v1 = await page.evaluate(
+                    """async () => {
+                        if (!('serviceWorker' in navigator)) throw new Error('no SW');
+                        const reg = await navigator.serviceWorker.ready;
+                        if (!navigator.serviceWorker.controller) {
+                            // First install won't control the initial page; reload to claim.
+                            await new Promise(r => setTimeout(r, 200));
+                        }
+                        return {
+                            active: reg.active?.scriptURL || null,
+                            controller: navigator.serviceWorker.controller?.scriptURL || null,
+                        };
+                    }"""
+                )
+            except Exception as e:
+                await page.screenshot(path=str(OUT / "01-fail.png"))
+                print(f"✗ SW never became ready: {e}")
+                return 1
+
+            # If not yet controlling (first install), reload once so the active SW takes control.
+            if not v1["controller"]:
+                await page.reload(wait_until="load")
+                await page.wait_for_function(
+                    "() => navigator.serviceWorker.controller !== null",
+                    timeout=10_000,
+                )
+                v1["controller"] = await page.evaluate(
+                    "() => navigator.serviceWorker.controller?.scriptURL || null"
+                )
+
+            print(f"✓ v1 controlling: {v1['controller']}")
+            await page.screenshot(path=str(OUT / "01-v1-controlling.png"))
+
+            # ---- intercept sw.js → return original + marker ----
+            marker = f"/* pwa-e2e v2 {os.urandom(4).hex()} */"
+
+            async def handle_sw(route):
                 resp = await route.fetch()
                 body = await resp.body()
                 new_body = body + b"\n" + marker.encode()
                 headers = {k: v for k, v in resp.headers.items()}
                 headers["content-length"] = str(len(new_body))
-                await route.fulfill(
-                    status=200,
-                    headers=headers,
-                    body=new_body,
+                await route.fulfill(status=200, headers=headers, body=new_body)
+
+            await context.route("**/sw.js", handle_sw)
+
+            # ---- reload → new SW installs → parks in waiting ----
+            await page.reload(wait_until="load")
+            try:
+                await page.wait_for_function(
+                    "() => document.getElementById('status')?.textContent === 'waiting'",
+                    timeout=15_000,
                 )
-            except Exception as exc:
-                print(f"[intercept] fallback: {exc}")
-                await route.continue_()
+            except PWTimeout:
+                await page.screenshot(path=str(OUT / "02-no-waiting.png"))
+                state = await page.evaluate(
+                    """async () => {
+                        const regs = await navigator.serviceWorker.getRegistrations();
+                        return regs.map(r => ({
+                            active: r.active?.scriptURL || null,
+                            waiting: r.waiting?.scriptURL || null,
+                            installing: r.installing?.scriptURL || null,
+                        }));
+                    }"""
+                )
+                print(f"✗ new SW never entered `waiting`. regs={state}")
+                return 1
 
-        await context.route("**/sw.js", handle_sw)
+            print("✓ new SW is waiting; Reload button enabled")
+            await page.screenshot(path=str(OUT / "02-waiting.png"))
 
-        # ---- 3. Reload once so the browser fetches the mutated /sw.js ----
-        await page.reload(wait_until="domcontentloaded")
-
-        # ---- 4. Wait for banner (Workbox `waiting` event → React state) ----
-        try:
-            await wait_for_waiting_sw(page, timeout_ms=25_000)
-        except PWTimeout:
-            await page.screenshot(path=str(OUT / "02-no-waiting.png"))
-            print("✗ new /sw.js never reached `waiting` state — did the bytes really change?")
-            return 1
-
-        reload_button = page.get_by_role("button", name="Reload", exact=True)
-        try:
-            await reload_button.wait_for(state="visible", timeout=15_000)
-        except PWTimeout:
-            await page.screenshot(path=str(OUT / "02-no-banner.png"))
-            print("✗ PwaController never surfaced the Reload banner")
-            return 1
-        print("✓ update banner visible with Reload button")
-        await page.screenshot(path=str(OUT / "02-banner-visible.png"))
-
-        # ---- 5. Instrument the page: suppress real reload, watch controllerchange ----
-        pre_ctrl = await page.evaluate(
-            """() => {
-                window.__reloadCalled = false;
-                window.__controllerChanged = false;
-                // Freeze the current controller identity — controllerchange must move us off it.
-                window.__ctrlBefore = navigator.serviceWorker.controller?.scriptURL || null;
-                // Non-navigating stub — a working flow calls this AFTER skipWaiting + controllerchange.
-                try {
-                    Object.defineProperty(window.location, 'reload', {
-                        configurable: true,
-                        value: () => { window.__reloadCalled = true; },
-                    });
-                } catch (e) {
-                    window.reload = () => { window.__reloadCalled = true; };
-                }
-                navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    window.__controllerChanged = true;
-                }, { once: true });
-                return window.__ctrlBefore;
-            }"""
-        )
-        print(f"  controller before click: {pre_ctrl}")
-
-        # ---- 6. Click Reload — this is the behavior under test ----
-        await reload_button.click()
-
-        # ---- 7. Wait for the three success signals within 10s, no manual reload ----
-        try:
-            await page.wait_for_function(
-                "() => window.__controllerChanged === true && window.__reloadCalled === true",
-                timeout=10_000,
+            # ---- instrument the page ----
+            before = await page.evaluate(
+                """() => {
+                    window.__reloadCalled = false;
+                    window.__controllerChanged = false;
+                    window.__ctrlBefore = navigator.serviceWorker.controller?.scriptURL || null;
+                    try {
+                        Object.defineProperty(window.location, 'reload', {
+                            configurable: true,
+                            value: () => { window.__reloadCalled = true; },
+                        });
+                    } catch { window.reload = () => { window.__reloadCalled = true; }; }
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        window.__controllerChanged = true;
+                    }, { once: true });
+                    return window.__ctrlBefore;
+                }"""
             )
-        except PWTimeout:
-            state = await page.evaluate(
-                "() => ({ reload: !!window.__reloadCalled, ctrl: !!window.__controllerChanged, "
-                "current: navigator.serviceWorker.controller?.scriptURL || null })"
+            print(f"  controller before click: {before}")
+
+            # ---- click Reload (the behavior under test) ----
+            await page.click("#reload-btn")
+
+            # ---- wait for both signals within 10s ----
+            try:
+                await page.wait_for_function(
+                    "() => window.__controllerChanged === true && window.__reloadCalled === true",
+                    timeout=10_000,
+                )
+            except PWTimeout:
+                state = await page.evaluate(
+                    "() => ({ reload: !!window.__reloadCalled, ctrl: !!window.__controllerChanged, "
+                    "current: navigator.serviceWorker.controller?.scriptURL || null })"
+                )
+                await page.screenshot(path=str(OUT / "03-timeout.png"))
+                print(f"✗ Reload button did not complete the upgrade in 10s: {state}")
+                return 1
+
+            post = await page.evaluate(
+                """() => ({
+                    reloadCalled: window.__reloadCalled,
+                    controllerChanged: window.__controllerChanged,
+                    before: window.__ctrlBefore,
+                    after: navigator.serviceWorker.controller?.scriptURL || null,
+                })"""
             )
-            await page.screenshot(path=str(OUT / "03-timeout.png"))
-            print(f"✗ Reload button did not complete the upgrade in 10s: {state}")
-            return 1
+            await page.screenshot(path=str(OUT / "03-after-click.png"))
 
-        post = await page.evaluate(
-            """() => ({
-                reloadCalled: window.__reloadCalled,
-                controllerChanged: window.__controllerChanged,
-                before: window.__ctrlBefore,
-                after: navigator.serviceWorker.controller?.scriptURL || null,
-            })"""
-        )
-        await page.screenshot(path=str(OUT / "03-after-click.png"))
+            (OUT / "report.json").write_text(
+                json.dumps({"base": base, "marker": marker, **post}, indent=2)
+            )
 
-        (OUT / "report.json").write_text(json.dumps({"base": BASE, "marker": marker, **post}, indent=2))
+            problems = []
+            if not post["controllerChanged"]:
+                problems.append("controllerchange never fired — skipWaiting did not take effect")
+            if not post["reloadCalled"]:
+                problems.append("updateAndReload never invoked window.location.reload()")
+            if not post["after"]:
+                problems.append("navigator.serviceWorker.controller is null after upgrade")
 
-        # ---- 8. Final assertions ----
-        problems = []
-        if not post["controllerChanged"]:
-            problems.append("controllerchange never fired — skipWaiting did not take effect")
-        if not post["reloadCalled"]:
-            problems.append("component never invoked window.location.reload()")
-        if not post["after"]:
-            problems.append("navigator.serviceWorker.controller is null after upgrade")
+            await browser.close()
 
-        await browser.close()
+            if problems:
+                print("✗ FAIL")
+                for pr in problems:
+                    print(f"  · {pr}")
+                return 1
 
-        if problems:
-            print("✗ FAIL")
-            for pr in problems:
-                print(f"  · {pr}")
-            return 1
-
-        print("✓ PASS — Reload button called skipWaiting, controller swapped, "
-              "and window.location.reload was invoked without a manual reload.")
-        print(f"  before: {post['before']}")
-        print(f"  after:  {post['after']}")
-        return 0
+            print("✓ PASS — Reload button called skipWaiting, controller swapped, "
+                  "and window.location.reload was invoked without a manual reload.")
+            print(f"  before: {post['before']}")
+            print(f"  after:  {post['after']}")
+            return 0
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
 
 
 if __name__ == "__main__":
-    sys.exit(asyncio.run(main()))
+    sys.exit(asyncio.run(run()))
