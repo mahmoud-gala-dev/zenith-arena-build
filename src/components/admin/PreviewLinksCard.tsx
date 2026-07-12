@@ -344,7 +344,17 @@ export function PreviewLinksCard({
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className={`rounded px-2 py-0.5 text-xs font-medium ${st.className}`}>{st.label}</span>
                       <span className="font-medium">{t.label || "Untitled link"}</span>
-                      <span className="text-xs text-muted-foreground">
+                      <span
+                        className={`rounded px-2 py-0.5 text-xs font-medium ${
+                          t.version_id
+                            ? "bg-indigo-500/15 text-indigo-700"
+                            : "bg-sky-500/15 text-sky-700"
+                        }`}
+                        title={t.version_id ? "Pinned to a saved version" : "Follows the current draft"}
+                      >
+                        {t.version_id ? `Pinned ${versionLabel(t.version_id)}` : "Current draft"}
+                      </span>
+
                         by {t.created_by_email ?? "unknown"} · expires {new Date(t.expires_at).toLocaleString()} ·{" "}
                         {t.view_count} view{t.view_count === 1 ? "" : "s"}
                         {t.last_viewed_at ? ` · last ${new Date(t.last_viewed_at).toLocaleString()}` : ""}
