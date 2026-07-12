@@ -332,6 +332,7 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
                 rtl={lang === "ar"}
                 value={form[lang]}
                 onChange={(next) => setForm({ ...form, [lang]: next })}
+                slug={slug}
               />
               <LivePreview rtl={lang === "ar"} value={form[lang]} />
             </div>
