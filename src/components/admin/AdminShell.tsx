@@ -5,6 +5,7 @@ import { Bell } from "lucide-react";
 
 import {
   Award,
+  BarChart3,
   BookOpen,
   Building2,
   ClipboardList,
