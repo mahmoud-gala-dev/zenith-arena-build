@@ -67,7 +67,7 @@ function KnowledgePage() {
             <CardGridSkeleton count={6} />
           ) : posts.length === 0 ? (
 
-            <p className="text-center text-muted-foreground">{ar ? "لا توجد مقالات بعد." : "No articles yet."}</p>
+            <p className="text-center text-muted-foreground">{t.knowledgeList.empty}</p>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {posts.map((p, i) => (
