@@ -20,7 +20,9 @@ import {
   Plus, Pencil, Trash2, Loader2, Search, ExternalLink, Upload, X, Languages, Star, ImageIcon, Link2 as Link2Icon,
 } from "lucide-react";
 import { BlogCategoriesManager } from "@/components/admin/BlogCategoriesManager";
+import { TagsManager, slugifyTag, type Tag } from "@/components/admin/TagsManager";
 import { TranslationLinkPanel } from "@/components/admin/TranslationLinkPanel";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export const Route = createFileRoute("/_authenticated/admin/blog")({
   component: AdminBlogPage,
