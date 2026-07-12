@@ -385,39 +385,50 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                aria-label="Open menu"
-                className={cn(!scrolled && "text-white hover:bg-white/10 hover:text-white")}
+                aria-label={open ? (ar ? "إغلاق القائمة" : "Close menu") : (ar ? "فتح القائمة" : "Open menu")}
+                aria-expanded={open}
+                aria-controls="mobile-nav-sheet"
+                className={cn("min-h-11 min-w-11", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
               >
-                <Menu className="h-5 w-5" />
+                <Menu aria-hidden="true" className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side={ar ? "left" : "right"} className="w-80 p-0">
-              <SheetTitle className="sr-only">Menu</SheetTitle>
+            <SheetContent
+              id="mobile-nav-sheet"
+              side={ar ? "left" : "right"}
+              className="w-80 p-0"
+              dir={ar ? "rtl" : "ltr"}
+            >
+              <SheetTitle className="sr-only">{ar ? "قائمة التنقل" : "Navigation menu"}</SheetTitle>
               <div className="flex h-full flex-col">
                 <div className="border-b border-border p-6">
                   <Logo />
                 </div>
-                <nav className="flex-1 overflow-y-auto p-4">
-                  <div className="flex flex-col gap-1">
+                <nav
+                  aria-label={ar ? "قائمة الموبايل" : "Mobile"}
+                  className="flex-1 overflow-y-auto p-4"
+                >
+                  <ul className="flex flex-col gap-1">
                     {links.map((l) => (
-                      <Link
-                        key={l.to}
-                        to={l.to}
-                        onClick={() => setOpen(false)}
-                        className="rounded-lg px-4 py-3 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-primary"
-                        activeProps={{ className: "bg-accent text-primary" }}
-                        activeOptions={{ exact: l.to === "/" }}
-                      >
-                        {l.label}
-                      </Link>
+                      <li key={l.to}>
+                        <Link
+                          to={l.to}
+                          onClick={() => setOpen(false)}
+                          className="block min-h-11 rounded-lg px-4 py-3 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)]"
+                          activeProps={{ className: "bg-accent text-primary", "aria-current": "page" }}
+                          activeOptions={{ exact: l.to === "/" }}
+                        >
+                          {l.label}
+                        </Link>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </nav>
                 <div className="border-t border-border p-4 space-y-3">
                   <Button
                     type="button"
                     variant="hero"
-                    className="w-full rounded-full"
+                    className="min-h-11 w-full rounded-full"
                     onClick={() => {
                       trackEvent({ name: "header_cta_click", surface: "mobile", action: "open_dialog" });
                       setOpen(false);
@@ -431,9 +442,10 @@ export function Header() {
                       <a
                         href={`tel:${contact.phone}`}
                         onClick={() => trackEvent({ name: "header_phone_click", surface: "mobile", phone: contact.phone })}
-                        className="flex items-center justify-center gap-2 rounded-full border border-border px-3 py-2 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary"
+                        aria-label={ar ? `اتصل: ${contact.phone}` : `Call ${contact.phone}`}
+                        className="flex min-h-11 items-center justify-center gap-2 rounded-full border border-border px-3 py-2 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                       >
-                        <Phone className="h-4 w-4" />
+                        <Phone aria-hidden="true" className="h-4 w-4" />
                         <span dir="ltr">{ar ? "اتصل" : "Call"}</span>
                       </a>
                     )}
@@ -443,9 +455,10 @@ export function Header() {
                         target="_blank"
                         rel="noreferrer noopener"
                         onClick={() => trackEvent({ name: "header_whatsapp_click", surface: "mobile", number: wa })}
-                        className="flex items-center justify-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300"
+                        aria-label={`WhatsApp ${ar ? "(يفتح في نافذة جديدة)" : "(opens in new tab)"}`}
+                        className="flex min-h-11 items-center justify-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:text-emerald-300"
                       >
-                        <MessageCircle className="h-4 w-4" />
+                        <MessageCircle aria-hidden="true" className="h-4 w-4" />
                         WhatsApp
                       </a>
                     )}
