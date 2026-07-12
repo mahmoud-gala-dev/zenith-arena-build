@@ -50,7 +50,7 @@ export const Route = createFileRoute("/downloads")({
 
 function DownloadsPage() {
   useEffect(() => { trackDownloadEvent("view_index"); }, []);
-  const { lang } = useLang();
+  const { lang, t: T } = useLang();
   const ar = lang === "ar";
   const { q, cat } = Route.useSearch();
   const navigate = useNavigate({ from: "/downloads" });
