@@ -1,100 +1,54 @@
-# Complete Dynamic Content Wiring Plan
+# Phase 7 — Zero Static Data (Final)
 
-Comprehensive plan to eliminate every hardcoded content block identified in the audit and connect the entire frontend to Supabase + Admin panel.
+نطاق شامل من 4 حزم يُنفَّذ بالترتيب. كل حزمة قائمة بذاتها ويمكن مراجعتها قبل الانتقال للتالية.
 
-## Phase 1 — Critical Fix (immediate)
-**`/projects/$slug` reads from static data → 404 for admin-created projects**
-- Refactor `src/routes/projects.$slug.tsx` to fetch from `projects` table via `queryOptions` (lookup by `slug_en`/`slug_ar` in current locale).
-- Keep `head()` SEO derived from loader data.
-- Add owner-side query helper in `src/lib/queries.ts` (`projectBySlugQueryOptions`).
-- Static `site-data.ts` projects deprecated as fallback only.
+## Batch A — About page dynamic (DB + Admin + Route)
 
-## Phase 2 — Wire Public Pages to Existing Tables
-For each page: add `queryOptions` in `src/lib/queries.ts`, use `ensureQueryData` in loader, `useSuspenseQuery` in component, map DB row → view model, preserve current UI/design.
+**Migration** `about_content` (single-row keyed content):
+- عمود واحد `key` (unique) + `value jsonb` — يخزّن: hero image url, story_en/ar, mission_en/ar, values[] (icon + title_en/ar + desc_en/ar), stats[] (key, value, label_en/ar).
+- Public SELECT (anon+authenticated), staff write via `is_staff()`.
+- Audit trigger.
 
-| Page | Table | Notes |
-|---|---|---|
-| `/gallery` | `gallery` | Filter chips derived from distinct categories in DB |
-| `/clients` | `clients` + `testimonials` | Two parallel queries |
-| `/downloads` | `downloads` | Signed URLs from storage if private |
-| `/certificates` | `certificates` | Sort by `sort_order` |
-| `/products` + `/products/$slug` | `products` + `product_categories` | Same pattern as projects |
-| Home (projects/articles/testimonials sections) | `projects`, `blog_posts`, `testimonials` | Limit 3–6 featured rows |
+**Admin**: `src/routes/_authenticated/admin.about.tsx` — form ثنائي اللغة مع رفع صورة hero عبر `StrictImageUrlField`، محرر لـ values/stats (add/remove/reorder).
 
-## Phase 3 — Centralize Contact & Social in `settings`
-- Seed `settings` rows: `contact_info` (email, offices[]), `social_links` (linkedin, instagram, facebook, x, youtube, whatsapp), `brand_name`.
-- Build `src/lib/settings.ts` with `useSettings(key)` hook + server-safe `getSetting()`.
-- Refactor `Footer.tsx`, `contact.tsx`, `WhatsAppButton.tsx`, root Organization JSON-LD (`sameAs`) to consume settings.
-- Extend `src/routes/_authenticated/admin.settings.tsx` with dedicated tabs: **Contact Info**, **Social Links** (typed form, not raw JSON).
+**Frontend**: refactor `src/routes/about.tsx` ليقرأ من `aboutContentQueryOptions` بدل `aboutImg` و `heroStats`.
 
-## Phase 4 — New Tables + Admin + Frontend
+## Batch B — Legal pages dynamic (/privacy, /terms)
 
-### 4a. FAQ
-- Table `faq_items` (question_en/ar, answer_en/ar, category, sort_order, is_published).
-- Admin page `/admin/faqs` (CRUD, drag-reorder, bilingual, category tabs).
-- Refactor `/faq` to load from DB; keep FAQPage JSON-LD.
+استخدام جدول `pages` الموجود بالفعل:
+- بذر صفّي `privacy` و `terms` (bilingual title/body HTML).
+- Refactor `src/routes/privacy.tsx` و `src/routes/terms.tsx` لقراءة `pageBySlugQueryOptions` من DB وعرض HTML عبر sanitized renderer.
+- Admin editor موجود في `admin.pages.tsx` — نتأكد أن CRUD يعمل مع rich text (bilingual).
 
-### 4b. Careers (Job Openings)
-- Table `job_openings` (title_en/ar, department, location, type, description_en/ar, requirements, is_open, sort_order).
-- Table `job_applications` (job_id, applicant_name, email, phone, cv_url, cover_letter, status).
-- Storage bucket `applications` (private) for CVs.
-- Admin: `/admin/careers` (jobs CRUD) + `/admin/applications` (inbox with status workflow).
-- Refactor `/careers` to load from DB. Apply button opens dialog → uploads CV → `submitApplication` server fn.
+## Batch C — Dynamic i18n
 
-### 4c. Newsletter
-- Table `newsletter_subscribers` (email unique, locale, subscribed_at, unsubscribed_at, source).
-- Server fn `subscribeNewsletter` (rate-limited, email validation, upsert).
-- Footer form wired to it with toast feedback.
-- Admin page `/admin/newsletter` (list, search, CSV export, unsubscribe).
+**Migration** `translations`:
+- `namespace text` + `key text` + `value_en text` + `value_ar text` + unique(namespace,key).
+- Public SELECT, staff write, audit trigger.
 
-## Phase 5 — Brand Cleanup
-- Grep all `apex`/`ApexSports` references → replace with `Egytic Sports` or read from `settings.brand_name`.
-- Rename `site-data.ts` static leftovers or gut it entirely once all pages migrated.
+**Bootstrap**: seed migration ينسخ كل نصوص `src/i18n/translations.ts` الحالية إلى الجدول (namespace = section: nav, hero, footer, cta, ...).
 
-## Technical Details
+**Runtime**: `src/i18n/LanguageProvider.tsx` يحمّل translations عبر server-safe query عند bootstrap (loader في `__root.tsx`) ويدمجها فوق fallback static (يبقى في-code كـ safety net فقط، لا يُستخدم إن نجح الفetch).
 
-**Data loading pattern (per project convention):**
-```ts
-// src/lib/queries.ts
-export const galleryQueryOptions = queryOptions({
-  queryKey: ['gallery'],
-  queryFn: async () => {
-    const { data, error } = await supabase
-      .from('gallery').select('*').eq('is_published', true)
-      .order('sort_order');
-    if (error) throw error; return data;
-  },
-  staleTime: 5 * 60_000,
-});
-```
+**Admin**: `src/routes/_authenticated/admin.translations.tsx` — جدول بحث/تصفية حسب namespace، edit inline لكل مفتاح (EN/AR)، زر "Add key".
 
-**Loader shape:**
-```ts
-loader: ({ context }) => context.queryClient.ensureQueryData(galleryQueryOptions)
-```
+## Batch D — حذف site-data.ts
 
-**Settings hook (real-time):**
-```ts
-export function useSetting<T>(key: string, fallback: T): T {
-  const { data } = useSuspenseQuery(settingQueryOptions(key));
-  return (data?.value as T) ?? fallback;
-}
-```
+- نقل الأنواع (`Project`, `Service`, `Article`, إلخ) إلى `src/lib/types.ts`.
+- تحديث كل imports في المشروع.
+- حذف `src/lib/site-data.ts` والأصول المرتبطة غير المستخدمة.
+- typecheck نظيف.
 
-**Migrations sequence:** run one migration per new table (faq_items, job_openings, job_applications, newsletter_subscribers) + one migration adding `contact_info`/`social_links`/`brand_name` rows to `settings`. All follow the mandatory `CREATE → GRANT → RLS → POLICY` pattern with audit-log triggers attached where applicable.
+## ترتيب التسليم
+1. Batch A (migration → admin → route) — رسالة واحدة.
+2. Batch B — رسالة واحدة.
+3. Batch C (migration + seed + provider + admin) — رسالتان (migration منفصلة عن الكود).
+4. Batch D (تنظيف نهائي) — رسالة واحدة.
 
-**RLS:**
-- `faq_items`, `job_openings` → public SELECT where `is_published`/`is_open`, staff write.
-- `job_applications`, `newsletter_subscribers` → no public SELECT; INSERT via server fn (service role); staff SELECT.
+## خارج النطاق
+- تغيير التصميم البصري.
+- ترجمة محتوى جديد لم يكن موجودًا مسبقًا (فقط نقل الحالي إلى DB).
+- تعديل الجداول الموجودة (services, products, ...) لأنها ديناميكية بالفعل.
 
-## Delivery Order
-1. Phase 1 (critical, ~1 message).
-2. Phase 2 (~2 messages, batched per page group).
-3. Phase 3 (~1 message).
-4. Phase 4a → 4b → 4c (~3 messages, one per feature).
-5. Phase 5 cleanup (~1 message).
-
-## Out of Scope
-- Redesign / visual changes (audit was structural).
-- Rewriting existing admin panels that already work.
-- Migration of static blog articles into `blog_posts` (already partially wired).
+## Confirm
+قل **"ابدأ Batch A"** لأبدأ التنفيذ، أو حدّد أي batch تريد تخطّيه.
