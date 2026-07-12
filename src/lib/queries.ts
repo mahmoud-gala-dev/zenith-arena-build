@@ -119,6 +119,68 @@ export const quotePageSettingsQueryOptions = queryOptions({
   staleTime: FIFTEEN_MIN,
 });
 
+export type CareersPerk = {
+  icon: string;
+  title_en: string;
+  title_ar: string;
+  desc_en: string;
+  desc_ar: string;
+};
+
+export type CareersPageLabels = {
+  eyebrow_en: string; eyebrow_ar: string;
+  title_en: string; title_ar: string;
+  sub_en: string; sub_ar: string;
+  why_title_en: string; why_title_ar: string;
+  open_title_en: string; open_title_ar: string;
+  no_jobs_title_en: string; no_jobs_title_ar: string;
+  no_jobs_sub_en: string; no_jobs_sub_ar: string;
+  send_cv_en: string; send_cv_ar: string;
+};
+
+export type CareersPageSettings = {
+  labels: CareersPageLabels;
+  perks: CareersPerk[];
+};
+
+const DEFAULT_CAREERS_PAGE: CareersPageSettings = {
+  labels: {
+    eyebrow_en: "Careers", eyebrow_ar: "الوظائف",
+    title_en: "Build your career with Egytic", title_ar: "ابنِ مسيرتك مع إيجيتك",
+    sub_en: "Join a team designing and delivering the finest sports facilities in the region.", sub_ar: "انضم إلى فريق يصمم وينفّذ أرقى المنشآت الرياضية في المنطقة.",
+    why_title_en: "Why Egytic", why_title_ar: "لماذا إيجيتك",
+    open_title_en: "Open positions", open_title_ar: "الوظائف المتاحة",
+    no_jobs_title_en: "Don't see the right role?", no_jobs_title_ar: "لا ترى وظيفتك المناسبة؟",
+    no_jobs_sub_en: "Send us your CV and we'll be in touch when a matching role opens.", no_jobs_sub_ar: "أرسل سيرتك الذاتية وسنتواصل معك عند توفر الفرصة المناسبة.",
+    send_cv_en: "Send your CV", send_cv_ar: "أرسل السيرة الذاتية",
+  },
+  perks: [
+    { icon: "TrendingUp", title_en: "Career growth", title_ar: "نمو مهني", desc_en: "Clear paths, mentorship and international project exposure.", desc_ar: "مسارات واضحة وتوجيه وتعرّض لمشاريع دولية." },
+    { icon: "Heart", title_en: "Great benefits", title_ar: "مزايا مميّزة", desc_en: "Competitive salary, healthcare, relocation and family support.", desc_ar: "راتب تنافسي ورعاية صحية ودعم انتقال وعائلة." },
+    { icon: "Users", title_en: "World-class team", title_ar: "فريق عالمي المستوى", desc_en: "Work alongside FIFA & World Athletics-certified engineers.", desc_ar: "اعمل بجانب مهندسين معتمدين من الفيفا والاتحاد الدولي." },
+    { icon: "Globe", title_en: "Iconic projects", title_ar: "مشاريع مميزة", desc_en: "Stadiums, Olympic tracks and landmark arenas across the region.", desc_ar: "استادات ومضامير أولمبية ومنشآت بارزة في المنطقة." },
+  ],
+};
+
+export const careersPageSettingsQueryOptions = queryOptions({
+  queryKey: ["settings", "careers_page"],
+  queryFn: async (): Promise<CareersPageSettings> => {
+    const { data, error } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "careers_page")
+      .maybeSingle();
+    if (error) throw error;
+    const v = (data?.value ?? {}) as Partial<CareersPageSettings>;
+    return {
+      labels: { ...DEFAULT_CAREERS_PAGE.labels, ...(v.labels ?? {}) },
+      perks: Array.isArray(v.perks) && v.perks.length ? v.perks : DEFAULT_CAREERS_PAGE.perks,
+    };
+  },
+  staleTime: FIFTEEN_MIN,
+});
+
+
 
 export type Gov = {
   id: string;
