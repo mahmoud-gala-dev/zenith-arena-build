@@ -468,6 +468,35 @@ function toForm(l: Lead): LeadFormState {
   };
 }
 
+const PHONE_RE = /^\+?[0-9\s\-().]{7,20}$/;
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const URL_RE = /^https?:\/\/[^\s]+$/i;
+
+const leadSchema = z.object({
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Max 100 characters"),
+  email: z.string().trim().email("Invalid email address").max(255, "Max 255 characters"),
+  phone: z.string().trim().max(20, "Max 20 characters")
+    .refine((v) => !v || PHONE_RE.test(v), "Use digits, spaces, +, -, () only (7–20 chars)"),
+  company: z.string().trim().max(150, "Max 150 characters"),
+  country: z.string().trim().max(80, "Max 80 characters"),
+  city: z.string().trim().max(80, "Max 80 characters"),
+  type: z.string(),
+  status: z.string(),
+  intent: z.string().trim().max(80, "Max 80 characters"),
+  source: z.string().trim().max(80, "Max 80 characters"),
+  service: z.string().trim().max(150, "Max 150 characters"),
+  budget_range: z.string().trim().max(80, "Max 80 characters"),
+  project_type: z.string().trim().max(80, "Max 80 characters"),
+  sport_type: z.string().trim().max(80, "Max 80 characters"),
+  project_area: z.string().trim().max(40, "Max 40 characters"),
+  preferred_contact: z.string(),
+  start_date: z.string().refine((v) => !v || ISO_DATE_RE.test(v), "Use YYYY-MM-DD format"),
+  message: z.string().max(4000, "Max 4000 characters"),
+  internal_notes: z.string().max(4000, "Max 4000 characters"),
+  attachment_url: z.string().trim().max(500, "Max 500 characters")
+    .refine((v) => !v || URL_RE.test(v), "Must be a valid http(s) URL"),
+});
+
 function LeadFormDialog({
   open, lead, onOpenChange, onSaved,
 }: {
@@ -477,43 +506,54 @@ function LeadFormDialog({
   onSaved: (l: Lead) => void;
 }) {
   const [form, setForm] = useState<LeadFormState>(emptyForm());
+  const [errors, setErrors] = useState<Partial<Record<keyof LeadFormState, string>>>({});
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (open) setForm(lead ? toForm(lead) : emptyForm());
+    if (open) { setForm(lead ? toForm(lead) : emptyForm()); setErrors({}); }
   }, [open, lead]);
 
   function set<K extends keyof LeadFormState>(k: K, v: LeadFormState[K]) {
     setForm((f) => ({ ...f, [k]: v }));
+    if (errors[k]) setErrors((e) => ({ ...e, [k]: undefined }));
   }
 
   async function save() {
-    if (!form.name.trim() || !form.email.trim()) {
-      toast.error("Name and email are required");
+    const result = leadSchema.safeParse(form);
+    if (!result.success) {
+      const fieldErrors: Partial<Record<keyof LeadFormState, string>> = {};
+      for (const issue of result.error.issues) {
+        const key = issue.path[0] as keyof LeadFormState;
+        if (key && !fieldErrors[key]) fieldErrors[key] = issue.message;
+      }
+      setErrors(fieldErrors);
+      toast.error(`Please fix ${result.error.issues.length} field${result.error.issues.length > 1 ? "s" : ""}`);
       return;
     }
+    setErrors({});
     setSaving(true);
+    const v = result.data;
     const payload = {
-      name: form.name.trim(),
-      email: form.email.trim(),
-      phone: form.phone || null,
-      company: form.company || null,
-      country: form.country || null,
-      city: form.city || null,
-      type: form.type as Lead["type"],
-      status: form.status as Lead["status"],
-      intent: form.intent || null,
-      source: form.source || null,
-      service: form.service || null,
-      budget_range: form.budget_range || null,
-      project_type: form.project_type || null,
-      sport_type: form.sport_type || null,
-      project_area: form.project_area || null,
-      preferred_contact: form.preferred_contact || null,
-      start_date: form.start_date || null,
-      message: form.message || null,
-      internal_notes: form.internal_notes || null,
-      attachment_url: form.attachment_url || null,
+      name: v.name,
+      email: v.email.toLowerCase(),
+      phone: v.phone || null,
+      company: v.company || null,
+      country: v.country || null,
+      city: v.city || null,
+      type: v.type as Lead["type"],
+      status: v.status as Lead["status"],
+      intent: v.intent || null,
+      source: v.source || null,
+      service: v.service || null,
+      budget_range: v.budget_range || null,
+      project_type: v.project_type || null,
+      sport_type: v.sport_type || null,
+      project_area: v.project_area || null,
+      preferred_contact: v.preferred_contact || null,
+      start_date: v.start_date || null,
+      message: v.message || null,
+      internal_notes: v.internal_notes || null,
+      attachment_url: v.attachment_url || null,
     };
     if (lead) {
       const { data, error } = await supabase.from("leads").update(payload as never).eq("id", lead.id).select().single();
@@ -537,12 +577,12 @@ function LeadFormDialog({
           <DialogTitle>{lead ? "Edit Lead" : "New Lead"}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Name *"><Input value={form.name} onChange={(e) => set("name", e.target.value)} /></Field>
-          <Field label="Email *"><Input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} /></Field>
-          <Field label="Phone"><Input value={form.phone} onChange={(e) => set("phone", e.target.value)} /></Field>
-          <Field label="Company"><Input value={form.company} onChange={(e) => set("company", e.target.value)} /></Field>
-          <Field label="Country"><Input value={form.country} onChange={(e) => set("country", e.target.value)} /></Field>
-          <Field label="City"><Input value={form.city} onChange={(e) => set("city", e.target.value)} /></Field>
+          <Field label="Name *" error={errors.name}><Input value={form.name} onChange={(e) => set("name", e.target.value)} aria-invalid={!!errors.name} /></Field>
+          <Field label="Email *" error={errors.email}><Input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} aria-invalid={!!errors.email} /></Field>
+          <Field label="Phone" error={errors.phone}><Input value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="+20 100 000 0000" aria-invalid={!!errors.phone} /></Field>
+          <Field label="Company" error={errors.company}><Input value={form.company} onChange={(e) => set("company", e.target.value)} /></Field>
+          <Field label="Country" error={errors.country}><Input value={form.country} onChange={(e) => set("country", e.target.value)} /></Field>
+          <Field label="City" error={errors.city}><Input value={form.city} onChange={(e) => set("city", e.target.value)} /></Field>
           <Field label="Type">
             <Select value={form.type} onValueChange={(v) => set("type", v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -559,13 +599,13 @@ function LeadFormDialog({
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Intent"><Input value={form.intent} onChange={(e) => set("intent", e.target.value)} /></Field>
-          <Field label="Source"><Input value={form.source} onChange={(e) => set("source", e.target.value)} /></Field>
-          <Field label="Service"><Input value={form.service} onChange={(e) => set("service", e.target.value)} /></Field>
-          <Field label="Budget range"><Input value={form.budget_range} onChange={(e) => set("budget_range", e.target.value)} /></Field>
-          <Field label="Project type"><Input value={form.project_type} onChange={(e) => set("project_type", e.target.value)} /></Field>
-          <Field label="Sport type"><Input value={form.sport_type} onChange={(e) => set("sport_type", e.target.value)} /></Field>
-          <Field label="Project area"><Input value={form.project_area} onChange={(e) => set("project_area", e.target.value)} /></Field>
+          <Field label="Intent" error={errors.intent}><Input value={form.intent} onChange={(e) => set("intent", e.target.value)} /></Field>
+          <Field label="Source" error={errors.source}><Input value={form.source} onChange={(e) => set("source", e.target.value)} /></Field>
+          <Field label="Service" error={errors.service}><Input value={form.service} onChange={(e) => set("service", e.target.value)} /></Field>
+          <Field label="Budget range" error={errors.budget_range}><Input value={form.budget_range} onChange={(e) => set("budget_range", e.target.value)} /></Field>
+          <Field label="Project type" error={errors.project_type}><Input value={form.project_type} onChange={(e) => set("project_type", e.target.value)} /></Field>
+          <Field label="Sport type" error={errors.sport_type}><Input value={form.sport_type} onChange={(e) => set("sport_type", e.target.value)} /></Field>
+          <Field label="Project area" error={errors.project_area}><Input value={form.project_area} onChange={(e) => set("project_area", e.target.value)} /></Field>
           <Field label="Preferred contact">
             <Select value={form.preferred_contact || "none"} onValueChange={(v) => set("preferred_contact", v === "none" ? "" : v)}>
               <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
@@ -575,16 +615,16 @@ function LeadFormDialog({
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Start date"><Input type="date" value={form.start_date ? form.start_date.slice(0, 10) : ""} onChange={(e) => set("start_date", e.target.value)} /></Field>
-          <div className="sm:col-span-2"><Field label="Attachment URL"><Input value={form.attachment_url} onChange={(e) => set("attachment_url", e.target.value)} /></Field></div>
+          <Field label="Start date" error={errors.start_date}><Input type="date" value={form.start_date ? form.start_date.slice(0, 10) : ""} onChange={(e) => set("start_date", e.target.value)} aria-invalid={!!errors.start_date} /></Field>
+          <div className="sm:col-span-2"><Field label="Attachment URL" error={errors.attachment_url}><Input value={form.attachment_url} onChange={(e) => set("attachment_url", e.target.value)} placeholder="https://…" aria-invalid={!!errors.attachment_url} /></Field></div>
           <div className="sm:col-span-2">
-            <Field label="Message">
-              <textarea rows={3} className="w-full rounded-md border border-border bg-background p-2 text-sm" value={form.message} onChange={(e) => set("message", e.target.value)} />
+            <Field label={`Message (${form.message.length}/4000)`} error={errors.message}>
+              <textarea rows={3} maxLength={4000} className="w-full rounded-md border border-border bg-background p-2 text-sm" value={form.message} onChange={(e) => set("message", e.target.value)} />
             </Field>
           </div>
           <div className="sm:col-span-2">
-            <Field label="Internal notes">
-              <textarea rows={3} className="w-full rounded-md border border-border bg-background p-2 text-sm" value={form.internal_notes} onChange={(e) => set("internal_notes", e.target.value)} />
+            <Field label={`Internal notes (${form.internal_notes.length}/4000)`} error={errors.internal_notes}>
+              <textarea rows={3} maxLength={4000} className="w-full rounded-md border border-border bg-background p-2 text-sm" value={form.internal_notes} onChange={(e) => set("internal_notes", e.target.value)} />
             </Field>
           </div>
         </div>
@@ -597,11 +637,12 @@ function LeadFormDialog({
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
     <div>
       <label className="text-xs uppercase text-muted-foreground">{label}</label>
       <div className="mt-1">{children}</div>
+      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>
   );
 }
