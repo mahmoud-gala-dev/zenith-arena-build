@@ -295,16 +295,109 @@ function AdminDownloadsPage() {
 function DownloadEditor({
   row, onClose, onSaved,
 }: { row: Partial<DownloadRow>; onClose: () => void; onSaved: () => void }) {
-  const [values, setValues] = useState<Partial<DownloadRow>>(row);
+  const [values, setValues] = useState<Partial<DownloadRow>>(() => ({
+    ...row,
+    files: Array.isArray(row.files) ? (row.files as DownloadFile[]) : [],
+    gallery: Array.isArray(row.gallery) ? (row.gallery as string[]) : [],
+  }));
   const [saving, setSaving] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadPct, setUploadPct] = useState(0);
   const [uploadLabel, setUploadLabel] = useState("");
   const [fileMeta, setFileMeta] = useState<{ name: string; size: number } | null>(null);
+  const [multiUploading, setMultiUploading] = useState(false);
+  const [galleryUploading, setGalleryUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const multiInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   function set<K extends keyof DownloadRow>(k: K, v: DownloadRow[K] | string | number | boolean | null) {
     setValues((prev) => ({ ...prev, [k]: v }));
+  }
+
+  const files = (values.files ?? []) as DownloadFile[];
+  const gallery = (values.gallery ?? []) as string[];
+
+  function updateFiles(next: DownloadFile[]) { setValues((p) => ({ ...p, files: next })); }
+  function updateGallery(next: string[]) { setValues((p) => ({ ...p, gallery: next })); }
+
+  async function uploadOneToStorage(file: File, folder: string) {
+    const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
+    const stamp = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const base = slugify(values.slug_en || values.title_en || "file") || "file";
+    const path = `${folder}/${base}-${stamp}.${ext}`;
+    const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+      contentType: file.type || undefined,
+      cacheControl: "31536000",
+      upsert: false,
+    });
+    if (error) throw error;
+    return signPath(BUCKET, path, TEN_YEARS);
+  }
+
+  async function handleMultiFilePick(list: FileList) {
+    setMultiUploading(true);
+    const added: DownloadFile[] = [];
+    try {
+      for (const file of Array.from(list)) {
+        if (file.size > 100 * 1024 * 1024) { toast.error(`${file.name}: max 100 MB — skipped`); continue; }
+        const url = await uploadOneToStorage(file, "files");
+        added.push({
+          label_en: file.name.replace(/\.[^.]+$/, ""),
+          label_ar: file.name.replace(/\.[^.]+$/, ""),
+          url,
+          lang: "both",
+          size: file.size,
+          mime: file.type || null,
+        });
+      }
+      if (added.length) {
+        updateFiles([...files, ...added]);
+        toast.success(`${added.length} file(s) added`);
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setMultiUploading(false);
+      if (multiInputRef.current) multiInputRef.current.value = "";
+    }
+  }
+
+  async function handleGalleryPick(list: FileList) {
+    setGalleryUploading(true);
+    const added: string[] = [];
+    try {
+      for (const file of Array.from(list)) {
+        if (!file.type.startsWith("image/")) { toast.error(`${file.name}: not an image — skipped`); continue; }
+        if (file.size > 10 * 1024 * 1024) { toast.error(`${file.name}: max 10 MB — skipped`); continue; }
+        const url = await uploadOneToStorage(file, "gallery");
+        added.push(url);
+      }
+      if (added.length) {
+        updateGallery([...gallery, ...added]);
+        toast.success(`${added.length} image(s) added`);
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setGalleryUploading(false);
+      if (galleryInputRef.current) galleryInputRef.current.value = "";
+    }
+  }
+
+  function moveFile(idx: number, dir: -1 | 1) {
+    const next = [...files];
+    const j = idx + dir;
+    if (j < 0 || j >= next.length) return;
+    [next[idx], next[j]] = [next[j], next[idx]];
+    updateFiles(next);
+  }
+  function moveImage(idx: number, dir: -1 | 1) {
+    const next = [...gallery];
+    const j = idx + dir;
+    if (j < 0 || j >= next.length) return;
+    [next[idx], next[j]] = [next[j], next[idx]];
+    updateGallery(next);
   }
 
   async function handleFilePick(file: File) {
