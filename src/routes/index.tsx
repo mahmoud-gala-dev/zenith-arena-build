@@ -622,11 +622,13 @@ function Index() {
           }}
         />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {(() => { const s = section("clients", { title: t.sections.clientsTitle, subtitle: t.sections.clientsSub }); return (
           <SectionHeader
-            eyebrow={t.sections.clientsTitle}
-            title={t.sections.clientsTitle}
-            subtitle={t.sections.clientsSub}
-          />
+            eyebrow={s.title}
+            title={s.title}
+            subtitle={s.subtitle}
+          />); })()}
+
           <div
             role="list"
             className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-6"
