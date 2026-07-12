@@ -50,7 +50,7 @@ async def audit_route(context, route, errors):
     await page.wait_for_timeout(200)
     m_before = await page.evaluate(MEASURE)
     p_before = OUT / f"{slug}-1-before.png"
-    await page.screenshot(path=str(p_before))
+    await page.screenshot(path=str(p_before), timeout=15000, animations="disabled")
     phases["before"] = {"metrics": m_before, "screenshot": str(p_before)}
 
     # ---- DURING: kick off a scroll and grab the frame while it's animating ----
@@ -63,7 +63,7 @@ async def audit_route(context, route, errors):
     await page.wait_for_timeout(120)
     m_during = await page.evaluate(MEASURE)
     p_during = OUT / f"{slug}-2-during.png"
-    await page.screenshot(path=str(p_during))
+    await page.screenshot(path=str(p_during), timeout=15000, animations="disabled")
     phases["during"] = {"metrics": m_during, "screenshot": str(p_during)}
 
     # ---- AFTER: fully scrolled and settled ----
@@ -73,7 +73,7 @@ async def audit_route(context, route, errors):
     await page.wait_for_timeout(400)
     m_after = await page.evaluate(MEASURE)
     p_after = OUT / f"{slug}-3-after.png"
-    await page.screenshot(path=str(p_after))
+    await page.screenshot(path=str(p_after), timeout=15000, animations="disabled")
     phases["after"] = {"metrics": m_after, "screenshot": str(p_after)}
 
     # ---- Assertions per route ----
