@@ -240,15 +240,16 @@ function Index() {
                   <ul className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-white/55">
                     <li className="flex items-center gap-2">
                       <Trophy className="h-4 w-4 text-primary" />
-                      {lang === "ar" ? "معتمد من FIFA & World Athletics" : "FIFA & World Athletics certified"}
+                      {t.home.chipCertified}
                     </li>
                     <li className="flex items-center gap-2">
                       <ShieldCheck className="h-4 w-4 text-primary" />
-                      {lang === "ar" ? "ضمان تنفيذ ومواد" : "Warranty on materials & workmanship"}
+                      {t.home.chipWarranty}
                     </li>
                     <li className="flex items-center gap-2">
                       <Ruler className="h-4 w-4 text-primary" />
-                      {lang === "ar" ? "تصميم وتنفيذ متكامل" : "Design–build turnkey"}
+                      {t.home.chipTurnkey}
+
                     </li>
                   </ul>
                 </div>
