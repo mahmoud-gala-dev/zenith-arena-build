@@ -126,7 +126,7 @@ export function Header() {
         })
       : "#";
   const handleWaClick = (surface: "top_bar" | "mobile") => {
-    trackEvent({ name: "header_whatsapp_click", surface, number: wa, page: pathname });
+    trackEvent({ name: "header_whatsapp_click", surface, number: wa });
   };
   const topSocials = [
     social.facebook && { href: social.facebook, Icon: Facebook, name: "Facebook" },
