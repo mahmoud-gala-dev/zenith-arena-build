@@ -149,7 +149,7 @@ function GovernoratePage() {
                 type="search"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder={lang === "ar" ? "بحث سريع…" : "Quick search…"}
+                placeholder={t.governorate.quickSearch}
                 className="h-10 w-full rounded-full border border-border bg-card ps-10 pe-4 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
               />
             </div>
