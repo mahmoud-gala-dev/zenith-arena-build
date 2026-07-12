@@ -1,0 +1,192 @@
+{
+  "/": {
+    "before": {
+      "metrics": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "clientHeight": 664,
+        "scrollY": 0,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden"
+      },
+      "screenshot": "qa-report/ios-scrollbar/home-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "clientHeight": 664,
+        "scrollY": 663,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden"
+      },
+      "screenshot": "qa-report/ios-scrollbar/home-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "clientHeight": 664,
+        "scrollY": 12711,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden"
+      },
+      "screenshot": "qa-report/ios-scrollbar/home-3-after.png"
+    }
+  },
+  "/projects": {
+    "before": {
+      "metrics": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "clientHeight": 664,
+        "scrollY": 0,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "visible"
+      },
+      "screenshot": "qa-report/ios-scrollbar/projects-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "clientHeight": 664,
+        "scrollY": 660,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden"
+      },
+      "screenshot": "qa-report/ios-scrollbar/projects-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "clientHeight": 664,
+        "scrollY": 664,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden"
+      },
+      "screenshot": "qa-report/ios-scrollbar/projects-3-after.png"
+    }
+  },
+  "/services": {
+    "before": {
+      "metrics": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "clientHeight": 664,
+        "scrollY": 0,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden"
+      },
+      "screenshot": "qa-report/ios-scrollbar/services-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "clientHeight": 664,
+        "scrollY": 377,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden"
+      },
+      "screenshot": "qa-report/ios-scrollbar/services-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "clientHeight": 664,
+        "scrollY": 4462,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden"
+      },
+      "screenshot": "qa-report/ios-scrollbar/services-3-after.png"
+    }
+  },
+  "/knowledge": {
+    "before": {
+      "metrics": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "clientHeight": 664,
+        "scrollY": 0,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden"
+      },
+      "screenshot": "qa-report/ios-scrollbar/knowledge-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "clientHeight": 664,
+        "scrollY": 557,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden"
+      },
+      "screenshot": "qa-report/ios-scrollbar/knowledge-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "clientHeight": 664,
+        "scrollY": 5066,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden"
+      },
+      "screenshot": "qa-report/ios-scrollbar/knowledge-3-after.png"
+    }
+  },
+  "/gallery": {
+    "before": {
+      "metrics": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "clientHeight": 664,
+        "scrollY": 0,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden"
+      },
+      "screenshot": "qa-report/ios-scrollbar/gallery-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "clientHeight": 664,
+        "scrollY": 664,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden"
+      },
+      "screenshot": "qa-report/ios-scrollbar/gallery-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "clientHeight": 664,
+        "scrollY": 2200,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden"
+      },
+      "screenshot": "qa-report/ios-scrollbar/gallery-3-after.png"
+    }
+  }
+}
