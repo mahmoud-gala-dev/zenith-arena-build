@@ -131,7 +131,7 @@ function GovernoratePage() {
                 </span>
                 {sportOptions.length > 0 && (
                   <span className="rounded-full bg-white/10 px-3 py-1">
-                    {sportOptions.length} {lang === "ar" ? "نوع رياضة" : "sport types"}
+                    {sportOptions.length} {t.governorate.sportTypes}
                   </span>
                 )}
               </div>
