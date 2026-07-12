@@ -173,41 +173,47 @@ export function Header() {
               <a
                 href={`tel:${contact.phone}`}
                 onClick={() => trackEvent({ name: "header_phone_click", surface: "top_bar", phone: contact.phone })}
-                className="inline-flex items-center gap-1.5 transition-colors hover:text-[color:var(--gold)]"
+                className="inline-flex items-center gap-1.5 rounded-sm transition-colors hover:text-[color:var(--gold)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)]"
+                aria-label={ar ? `اتصل: ${contact.phone}` : `Call ${contact.phone}`}
               >
-                <Phone className="h-3.5 w-3.5" />
+                <Phone aria-hidden="true" className="h-3.5 w-3.5" />
                 <span dir="ltr" className="tabular-nums">{contact.phone}</span>
               </a>
             )}
             {contact.email && (
-              <a href={`mailto:${contact.email}`} className="hidden items-center gap-1.5 transition-colors hover:text-[color:var(--gold)] sm:inline-flex">
-                <Mail className="h-3.5 w-3.5" />
+              <a
+                href={`mailto:${contact.email}`}
+                className="hidden items-center gap-1.5 rounded-sm transition-colors hover:text-[color:var(--gold)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)] sm:inline-flex"
+                aria-label={ar ? `راسلنا: ${contact.email}` : `Email ${contact.email}`}
+              >
+                <Mail aria-hidden="true" className="h-3.5 w-3.5" />
                 <span>{contact.email}</span>
               </a>
             )}
             {officeLine && (
               <span className="hidden min-w-0 items-center gap-1.5 truncate text-white/70 lg:inline-flex">
-                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <MapPin aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
                 <span className="truncate">{officeLine}</span>
               </span>
             )}
           </div>
           <div className="flex shrink-0 items-center gap-3">
             {topSocials.length > 0 && (
-              <div className="flex items-center gap-2">
+              <ul className="flex items-center gap-2" aria-label={ar ? "روابط التواصل الاجتماعي" : "Social links"}>
                 {topSocials.map(({ href, Icon, name }) => (
-                  <a
-                    key={name}
-                    href={href}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    aria-label={name}
-                    className="text-white/70 transition-colors hover:text-[color:var(--gold)]"
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                  </a>
+                  <li key={name}>
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      aria-label={`${name} ${ar ? "(يفتح في نافذة جديدة)" : "(opens in new tab)"}`}
+                      className="inline-flex rounded-sm text-white/70 transition-colors hover:text-[color:var(--gold)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)]"
+                    >
+                      <Icon aria-hidden="true" className="h-3.5 w-3.5" />
+                    </a>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
             <div className="h-3.5 w-px bg-white/20" />
             <ThemeToggle light />
