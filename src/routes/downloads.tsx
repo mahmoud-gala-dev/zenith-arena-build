@@ -212,12 +212,13 @@ function DownloadsPage() {
                           params={{ slug: r.slug_en }}
                           className="font-semibold text-foreground hover:text-primary"
                         >
-                          <Highlight text={ar ? r.title_ar : r.title_en} query={q} />
+                          <HighlightText text={ar ? r.title_ar : r.title_en} query={q} />
                         </Link>
                         {(ar ? r.description_ar : r.description_en) && (
                           <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                            <Highlight text={(ar ? r.description_ar : r.description_en) as string} query={q} />
+                            <HighlightText text={(ar ? r.description_ar : r.description_en) as string} query={q} />
                           </p>
+
                         )}
 
                         <div className="mt-4 flex flex-wrap items-center gap-2">
