@@ -91,12 +91,16 @@ function MediaPage() {
         <div className="ml-auto">
           <input ref={fileInput} type="file" hidden onChange={onUpload}
             accept="image/*,application/pdf" />
-          <Button onClick={() => fileInput.current?.click()} disabled={uploading}>
+          <Button
+            {...buttonProps({ pending: uploading })}
+            onClick={guard(() => fileInput.current?.click(), { action: "upload_media" })}
+          >
             {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
             Upload file
           </Button>
         </div>
       </div>
+
 
       {loading ? (
         <p className="py-12 text-center text-muted-foreground">Loading…</p>
