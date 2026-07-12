@@ -52,14 +52,14 @@ export function ImageLightbox({ images, index, onClose, onNavigate, alt }: Props
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={ar ? "معرض الصور" : "Image gallery"}
+      aria-label={t.components.lightbox.gallery}
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm animate-fade-in"
       onClick={onClose}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
       <button
-        aria-label={ar ? "إغلاق" : "Close"}
+        aria-label={t.components.lightbox.close}
         onClick={(e) => { e.stopPropagation(); onClose(); }}
         className="absolute top-4 right-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition"
       >
@@ -69,14 +69,14 @@ export function ImageLightbox({ images, index, onClose, onNavigate, alt }: Props
       {images.length > 1 && (
         <>
           <button
-            aria-label={ar ? "التالي" : "Previous"}
+            aria-label={t.components.lightbox.next}
             onClick={(e) => { e.stopPropagation(); onNavigate(-1); }}
             className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 transition"
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
           <button
-            aria-label={ar ? "السابق" : "Next"}
+            aria-label={t.components.lightbox.prev}
             onClick={(e) => { e.stopPropagation(); onNavigate(1); }}
             className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 transition"
           >
@@ -94,7 +94,7 @@ export function ImageLightbox({ images, index, onClose, onNavigate, alt }: Props
         />
         <div className="mt-3 flex items-center justify-between gap-4 text-white/80 text-sm">
           <button
-            aria-label={zoomed ? (ar ? "تصغير" : "Zoom out") : (ar ? "تكبير" : "Zoom in")}
+            aria-label={zoomed ? t.components.lightbox.zoomOut : t.components.lightbox.zoomIn}
             onClick={() => setZoomed((z) => !z)}
             className="rounded-full bg-white/10 p-2 hover:bg-white/20 transition"
           >

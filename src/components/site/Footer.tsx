@@ -70,7 +70,7 @@ export function Footer() {
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-10 sm:px-6 lg:flex-row lg:items-center lg:px-8">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.32em] text-primary">
-              {ar ? "ابنِ مع Egytic Sports" : "Build with Egytic Sports"}
+              {t.components.footer.buildWith}
             </p>
             <h3 className="mt-2 max-w-2xl font-display text-2xl leading-tight text-white sm:text-3xl">
               {ar
@@ -163,7 +163,7 @@ export function Footer() {
               <li><Link to="/services" className="inline-block py-1 transition hover:text-white hover:translate-x-0.5">{t.nav.services}</Link></li>
               <li><Link to="/projects" className="inline-block py-1 transition hover:text-white hover:translate-x-0.5">{t.nav.projects}</Link></li>
               <li><Link to="/products" className="inline-block py-1 transition hover:text-white hover:translate-x-0.5">{t.nav.products}</Link></li>
-              <li><Link to="/gallery" className="inline-block py-1 transition hover:text-white hover:translate-x-0.5">{ar ? "المعرض" : "Gallery"}</Link></li>
+              <li><Link to="/gallery" className="inline-block py-1 transition hover:text-white hover:translate-x-0.5">{t.components.footer.gallery}</Link></li>
               <li><Link to="/knowledge" className="inline-block py-1 transition hover:text-white hover:translate-x-0.5">{t.nav.knowledge}</Link></li>
               <li><Link to="/about" className="inline-block py-1 transition hover:text-white hover:translate-x-0.5">{t.nav.about}</Link></li>
             </ul>
@@ -172,14 +172,14 @@ export function Footer() {
           {/* Resources */}
           <div className="lg:col-span-2">
             <h4 className="text-sm font-semibold uppercase tracking-[0.2em] text-white">
-              {ar ? "الموارد" : "Resources"}
+              {t.components.footer.resources}
             </h4>
             <span className="mt-2 block h-px w-8 bg-primary" />
             <ul className="mt-4 space-y-2.5 text-sm text-white/60">
               {resources.map((r) => (
                 <li key={r.to}><Link to={r.to} className="inline-block py-1 transition hover:text-white hover:translate-x-0.5">{r.label}</Link></li>
               ))}
-              <li><Link to="/downloads" className="inline-block py-1 transition hover:text-white hover:translate-x-0.5">{ar ? "التنزيلات" : "Downloads"}</Link></li>
+              <li><Link to="/downloads" className="inline-block py-1 transition hover:text-white hover:translate-x-0.5">{t.components.footer.downloads}</Link></li>
               <li><Link to="/quote" className="inline-block py-1 transition hover:text-white hover:translate-x-0.5">{t.cta.quote}</Link></li>
             </ul>
           </div>
@@ -187,11 +187,11 @@ export function Footer() {
           {/* Coverage / Governorates map */}
           <div className="lg:col-span-4">
             <h4 className="text-sm font-semibold uppercase tracking-[0.2em] text-white">
-              {ar ? "خريطة التغطية" : "Coverage Map"}
+              {t.components.footer.coverageMap}
             </h4>
             <span className="mt-2 block h-px w-8 bg-primary" />
             <p className="mt-4 text-xs text-white/50">
-              {ar ? "مشاريع مُسلَّمة في محافظات:" : "Projects delivered across:"}
+              {t.components.footer.projectsAcross}
             </p>
             {govs.length > 0 ? (
               <ul className="mt-3 flex flex-wrap gap-1.5">
@@ -223,7 +223,7 @@ export function Footer() {
                   setSubBusy(true);
                   try {
                     await subscribe({ data: { email: subEmail.trim(), locale: ar ? "ar" : "en", source: "footer", website: "" } });
-                    toast.success(ar ? "تم الاشتراك بنجاح." : "Subscribed. Thanks!");
+                    toast.success(t.components.footer.subscribeSuccess);
                     setSubEmail("");
                   } catch (err) {
                     toast.error(err instanceof Error ? err.message : "Could not subscribe.");
@@ -252,15 +252,15 @@ export function Footer() {
         <div className="mt-14 grid gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:grid-cols-3">
           <div className="flex items-center gap-3 text-sm text-white/70">
             <Trophy className="h-5 w-5 text-primary" />
-            <span>{ar ? "معتمد من الفيفا ووِرلد أثلتيكس" : "FIFA & World Athletics certified"}</span>
+            <span>{t.components.footer.fifa}</span>
           </div>
           <div className="flex items-center gap-3 text-sm text-white/70">
             <ShieldCheck className="h-5 w-5 text-primary" />
-            <span>{ar ? "ضمان تنفيذ وجودة مواد" : "Warranty on workmanship & materials"}</span>
+            <span>{t.components.footer.warranty}</span>
           </div>
           <div className="flex items-center gap-3 text-sm text-white/70">
             <MapPin className="h-5 w-5 text-primary" />
-            <span>{ar ? "تغطية على مستوى الجمهورية" : "Nationwide project coverage"}</span>
+            <span>{t.components.footer.nationwide}</span>
           </div>
         </div>
 
@@ -271,7 +271,7 @@ export function Footer() {
             {legal.map((l) => (
               <li key={l.to}><Link to={l.to} className="hover:text-white">{l.label}</Link></li>
             ))}
-            <li><Link to="/auth" className="hover:text-white">{ar ? "دخول الإدارة" : "Admin"}</Link></li>
+            <li><Link to="/auth" className="hover:text-white">{t.components.footer.admin}</Link></li>
           </ul>
         </div>
       </div>

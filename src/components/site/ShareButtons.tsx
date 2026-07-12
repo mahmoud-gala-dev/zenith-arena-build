@@ -76,7 +76,7 @@ export function ShareButtons({ title, path, summary }: ShareButtonsProps) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {ar ? "مشاركة" : "Share"}
+        {t.components.share.share}
       </span>
       {shares.map(({ name, Icon, onClick }) => (
         <button
@@ -92,11 +92,11 @@ export function ShareButtons({ title, path, summary }: ShareButtonsProps) {
       <button
         type="button"
         onClick={onCopy}
-        aria-label={ar ? "نسخ الرابط" : "Copy link"}
+        aria-label={t.components.share.copyLink}
         className="inline-flex h-9 items-center gap-2 rounded-full border border-border bg-card px-3 text-xs font-medium text-muted-foreground transition hover:border-primary hover:bg-primary/10 hover:text-primary"
       >
         {copied ? <Check className="h-3.5 w-3.5 text-primary" /> : <Link2 className="h-3.5 w-3.5" />}
-        {copied ? (ar ? "تم النسخ" : "Copied") : (ar ? "نسخ الرابط" : "Copy link")}
+        {copied ? t.components.share.copied : t.components.share.copyLink}
       </button>
     </div>
   );

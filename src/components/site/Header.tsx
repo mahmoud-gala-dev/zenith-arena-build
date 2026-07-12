@@ -105,7 +105,7 @@ export function Header() {
     { to: "/services", label: t.nav.services },
     { to: "/projects", label: t.nav.projects },
     { to: "/products", label: t.nav.products },
-    { to: "/gallery", label: ar ? "معرض الصور" : "Gallery" },
+    { to: "/gallery", label: t.components.header.gallery },
     { to: "/knowledge", label: t.nav.knowledge },
     { to: "/about", label: t.nav.about },
     { to: "/contact", label: t.nav.contact },
@@ -164,7 +164,7 @@ export function Header() {
           ar ? "focus:right-2" : "focus:left-2",
         )}
       >
-        {ar ? "تخطي إلى المحتوى" : "Skip to content"}
+        {t.components.header.skipToContent}
       </a>
 
       {/* Ambient gradient overlay when at top */}
@@ -214,14 +214,14 @@ export function Header() {
           </div>
           <div className="flex shrink-0 items-center gap-3">
             {topSocials.length > 0 && (
-              <ul className="flex items-center gap-2" aria-label={ar ? "روابط التواصل الاجتماعي" : "Social links"}>
+              <ul className="flex items-center gap-2" aria-label={t.components.header.socialLinks}>
                 {topSocials.map(({ href, Icon, name }) => (
                   <li key={name}>
                     <a
                       href={href}
                       target="_blank"
                       rel="noreferrer noopener"
-                      aria-label={`${name} ${ar ? "(يفتح في نافذة جديدة)" : "(opens in new tab)"}`}
+                      aria-label={`${name} ${t.components.header.opensNewTab}`}
                       className="inline-flex rounded-sm text-white/70 transition-colors hover:text-[color:var(--gold)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)]"
                     >
                       <Icon aria-hidden="true" className="h-3.5 w-3.5" />
@@ -275,7 +275,7 @@ export function Header() {
           </motion.span>
         </Link>
 
-        <nav aria-label={ar ? "التنقل الرئيسي" : "Primary"} className="hidden items-center gap-0.5 lg:flex">
+        <nav aria-label={t.components.header.primaryNav} className="hidden items-center gap-0.5 lg:flex">
           {links.map((l) => {
             const active = pathname === l.to || (l.to !== "/" && pathname.startsWith(l.to));
             return (
@@ -313,7 +313,7 @@ export function Header() {
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  aria-label={ar ? "خيارات التواصل" : "Contact options"}
+                  aria-label={t.components.header.contactOptions}
                   aria-haspopup="menu"
                   className={cn(
                     "hidden items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors xl:inline-flex",
@@ -338,7 +338,7 @@ export function Header() {
                     <Phone aria-hidden="true" className="h-4 w-4" />
                   </span>
                   <span className="flex-1">
-                    <span className="block">{ar ? "اتصل الآن" : "Call now"}</span>
+                    <span className="block">{t.components.header.callNow}</span>
                     <span dir="ltr" className="block text-[11px] font-normal text-muted-foreground">{contact.phone}</span>
                   </span>
                 </a>
@@ -355,7 +355,7 @@ export function Header() {
                     </span>
                     <span className="flex-1">
                       <span className="block">WhatsApp</span>
-                      <span className="block text-[11px] font-normal text-muted-foreground">{ar ? "دردشة فورية" : "Instant chat"}</span>
+                      <span className="block text-[11px] font-normal text-muted-foreground">{t.components.header.instantChat}</span>
                     </span>
                   </a>
                 )}
@@ -368,8 +368,8 @@ export function Header() {
                     <MessageCircle aria-hidden="true" className="h-4 w-4" />
                   </span>
                   <span className="flex-1">
-                    <span className="block">{ar ? "اطلب مكالمة" : "Request callback"}</span>
-                    <span className="block text-[11px] font-normal text-muted-foreground">{ar ? "نتصل بك خلال ساعات" : "We'll call you back"}</span>
+                    <span className="block">{t.components.header.requestCallback}</span>
+                    <span className="block text-[11px] font-normal text-muted-foreground">{t.components.header.callBackHint}</span>
                   </span>
                 </button>
               </PopoverContent>
@@ -400,7 +400,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                aria-label={open ? (ar ? "إغلاق القائمة" : "Close menu") : (ar ? "فتح القائمة" : "Open menu")}
+                aria-label={open ? t.components.header.closeMenu : t.components.header.openMenu}
                 aria-expanded={open}
                 aria-controls="mobile-nav-sheet"
                 className={cn("min-h-11 min-w-11", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
@@ -414,13 +414,13 @@ export function Header() {
               className="w-80 p-0"
               dir={ar ? "rtl" : "ltr"}
             >
-              <SheetTitle className="sr-only">{ar ? "قائمة التنقل" : "Navigation menu"}</SheetTitle>
+              <SheetTitle className="sr-only">{t.components.header.navMenu}</SheetTitle>
               <div className="flex h-full flex-col">
                 <div className="border-b border-border p-6">
                   <Logo />
                 </div>
                 <nav
-                  aria-label={ar ? "قائمة الموبايل" : "Mobile"}
+                  aria-label={t.components.header.mobileMenu}
                   className="flex-1 overflow-y-auto p-4"
                 >
                   <ul className="flex flex-col gap-1">
@@ -461,7 +461,7 @@ export function Header() {
                         className="flex min-h-11 items-center justify-center gap-2 rounded-full border border-border px-3 py-2 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                       >
                         <Phone aria-hidden="true" className="h-4 w-4" />
-                        <span dir="ltr">{ar ? "اتصل" : "Call"}</span>
+                        <span dir="ltr">{t.components.header.call}</span>
                       </a>
                     )}
                     {wa && (
@@ -470,7 +470,7 @@ export function Header() {
                         target="_blank"
                         rel="noreferrer noopener"
                         onClick={() => handleWaClick("mobile")}
-                        aria-label={`WhatsApp ${ar ? "(يفتح في نافذة جديدة)" : "(opens in new tab)"}`}
+                        aria-label={`WhatsApp ${t.components.header.opensNewTab}`}
                         className="flex min-h-11 items-center justify-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:text-emerald-300"
                       >
                         <MessageCircle aria-hidden="true" className="h-4 w-4" />
@@ -480,7 +480,7 @@ export function Header() {
                   </div>
                   {topSocials.length > 0 && (
                     <ul
-                      aria-label={ar ? "روابط التواصل الاجتماعي" : "Social links"}
+                      aria-label={t.components.header.socialLinks}
                       className="flex items-center justify-center gap-2 pt-2"
                     >
                       {topSocials.map(({ href, Icon, name }) => (
@@ -489,7 +489,7 @@ export function Header() {
                             href={href}
                             target="_blank"
                             rel="noreferrer noopener"
-                            aria-label={`${name} ${ar ? "(يفتح في نافذة جديدة)" : "(opens in new tab)"}`}
+                            aria-label={`${name} ${t.components.header.opensNewTab}`}
                             className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-[color:var(--gold)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)]"
                           >
                             <Icon aria-hidden="true" className="h-5 w-5" />
