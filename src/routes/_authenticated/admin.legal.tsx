@@ -73,8 +73,27 @@ function toLocalInput(iso: string | null): string {
 
 function AdminLegalPage() {
   const [active, setActive] = useState<string>(SLUGS[0].slug);
+  const { data: pageIndex = [] } = useQuery({
+    queryKey: ["admin", "legal", "page-index"],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("pages")
+        .select("id,slug_en,slug_ar")
+        .in("slug_en", SLUGS.map((s) => s.slug) as unknown as string[]);
+      if (error) throw error;
+      const rows = (data ?? []) as Array<{ id: string; slug_en: string; slug_ar: string | null }>;
+      return SLUGS.map((s) => {
+        const found = rows.find((r) => r.slug_en === s.slug || r.slug_ar === s.slug);
+        return { id: found?.id ?? "", slug: s.slug, label: s.label };
+      });
+    },
+  });
   return (
     <AdminShell title="Legal Pages">
+      <div className="mb-6">
+        <PreviewLinksExportCard pages={pageIndex} />
+      </div>
       <Tabs value={active} onValueChange={setActive}>
         <TabsList>
           {SLUGS.map((s) => (
