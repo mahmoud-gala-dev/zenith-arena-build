@@ -40,8 +40,14 @@ function AboutPage() {
 
       <section className="py-20">
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
-          <Reveal className="relative overflow-hidden rounded-3xl shadow-elegant">
-            <img src={aboutImg} alt={heroTitle || "About"} className="h-full w-full object-cover" />
+          <Reveal className="relative aspect-[4/3] overflow-hidden rounded-3xl shadow-elegant bg-muted">
+            {aboutImg ? (
+              <img src={aboutImg} alt={heroTitle || "About"} className="h-full w-full object-cover" loading="lazy" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 via-secondary to-[color:var(--gold)]/20">
+                <ShieldCheck className="h-16 w-16 text-primary/40" />
+              </div>
+            )}
           </Reveal>
           <Reveal delay={80}>
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{storyTitle || t.sections.whySub}</span>
