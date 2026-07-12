@@ -231,7 +231,7 @@ function ProjectsPage() {
                 </div>
                 {selectedGov && (
                   <Link to="/governorates/$slug" params={{ slug: selectedGov.slug }} className="text-sm font-medium text-primary hover:underline">
-                    {lang === "ar" ? "فتح صفحة المحافظة ←" : "Open governorate page →"}
+                    {t.projects.openGovPage}
                   </Link>
                 )}
               </div>
