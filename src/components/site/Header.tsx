@@ -260,7 +260,7 @@ export function Header() {
           </motion.span>
         </Link>
 
-        <nav className="hidden items-center gap-0.5 lg:flex">
+        <nav aria-label={ar ? "التنقل الرئيسي" : "Primary"} className="hidden items-center gap-0.5 lg:flex">
           {links.map((l) => {
             const active = pathname === l.to || (l.to !== "/" && pathname.startsWith(l.to));
             return (
