@@ -7,11 +7,13 @@ import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
-import { aboutContentQueryOptions, homeHeroSettingsQueryOptions } from "@/lib/queries";
-import { useQuery } from "@tanstack/react-query";
+import { aboutContentQueryOptions, aboutPageSettingsQueryOptions } from "@/lib/queries";
 
 export const Route = createFileRoute("/about")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(aboutContentQueryOptions),
+  loader: ({ context }) => Promise.all([
+    context.queryClient.ensureQueryData(aboutContentQueryOptions),
+    context.queryClient.ensureQueryData(aboutPageSettingsQueryOptions),
+  ]),
   component: AboutPage,
   errorComponent: ({ error }) => <div role="alert" className="p-8">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found</div>,
@@ -20,10 +22,12 @@ export const Route = createFileRoute("/about")({
 function AboutPage() {
   const { t, lang } = useLang();
   const { data } = useSuspenseQuery(aboutContentQueryOptions);
-  const { data: heroSettings } = useQuery(homeHeroSettingsQueryOptions);
+  const { data: pageSettings } = useSuspenseQuery(aboutPageSettingsQueryOptions);
   const isAr = lang === "ar";
 
-  const heroImage = data.hero.image_url || heroSettings?.about_image_url || "";
+  const heroImg = data.hero.image_url || pageSettings.hero_image_url;
+  const aboutImg = pageSettings.about_image_url || heroImg;
+  const heroStats = data.stats.length ? data.stats : pageSettings.stats;
   const heroEyebrow = isAr ? data.hero.eyebrow_ar : data.hero.eyebrow_en;
   const heroTitle = isAr ? data.hero.title_ar : data.hero.title_en;
   const heroSubtitle = isAr ? data.hero.subtitle_ar : data.hero.subtitle_en;
@@ -32,19 +36,19 @@ function AboutPage() {
 
   return (
     <SiteLayout>
-      <PageHero eyebrow={heroEyebrow || t.nav.about} title={heroTitle || t.brandFull} subtitle={heroSubtitle || t.footer.tagline} />
+      <PageHero eyebrow={heroEyebrow || t.nav.about} title={heroTitle || t.brandFull} subtitle={heroSubtitle || t.footer.tagline} image={heroImg} />
 
       <section className="py-20">
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
           <Reveal className="relative overflow-hidden rounded-3xl shadow-elegant">
-            <img src={heroImage} alt={heroTitle || "About"} className="h-full w-full object-cover" />
+            <img src={aboutImg} alt={heroTitle || "About"} className="h-full w-full object-cover" />
           </Reveal>
           <Reveal delay={80}>
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{storyTitle || t.sections.whySub}</span>
             <h2 className="mt-4 text-3xl font-bold text-foreground">{storyTitle || t.sections.whySub}</h2>
             <p className="mt-4 text-muted-foreground">{storyBody || t.hero.subtitle}</p>
             <div className="mt-8 grid grid-cols-2 gap-6">
-              {data.stats.map((s) => (
+              {heroStats.map((s) => (
                 <div key={s.key}>
                   <p className="text-3xl font-bold text-gradient">{s.value}</p>
                   <p className="mt-1 text-sm text-muted-foreground">{isAr ? s.label_ar : s.label_en}</p>
@@ -60,6 +64,7 @@ function AboutPage() {
           </Reveal>
         </div>
       </section>
+
 
       <section className="bg-secondary/50 py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
