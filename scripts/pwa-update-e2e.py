@@ -90,7 +90,6 @@ async def run() -> int:
             )
             page = await context.new_page()
             page.on("pageerror", lambda e: print("PAGEERROR:", e))
-            page.on("console", lambda m: print("CON:", m.type, m.text))
 
             # ---- v1 install ----
             await page.goto(base + "/", wait_until="load")
