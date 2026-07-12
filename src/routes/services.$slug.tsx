@@ -439,7 +439,7 @@ function ServiceDetailPage() {
                   key={`${url}-${i}`}
                   type="button"
                   onClick={() => setLightboxIndex(i)}
-                  aria-label={`${ar ? "افتح الصورة" : "Open image"} ${i + 1}`}
+                  aria-label={`${t.serviceDetail.openImage} ${i + 1}`}
                   className="group relative overflow-hidden rounded-xl border border-border bg-card shadow-soft focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <img
