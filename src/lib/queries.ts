@@ -272,7 +272,7 @@ export type MenuItem = {
   sort_order: number;
 };
 
-export const menusByLocationQueryOptions = (location: "header" | "footer") =>
+export const menusByLocationQueryOptions = (location: "header" | "footer" | "mobile") =>
   queryOptions({
     queryKey: ["menus", location],
     queryFn: async (): Promise<MenuItem[]> => {
