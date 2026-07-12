@@ -16,7 +16,13 @@ export type AnalyticsEvent =
   | { name: "gallery_filter"; filter_type: "type" | "category"; value: string; results: number }
   | { name: "gallery_lightbox_open"; index: number; total: number; item_title: string; item_type: string }
   | { name: "gallery_lightbox_close"; index: number; item_title: string }
-  | { name: "gallery_lightbox_nav"; from: number; to: number; via: "keyboard" | "button" };
+  | { name: "gallery_lightbox_nav"; from: number; to: number; via: "keyboard" | "button" }
+  | { name: "header_phone_click"; surface: "top_bar" | "main_bar" | "mobile" | "dialog"; phone: string }
+  | { name: "header_whatsapp_click"; surface: "dialog" | "top_bar" | "mobile"; number: string }
+  | { name: "header_cta_click"; surface: "main_bar" | "mobile"; action: "open_dialog" | "full_form" }
+  | { name: "quick_lead_open"; source: string }
+  | { name: "quick_lead_submit"; source: string; type: "callback" | "quote"; has_phone: boolean }
+  | { name: "quick_lead_error"; source: string; message: string };
 
 
 type AnyEvent = AnalyticsEvent & { [k: string]: unknown };

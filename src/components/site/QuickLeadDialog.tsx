@@ -1,0 +1,188 @@
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { Link } from "@tanstack/react-router";
+import { toast } from "sonner";
+import { Phone, MessageCircle, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useLang } from "@/i18n/LanguageProvider";
+import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
+import { submitLead } from "@/lib/leads.functions";
+import { trackEvent } from "@/lib/analytics";
+
+type Props = {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  /** Where the dialog was opened from — powers analytics + lead attribution. */
+  source: string;
+  /** "callback" = brief call-me-back form; "quote" = short quote request. */
+  intent?: "callback" | "quote";
+};
+
+export function QuickLeadDialog({ open, onOpenChange, source, intent = "callback" }: Props) {
+  const { lang } = useLang();
+  const ar = lang === "ar";
+  const Arrow = ar ? ArrowLeft : ArrowRight;
+  const contact = useContactInfo();
+  const social = useSocialLinks();
+  const wa = toWhatsAppNumber(social.whatsapp || contact.whatsapp);
+  const submit = useServerFn(submitLead);
+
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [website, setWebsite] = useState(""); // honeypot
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (open) trackEvent({ name: "quick_lead_open", source });
+  }, [open, source]);
+
+  const title =
+    intent === "quote"
+      ? ar ? "اطلب عرض سعر سريع" : "Request a quick quote"
+      : ar ? "اتصل بي" : "Request a callback";
+  const desc =
+    intent === "quote"
+      ? ar ? "أخبرنا عن مشروعك ونعود إليك خلال 24 ساعة." : "Tell us about your project — we'll reply within 24 hours."
+      : ar ? "اترك رقمك وسنتواصل معك في أقرب وقت." : "Leave your number and we'll call you back shortly.";
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim() || !email.trim()) return;
+    setBusy(true);
+    try {
+      const contextLine = `\n\n[source: ${source}]`;
+      await submit({
+        data: {
+          type: intent === "quote" ? "quote" : "contact",
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim() || null,
+          message: (message.trim() || (intent === "callback" ? (ar ? "طلب اتصال من الهيدر" : "Callback request from header") : "")) + contextLine,
+          preferred_contact: phone.trim() ? "phone" : "email",
+          website,
+        },
+      });
+      trackEvent({
+        name: "quick_lead_submit",
+        source,
+        type: intent,
+        has_phone: Boolean(phone.trim()),
+      });
+      toast.success(ar ? "تم إرسال طلبك — سنتواصل قريبًا." : "Thanks! We'll be in touch shortly.");
+      setName(""); setPhone(""); setEmail(""); setMessage("");
+      onOpenChange(false);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Something went wrong.";
+      trackEvent({ name: "quick_lead_error", source, message: msg });
+      toast.error(msg);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const waHref = wa
+    ? `https://wa.me/${wa}?text=${encodeURIComponent(
+        ar ? "مرحبًا Egytic Sports، أرغب في الاستفسار عن خدماتكم." : "Hi Egytic Sports, I'd like to enquire about your services.",
+      )}`
+    : null;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md" dir={ar ? "rtl" : "ltr"}>
+        <DialogHeader>
+          <DialogTitle className="font-display text-2xl">{title}</DialogTitle>
+          <DialogDescription>{desc}</DialogDescription>
+        </DialogHeader>
+
+        {/* Quick actions */}
+        <div className="grid grid-cols-2 gap-2">
+          {contact.phone && (
+            <a
+              href={`tel:${contact.phone}`}
+              onClick={() => trackEvent({ name: "header_phone_click", surface: "dialog", phone: contact.phone })}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary"
+            >
+              <Phone className="h-4 w-4" />
+              {ar ? "اتصل الآن" : "Call now"}
+            </a>
+          )}
+          {waHref && (
+            <a
+              href={waHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackEvent({ name: "header_whatsapp_click", surface: "dialog", number: wa! })}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-500/20 dark:text-emerald-300"
+            >
+              <MessageCircle className="h-4 w-4" />
+              WhatsApp
+            </a>
+          )}
+        </div>
+
+        <div className="relative my-1">
+          <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+          <div className="relative flex justify-center"><span className="bg-background px-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">{ar ? "أو" : "or"}</span></div>
+        </div>
+
+        <form onSubmit={onSubmit} className="grid gap-3">
+          {/* Honeypot */}
+          <input
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+            className="hidden"
+            aria-hidden
+          />
+          <div className="grid gap-1.5">
+            <Label htmlFor="ql-name">{ar ? "الاسم" : "Name"}</Label>
+            <Input id="ql-name" value={name} onChange={(e) => setName(e.target.value)} required maxLength={100} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-1.5">
+              <Label htmlFor="ql-phone">{ar ? "الهاتف" : "Phone"}</Label>
+              <Input id="ql-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={30} dir="ltr" />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="ql-email">{ar ? "البريد" : "Email"}</Label>
+              <Input id="ql-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required maxLength={255} dir="ltr" />
+            </div>
+          </div>
+          {intent === "quote" && (
+            <div className="grid gap-1.5">
+              <Label htmlFor="ql-msg">{ar ? "تفاصيل المشروع" : "Project details"}</Label>
+              <Textarea id="ql-msg" rows={3} value={message} onChange={(e) => setMessage(e.target.value)} maxLength={2000} />
+            </div>
+          )}
+
+          <Button type="submit" variant="hero" className="mt-1 h-11 rounded-full" disabled={busy}>
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : (intent === "quote" ? (ar ? "أرسل الطلب" : "Send request") : (ar ? "اطلب مكالمة" : "Request callback"))}
+            {!busy && <Arrow className="h-4 w-4" />}
+          </Button>
+
+          <p className="text-center text-[11px] text-muted-foreground">
+            {ar ? "تحتاج نموذجًا كاملاً؟ " : "Need the full form? "}
+            <Link
+              to="/quote"
+              onClick={() => {
+                trackEvent({ name: "header_cta_click", surface: "main_bar", action: "full_form" });
+                onOpenChange(false);
+              }}
+              className="font-semibold text-primary hover:underline"
+            >
+              {ar ? "افتح صفحة عرض السعر" : "Open the quote page"}
+            </Link>
+          </p>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
