@@ -24,6 +24,8 @@ export function Header() {
   const { t, lang } = useLang();
   const reduceMotion = useReducedMotion();
   const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [open, setOpen] = useState(false);
   const [leadOpen, setLeadOpen] = useState(false);
   const [leadIntent, setLeadIntent] = useState<"callback" | "quote">("quote");
@@ -51,12 +53,49 @@ export function Header() {
   const intensity = Math.max(0, Math.min(100, motionCfg.intensity)) / 100;
   const speedFactor = 0.5 + (100 - Math.max(0, Math.min(100, motionCfg.speed))) / 50;
 
+  // Sticky header: rAF-throttled scroll listener that tracks direction,
+  // condensed state, hide-on-scroll-down / show-on-scroll-up, page progress,
+  // and pauses hiding when a menu/dialog is open or hovering near the top.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    onScroll();
+    let lastY = typeof window !== "undefined" ? window.scrollY : 0;
+    let ticking = false;
+    const HIDE_AFTER = 240;
+    const DELTA = 8;
+
+    const update = () => {
+      ticking = false;
+      const y = window.scrollY;
+      const doc = document.documentElement;
+      const max = Math.max(1, doc.scrollHeight - window.innerHeight);
+      setProgress(Math.min(1, Math.max(0, y / max)));
+      setScrolled(y > 20);
+
+      const diff = y - lastY;
+      if (Math.abs(diff) < DELTA) return;
+      if (open || leadOpen) {
+        setHidden(false);
+      } else if (y < HIDE_AFTER) {
+        setHidden(false);
+      } else if (diff > 0) {
+        setHidden(true);
+      } else {
+        setHidden(false);
+      }
+      lastY = y;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    };
+
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [open, leadOpen]);
+
 
   const { data: menuItems } = useQuery(menusByLocationQueryOptions("header"));
   const fallbackLinks = [
@@ -89,13 +128,20 @@ export function Header() {
 
   return (
     <header
+      dir={ar ? "rtl" : "ltr"}
+      data-scrolled={scrolled ? "true" : "false"}
+      data-hidden={hidden ? "true" : "false"}
       className={cn(
-        "fixed inset-x-0 top-0 z-50 hidden md:block transition-all duration-500 ease-out",
+        "fixed inset-x-0 top-0 z-50 hidden md:block will-change-transform",
+        "transition-[transform,background-color,box-shadow,border-color,color] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
+        "motion-reduce:transition-none",
+        hidden ? "-translate-y-full" : "translate-y-0",
         scrolled
-          ? "border-b border-border/60 bg-background/85 backdrop-blur-xl backdrop-saturate-150 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.25)] text-foreground"
-          : "text-white",
+          ? "border-b border-border/60 bg-background/85 backdrop-blur-xl backdrop-saturate-150 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.35)] text-foreground supports-[backdrop-filter]:bg-background/70"
+          : "border-b border-transparent text-white",
       )}
     >
+
       {/* Ambient gradient overlay when at top */}
       {!scrolled && (
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-full bg-gradient-to-b from-black/70 via-black/35 to-transparent" />
@@ -217,7 +263,8 @@ export function Header() {
                   {l.label}
                   <span
                     className={cn(
-                      "pointer-events-none absolute -bottom-1.5 left-0 h-[2px] w-full origin-left scale-x-0 rounded-full bg-[color:var(--gold)] transition-transform duration-300 ease-out group-hover/link:scale-x-100",
+                      "pointer-events-none absolute -bottom-1.5 inset-x-0 h-[2px] scale-x-0 rounded-full bg-[color:var(--gold)] transition-transform duration-300 ease-out group-hover/link:scale-x-100",
+                      ar ? "origin-right" : "origin-left",
                       active && "scale-x-100",
                     )}
                   />
@@ -403,6 +450,23 @@ export function Header() {
             </SheetContent>
           </Sheet>
         </div>
+      </div>
+
+      {/* Scroll progress indicator */}
+      <div
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-x-0 bottom-0 h-[2px] overflow-hidden transition-opacity duration-500",
+          scrolled ? "opacity-100" : "opacity-0",
+        )}
+      >
+        <div
+          className="h-full bg-gradient-to-r from-[color:var(--gold)] via-[color:var(--primary)] to-[color:var(--gold)] transition-transform duration-150 ease-out"
+          style={{
+            transformOrigin: ar ? "right" : "left",
+            transform: `scaleX(${progress})`,
+          }}
+        />
       </div>
 
       <QuickLeadDialog
