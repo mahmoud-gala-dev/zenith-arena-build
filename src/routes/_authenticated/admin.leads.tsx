@@ -210,6 +210,7 @@ function LeadsPage() {
         </Select>
         <Button variant="ghost" onClick={resetFilters}>Reset</Button>
         <Button variant="outline" onClick={exportCSV}><Download className="mr-2 h-4 w-4" /> Export CSV ({filtered.length})</Button>
+        <Button onClick={() => { setEditing(null); setFormOpen(true); }}><Plus className="mr-2 h-4 w-4" /> New Lead</Button>
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-soft">
