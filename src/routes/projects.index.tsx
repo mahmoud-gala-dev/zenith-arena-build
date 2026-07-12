@@ -176,7 +176,7 @@ function ProjectsPage() {
                     ) : null}
                   </div>
                   <div className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5 text-foreground">{lang === "ar" ? g.name_ar : g.name_en}</div>
-                  <div className="min-h-[1rem] text-xs text-muted-foreground">{count} {lang === "ar" ? "مشروع" : "projects"}</div>
+                  <div className="min-h-[1rem] text-xs text-muted-foreground">{count} {t.projects.projectsCount}</div>
                 </button>
               );
             })}
