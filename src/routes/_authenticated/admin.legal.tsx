@@ -428,7 +428,23 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
               </div>
             </div>
             <div className="grid gap-2 md:col-span-2">
-              <Label htmlFor={`eff-${slug}`}>Effective date (optional)</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor={`eff-${slug}`}>
+                  Effective date {scheduleMode ? <span className="text-destructive">*</span> : "(optional)"}
+                </Label>
+                <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={scheduleMode}
+                    onChange={(e) => {
+                      const on = e.target.checked;
+                      setScheduleMode(on);
+                      if (on && form.status !== "published") setForm({ ...form, status: "published" });
+                    }}
+                  />
+                  Schedule for later
+                </label>
+              </div>
               <div className="flex flex-wrap items-center gap-2">
                 <Input
                   id={`eff-${slug}`}
@@ -436,6 +452,8 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
                   value={form.effectiveAt}
                   onChange={(e) => setForm({ ...form, effectiveAt: e.target.value })}
                   className="max-w-xs"
+                  aria-invalid={publishingValidation.errors.length > 0}
+                  required={scheduleMode}
                 />
                 {form.effectiveAt && (
                   <Button type="button" size="sm" variant="ghost" onClick={() => setForm({ ...form, effectiveAt: "" })}>
@@ -444,10 +462,24 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
                 )}
               </div>
               <p className="text-xs text-muted-foreground">
-                Public visitors see this version only when it is Published and the effective date has passed. Leave empty to publish immediately.
+                {scheduleMode
+                  ? "Required. Page goes live automatically at the selected time."
+                  : "Public visitors see this version only when it is Published and the effective date has passed. Leave empty to publish immediately."}
               </p>
             </div>
           </div>
+
+          {publishingValidation.errors.length > 0 && (
+            <ul className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive space-y-1">
+              {publishingValidation.errors.map((m) => <li key={m}>• {m}</li>)}
+            </ul>
+          )}
+          {publishingValidation.warnings.length > 0 && (
+            <ul className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-700 dark:text-amber-400 space-y-1">
+              {publishingValidation.warnings.map((m) => <li key={m}>• {m}</li>)}
+            </ul>
+          )}
+
           <div className="flex items-center justify-between border-t pt-3">
             <span
               className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${
@@ -461,10 +493,14 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
                   ? "Unpublished — hidden from visitors"
                   : "Scheduled — not live yet"}
             </span>
-            <Button onClick={savePublishing} disabled={savingPublishing || !form.id}>
+            <Button
+              onClick={savePublishing}
+              disabled={savingPublishing || !form.id || publishingValidation.errors.length > 0}
+            >
               {savingPublishing ? "Saving…" : "Save publishing"}
             </Button>
           </div>
+
         </CardContent>
       </Card>
 
