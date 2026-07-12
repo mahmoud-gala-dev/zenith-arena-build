@@ -77,7 +77,7 @@ function AdminBlogPage() {
     setLoading(true);
     const [{ data: posts, error }, { data: c }] = await Promise.all([
       supabase.from("blog_posts").select("*").order("updated_at", { ascending: false }),
-      supabase.from("blog_categories").select("id, slug, name_en, name_ar").order("name_en"),
+      supabase.from("blog_categories").select("id, slug_en, title_en, title_ar").order("title_en"),
     ]);
     if (error) toast.error(error.message);
     setRows((posts as Article[]) ?? []);
@@ -174,7 +174,7 @@ function AdminBlogPage() {
             <SelectTrigger className="w-52"><SelectValue placeholder="Category" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All categories</SelectItem>
-              {cats.map((c) => <SelectItem key={c.id} value={c.id}>{c.name_en}</SelectItem>)}
+              {cats.map((c) => <SelectItem key={c.id} value={c.id}>{c.title_en}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={translationFilter} onValueChange={setTranslationFilter}>
@@ -331,7 +331,7 @@ function ArticleEditor({
             <SelectTrigger><SelectValue placeholder="Uncategorized" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="__none">Uncategorized</SelectItem>
-              {cats.map((c) => <SelectItem key={c.id} value={c.id}>{c.name_en} — {c.name_ar}</SelectItem>)}
+              {cats.map((c) => <SelectItem key={c.id} value={c.id}>{c.title_en} — {c.title_ar}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
