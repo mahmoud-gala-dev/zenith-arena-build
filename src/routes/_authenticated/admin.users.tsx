@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Loader2, Search, ShieldCheck } from "lucide-react";
+import { Check, Loader2, Search, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { AdminShell } from "@/components/admin/AdminShell";
@@ -13,6 +13,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/admin/users")({
   component: AdminUsersPage,
 });
+
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Role = Database["public"]["Enums"]["app_role"];
