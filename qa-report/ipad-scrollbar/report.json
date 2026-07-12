@@ -1,0 +1,207 @@
+{
+  "/": {
+    "before": {
+      "metrics": {
+        "clientWidth": 834,
+        "scrollWidth": 834,
+        "clientHeight": 1194,
+        "scrollY": 0,
+        "scrollbarWidth": "thin",
+        "scrollbarGutter": "stable",
+        "bodyOverflowX": "visible",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/ipad-scrollbar/home-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 834,
+        "scrollWidth": 834,
+        "clientHeight": 1194,
+        "scrollY": 14,
+        "scrollbarWidth": "thin",
+        "scrollbarGutter": "stable",
+        "bodyOverflowX": "visible",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/ipad-scrollbar/home-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 834,
+        "scrollWidth": 834,
+        "clientHeight": 1194,
+        "scrollY": 0,
+        "scrollbarWidth": "thin",
+        "scrollbarGutter": "stable",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/ipad-scrollbar/home-3-after.png"
+    }
+  },
+  "/projects": {
+    "before": {
+      "metrics": {
+        "clientWidth": 834,
+        "scrollWidth": 834,
+        "clientHeight": 1194,
+        "scrollY": 0,
+        "scrollbarWidth": "thin",
+        "scrollbarGutter": "stable",
+        "bodyOverflowX": "visible",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/ipad-scrollbar/projects-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 834,
+        "scrollWidth": 834,
+        "clientHeight": 1194,
+        "scrollY": 0,
+        "scrollbarWidth": "thin",
+        "scrollbarGutter": "stable",
+        "bodyOverflowX": "visible",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/ipad-scrollbar/projects-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 834,
+        "scrollWidth": 834,
+        "clientHeight": 1194,
+        "scrollY": 0,
+        "scrollbarWidth": "thin",
+        "scrollbarGutter": "stable",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/ipad-scrollbar/projects-3-after.png"
+    }
+  },
+  "/services": {
+    "before": {
+      "metrics": {
+        "clientWidth": 834,
+        "scrollWidth": 834,
+        "clientHeight": 1194,
+        "scrollY": 0,
+        "scrollbarWidth": "thin",
+        "scrollbarGutter": "stable",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/ipad-scrollbar/services-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 834,
+        "scrollWidth": 834,
+        "clientHeight": 1194,
+        "scrollY": 641,
+        "scrollbarWidth": "thin",
+        "scrollbarGutter": "stable",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/ipad-scrollbar/services-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 834,
+        "scrollWidth": 834,
+        "clientHeight": 1194,
+        "scrollY": 3229,
+        "scrollbarWidth": "thin",
+        "scrollbarGutter": "stable",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/ipad-scrollbar/services-3-after.png"
+    }
+  },
+  "/knowledge": {
+    "before": {
+      "metrics": {
+        "clientWidth": 834,
+        "scrollWidth": 834,
+        "clientHeight": 1194,
+        "scrollY": 0,
+        "scrollbarWidth": "thin",
+        "scrollbarGutter": "stable",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/ipad-scrollbar/knowledge-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 834,
+        "scrollWidth": 834,
+        "clientHeight": 1194,
+        "scrollY": 1194,
+        "scrollbarWidth": "thin",
+        "scrollbarGutter": "stable",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/ipad-scrollbar/knowledge-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 834,
+        "scrollWidth": 834,
+        "clientHeight": 1194,
+        "scrollY": 3161,
+        "scrollbarWidth": "thin",
+        "scrollbarGutter": "stable",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/ipad-scrollbar/knowledge-3-after.png"
+    }
+  },
+  "/gallery": {
+    "before": {
+      "metrics": {
+        "clientWidth": 834,
+        "scrollWidth": 834,
+        "clientHeight": 1194,
+        "scrollY": 0,
+        "scrollbarWidth": "thin",
+        "scrollbarGutter": "stable",
+        "bodyOverflowX": "visible",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/ipad-scrollbar/gallery-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 834,
+        "scrollWidth": 834,
+        "clientHeight": 1194,
+        "scrollY": 0,
+        "scrollbarWidth": "thin",
+        "scrollbarGutter": "stable",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/ipad-scrollbar/gallery-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 834,
+        "scrollWidth": 834,
+        "clientHeight": 1194,
+        "scrollY": 2035,
+        "scrollbarWidth": "thin",
+        "scrollbarGutter": "stable",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/ipad-scrollbar/gallery-3-after.png"
+    }
+  }
+}

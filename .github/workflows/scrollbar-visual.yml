@@ -57,11 +57,13 @@ jobs:
             sleep 1
           done
 
-      - name: Run scrollbar visual scripts (desktop + iOS + Android)
+      - name: Run scrollbar visual scripts (desktop + iOS + iPad + Android Chrome + Android Firefox)
         run: |
           python scripts/scrollbar-visual.py
           python scripts/ios-scrollbar-visual.py
+          python scripts/ipad-scrollbar-visual.py
           python scripts/android-scrollbar-visual.py
+          python scripts/android-firefox-scrollbar-visual.py
 
       - name: Pixelmatch against baselines
         env:
