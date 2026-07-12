@@ -76,6 +76,43 @@ export const homeHeroSettingsQueryOptions = queryOptions({
   staleTime: FIFTEEN_MIN,
 });
 
+export type AboutPageStat = { key: string; value: string; label_en: string; label_ar: string };
+export type AboutPageSettings = {
+  hero_image_url: string;
+  about_image_url: string;
+  stats: AboutPageStat[];
+};
+
+const DEFAULT_ABOUT_PAGE: AboutPageSettings = {
+  hero_image_url: "",
+  about_image_url: "",
+  stats: [
+    { key: "stat1", value: "420+", label_en: "Projects delivered", label_ar: "مشروع منجز" },
+    { key: "stat2", value: "18", label_en: "Years of expertise", label_ar: "سنة خبرة" },
+    { key: "stat3", value: "20", label_en: "Countries served", label_ar: "دولة" },
+    { key: "stat4", value: "99%", label_en: "Client satisfaction", label_ar: "رضا العملاء" },
+  ],
+};
+
+export const aboutPageSettingsQueryOptions = queryOptions({
+  queryKey: ["settings", "about_page"],
+  queryFn: async (): Promise<AboutPageSettings> => {
+    const { data, error } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "about_page")
+      .maybeSingle();
+    if (error) throw error;
+    const v = (data?.value ?? {}) as Partial<AboutPageSettings>;
+    return {
+      hero_image_url: v.hero_image_url || DEFAULT_ABOUT_PAGE.hero_image_url,
+      about_image_url: v.about_image_url || DEFAULT_ABOUT_PAGE.about_image_url,
+      stats: Array.isArray(v.stats) && v.stats.length ? v.stats : DEFAULT_ABOUT_PAGE.stats,
+    };
+  },
+  staleTime: FIFTEEN_MIN,
+});
+
 export type QuotePromise = {
   icon: string;
   title_en: string;
