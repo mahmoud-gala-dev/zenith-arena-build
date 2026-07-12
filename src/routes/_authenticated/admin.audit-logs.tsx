@@ -5,10 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, FileText, RefreshCw, Search, X } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Download, FileText, RefreshCw, Search, X, Copy, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+
 
 
 export const Route = createFileRoute("/_authenticated/admin/audit-logs")({
