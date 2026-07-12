@@ -50,6 +50,8 @@ function QuotePage() {
   const [budgetValue, setBudgetValue] = useState("");
   const [contactMethod, setContactMethod] = useState("email");
   const { data: dbServices } = useQuery(servicesPublishedQueryOptions);
+  const { data: quotePage } = useQuery(quotePageSettingsQueryOptions);
+
 
   const submitSchema = z.object({
     name: z.string().trim().min(1).max(100),
