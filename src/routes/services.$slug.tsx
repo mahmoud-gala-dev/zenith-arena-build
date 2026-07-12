@@ -27,9 +27,14 @@ export const Route = createFileRoute("/services/$slug")({
   },
   loaderDeps: ({ search }) => ({ lang: search.lang ?? "en" }),
   loader: async ({ params, context: { queryClient } }) => {
-    const service = await queryClient.ensureQueryData(serviceBySlugQueryOptions(params.slug));
+    const [service] = await Promise.all([
+      queryClient.ensureQueryData(serviceBySlugQueryOptions(params.slug)),
+      queryClient.ensureQueryData(servicesPublishedQueryOptions),
+      queryClient.ensureQueryData(projectsPublishedListQueryOptions),
+    ]);
     return { slug: params.slug, service };
   },
+
   head: ({ params, loaderData, match }) => {
     const s = loaderData?.service;
     const search = (match?.search ?? {}) as ServiceSearch;
