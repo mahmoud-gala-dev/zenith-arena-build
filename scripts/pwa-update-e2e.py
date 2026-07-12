@@ -169,50 +169,45 @@ async def run() -> int:
             await page.screenshot(path=str(OUT / "02-waiting.png"))
 
             # ---- instrument the page ----
-            before = await page.evaluate(
+            # window.location.reload is a non-configurable native; we can't stub it.
+            # Instead we (a) mark a sessionStorage key in `beforeunload` and (b) wait
+            # for Playwright's `load` event on the same frame — a true automatic reload
+            # will fire both. We also stash the controller URL in sessionStorage so we
+            # can compare across the reload boundary.
+            before_ctrl = await page.evaluate(
                 """() => {
-                    window.__reloadCalled = false;
-                    window.__controllerChanged = false;
-                    window.__ctrlBefore = navigator.serviceWorker.controller?.scriptURL || null;
-                    try {
-                        Object.defineProperty(window.location, 'reload', {
-                            configurable: true,
-                            value: () => { window.__reloadCalled = true; },
-                        });
-                    } catch { window.reload = () => { window.__reloadCalled = true; }; }
+                    const ctrl = navigator.serviceWorker.controller?.scriptURL || null;
+                    sessionStorage.setItem('pwaE2E.ctrlBefore', ctrl || '');
+                    sessionStorage.removeItem('pwaE2E.unloaded');
+                    sessionStorage.removeItem('pwaE2E.controllerChanged');
+                    window.addEventListener('beforeunload', () => {
+                        sessionStorage.setItem('pwaE2E.unloaded', '1');
+                    });
                     navigator.serviceWorker.addEventListener('controllerchange', () => {
-                        window.__controllerChanged = true;
+                        sessionStorage.setItem('pwaE2E.controllerChanged', '1');
                     }, { once: true });
-                    return window.__ctrlBefore;
+                    return ctrl;
                 }"""
             )
-            print(f"  controller before click: {before}")
+            print(f"  controller before click: {before_ctrl}")
 
-            # ---- click Reload (the behavior under test) ----
-            await page.click("#reload-btn")
+            # ---- click Reload; wait for the automatic navigation ----
+            async with page.expect_event("load", timeout=10_000) as load_info:
+                await page.click("#reload-btn")
+            await load_info.value
 
-            # ---- wait for both signals within 10s ----
-            try:
-                await page.wait_for_function(
-                    "() => window.__controllerChanged === true && window.__reloadCalled === true",
-                    timeout=10_000,
-                )
-            except PWTimeout:
-                state = await page.evaluate(
-                    "() => ({ reload: !!window.__reloadCalled, ctrl: !!window.__controllerChanged, "
-                    "current: navigator.serviceWorker.controller?.scriptURL || null })"
-                )
-                await page.screenshot(path=str(OUT / "03-timeout.png"))
-                print(f"✗ Reload button did not complete the upgrade in 10s: {state}")
-                return 1
-
+            # After the auto-reload, verify the whole chain fired.
             post = await page.evaluate(
-                """() => ({
-                    reloadCalled: window.__reloadCalled,
-                    controllerChanged: window.__controllerChanged,
-                    before: window.__ctrlBefore,
-                    after: navigator.serviceWorker.controller?.scriptURL || null,
-                })"""
+                """() => {
+                    const nav = performance.getEntriesByType('navigation')[0];
+                    return {
+                        unloaded: sessionStorage.getItem('pwaE2E.unloaded') === '1',
+                        controllerChanged: sessionStorage.getItem('pwaE2E.controllerChanged') === '1',
+                        navType: nav?.type || null,
+                        before: sessionStorage.getItem('pwaE2E.ctrlBefore') || null,
+                        after: navigator.serviceWorker.controller?.scriptURL || null,
+                    };
+                }"""
             )
             await page.screenshot(path=str(OUT / "03-after-click.png"))
 
@@ -221,10 +216,13 @@ async def run() -> int:
             )
 
             problems = []
+            if not post["unloaded"] or post["navType"] != "reload":
+                problems.append(
+                    f"Reload button did not trigger window.location.reload() "
+                    f"(unloaded={post['unloaded']} navType={post['navType']})"
+                )
             if not post["controllerChanged"]:
                 problems.append("controllerchange never fired — skipWaiting did not take effect")
-            if not post["reloadCalled"]:
-                problems.append("updateAndReload never invoked window.location.reload()")
             if not post["after"]:
                 problems.append("navigator.serviceWorker.controller is null after upgrade")
 
@@ -237,7 +235,7 @@ async def run() -> int:
                 return 1
 
             print("✓ PASS — Reload button called skipWaiting, controller swapped, "
-                  "and window.location.reload was invoked without a manual reload.")
+                  "and the page auto-reloaded without manual intervention.")
             print(f"  before: {post['before']}")
             print(f"  after:  {post['after']}")
             return 0
