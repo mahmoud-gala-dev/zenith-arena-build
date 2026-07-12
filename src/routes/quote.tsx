@@ -50,6 +50,8 @@ function QuotePage() {
   const [serviceValue, setServiceValue] = useState("");
   const [budgetValue, setBudgetValue] = useState("");
   const [contactMethod, setContactMethod] = useState("email");
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [summary, setSummary] = useState<LeadSummary | null>(null);
   const { data: dbServices } = useQuery(servicesPublishedQueryOptions);
   const { data: quotePage } = useQuery(quotePageSettingsQueryOptions);
 
