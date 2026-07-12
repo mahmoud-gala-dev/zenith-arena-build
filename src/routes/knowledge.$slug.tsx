@@ -169,9 +169,9 @@ function ArticleDetail() {
   type Block = { kind: "h2"; id: string; text: string } | { kind: "p"; id: string; text: string };
   const blocks: Block[] = (content || "")
     .split(/\n\n+/)
-    .map((b) => b.trim())
-    .filter(Boolean)
-    .map((b, i): Block => {
+    .map((b: string) => b.trim())
+    .filter((b: string) => Boolean(b))
+    .map((b: string, i: number): Block => {
       const m = /^##\s+(.+)$/.exec(b);
       if (m) {
         const text = m[1].trim();
@@ -179,7 +179,8 @@ function ArticleDetail() {
       }
       return { kind: "p", id: `p-${i}`, text: b };
     });
-  const toc = blocks.filter((b): b is Extract<Block, { kind: "h2" }> => b.kind === "h2");
+  const toc = blocks.filter((b: Block): b is Extract<Block, { kind: "h2" }> => b.kind === "h2");
+
 
 
   return (
