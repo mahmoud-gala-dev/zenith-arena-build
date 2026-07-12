@@ -181,7 +181,7 @@ function DownloadDetailPage() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <Breadcrumbs
             items={[
-              { label: ar ? "التحميلات" : "Downloads", to: "/downloads" },
+              { label: t.downloadDetail.breadcrumb, to: "/downloads" },
               { label: title },
             ]}
           />
