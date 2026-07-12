@@ -234,7 +234,9 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
     setRows((prev) => prev.filter((row) => !deleteIds.includes(String(row.id))));
     setSelectedIds(new Set());
     setDeleteIds(null);
+    invalidatePublic();
   }
+
 
   async function updateInline(row: AnyRow, key: string, value: unknown) {
     if (!row.id) return;
