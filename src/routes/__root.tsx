@@ -16,6 +16,7 @@ import { SmoothScroll } from "../components/site/SmoothScroll";
 import { PerfOverlay } from "../components/site/PerfOverlay";
 import { initPerf } from "../lib/perf";
 import { PwaController } from "../components/site/PwaController";
+import { seoDefaultsQueryOptions, DEFAULT_SEO_DEFAULTS } from "../lib/settings";
 
 
 
@@ -95,54 +96,59 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
+  loader: async ({ context }) => {
+    try {
+      const seo = await context.queryClient.ensureQueryData(seoDefaultsQueryOptions);
+      return { seo };
+    } catch {
+      return { seo: DEFAULT_SEO_DEFAULTS };
+    }
+  },
+  head: ({ loaderData }) => {
+    const seo = loaderData?.seo ?? DEFAULT_SEO_DEFAULTS;
+    const title = seo.default_title_en;
+    const description = seo.default_description_en;
+    const siteName = seo.site_name_en;
+    const meta = [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      {
-        title: "Egytic — Sports Construction & Infrastructure",
-      },
-      {
-        name: "description",
-        content:
-          "Egytic Sports designs and builds FIFA-grade football pitches, World Athletics tracks, indoor arenas, courts and aquatic centers. Turnkey sports infrastructure engineered to last.",
-      },
-      { name: "author", content: "Egytic Sports Infrastructure" },
-      { property: "og:title", content: "Egytic — Sports Construction & Infrastructure" },
-      {
-        property: "og:description",
-        content:
-          "Egytic Sports designs and builds FIFA-grade football pitches, World Athletics tracks, indoor arenas, courts and aquatic centers. Turnkey sports infrastructure engineered to last.",
-      },
+      { title },
+      { name: "description", content: description },
+      { name: "author", content: seo.author },
+      { property: "og:site_name", content: siteName },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "theme-color", content: "#0b0f19" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: description },
+      { name: "theme-color", content: seo.theme_color },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { name: "apple-mobile-web-app-title", content: "Egytic" },
-      { name: "twitter:title", content: "Egytic — Sports Construction & Infrastructure" },
-      { name: "twitter:description", content: "Egytic Sports designs and builds FIFA-grade football pitches, World Athletics tracks, indoor arenas, courts and aquatic centers. Turnkey sports infrastructure engineered to last." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f71b7f40-6781-48c9-a005-9a671759e2cd/id-preview-6612edba--d6c67e6e-f41c-480e-8a57-28a93a2e36b1.lovable.app-1783068660044.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f71b7f40-6781-48c9-a005-9a671759e2cd/id-preview-6612edba--d6c67e6e-f41c-480e-8a57-28a93a2e36b1.lovable.app-1783068660044.png" },
-    ],
-
-
-
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-      { rel: "preconnect", href: "https://phimnzbiqssakrepavik.supabase.co", crossOrigin: "anonymous" },
-      { rel: "dns-prefetch", href: "https://phimnzbiqssakrepavik.supabase.co" },
-      { rel: "icon", href: "/icon.svg", type: "image/svg+xml" },
-      { rel: "mask-icon", href: "/icon.svg", color: "#12b981" },
-      { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
-    ],
-
-  }),
+      { name: "apple-mobile-web-app-title", content: siteName },
+    ];
+    if (seo.twitter_handle) {
+      meta.push({ name: "twitter:site", content: seo.twitter_handle });
+      meta.push({ name: "twitter:creator", content: seo.twitter_handle });
+    }
+    if (seo.default_og_image_url) {
+      meta.push({ property: "og:image", content: seo.default_og_image_url });
+      meta.push({ name: "twitter:image", content: seo.default_og_image_url });
+    }
+    return {
+      meta,
+      links: [
+        { rel: "stylesheet", href: appCss },
+        { rel: "preconnect", href: "https://phimnzbiqssakrepavik.supabase.co", crossOrigin: "anonymous" },
+        { rel: "dns-prefetch", href: "https://phimnzbiqssakrepavik.supabase.co" },
+        { rel: "icon", href: "/icon.svg", type: "image/svg+xml" },
+        { rel: "mask-icon", href: "/icon.svg", color: "#12b981" },
+        { rel: "manifest", href: "/manifest.webmanifest" },
+        { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      ],
+    };
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,

@@ -60,6 +60,38 @@ export const DEFAULT_BRAND_NAME: BrandName = {
   tagline_ar: "إنشاءات وبنية تحتية رياضية",
 };
 
+export type SeoDefaults = {
+  site_name_en: string;
+  site_name_ar: string;
+  default_title_en: string;
+  default_title_ar: string;
+  default_description_en: string;
+  default_description_ar: string;
+  default_og_image_url: string;
+  twitter_handle: string;
+  theme_color: string;
+  author: string;
+  title_template_en: string;
+  title_template_ar: string;
+};
+
+export const DEFAULT_SEO_DEFAULTS: SeoDefaults = {
+  site_name_en: "Egytic Sports",
+  site_name_ar: "إيجيتك سبورتس",
+  default_title_en: "Egytic — Sports Construction & Infrastructure",
+  default_title_ar: "إيجيتك — إنشاءات وبنية تحتية رياضية",
+  default_description_en:
+    "Egytic Sports designs and builds FIFA-grade football pitches, World Athletics tracks, indoor arenas, courts and aquatic centers. Turnkey sports infrastructure engineered to last.",
+  default_description_ar:
+    "إيجيتك سبورتس تصمم وتنفذ ملاعب كرة قدم بمعايير الفيفا، ومضامير ألعاب قوى معتمدة، وصالات مغلقة وملاعب ومنشآت مائية. بنية تحتية رياضية متكاملة.",
+  default_og_image_url: "",
+  twitter_handle: "",
+  theme_color: "#0b0f19",
+  author: "Egytic Sports Infrastructure",
+  title_template_en: "{page} — {site}",
+  title_template_ar: "{page} — {site}",
+};
+
 const FIVE_MIN = 5 * 60 * 1000;
 
 async function fetchSetting<T>(key: string, fallback: T): Promise<T> {
@@ -90,6 +122,12 @@ export const brandNameQueryOptions = queryOptions({
   staleTime: FIVE_MIN,
 });
 
+export const seoDefaultsQueryOptions = queryOptions({
+  queryKey: ["settings", "seo_defaults"],
+  queryFn: () => fetchSetting<SeoDefaults>("seo_defaults", DEFAULT_SEO_DEFAULTS),
+  staleTime: FIVE_MIN,
+});
+
 export function useContactInfo(): ContactInfo {
   return useQuery(contactInfoQueryOptions).data ?? DEFAULT_CONTACT_INFO;
 }
@@ -100,6 +138,10 @@ export function useSocialLinks(): SocialLinks {
 
 export function useBrandName(): BrandName {
   return useQuery(brandNameQueryOptions).data ?? DEFAULT_BRAND_NAME;
+}
+
+export function useSeoDefaults(): SeoDefaults {
+  return useQuery(seoDefaultsQueryOptions).data ?? DEFAULT_SEO_DEFAULTS;
 }
 
 /** Digits-only phone for WhatsApp / tel links. */
