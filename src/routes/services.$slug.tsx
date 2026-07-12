@@ -166,9 +166,49 @@ function ServiceDetailPage() {
   const ar = lang === "ar";
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
+  const { data: allServices } = useQuery(servicesPublishedQueryOptions);
+  const { data: allProjectsDb } = useQuery(projectsPublishedListQueryOptions);
+
+  const relatedServices = useMemo(() => {
+    const list = allServices ?? [];
+    if (!service) return [];
+    return list
+      .filter((s) => s.slug_en !== service.slug_en && (service.category ? s.category === service.category : true))
+      .slice(0, 3);
+  }, [allServices, service]);
+
+  const relatedProjects = useMemo(() => {
+    const list = (allProjectsDb ?? []).map(dbProjectToView);
+    if (!service) return list.slice(0, 3);
+    const cat = (service.category ?? "").toLowerCase();
+    const matches = cat
+      ? list.filter((p) => p.category.toLowerCase().includes(cat) || cat.includes(p.category.toLowerCase()))
+      : [];
+    return (matches.length ? matches : list).slice(0, 3);
+  }, [allProjectsDb, service]);
+
+  const benefits = ar
+    ? [
+        { icon: ShieldCheck, title: "جودة معتمدة دوليًا", desc: "منتجات وأنظمة مطابقة لمعايير FIFA و World Athletics و ITF." },
+        { icon: Award, title: "خبرة +15 سنة", desc: "أكثر من 200 مشروع منفَّذ في مصر والشرق الأوسط وأفريقيا." },
+        { icon: Clock, title: "تسليم في الموعد", desc: "جدول زمني ملزم مع تحديثات أسبوعية وضمانات تأخير." },
+        { icon: Wrench, title: "حل تسليم مفتاح", desc: "دراسة، تصميم، توريد، تنفيذ، وصيانة من مصدر واحد." },
+        { icon: Users, title: "فريق هندسي مقيم", desc: "مهندس مشروع مخصص + إشراف ميداني يومي." },
+        { icon: Sparkles, title: "ضمان يمتد حتى 8 سنوات", desc: "على الأسطح الرياضية مع خطة صيانة وقائية." },
+      ]
+    : [
+        { icon: ShieldCheck, title: "Internationally certified quality", desc: "Products & systems compliant with FIFA, World Athletics and ITF." },
+        { icon: Award, title: "15+ years of expertise", desc: "200+ delivered projects across Egypt, the Middle East and Africa." },
+        { icon: Clock, title: "On-time delivery", desc: "Binding schedule with weekly updates and delay guarantees." },
+        { icon: Wrench, title: "Turnkey solution", desc: "Study, design, supply, installation and maintenance in-house." },
+        { icon: Users, title: "Dedicated engineering team", desc: "Assigned project engineer + daily on-site supervision." },
+        { icon: Sparkles, title: "Warranty up to 8 years", desc: "On sports surfaces with a preventive maintenance plan." },
+      ];
+
   const copy = ar
-    ? { back: "العودة للخدمات", overview: "نظرة عامة", gallery: "معرض الخدمة", brochure: "تحميل البروشور", whatsapp: "واتساب", quote: "اطلب عرض سعر", notFound: "لم يتم العثور على الخدمة", faq: "الأسئلة الشائعة" }
-    : { back: "Back to services", overview: "Overview", gallery: "Service gallery", brochure: "Download brochure", whatsapp: "WhatsApp", quote: "Request quote", notFound: "Service not found", faq: "Frequently asked questions" };
+    ? { back: "العودة للخدمات", overview: "نظرة عامة", gallery: "معرض الخدمة", brochure: "تحميل البروشور", whatsapp: "واتساب", quote: "اطلب عرض سعر", notFound: "لم يتم العثور على الخدمة", faq: "الأسئلة الشائعة", benefits: "لماذا تختار هذه الخدمة", benefitsSub: "مزايا نقدمها في كل مشروع من البداية للتسليم.", related: "خدمات ذات صلة", relatedSub: "استكشف خدمات تكميلية تعزّز مشروعك.", projects: "أمثلة من مشاريعنا", projectsSub: "لقطات حقيقية من تنفيذنا لهذه الخدمة.", viewAll: "عرض كل المشاريع", viewService: "استعرض الخدمة", viewProject: "تفاصيل المشروع" }
+    : { back: "Back to services", overview: "Overview", gallery: "Service gallery", brochure: "Download brochure", whatsapp: "WhatsApp", quote: "Request quote", notFound: "Service not found", faq: "Frequently asked questions", benefits: "Why choose this service", benefitsSub: "What we bring to every project, from kick-off to hand-over.", related: "Related services", relatedSub: "Complementary services that strengthen your project.", projects: "Selected past projects", projectsSub: "Real deliveries from our field team for this service.", viewAll: "View all projects", viewService: "View service", viewProject: "Project details" };
+
 
   if (loading) {
     return <SiteLayout><DetailPageSkeleton /></SiteLayout>;
