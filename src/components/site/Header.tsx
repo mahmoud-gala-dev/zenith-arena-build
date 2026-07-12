@@ -263,7 +263,8 @@ export function Header() {
                   {l.label}
                   <span
                     className={cn(
-                      "pointer-events-none absolute -bottom-1.5 left-0 h-[2px] w-full origin-left scale-x-0 rounded-full bg-[color:var(--gold)] transition-transform duration-300 ease-out group-hover/link:scale-x-100",
+                      "pointer-events-none absolute -bottom-1.5 inset-x-0 h-[2px] scale-x-0 rounded-full bg-[color:var(--gold)] transition-transform duration-300 ease-out group-hover/link:scale-x-100",
+                      ar ? "origin-right" : "origin-left",
                       active && "scale-x-100",
                     )}
                   />
