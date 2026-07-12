@@ -1,6 +1,7 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Download, Loader2, Lock } from "lucide-react";
+import { CheckCircle2, Download, Loader2, Lock, MessageCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -50,9 +51,23 @@ export function DownloadGateButton({
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [fetchingUrl, setFetchingUrl] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "", website: "" });
+  const [whatsapp, setWhatsapp] = useState<string | null>(null);
   const submit = useServerFn(submitLead);
   const sign = useServerFn(getDownloadSignedUrl);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase.from("settings").select("value").eq("key", "contact_info").maybeSingle().then(({ data }) => {
+      if (cancelled) return;
+      const v = (data?.value ?? {}) as { whatsapp?: string; phone?: string };
+      const raw = (v.whatsapp || v.phone || "").trim();
+      const digits = raw.replace(/[^\d]/g, "");
+      setWhatsapp(digits || null);
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   async function openSignedUrl(): Promise<string | null> {
     if (!downloadId) {
@@ -113,6 +128,11 @@ export function DownloadGateButton({
         success: "تم — يبدأ التحميل الآن",
         error: "تعذّر الإرسال. حاول مرة أخرى.",
         required: "الرجاء تعبئة الاسم والبريد ورقم الجوال.",
+        successTitle: "تم استلام بياناتك بنجاح",
+        successDesc: "بدأ تحميلك. للتحدث مع فريق المبيعات مباشرة، تواصل معنا عبر واتساب.",
+        whatsapp: "تواصل مع المبيعات عبر واتساب",
+        close: "إغلاق",
+        waMsg: (t: string) => `مرحبًا، طلبت تحميل: ${t}. أود التحدث مع فريق المبيعات.`,
       }
     : {
         title: "Enter your details to start the download",
@@ -126,6 +146,11 @@ export function DownloadGateButton({
         success: "Thanks — your download is starting",
         error: "Could not submit. Please try again.",
         required: "Name, email and phone are required.",
+        successTitle: "Your details were received",
+        successDesc: "Your download has started. To talk to our sales team directly, message us on WhatsApp.",
+        whatsapp: "Chat with sales on WhatsApp",
+        close: "Close",
+        waMsg: (t: string) => `Hi, I just requested the ${t} catalog. I'd like to talk to sales.`,
       };
 
   async function onSubmit(e: React.FormEvent) {
@@ -148,8 +173,7 @@ export function DownloadGateButton({
         },
       });
       toast.success(T.success);
-      setOpen(false);
-      setForm({ name: "", email: "", phone: "", website: "" });
+      setSubmitted(true);
       void trackDownloadEvent("download", downloadId);
       await openSignedUrl();
     } catch (err) {
@@ -170,12 +194,37 @@ export function DownloadGateButton({
       >
         <Lock className="h-4 w-4" /> {label}
       </Button>
-      <Dialog open={open} onOpenChange={(v) => !submitting && setOpen(v)}>
+      <Dialog open={open} onOpenChange={(v) => {
+        if (submitting) return;
+        setOpen(v);
+        if (!v) { setSubmitted(false); setForm({ name: "", email: "", phone: "", website: "" }); }
+      }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{T.title}</DialogTitle>
-            <DialogDescription>{T.desc}</DialogDescription>
+            <DialogTitle>{submitted ? T.successTitle : T.title}</DialogTitle>
+            <DialogDescription>{submitted ? T.successDesc : T.desc}</DialogDescription>
           </DialogHeader>
+          {submitted ? (
+            <div className="space-y-4" dir={ar ? "rtl" : "ltr"}>
+              <div className="flex items-center gap-3 rounded-lg border border-border bg-secondary/40 p-3 text-sm">
+                <CheckCircle2 className="h-5 w-5 text-primary" />
+                <span>{T.success}</span>
+              </div>
+              {whatsapp ? (
+                <a
+                  href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(T.waMsg(title))}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#25D366] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#1ebe57] transition"
+                >
+                  <MessageCircle className="h-4 w-4" /> {T.whatsapp}
+                </a>
+              ) : null}
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setOpen(false)}>{T.close}</Button>
+              </DialogFooter>
+            </div>
+          ) : (
           <form onSubmit={onSubmit} className="space-y-4" dir={ar ? "rtl" : "ltr"}>
             <div className="space-y-1.5">
               <Label htmlFor="dl-name">{T.name}</Label>
@@ -245,6 +294,7 @@ export function DownloadGateButton({
               </Button>
             </DialogFooter>
           </form>
+          )}
         </DialogContent>
       </Dialog>
     </>
