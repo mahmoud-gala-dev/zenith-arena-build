@@ -379,7 +379,7 @@ function LeadsPage() {
                 </div>
                 <div className="sm:col-span-2">
                   <label className="text-xs uppercase text-muted-foreground">Status</label>
-                  <Select value={selected.status} onValueChange={(v) => updateStatus(selected.id, v)}>
+                  <Select value={selected.status} onValueChange={(v) => updateStatus(selected.id, v)} disabled={!canManage}>
                     <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {STATUSES.map((s) => <SelectItem key={s} value={s}>{s.replace("_", " ")}</SelectItem>)}
@@ -391,10 +391,12 @@ function LeadsPage() {
                   <textarea
                     defaultValue={selected.internal_notes ?? ""}
                     rows={4}
-                    className="mt-1 w-full rounded-md border border-border bg-background p-2 text-sm"
+                    disabled={!canManage}
+                    className="mt-1 w-full rounded-md border border-border bg-background p-2 text-sm disabled:opacity-60"
                     onBlur={(e) => saveNotes(selected.id, e.target.value)}
-                    placeholder="Notes are auto-saved on blur…"
+                    placeholder={canManage ? "Notes are auto-saved on blur…" : "Read-only — you don't have permission to edit."}
                   />
+
                 </div>
                 <div className="sm:col-span-2">
                   <label className="text-xs uppercase text-muted-foreground">Activity timeline</label>
