@@ -14,7 +14,8 @@ import { VirtualCardGrid } from "@/components/site/VirtualCardGrid";
 import { PerfProfiler } from "@/lib/perf";
 import { cn } from "@/lib/utils";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
-import { projects, projectCategories } from "@/lib/site-data";
+import { projectCategories } from "@/lib/site-data";
+import { dbProjectToView } from "@/lib/queries";
 import {
   governoratesActiveQueryOptions,
   projectsPublishedListQueryOptions,
