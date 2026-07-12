@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Menu, Phone, Mail, MapPin, Facebook, Instagram, Linkedin, Youtube, MessageCircle } from "lucide-react";
+import { Menu, Phone, Mail, MapPin, Facebook, Instagram, Linkedin, Youtube, MessageCircle, ChevronDown } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Logo } from "./Logo";
 import { LangToggle } from "./LangToggle";
 import { ThemeToggle } from "./ThemeToggle";
+import { QuickLeadDialog } from "./QuickLeadDialog";
 
 import { useBranding, DEFAULT_LOGO_MOTION } from "@/hooks/useBranding";
 
@@ -15,6 +17,7 @@ import { useLang } from "@/i18n/LanguageProvider";
 import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
 import { menusByLocationQueryOptions } from "@/lib/queries";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/analytics";
 
 
 export function Header() {
