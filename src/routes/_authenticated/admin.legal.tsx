@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
+import { useMyRoles } from "@/hooks/useMyRoles";
 
 export const Route = createFileRoute("/_authenticated/admin/legal")({
   component: AdminLegalPage,
@@ -90,6 +91,7 @@ function AdminLegalPage() {
 
 function LegalEditor({ slug, label }: { slug: string; label: string }) {
   const qc = useQueryClient();
+  const { canPreview, canPreviewDrafts, roles } = useMyRoles();
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "legal", slug],
     queryFn: async () => {
@@ -497,6 +499,14 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
               <Button
                 type="button"
                 variant="outline"
+                disabled={!canPreview || (form.status !== "published" && !canPreviewDrafts)}
+                title={
+                  !canPreview
+                    ? `Your role (${roles.join(", ") || "none"}) cannot open previews`
+                    : form.status !== "published" && !canPreviewDrafts
+                      ? "Only admin/editor roles can preview unpublished drafts"
+                      : undefined
+                }
                 onClick={() => {
                   const iso = form.effectiveAt
                     ? new Date(form.effectiveAt).toISOString()
