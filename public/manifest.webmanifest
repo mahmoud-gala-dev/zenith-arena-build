@@ -2,7 +2,8 @@
   "name": "Egytic Sports — Sports Construction & Infrastructure",
   "short_name": "Egytic",
   "description": "Turnkey sports infrastructure: FIFA-grade pitches, World Athletics tracks, courts, aquatic centers.",
-  "start_url": "/",
+  "id": "/?source=pwa",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
@@ -13,11 +14,14 @@
   "lang": "en",
   "dir": "ltr",
   "icons": [
-    { "src": "/favicon.ico", "sizes": "48x48", "type": "image/x-icon" }
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" },
+    { "src": "/apple-touch-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
   ],
   "shortcuts": [
     { "name": "Projects", "url": "/projects", "short_name": "Projects" },
     { "name": "Products", "url": "/products", "short_name": "Products" },
     { "name": "Request a quote", "url": "/quote", "short_name": "Quote" }
-  ]
+  ],
+  "prefer_related_applications": false
 }
