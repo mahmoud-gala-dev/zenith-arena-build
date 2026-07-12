@@ -73,6 +73,9 @@ export const governoratesActiveQueryOptions = queryOptions<Gov[]>({
   },
 });
 
+const PROJECT_COLUMNS =
+  "id,slug_en,slug_ar,title_en,title_ar,description_en,description_ar,overview_en,overview_ar,client,location,country,city,year,area_sqm,surface_type,sport_type,service_category,cover_image,gallery,seo_title,seo_description,governorate_id";
+
 export const projectsPublishedListQueryOptions = queryOptions<DbProject[]>({
   queryKey: ["projects", "published-list"],
   staleTime: FIVE_MIN,
@@ -80,14 +83,30 @@ export const projectsPublishedListQueryOptions = queryOptions<DbProject[]>({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("projects")
-      .select(
-        "id,slug_en,title_en,title_ar,description_en,description_ar,location,year,sport_type,service_category,cover_image,governorate_id",
-      )
-      .eq("status", "published");
+      .select(PROJECT_COLUMNS)
+      .eq("status", "published")
+      .order("sort_order");
     if (error) throw error;
     return (data ?? []) as DbProject[];
   },
 });
+
+export const projectBySlugQueryOptions = (slug: string) =>
+  queryOptions<DbProject | null>({
+    queryKey: ["projects", "by-slug", slug],
+    staleTime: FIVE_MIN,
+    gcTime: HALF_HOUR,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select(PROJECT_COLUMNS)
+        .eq("status", "published")
+        .or(`slug_en.eq.${slug},slug_ar.eq.${slug}`)
+        .maybeSingle();
+      if (error) throw error;
+      return (data ?? null) as DbProject | null;
+    },
+  });
 
 export const homeClientsQueryOptions = queryOptions<HomeClient[]>({
   queryKey: ["home-clients"],
