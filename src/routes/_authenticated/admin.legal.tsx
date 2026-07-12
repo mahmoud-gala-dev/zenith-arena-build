@@ -556,11 +556,17 @@ function LangEditor({
   value,
   onChange,
   rtl,
+  slug,
 }: {
   value: LangContent;
   onChange: (next: LangContent) => void;
   rtl?: boolean;
+  slug: string;
 }) {
+  const canonicalUrl = `https://zenith-arena-build.lovable.app/${slug}`;
+  const effectiveTitle = (value.seoTitle.trim() || value.title.trim() || "Untitled");
+  const effectiveDesc = (value.seoDescription.trim() || value.intro.trim() || "");
+  const descPreview = effectiveDesc.length > 160 ? effectiveDesc.slice(0, 157) + "…" : effectiveDesc;
   const dir = rtl ? "rtl" : "ltr";
 
   function updateSection(i: number, patch: Partial<Section>) {
