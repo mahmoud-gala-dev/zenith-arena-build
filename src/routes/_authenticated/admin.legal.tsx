@@ -161,7 +161,87 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
       <div className="flex justify-end">
         <Button onClick={save} disabled={!canSave}>{saving ? "Saving…" : "Save"}</Button>
       </div>
+
+      <AuditHistory recordId={form.id} />
     </div>
+  );
+}
+
+type AuditRow = {
+  id: string;
+  actor_email: string | null;
+  actor_id: string | null;
+  action: string;
+  created_at: string;
+  changes: { diff?: Record<string, unknown> } | null;
+};
+
+function AuditHistory({ recordId }: { recordId?: string }) {
+  const { data, isLoading, refetch, isFetching } = useQuery({
+    queryKey: ["admin", "legal", "audit", recordId ?? "none"],
+    enabled: !!recordId,
+    queryFn: async (): Promise<AuditRow[]> => {
+      const { data, error } = await supabase
+        .from("audit_logs")
+        .select("id, actor_email, actor_id, action, created_at, changes")
+        .eq("table_name", "pages")
+        .eq("record_id", recordId!)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return (data ?? []) as AuditRow[];
+    },
+  });
+
+  if (!recordId) {
+    return (
+      <Card>
+        <CardHeader><CardTitle className="text-base">Edit history</CardTitle></CardHeader>
+        <CardContent><p className="text-sm text-muted-foreground">Save the page first to start tracking changes.</p></CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+        <CardTitle className="text-base">Edit history</CardTitle>
+        <Button size="sm" variant="outline" onClick={() => refetch()} disabled={isFetching}>
+          {isFetching ? "Refreshing…" : "Refresh"}
+        </Button>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : !data || data.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No changes recorded yet.</p>
+        ) : (
+          <ul className="divide-y">
+            {data.map((row) => {
+              const fields = row.changes?.diff ? Object.keys(row.changes.diff) : [];
+              return (
+                <li key={row.id} className="py-3 text-sm">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded bg-muted px-2 py-0.5 text-xs font-medium uppercase">
+                      {row.action}
+                    </span>
+                    <span className="font-medium">{row.actor_email ?? row.actor_id ?? "System"}</span>
+                    <span className="text-muted-foreground">
+                      · {new Date(row.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                  {fields.length > 0 && (
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      Changed: {fields.join(", ")}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

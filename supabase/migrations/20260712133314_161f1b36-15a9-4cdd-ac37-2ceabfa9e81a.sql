@@ -1,0 +1,1 @@
+CREATE TRIGGER audit_pages AFTER INSERT OR UPDATE OR DELETE ON public.pages FOR EACH ROW EXECUTE FUNCTION public.log_audit();
