@@ -46,6 +46,7 @@ const nav: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exac
   { to: "/admin/blog", label: "Blog", icon: BookOpen },
   { to: "/admin/categories", label: "Categories", icon: Tags },
   { to: "/admin/downloads", label: "Downloads", icon: Download },
+  { to: "/admin/downloads-analytics", label: "Downloads Analytics", icon: BarChart3 },
   { to: "/admin/clients", label: "Clients", icon: Building2 },
   { to: "/admin/certificates", label: "Certificates", icon: Award },
   { to: "/admin/gallery", label: "Gallery", icon: Images },
