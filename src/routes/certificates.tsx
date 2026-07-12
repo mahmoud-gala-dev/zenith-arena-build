@@ -33,33 +33,10 @@ export const Route = createFileRoute("/certificates")({
 });
 
 function CertificatesPage() {
-  const { lang } = useLang();
+  const { lang, t: T } = useLang();
   const ar = lang === "ar";
   const { data: certs } = useSuspenseQuery(certificatesPublishedQueryOptions);
-
-  const tx = ar
-    ? {
-        eyebrow: "الشهادات والاعتمادات",
-        title: "معايير عالمية موثّقة",
-        sub: "نلتزم بأصرم معايير الجودة والسلامة والاستدامة في الصناعة الرياضية والبناء.",
-        issuedBy: "الجهة المصدرة",
-        number: "الرقم",
-        issued: "صادرة في",
-        expires: "سارية حتى",
-        valid: "سارية",
-        empty: "لا توجد شهادات بعد.",
-      }
-    : {
-        eyebrow: "Certifications",
-        title: "Independently verified standards",
-        sub: "We hold the industry's most demanding certifications for quality, safety and sustainability.",
-        issuedBy: "Issued by",
-        number: "No.",
-        issued: "Issued",
-        expires: "Valid until",
-        valid: "Valid",
-        empty: "No certificates yet.",
-      };
+  const tx = T.pages.certificates;
 
   return (
     <SiteLayout>

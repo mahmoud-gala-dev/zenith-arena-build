@@ -86,9 +86,7 @@ function GalleryPage() {
     setActiveCategory(search.category ?? "all");
   }, [search.type, search.category]);
 
-  const tx = ar
-    ? { eyebrow: "المعرض", title: "مختارات من أعمالنا", sub: "لقطات من الملاعب والمنشآت والمعرفة التقنية التي نقدّمها.", all: "الكل", types: { projects: "المشاريع", knowledge: "المعرفة" }, empty: "لا توجد عناصر لهذا الفلتر.", close: "إغلاق", prev: "السابق", next: "التالي", searchPh: "ابحث في المعرض…", zoomIn: "تكبير", zoomOut: "تصغير" }
-    : { eyebrow: "Gallery", title: "A visual tour of our work", sub: "Snapshots from pitches, arenas, services and technical knowledge we've delivered.", all: "All", types: { projects: "Projects", knowledge: "Knowledge" }, empty: "No items match this filter.", close: "Close", prev: "Previous", next: "Next", searchPh: "Search the gallery…", zoomIn: "Zoom in", zoomOut: "Zoom out" };
+  const tx = T.pages.gallery;
 
   const allItems = useMemo<GalleryItem[]>(() => {
     const projectItems: GalleryItem[] = galleryRows.map((g, idx) => ({
