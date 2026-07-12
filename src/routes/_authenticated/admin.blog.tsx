@@ -224,7 +224,7 @@ function AdminBlogPage() {
                       {r.title_ar && <div className="text-xs text-muted-foreground" dir="rtl">{r.title_ar}</div>}
                       <div className="text-xs text-muted-foreground">/{r.slug_en}</div>
                     </td>
-                    <td className="p-3">{cat ? <Badge variant="secondary">{cat.name_en}</Badge> : <span className="text-muted-foreground">—</span>}</td>
+                    <td className="p-3">{cat ? <Badge variant="secondary">{cat.title_en}</Badge> : <span className="text-muted-foreground">—</span>}</td>
                     <td className="p-3">
                       <div className="flex gap-1">
                         <Badge variant={enOk ? "default" : "outline"} className="text-[10px]">EN</Badge>
