@@ -332,7 +332,7 @@ function Index() {
             {/* Scroll indicator */}
             <div className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center">
               <span className="inline-flex flex-col items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-white/40">
-                {lang === "ar" ? "مرّر للأسفل" : "Scroll"}
+                {t.home.scroll}
                 <ChevronDown className="h-4 w-4 animate-bounce text-primary/70" />
               </span>
             </div>
