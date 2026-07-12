@@ -242,19 +242,41 @@ export function DownloadGateButton({
       <Dialog open={open} onOpenChange={(v) => {
         if (submitting) return;
         setOpen(v);
-        if (!v) { setSubmitted(false); setForm({ name: "", email: "", phone: "", website: "" }); }
+        if (!v) {
+          setSubmitted(false);
+          setDownloadUrl(null);
+          setPopupBlocked(false);
+          setForm({ name: "", email: "", phone: "", website: "" });
+        }
       }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{submitted ? T.successTitle : T.title}</DialogTitle>
-            <DialogDescription>{submitted ? T.successDesc : T.desc}</DialogDescription>
+            <DialogTitle className={submitted ? "text-center" : ""}>{submitted ? T.successTitle : T.title}</DialogTitle>
+            <DialogDescription className={submitted ? "text-center" : ""}>{submitted ? T.successDesc : T.desc}</DialogDescription>
           </DialogHeader>
           {submitted ? (
             <div className="space-y-4" dir={ar ? "rtl" : "ltr"}>
-              <div className="flex items-center gap-3 rounded-lg border border-border bg-secondary/40 p-3 text-sm">
-                <CheckCircle2 className="h-5 w-5 text-primary" />
-                <span>{T.success}</span>
+              <div className="flex flex-col items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 p-6 text-center">
+                <div className="relative">
+                  <div className="absolute inset-0 animate-ping rounded-full bg-primary/30" aria-hidden />
+                  <CheckCircle2 className="relative h-14 w-14 text-primary" strokeWidth={2.2} />
+                </div>
+                <p className="text-sm font-medium text-foreground">{T.success}</p>
               </div>
+              {popupBlocked ? (
+                <p className="text-xs text-amber-600 dark:text-amber-400 text-center">{T.popupBlocked}</p>
+              ) : null}
+              {downloadUrl ? (
+                <a
+                  href={downloadUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setPopupBlocked(false)}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition"
+                >
+                  <Download className="h-4 w-4" /> {T.downloadAgain}
+                </a>
+              ) : null}
               {whatsapp ? (
                 <a
                   href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(T.waMsg(title))}`}
