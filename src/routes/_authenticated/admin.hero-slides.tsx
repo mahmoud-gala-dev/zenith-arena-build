@@ -171,8 +171,10 @@ function AdminHeroSlides() {
     if (res.error) return toast.error(res.error.message);
     toast.success(editingId ? "Slide updated" : "Slide created");
     setEditing(null); setEditingId(null);
+    invalidate();
     load();
   }
+
 
   async function remove() {
     if (!deleteId) return;
