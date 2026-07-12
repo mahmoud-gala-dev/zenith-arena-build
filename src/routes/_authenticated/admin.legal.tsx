@@ -17,7 +17,14 @@ export const Route = createFileRoute("/_authenticated/admin/legal")({
 });
 
 type Section = { h: string; body: string };
-type LangContent = { title: string; intro: string; sections: Section[] };
+type LangContent = {
+  title: string;
+  intro: string;
+  sections: Section[];
+  seoTitle: string;
+  seoDescription: string;
+  seoKeywords: string;
+};
 type PageForm = {
   id?: string;
   en: LangContent;
@@ -102,8 +109,8 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
   useEffect(() => {
     if (!data && !isLoading) {
       setForm({
-        en: { title: label, intro: "", sections: [] },
-        ar: { title: label, intro: "", sections: [] },
+        en: { title: label, intro: "", sections: [], seoTitle: "", seoDescription: "", seoKeywords: "" },
+        ar: { title: label, intro: "", sections: [], seoTitle: "", seoDescription: "", seoKeywords: "" },
         status: "draft",
         effectiveAt: "",
       });
@@ -112,10 +119,32 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
     if (data) {
       const en = parse(data.content_en ?? "");
       const ar = parse(data.content_ar ?? "");
+      const d = data as typeof data & {
+        seo_title_en?: string | null;
+        seo_title_ar?: string | null;
+        seo_description_en?: string | null;
+        seo_description_ar?: string | null;
+        seo_keywords_en?: string | null;
+        seo_keywords_ar?: string | null;
+      };
       setForm({
         id: data.id,
-        en: { title: data.title_en ?? label, intro: en.intro, sections: en.sections },
-        ar: { title: data.title_ar ?? label, intro: ar.intro, sections: ar.sections },
+        en: {
+          title: data.title_en ?? label,
+          intro: en.intro,
+          sections: en.sections,
+          seoTitle: d.seo_title_en ?? "",
+          seoDescription: d.seo_description_en ?? "",
+          seoKeywords: d.seo_keywords_en ?? "",
+        },
+        ar: {
+          title: data.title_ar ?? label,
+          intro: ar.intro,
+          sections: ar.sections,
+          seoTitle: d.seo_title_ar ?? "",
+          seoDescription: d.seo_description_ar ?? "",
+          seoKeywords: d.seo_keywords_ar ?? "",
+        },
         status: (data.status as "published" | "draft") ?? "draft",
         effectiveAt: toLocalInput((data as { effective_at?: string | null }).effective_at ?? null),
       });
@@ -145,6 +174,12 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
         template: "legal",
         status: form.status,
         effective_at: form.effectiveAt ? new Date(form.effectiveAt).toISOString() : null,
+        seo_title_en: form.en.seoTitle || null,
+        seo_title_ar: form.ar.seoTitle || null,
+        seo_description_en: form.en.seoDescription || null,
+        seo_description_ar: form.ar.seoDescription || null,
+        seo_keywords_en: form.en.seoKeywords || null,
+        seo_keywords_ar: form.ar.seoKeywords || null,
       };
       const q = form.id
         ? supabase.from("pages").update(payload).eq("id", form.id)
@@ -411,6 +446,43 @@ function LangEditor({
           onChange={(e) => onChange({ ...value, intro: e.target.value })}
         />
       </div>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm">SEO ({rtl ? "AR" : "EN"})</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid gap-2">
+            <Label>SEO title</Label>
+            <Input
+              value={value.seoTitle}
+              maxLength={70}
+              placeholder="Overrides page title in browser tab & search results"
+              onChange={(e) => onChange({ ...value, seoTitle: e.target.value })}
+            />
+            <p className="text-xs text-muted-foreground">{value.seoTitle.length}/70 · Leave empty to fall back to the page title.</p>
+          </div>
+          <div className="grid gap-2">
+            <Label>Meta description</Label>
+            <Textarea
+              rows={3}
+              maxLength={180}
+              value={value.seoDescription}
+              placeholder="Short summary shown by search engines and social shares"
+              onChange={(e) => onChange({ ...value, seoDescription: e.target.value })}
+            />
+            <p className="text-xs text-muted-foreground">{value.seoDescription.length}/180</p>
+          </div>
+          <div className="grid gap-2">
+            <Label>Keywords</Label>
+            <Input
+              value={value.seoKeywords}
+              placeholder="comma, separated, keywords"
+              onChange={(e) => onChange({ ...value, seoKeywords: e.target.value })}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">

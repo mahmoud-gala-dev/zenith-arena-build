@@ -1035,6 +1035,12 @@ export type Database = {
           effective_at: string | null
           featured: boolean
           id: string
+          seo_description_ar: string | null
+          seo_description_en: string | null
+          seo_keywords_ar: string | null
+          seo_keywords_en: string | null
+          seo_title_ar: string | null
+          seo_title_en: string | null
           slug_ar: string | null
           slug_en: string
           sort_order: number
@@ -1051,6 +1057,12 @@ export type Database = {
           effective_at?: string | null
           featured?: boolean
           id?: string
+          seo_description_ar?: string | null
+          seo_description_en?: string | null
+          seo_keywords_ar?: string | null
+          seo_keywords_en?: string | null
+          seo_title_ar?: string | null
+          seo_title_en?: string | null
           slug_ar?: string | null
           slug_en: string
           sort_order?: number
@@ -1067,6 +1079,12 @@ export type Database = {
           effective_at?: string | null
           featured?: boolean
           id?: string
+          seo_description_ar?: string | null
+          seo_description_en?: string | null
+          seo_keywords_ar?: string | null
+          seo_keywords_en?: string | null
+          seo_title_ar?: string | null
+          seo_title_en?: string | null
           slug_ar?: string | null
           slug_en?: string
           sort_order?: number
