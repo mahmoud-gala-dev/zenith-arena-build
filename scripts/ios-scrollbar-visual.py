@@ -109,7 +109,7 @@ async def main():
         # Playwright's iPhone 13 descriptor = WebKit + iOS UA + 390×844 + DPR 3 + touch.
         iphone = p.devices["iPhone 13"]
         browser = await p.webkit.launch(headless=True)
-        context = await browser.new_context(**iphone)
+        context = await browser.new_context(**iphone, service_workers="block")
         try:
             for route in ROUTES:
                 try:
