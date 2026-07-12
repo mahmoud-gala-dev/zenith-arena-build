@@ -167,18 +167,14 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
                 <div className="flex flex-col items-center justify-center text-center py-10 animate-fade-in">
                   <div className="relative">
                     <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
-                    <CheckCircle2 className="relative h-16 w-16 text-primary" strokeWidth={1.5} />
+                    <Send className="relative h-16 w-16 text-primary" strokeWidth={1.5} />
                   </div>
                   <h3 className="mt-6 text-xl font-bold text-foreground">{t.success}</h3>
                   <p className="mt-2 text-sm text-muted-foreground max-w-sm">{t.successBody}</p>
                   <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                    {waHref && (
-                      <Button asChild variant="hero">
-                        <a href={waHref} target="_blank" rel="noopener noreferrer">
-                          <MessageCircle className="h-4 w-4" /> {t.whatsapp}
-                        </a>
-                      </Button>
-                    )}
+                    <Button variant="hero" onClick={() => setSuccessOpen(true)}>
+                      {ar ? "عرض ملخص الطلب" : "View submission"}
+                    </Button>
                     <Button variant="outline" onClick={() => setSent(false)}>{t.another}</Button>
                   </div>
                 </div>
