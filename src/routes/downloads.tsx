@@ -269,6 +269,12 @@ function CategoryChip({
         (active
           ? "border-primary bg-primary text-primary-foreground"
           : "border-border bg-card text-foreground hover:border-primary/50 hover:text-primary")
+      }
+      aria-pressed={active}
+    >
+      {children}
+    </button>
+  );
 }
 
 function HighlightText({ text, query }: { text: string; query: string }) {
@@ -289,9 +295,3 @@ function HighlightText({ text, query }: { text: string; query: string }) {
   );
 }
 
-      aria-pressed={active}
-    >
-      {children}
-    </button>
-  );
-}
