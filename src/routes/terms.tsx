@@ -14,7 +14,7 @@ export const Route = createFileRoute("/terms")({
         "Terms and conditions governing the use of the Egytic Sports website and services.",
       fallbackDescAr:
         "الشروط والأحكام التي تحكم استخدام موقع وخدمات إيجيتك سبورتس.",
-    }),
+    }, "terms"),
   component: () => (
     <LegalPage slug="terms" eyebrowEn="Terms" eyebrowAr="الشروط" />
   ),

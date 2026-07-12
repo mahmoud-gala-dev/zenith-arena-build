@@ -16,6 +16,8 @@ type SeoRow = PageRow & {
   seo_keywords_ar?: string | null;
 };
 
+const DOMAIN = "https://zenith-arena-build.lovable.app";
+
 function pick(...values: Array<string | null | undefined>): string {
   for (const v of values) {
     if (typeof v === "string" && v.trim()) return v.trim();
@@ -23,7 +25,15 @@ function pick(...values: Array<string | null | undefined>): string {
   return "";
 }
 
-export function buildLegalHead(page: PageRow | null | undefined, fb: Fallbacks) {
+export function canonicalFor(slug: string): string {
+  return `${DOMAIN}/${slug}`;
+}
+
+export function buildLegalHead(
+  page: PageRow | null | undefined,
+  fb: Fallbacks,
+  slug?: string,
+) {
   const p = (page ?? null) as SeoRow | null;
 
   const titleEn = pick(p?.seo_title_en, p?.title_en, fb.fallbackTitleEn);
@@ -32,6 +42,8 @@ export function buildLegalHead(page: PageRow | null | undefined, fb: Fallbacks) 
   const descAr = pick(p?.seo_description_ar, fb.fallbackDescAr);
   const keywordsEn = pick(p?.seo_keywords_en);
   const keywordsAr = pick(p?.seo_keywords_ar);
+
+  const canonical = slug ? canonicalFor(slug) : undefined;
 
   const meta: Array<Record<string, string>> = [
     { title: titleEn },
@@ -43,9 +55,12 @@ export function buildLegalHead(page: PageRow | null | undefined, fb: Fallbacks) 
     { property: "og:title:ar", content: titleAr },
     { property: "og:description:ar", content: descAr },
   ];
+  if (canonical) meta.push({ property: "og:url", content: canonical });
 
   const keywords = [keywordsEn, keywordsAr].filter(Boolean).join(", ");
   if (keywords) meta.push({ name: "keywords", content: keywords });
 
-  return { meta };
+  const links = canonical ? [{ rel: "canonical", href: canonical }] : [];
+
+  return { meta, links };
 }
