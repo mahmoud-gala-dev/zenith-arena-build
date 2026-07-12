@@ -1,9 +1,9 @@
 {
-  "base": "http://127.0.0.1:54800",
-  "marker": "/* pwa-e2e v2 f1e0618d */",
+  "base": "http://127.0.0.1:39156",
+  "marker": "/* pwa-e2e v2 4e1db5a6 */",
   "unloaded": true,
   "controllerChanged": true,
   "navType": "reload",
-  "before": "http://127.0.0.1:54800/sw.js",
-  "after": "http://127.0.0.1:54800/sw.js"
+  "before": "http://127.0.0.1:39156/sw.js",
+  "after": "http://127.0.0.1:39156/sw.js"
 }
