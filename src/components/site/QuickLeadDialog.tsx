@@ -105,6 +105,7 @@ export function QuickLeadDialog({ open, onOpenChange, source, intent = "callback
     : null;
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md" dir={ar ? "rtl" : "ltr"}>
         <DialogHeader>
