@@ -214,13 +214,14 @@ function AdminUsersPage() {
                 <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                 <Input value={permQuery} onChange={(e) => setPermQuery(e.target.value)} placeholder="Filter permissions…" className="h-8 w-56 pl-8 text-xs" />
               </div>
-              <Button variant="outline" size="sm" onClick={reset} disabled={!dirty || saving}>
+              <Button variant="outline" size="sm" onClick={guard(reset)} disabled={!canManage || !dirty || saving}>
                 <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
               </Button>
-              <Button size="sm" onClick={save} disabled={!dirty || saving || validationErrors.length > 0}>
+              <Button size="sm" onClick={guard(save)} disabled={!canManage || !dirty || saving || validationErrors.length > 0}>
                 {saving ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Save className="mr-1.5 h-3.5 w-3.5" />}
                 Save changes
               </Button>
+
             </div>
           </div>
 
