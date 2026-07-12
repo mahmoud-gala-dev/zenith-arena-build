@@ -89,7 +89,11 @@ jobs:
           CI_ALLOW_SEED: ${{ github.event.inputs.update_baselines == 'true' && '1' || '' }}
         run: node scripts/visual-diff.mjs
 
-      - name: Upload qa-report (screenshots + diffs + JSON)
+      - name: Aggregate report.json (fails build on any drift or assertion error)
+        if: always()
+        run: node scripts/aggregate-report.mjs
+
+      - name: Upload qa-report (screenshots + per-suite report.json + top-level report.json + pixel diffs)
         if: always()
         uses: actions/upload-artifact@v4
         with:
