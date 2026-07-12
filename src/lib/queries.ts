@@ -25,6 +25,45 @@ const HALF_HOUR = 30 * 60 * 1000;
 const ONE_HOUR = 60 * 60 * 1000;
 const TWO_HOUR = 2 * 60 * 60 * 1000;
 
+export type HomeHeroStat = { key: "stat1" | "stat2" | "stat3" | "stat4"; value: string };
+export type HomeHeroSettings = {
+  hero_image_url: string;
+  about_image_url: string;
+  stats: HomeHeroStat[];
+};
+
+const DEFAULT_HOME_HERO: HomeHeroSettings = {
+  hero_image_url: "",
+  about_image_url: "",
+  stats: [
+    { key: "stat1", value: "420+" },
+    { key: "stat2", value: "18" },
+    { key: "stat3", value: "20" },
+    { key: "stat4", value: "99%" },
+  ],
+};
+
+export const homeHeroSettingsQueryOptions = queryOptions({
+  queryKey: ["settings", "home_hero"],
+  queryFn: async (): Promise<HomeHeroSettings> => {
+    const { data, error } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "home_hero")
+      .maybeSingle();
+    if (error) throw error;
+    const v = (data?.value ?? {}) as Partial<HomeHeroSettings>;
+    return {
+      hero_image_url: v.hero_image_url || DEFAULT_HOME_HERO.hero_image_url,
+      about_image_url: v.about_image_url || DEFAULT_HOME_HERO.about_image_url,
+      stats: Array.isArray(v.stats) && v.stats.length ? v.stats : DEFAULT_HOME_HERO.stats,
+    };
+  },
+  staleTime: FIFTEEN_MIN,
+});
+
+
+
 
 
 export type Gov = {

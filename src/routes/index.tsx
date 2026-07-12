@@ -16,13 +16,14 @@ import {
   projectsPublishedListQueryOptions,
   blogPostsPublishedQueryOptions,
   testimonialsPublishedQueryOptions,
+  homeHeroSettingsQueryOptions,
   type HomeClient,
 } from "@/lib/queries";
 import { servicesPublishedQueryOptions } from "@/hooks/useServiceContent";
 import ogImage from "@/assets/apex-og.jpg.asset.json";
 import ctaLandmark from "@/assets/cta-landmark.jpg.asset.json";
+import fallbackHeroImg from "@/assets/hero.jpg";
 
-import { heroStats, heroImg } from "@/lib/site-data";
 
 
 type TrustClient = { name: { en: string; ar: string }; sector: { en: string; ar: string }; monogram: string; accent: string; logo_url?: string | null; description?: { en: string; ar: string } };
@@ -49,7 +50,9 @@ export const Route = createFileRoute("/")({
     void queryClient.ensureQueryData(heroSlidesActiveQueryOptions("ar"));
     void queryClient.ensureQueryData(homeClientsQueryOptions);
     void queryClient.ensureQueryData(servicesPublishedQueryOptions);
+    void queryClient.ensureQueryData(homeHeroSettingsQueryOptions);
   },
+
   head: () => {
     const SITE_URL = "https://zenith-arena-build.lovable.app";
     const titleEn = "Egytic Sports — Sports Construction & Infrastructure";
@@ -129,11 +132,16 @@ function Index() {
   const { t } = useLang();
   const L = useLocalized();
 
+  const { data: heroSettings } = useQuery(homeHeroSettingsQueryOptions);
+  const heroImg = heroSettings?.hero_image_url || fallbackHeroImg;
+  const heroStats = heroSettings?.stats ?? [];
+
   const { data: dbClients } = useQuery<HomeClient[]>(homeClientsQueryOptions);
   const { data: dbServices, isLoading: servicesLoading } = useQuery(servicesPublishedQueryOptions);
   const { data: dbProjects } = useQuery(projectsPublishedListQueryOptions);
   const { data: dbArticles } = useQuery(blogPostsPublishedQueryOptions);
   const { data: dbTestimonials } = useQuery(testimonialsPublishedQueryOptions);
+
   const servicesList = dbServices ?? [];
   const withSlug = servicesList.filter((s) => Boolean(s.slug_en));
   const featuredServices = (withSlug.filter((s) => s.featured).length > 0

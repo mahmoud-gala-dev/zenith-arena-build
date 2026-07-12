@@ -7,8 +7,8 @@ import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
-import { aboutContentQueryOptions } from "@/lib/queries";
-import { aboutImg as fallbackAboutImg } from "@/lib/site-data";
+import { aboutContentQueryOptions, homeHeroSettingsQueryOptions } from "@/lib/queries";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/about")({
   loader: ({ context }) => context.queryClient.ensureQueryData(aboutContentQueryOptions),
@@ -20,9 +20,10 @@ export const Route = createFileRoute("/about")({
 function AboutPage() {
   const { t, lang } = useLang();
   const { data } = useSuspenseQuery(aboutContentQueryOptions);
+  const { data: heroSettings } = useQuery(homeHeroSettingsQueryOptions);
   const isAr = lang === "ar";
 
-  const heroImage = data.hero.image_url || fallbackAboutImg;
+  const heroImage = data.hero.image_url || heroSettings?.about_image_url || "";
   const heroEyebrow = isAr ? data.hero.eyebrow_ar : data.hero.eyebrow_en;
   const heroTitle = isAr ? data.hero.title_ar : data.hero.title_en;
   const heroSubtitle = isAr ? data.hero.subtitle_ar : data.hero.subtitle_en;
