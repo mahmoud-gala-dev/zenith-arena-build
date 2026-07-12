@@ -27,6 +27,7 @@ export const Route = createFileRoute("/_authenticated/admin/blog")({
 
 type Article = {
   id?: string;
+  translation_group_id?: string;
   category_id?: string | null;
   slug_en?: string; slug_ar?: string;
   title_en?: string; title_ar?: string;
