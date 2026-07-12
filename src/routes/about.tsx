@@ -7,8 +7,8 @@ import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
-import { aboutContentQueryOptions } from "@/lib/queries";
-import { aboutImg as fallbackAboutImg } from "@/lib/site-data";
+import { aboutContentQueryOptions, homeHeroSettingsQueryOptions } from "@/lib/queries";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/about")({
   loader: ({ context }) => context.queryClient.ensureQueryData(aboutContentQueryOptions),
