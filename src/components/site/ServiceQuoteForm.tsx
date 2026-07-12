@@ -21,12 +21,13 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
   const { lang } = useLang();
   const ar = lang === "ar";
   const contact = useContactInfo();
-  const social = useSocialLinks();
-  const waNumber = toWhatsAppNumber(social.whatsapp || contact.whatsapp);
 
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
-  const [formData, setFormData] = useState({ name: "", phone: "", email: "" });
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [message, setMessage] = useState("");
   const [successOpen, setSuccessOpen] = useState(false);
   const [summary, setSummary] = useState<LeadSummary | null>(null);
   const submit = useServerFn(submitLead);
@@ -43,7 +44,7 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
         submit: "أرسل الطلب",
         submitting: "جارٍ الإرسال…",
         or: "أو",
-        whatsapp: "تواصل عبر واتساب",
+        whatsapp: "تواصل عبر واتساب مع بياناتك",
         email_us: "راسلنا عبر البريد",
         success: "تم استلام طلبك بنجاح",
         successBody: "سيتواصل معك فريق المبيعات خلال 48 ساعة.",
@@ -63,7 +64,7 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
         submit: "Send request",
         submitting: "Sending…",
         or: "or",
-        whatsapp: "Chat on WhatsApp",
+        whatsapp: "Send on WhatsApp with your details",
         email_us: "Email us",
         success: "Request received",
         successBody: "Our sales team will reach out within 48 hours.",
@@ -73,27 +74,24 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
         error: "Could not send request — please try again.",
       };
 
-  const waMessage = ar
+  const mailBody = ar
     ? `مرحبًا، أرغب في الحصول على عرض سعر لخدمة "${serviceTitle}".`
     : `Hi, I'd like a quote for "${serviceTitle}".`;
-  const waHref = waNumber
-    ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`
-    : null;
   const mailHref = contact.email
-    ? `mailto:${contact.email}?subject=${encodeURIComponent(`[${serviceTitle}] ${ar ? "طلب عرض سعر" : "Quote request"}`)}&body=${encodeURIComponent(waMessage)}`
+    ? `mailto:${contact.email}?subject=${encodeURIComponent(`[${serviceTitle}] ${ar ? "طلب عرض سعر" : "Quote request"}`)}&body=${encodeURIComponent(mailBody)}`
     : null;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const name = String(fd.get("name") ?? "").trim();
-    const email = String(fd.get("email") ?? "").trim();
-    const phone = String(fd.get("phone") ?? "").trim();
-    const message = String(fd.get("message") ?? "").trim();
     const website = String(fd.get("website") ?? "");
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    const trimmedPhone = phone.trim();
+    const trimmedMessage = message.trim();
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast.error(t.invalidEmail); return; }
-    const digits = phone.replace(/\D/g, "");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) { toast.error(t.invalidEmail); return; }
+    const digits = trimmedPhone.replace(/\D/g, "");
     if (digits.length < 7 || digits.length > 15) { toast.error(t.invalidPhone); return; }
 
     setSubmitting(true);
@@ -101,23 +99,22 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
       await submit({
         data: {
           type: "quote",
-          name,
-          email,
-          phone,
+          name: trimmedName,
+          email: trimmedEmail,
+          phone: trimmedPhone,
           service: serviceSlug,
-          message: message || `Inline request from /services/${serviceSlug}`,
+          message: trimmedMessage || `Inline request from /services/${serviceSlug}`,
           preferred_contact: "email",
           website,
         },
       });
-      setFormData({ name, phone, email });
       setSummary({
-        name,
-        email,
-        phone: phone || null,
+        name: trimmedName,
+        email: trimmedEmail,
+        phone: trimmedPhone || null,
         service: serviceSlug,
         serviceLabel: serviceTitle,
-        message: message || null,
+        message: trimmedMessage || null,
         intent: "quote",
         source: `service:${serviceSlug}`,
       });
@@ -133,14 +130,12 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
   return (
     <>
     <section className="relative overflow-hidden border-t border-border bg-gradient-to-b from-secondary/30 via-background to-background py-16">
-      {/* Ambient accents */}
       <div className="pointer-events-none absolute -top-24 left-1/2 h-64 w-[600px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" aria-hidden />
       <div className="pointer-events-none absolute bottom-0 right-0 h-40 w-40 rounded-full bg-primary/5 blur-2xl" aria-hidden />
 
       <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <div className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm shadow-xl overflow-hidden">
           <div className="grid gap-0 md:grid-cols-5">
-            {/* Left panel — intro + fallbacks */}
             <div className="relative bg-primary/5 p-8 md:col-span-2 md:border-r rtl:md:border-r-0 rtl:md:border-l border-border">
               <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">{t.eyebrow}</span>
               <h2 className="mt-4 text-2xl font-bold text-foreground leading-tight">{t.title}</h2>
@@ -148,12 +143,18 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
 
               <div className="mt-8 space-y-2">
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">{t.or}</p>
-                {waHref && (
-                  <a href={waHref} target="_blank" rel="noopener noreferrer"
-                     className="flex items-center gap-3 rounded-lg border border-border bg-background px-3 py-2.5 text-sm font-medium text-foreground hover:bg-secondary/50 transition">
-                    <MessageCircle className="h-4 w-4 text-primary" /> {t.whatsapp}
-                  </a>
-                )}
+                <WhatsAppSendButton
+                  label={t.whatsapp}
+                  source={`service_quote_form:${serviceSlug}`}
+                  className="w-full"
+                  fields={{
+                    name,
+                    email,
+                    phone,
+                    message,
+                    service: serviceTitle,
+                  }}
+                />
                 {mailHref && (
                   <a href={mailHref}
                      className="flex items-center gap-3 rounded-lg border border-border bg-background px-3 py-2.5 text-sm font-medium text-foreground hover:bg-secondary/50 transition">
@@ -163,7 +164,6 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
               </div>
             </div>
 
-            {/* Right panel — form */}
             <div className="p-8 md:col-span-3">
               {sent ? (
                 <div className="flex flex-col items-center justify-center text-center py-10 animate-fade-in">
@@ -182,31 +182,38 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
                 </div>
               ) : (
                 <form onSubmit={onSubmit} className="space-y-4">
-                  {/* Honeypot */}
                   <input type="text" name="website" tabIndex={-1} autoComplete="off"
                          className="absolute left-[-9999px] h-0 w-0 opacity-0" aria-hidden="true" />
                   <div>
                     <Label htmlFor="sq-name">{t.name}</Label>
-                    <Input id="sq-name" name="name" required maxLength={100} defaultValue={formData.name} className="mt-1.5" />
+                    <Input id="sq-name" name="name" required maxLength={100} value={name} onChange={(e) => setName(e.target.value)} className="mt-1.5" />
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
                       <Label htmlFor="sq-email">{t.email}</Label>
-                      <Input id="sq-email" name="email" type="email" required maxLength={255} defaultValue={formData.email} className="mt-1.5" />
+                      <Input id="sq-email" name="email" type="email" required maxLength={255} value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1.5" />
                     </div>
                     <div>
                       <Label htmlFor="sq-phone">{t.phone}</Label>
-                      <Input id="sq-phone" name="phone" type="tel" required maxLength={30} defaultValue={formData.phone} className="mt-1.5" />
+                      <Input id="sq-phone" name="phone" type="tel" required maxLength={30} value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1.5" />
                     </div>
                   </div>
                   <div>
                     <Label htmlFor="sq-message">{t.message}</Label>
-                    <Textarea id="sq-message" name="message" rows={3} maxLength={2000} className="mt-1.5" />
+                    <Textarea id="sq-message" name="message" rows={3} maxLength={2000} value={message} onChange={(e) => setMessage(e.target.value)} className="mt-1.5" />
                   </div>
-                  <Button type="submit" variant="hero" className="w-full" disabled={submitting}>
-                    {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                    {submitting ? t.submitting : t.submit}
-                  </Button>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <Button type="submit" variant="hero" className="flex-1" disabled={submitting}>
+                      {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                      {submitting ? t.submitting : t.submit}
+                    </Button>
+                    <WhatsAppSendButton
+                      variant="solid"
+                      label={ar ? "إرسال عبر واتساب" : "Send via WhatsApp"}
+                      source={`service_quote_form_inline:${serviceSlug}`}
+                      fields={{ name, email, phone, message, service: serviceTitle }}
+                    />
+                  </div>
                 </form>
               )}
             </div>
