@@ -346,20 +346,42 @@ export function Header() {
                   </div>
                 </nav>
                 <div className="border-t border-border p-4 space-y-3">
-                  <Button asChild variant="hero" className="w-full rounded-full">
-                    <Link to="/quote" onClick={() => setOpen(false)}>
-                      {t.nav.quote}
-                    </Link>
+                  <Button
+                    type="button"
+                    variant="hero"
+                    className="w-full rounded-full"
+                    onClick={() => {
+                      trackEvent({ name: "header_cta_click", surface: "mobile", action: "open_dialog" });
+                      setOpen(false);
+                      openLead("quote", "header_mobile_cta");
+                    }}
+                  >
+                    {t.nav.quote}
                   </Button>
-                  {contact.phone && (
-                    <a
-                      href={`tel:${contact.phone}`}
-                      className="flex items-center justify-center gap-2 text-sm font-semibold text-muted-foreground hover:text-[color:var(--gold)]"
-                    >
-                      <Phone className="h-4 w-4" />
-                      <span dir="ltr">{contact.phone}</span>
-                    </a>
-                  )}
+                  <div className="grid grid-cols-2 gap-2">
+                    {contact.phone && (
+                      <a
+                        href={`tel:${contact.phone}`}
+                        onClick={() => trackEvent({ name: "header_phone_click", surface: "mobile", phone: contact.phone })}
+                        className="flex items-center justify-center gap-2 rounded-full border border-border px-3 py-2 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary"
+                      >
+                        <Phone className="h-4 w-4" />
+                        <span dir="ltr">{ar ? "اتصل" : "Call"}</span>
+                      </a>
+                    )}
+                    {wa && (
+                      <a
+                        href={`https://wa.me/${wa}`}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        onClick={() => trackEvent({ name: "header_whatsapp_click", surface: "mobile", number: wa })}
+                        className="flex items-center justify-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        WhatsApp
+                      </a>
+                    )}
+                  </div>
                   {topSocials.length > 0 && (
                     <div className="flex items-center justify-center gap-4 pt-2">
                       {topSocials.map(({ href, Icon, name }) => (
@@ -382,6 +404,13 @@ export function Header() {
           </Sheet>
         </div>
       </div>
+
+      <QuickLeadDialog
+        open={leadOpen}
+        onOpenChange={setLeadOpen}
+        source={leadSource}
+        intent={leadIntent}
+      />
     </header>
   );
 }
