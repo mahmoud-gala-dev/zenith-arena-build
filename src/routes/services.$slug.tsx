@@ -166,7 +166,7 @@ function ServiceDetailPage() {
 
   return (
     <SiteLayout>
-      <section className="relative overflow-hidden bg-ink pt-32 pb-16 text-white">
+      <section className="relative isolate overflow-hidden bg-ink pt-28 pb-20 text-white sm:pt-32 sm:pb-24">
         {service.header_image ? (
           <img
             src={service.header_image}
@@ -177,32 +177,63 @@ function ServiceDetailPage() {
             loading="eager"
             decoding="async"
             fetchPriority="high"
-            className="absolute inset-0 h-full w-full object-cover opacity-40"
+            className="absolute inset-0 h-full w-full scale-105 object-cover opacity-55"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-ink via-ink/80 to-primary/40" aria-hidden />
+          <div className="absolute inset-0 bg-gradient-to-br from-ink via-ink/85 to-primary/40" aria-hidden />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/40" />
+        {/* Layered overlays for depth + readable text */}
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/85 to-ink/30" aria-hidden />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(212,175,55,0.18),transparent_55%)]" aria-hidden />
+        <div
+          className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
+          style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.9) 1px, transparent 1px)", backgroundSize: "22px 22px" }}
+          aria-hidden
+        />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background" aria-hidden />
+
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Breadcrumbs items={[{ label: t.nav.services, to: "/services" }, { label: title }]} />
-          <Link to="/services" className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white">
+          <Link to="/services" className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-white/70 transition hover:text-gold">
             <ArrowLeft className="h-4 w-4 rtl:rotate-180" /> {copy.back}
           </Link>
-          <div className="mt-8 flex max-w-4xl flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div>
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-gold text-gold-foreground">
-                <Icon name={service.icon || "Goal"} className="h-7 w-7" />
-              </div>
-              <h1 className="mt-6 text-4xl font-bold sm:text-5xl">{title}</h1>
-              {desc && <p className="mt-4 max-w-3xl text-lg text-white/72">{desc}</p>}
+
+          <div className="mt-10 grid gap-10 md:grid-cols-[auto,1fr] md:items-start">
+            <div className="relative flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-gold text-gold-foreground shadow-[0_20px_45px_-15px_rgba(212,175,55,0.55)] ring-1 ring-gold/40">
+              <Icon name={service.icon || "Goal"} className="h-10 w-10" />
+              <span className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/20" aria-hidden />
             </div>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild variant="gold"><Link to="/quote">{copy.quote}</Link></Button>
-              <Button asChild variant="outlineLight"><a href="https://wa.me/971500000000"><MessageCircle className="h-4 w-4" /> {copy.whatsapp}</a></Button>
+            <div className="min-w-0">
+              {service.category && (
+                <span className="inline-flex items-center rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-gold">
+                  {service.category}
+                </span>
+              )}
+              <h1 className="mt-4 text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+                {title}
+              </h1>
+              {desc && (
+                <p className="mt-5 max-w-3xl text-lg leading-relaxed text-white/75 sm:text-xl">{desc}</p>
+              )}
+
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Button asChild variant="gold" size="lg">
+                  <Link to="/quote">{copy.quote} <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
+                </Button>
+                <Button asChild variant="outlineLight" size="lg">
+                  <a href="https://wa.me/971500000000"><MessageCircle className="h-4 w-4" /> {copy.whatsapp}</a>
+                </Button>
+                {gallery.length > 0 && (
+                  <span className="ms-auto hidden text-sm text-white/60 sm:inline">
+                    {gallery.length} {ar ? "صورة" : "images"}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </section>
+
 
       <section className="py-16">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-3 lg:px-8">
