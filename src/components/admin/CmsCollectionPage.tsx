@@ -70,6 +70,12 @@ const textValueSchema = z.string().trim().max(5000);
 const urlSchema = z.union([z.literal(""), z.string().trim().url()]);
 
 export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
+  const queryClient = useQueryClient();
+  const invalidatePublic = () => {
+    queryClient.invalidateQueries({
+      predicate: (q) => Array.isArray(q.queryKey) && q.queryKey[0] === config.table,
+    });
+  };
   const [rows, setRows] = useState<AnyRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -83,6 +89,7 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [editing, setEditing] = useState<AnyRow | null>(null);
   const [deleteIds, setDeleteIds] = useState<string[] | null>(null);
+
 
   async function load() {
     setLoading(true);
