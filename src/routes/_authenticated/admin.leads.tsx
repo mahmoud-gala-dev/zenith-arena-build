@@ -114,28 +114,29 @@ function LeadsPage() {
     last7: leads.filter((l) => Date.now() - new Date(l.created_at).getTime() < 7 * 86400_000).length,
   }), [leads]);
 
-  async function updateStatus(id: string, status: string) {
+  const updateStatus = guard(async (id: string, status: string) => {
     const { error } = await supabase.from("leads").update({ status: status as Lead["status"] as never }).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Status updated");
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)));
     if (selected?.id === id) setSelected({ ...selected, status });
-  }
+  });
 
-  async function saveNotes(id: string, notes: string) {
+  const saveNotes = guard(async (id: string, notes: string) => {
     const { error } = await supabase.from("leads").update({ internal_notes: notes }).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Notes saved");
-  }
+  });
 
-  async function deleteLead(id: string) {
+  const deleteLead = guard(async (id: string) => {
     if (!confirm("Delete this lead?")) return;
     const { error } = await supabase.from("leads").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted");
     setLeads((prev) => prev.filter((l) => l.id !== id));
     setSelected(null);
-  }
+  });
+
 
   function exportCSV() {
     const rows = [
