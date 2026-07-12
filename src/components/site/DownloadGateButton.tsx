@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { n as toastFn } from "sonner";
+import { toast } from "sonner";
 import { submitLead } from "@/lib/leads.functions";
 import { useLang } from "@/i18n/LanguageProvider";
 
@@ -97,7 +97,7 @@ export function DownloadGateButton({
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.name.trim() || !form.email.trim() || !form.phone.trim()) {
-      toast({ title: T.required, variant: "destructive" });
+      toast.error(T.required);
       return;
     }
     setSubmitting(true);
@@ -113,7 +113,7 @@ export function DownloadGateButton({
           website: form.website,
         },
       });
-      toast({ title: T.success });
+      toast.success(T.success);
       setOpen(false);
       setForm({ name: "", email: "", phone: "", website: "" });
       window.open(fileUrl!, "_blank", "noopener,noreferrer");
