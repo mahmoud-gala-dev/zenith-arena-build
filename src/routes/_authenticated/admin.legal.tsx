@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/admin/legal")({
   component: AdminLegalPage,
 });
 
-type Section = { h: string; body: string };
+import type { Section } from "@/lib/types";
 type LangContent = {
   title: string;
   intro: string;

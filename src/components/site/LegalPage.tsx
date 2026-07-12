@@ -3,8 +3,8 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { useLang } from "@/i18n/LanguageProvider";
 import { pageBySlugQueryOptions } from "@/lib/queries";
+import type { Section } from "@/lib/types";
 
-type Section = { h: string; body: string };
 
 function parseSections(md: string): { intro: string; sections: Section[] } {
   const text = (md ?? "").trim();

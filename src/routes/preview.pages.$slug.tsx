@@ -23,7 +23,7 @@ export const Route = createFileRoute("/preview/pages/$slug")({
   component: PublicPreview,
 });
 
-type Section = { h: string; body: string };
+import type { Section } from "@/lib/types";
 function parseSections(md: string): { intro: string; sections: Section[] } {
   const text = (md ?? "").trim();
   if (!text) return { intro: "", sections: [] };
