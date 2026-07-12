@@ -510,6 +510,23 @@ export const downloadsPublishedQueryOptions = queryOptions<DownloadRow[]>({
   },
 });
 
+export const downloadBySlugQueryOptions = (slug: string) =>
+  queryOptions<DownloadRow | null>({
+    queryKey: ["downloads", "by-slug", slug],
+    staleTime: FIFTEEN_MIN,
+    gcTime: TWO_HOUR,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("downloads")
+        .select("*")
+        .eq("status", "published")
+        .or(`slug_en.eq.${slug},slug_ar.eq.${slug}`)
+        .maybeSingle();
+      if (error) throw error;
+      return (data as DownloadRow | null) ?? null;
+    },
+  });
+
 export const certificatesPublishedQueryOptions = queryOptions<CertificateRow[]>({
   queryKey: ["certificates", "published"],
   staleTime: FIFTEEN_MIN,
