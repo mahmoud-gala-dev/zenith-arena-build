@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { MapPin, Briefcase, Users, TrendingUp, Heart, Globe, ArrowRight } from "lucide-react";
+import * as LucideIcons from "lucide-react";
+import { MapPin, Briefcase, ArrowRight, HelpCircle, type LucideIcon } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
@@ -13,11 +14,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useLang } from "@/i18n/LanguageProvider";
-import { jobOpeningsOpenQueryOptions, type JobOpening } from "@/lib/queries";
+import { jobOpeningsOpenQueryOptions, careersPageSettingsQueryOptions, type JobOpening } from "@/lib/queries";
 import { submitApplication } from "@/lib/applications.functions";
 
 export const Route = createFileRoute("/careers")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(jobOpeningsOpenQueryOptions),
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(jobOpeningsOpenQueryOptions);
+    context.queryClient.ensureQueryData(careersPageSettingsQueryOptions);
+  },
   head: () => ({
     meta: [
       { title: "Careers at Egytic — Build the World's Best Sports Facilities" },
@@ -30,6 +34,12 @@ export const Route = createFileRoute("/careers")({
   notFoundComponent: () => <div className="p-8 text-center">Not found</div>,
   component: CareersPage,
 });
+
+function getLucideIcon(name: string): LucideIcon {
+  const registry = LucideIcons as unknown as Record<string, LucideIcon>;
+  return registry[name] ?? HelpCircle;
+}
+
 
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
