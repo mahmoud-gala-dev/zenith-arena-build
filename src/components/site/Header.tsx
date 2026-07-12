@@ -14,7 +14,8 @@ import { QuickLeadDialog } from "./QuickLeadDialog";
 import { useBranding, DEFAULT_LOGO_MOTION } from "@/hooks/useBranding";
 
 import { useLang } from "@/i18n/LanguageProvider";
-import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
+import { useContactInfo, useSocialLinks, toWhatsAppNumber, useBrandName } from "@/lib/settings";
+import { buildWhatsAppUrl, inferServiceFromPath } from "@/lib/whatsapp";
 import { menusByLocationQueryOptions } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
