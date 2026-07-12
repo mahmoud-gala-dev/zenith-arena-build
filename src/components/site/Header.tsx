@@ -24,6 +24,8 @@ export function Header() {
   const { t, lang } = useLang();
   const reduceMotion = useReducedMotion();
   const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [open, setOpen] = useState(false);
   const [leadOpen, setLeadOpen] = useState(false);
   const [leadIntent, setLeadIntent] = useState<"callback" | "quote">("quote");
@@ -51,12 +53,49 @@ export function Header() {
   const intensity = Math.max(0, Math.min(100, motionCfg.intensity)) / 100;
   const speedFactor = 0.5 + (100 - Math.max(0, Math.min(100, motionCfg.speed))) / 50;
 
+  // Sticky header: rAF-throttled scroll listener that tracks direction,
+  // condensed state, hide-on-scroll-down / show-on-scroll-up, page progress,
+  // and pauses hiding when a menu/dialog is open or hovering near the top.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    onScroll();
+    let lastY = typeof window !== "undefined" ? window.scrollY : 0;
+    let ticking = false;
+    const HIDE_AFTER = 240;
+    const DELTA = 8;
+
+    const update = () => {
+      ticking = false;
+      const y = window.scrollY;
+      const doc = document.documentElement;
+      const max = Math.max(1, doc.scrollHeight - window.innerHeight);
+      setProgress(Math.min(1, Math.max(0, y / max)));
+      setScrolled(y > 20);
+
+      const diff = y - lastY;
+      if (Math.abs(diff) < DELTA) return;
+      if (open || leadOpen) {
+        setHidden(false);
+      } else if (y < HIDE_AFTER) {
+        setHidden(false);
+      } else if (diff > 0) {
+        setHidden(true);
+      } else {
+        setHidden(false);
+      }
+      lastY = y;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    };
+
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [open, leadOpen]);
+
 
   const { data: menuItems } = useQuery(menusByLocationQueryOptions("header"));
   const fallbackLinks = [
