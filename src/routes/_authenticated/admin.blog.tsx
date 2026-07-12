@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import {
   Plus, Pencil, Trash2, Loader2, Search, ExternalLink, Upload, X, Languages, Star, ImageIcon,
 } from "lucide-react";
+import { BlogCategoriesManager } from "@/components/admin/BlogCategoriesManager";
 
 export const Route = createFileRoute("/_authenticated/admin/blog")({
   component: AdminBlogPage,
@@ -186,6 +187,7 @@ function AdminBlogPage() {
               <SelectItem value="ar-only">AR only</SelectItem>
             </SelectContent>
           </Select>
+          <BlogCategoriesManager onChanged={load} />
           <Button onClick={() => setEditing({ ...EMPTY })}><Plus className="h-4 w-4" /> New article</Button>
         </div>
 
