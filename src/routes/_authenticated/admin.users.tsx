@@ -267,10 +267,11 @@ function AdminUsersPage() {
                         <td key={r} className={`px-3 py-2 text-center ${changed ? "bg-primary/5" : ""}`}>
                           <Checkbox
                             checked={disabled ? true : checked}
-                            disabled={disabled || saving}
-                            onCheckedChange={(v) => toggle(p.id, r, Boolean(v))}
+                            disabled={disabled || saving || !canManage}
+                            onCheckedChange={guard((v: boolean | "indeterminate") => toggle(p.id, r, Boolean(v)))}
                             aria-label={`${p.key} for ${r}`}
                           />
+
                         </td>
                       );
                     })}
