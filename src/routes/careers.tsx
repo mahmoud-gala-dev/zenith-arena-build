@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { MapPin, Briefcase, Users, TrendingUp, Heart, Globe, ArrowRight } from "lucide-react";
+import * as LucideIcons from "lucide-react";
+import { MapPin, Briefcase, ArrowRight, HelpCircle, type LucideIcon } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
@@ -13,11 +14,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useLang } from "@/i18n/LanguageProvider";
-import { jobOpeningsOpenQueryOptions, type JobOpening } from "@/lib/queries";
+import { jobOpeningsOpenQueryOptions, careersPageSettingsQueryOptions, type JobOpening } from "@/lib/queries";
 import { submitApplication } from "@/lib/applications.functions";
 
 export const Route = createFileRoute("/careers")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(jobOpeningsOpenQueryOptions),
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(jobOpeningsOpenQueryOptions);
+    context.queryClient.ensureQueryData(careersPageSettingsQueryOptions);
+  },
   head: () => ({
     meta: [
       { title: "Careers at Egytic — Build the World's Best Sports Facilities" },
@@ -30,6 +34,12 @@ export const Route = createFileRoute("/careers")({
   notFoundComponent: () => <div className="p-8 text-center">Not found</div>,
   component: CareersPage,
 });
+
+function getLucideIcon(name: string): LucideIcon {
+  const registry = LucideIcons as unknown as Record<string, LucideIcon>;
+  return registry[name] ?? HelpCircle;
+}
+
 
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -47,20 +57,24 @@ function CareersPage() {
   const { lang } = useLang();
   const ar = lang === "ar";
   const { data: jobs } = useSuspenseQuery(jobOpeningsOpenQueryOptions);
+  const { data: cfg } = useSuspenseQuery(careersPageSettingsQueryOptions);
+  const L = cfg.labels;
 
   const [selected, setSelected] = useState<JobOpening | null>(null);
   const [open, setOpen] = useState(false);
 
-  const tx = ar
-    ? { eyebrow: "الوظائف", title: "ابنِ مسيرتك مع إيجيتك", sub: "انضم إلى فريق يصمم وينفّذ أرقى المنشآت الرياضية في المنطقة.", whyTitle: "لماذا إيجيتك", openTitle: "الوظائف المتاحة", apply: "قدّم الآن", noJobsTitle: "لا ترى وظيفتك المناسبة؟", noJobsSub: "أرسل سيرتك الذاتية وسنتواصل معك عند توفر الفرصة المناسبة.", sendCv: "أرسل السيرة الذاتية" }
-    : { eyebrow: "Careers", title: "Build your career with Egytic", sub: "Join a team designing and delivering the finest sports facilities in the region.", whyTitle: "Why Egytic", openTitle: "Open positions", apply: "Apply now", noJobsTitle: "Don't see the right role?", noJobsSub: "Send us your CV and we'll be in touch when a matching role opens.", sendCv: "Send your CV" };
+  const tx = {
+    eyebrow: ar ? L.eyebrow_ar : L.eyebrow_en,
+    title: ar ? L.title_ar : L.title_en,
+    sub: ar ? L.sub_ar : L.sub_en,
+    whyTitle: ar ? L.why_title_ar : L.why_title_en,
+    openTitle: ar ? L.open_title_ar : L.open_title_en,
+    apply: ar ? "قدّم الآن" : "Apply now",
+    noJobsTitle: ar ? L.no_jobs_title_ar : L.no_jobs_title_en,
+    noJobsSub: ar ? L.no_jobs_sub_ar : L.no_jobs_sub_en,
+    sendCv: ar ? L.send_cv_ar : L.send_cv_en,
+  };
 
-  const perks = [
-    { icon: TrendingUp, title: { en: "Career growth", ar: "نمو مهني" }, desc: { en: "Clear paths, mentorship and international project exposure.", ar: "مسارات واضحة وتوجيه وتعرّض لمشاريع دولية." } },
-    { icon: Heart, title: { en: "Great benefits", ar: "مزايا مميّزة" }, desc: { en: "Competitive salary, healthcare, relocation and family support.", ar: "راتب تنافسي ورعاية صحية ودعم انتقال وعائلة." } },
-    { icon: Users, title: { en: "World-class team", ar: "فريق عالمي المستوى" }, desc: { en: "Work alongside FIFA & World Athletics-certified engineers.", ar: "اعمل بجانب مهندسين معتمدين من الفيفا والاتحاد الدولي." } },
-    { icon: Globe, title: { en: "Iconic projects", ar: "مشاريع مميزة" }, desc: { en: "Stadiums, Olympic tracks and landmark arenas across the region.", ar: "استادات ومضامير أولمبية ومنشآت بارزة في المنطقة." } },
-  ];
 
   function openApply(job: JobOpening | null) {
     setSelected(job);
@@ -75,17 +89,21 @@ function CareersPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Reveal><h2 className="text-2xl font-bold text-foreground">{tx.whyTitle}</h2></Reveal>
           <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {perks.map((p, i) => (
-              <Reveal key={i}>
-                <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-primary">
-                    <p.icon className="h-6 w-6" />
+            {cfg.perks.map((p, i) => {
+              const Icon = getLucideIcon(p.icon);
+              return (
+                <Reveal key={i}>
+                  <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-primary">
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="mt-4 font-semibold text-foreground">{ar ? p.title_ar : p.title_en}</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">{ar ? p.desc_ar : p.desc_en}</p>
                   </div>
-                  <h3 className="mt-4 font-semibold text-foreground">{ar ? p.title.ar : p.title.en}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{ar ? p.desc.ar : p.desc.en}</p>
-                </div>
-              </Reveal>
-            ))}
+                </Reveal>
+              );
+            })}
+
           </div>
         </div>
       </section>
