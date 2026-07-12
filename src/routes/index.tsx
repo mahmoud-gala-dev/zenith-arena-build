@@ -169,31 +169,179 @@ function Index() {
     <SiteLayout>
       <HeroSlider
         fallback={
-          <section className="relative flex min-h-[92vh] items-center overflow-hidden bg-ink">
-            <img src={heroImg} alt="Stadium at dusk" className="absolute inset-0 h-full w-full object-cover opacity-55" width={1920} height={1280} />
-            <div className="absolute inset-0 bg-gradient-to-b from-ink/70 via-ink/50 to-ink" />
-            <div className="relative mx-auto w-full max-w-7xl px-4 py-28 sm:px-6 lg:px-8">
-              <div className="max-w-3xl">
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-white/80 backdrop-blur">
-                  {t.hero.eyebrow}
-                </span>
-                <h1 className="mt-6 text-4xl font-bold leading-[1.05] text-white sm:text-6xl md:text-7xl">
-                  {t.hero.title1} <span className="text-gradient-gold">{t.hero.title2}</span>
-                </h1>
-                <p className="mt-6 max-w-xl text-lg text-white/70">{t.hero.subtitle}</p>
-                <div className="mt-9 flex flex-wrap gap-3">
-                  <Button asChild variant="gold" size="xl">
-                    <Link to="/contact">{t.cta.getConsultation}<ArrowRight className="h-5 w-5 rtl:rotate-180" /></Link>
-                  </Button>
-                  <Button asChild variant="outlineLight" size="xl">
-                    <Link to="/projects">{t.cta.explore}</Link>
-                  </Button>
+          <section className="relative flex min-h-[92vh] items-center overflow-hidden bg-ink text-white">
+            {/* Cinematic background */}
+            <img
+              src={heroImg}
+              alt="Stadium at dusk"
+              className="absolute inset-0 h-full w-full object-cover opacity-60"
+              width={1920}
+              height={1280}
+            />
+            {/* Layered gradients matching header aesthetic */}
+            <div className="absolute inset-0 bg-gradient-to-b from-ink/85 via-ink/55 to-ink" />
+            <div className="absolute inset-0 bg-gradient-to-r from-ink/80 via-transparent to-transparent rtl:from-transparent rtl:to-ink/80" />
+            {/* Subtle grid texture */}
+            <div
+              className="pointer-events-none absolute inset-0 opacity-[0.06]"
+              style={{
+                backgroundImage:
+                  "linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)",
+                backgroundSize: "56px 56px",
+              }}
+            />
+            {/* Gold aura glows echoing header logo aura */}
+            <div className="pointer-events-none absolute -top-40 left-1/4 h-[520px] w-[520px] rounded-full bg-primary/15 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-40 right-0 h-[420px] w-[420px] rounded-full bg-primary/10 blur-3xl" />
+            {/* Top & bottom hairlines echoing header */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
+            <div className="relative mx-auto w-full max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+              <div className="grid gap-12 lg:grid-cols-12 lg:items-end">
+                {/* Left — heading */}
+                <div className="lg:col-span-8">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.28em] text-primary backdrop-blur">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    {t.hero.eyebrow}
+                  </span>
+                  <h1 className="mt-6 font-display text-4xl font-bold leading-[1.02] text-white sm:text-6xl md:text-7xl lg:text-[5.25rem]">
+                    {t.hero.title1}
+                    <span className="mt-2 block text-gradient-gold">{t.hero.title2}</span>
+                  </h1>
+                  <p className="mt-6 max-w-2xl text-base leading-relaxed text-white/70 sm:text-lg">
+                    {t.hero.subtitle}
+                  </p>
+
+                  <div className="mt-9 flex flex-wrap items-center gap-3">
+                    <Button asChild variant="gold" size="xl">
+                      <Link to="/quote">
+                        {t.cta.quote}
+                        <ArrowRight className="h-5 w-5 rtl:rotate-180" />
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outlineLight" size="xl">
+                      <Link to="/projects">
+                        {t.cta.explore}
+                      </Link>
+                    </Button>
+                    <Link
+                      to="/gallery"
+                      className="group inline-flex items-center gap-2 px-2 text-sm font-semibold uppercase tracking-[0.16em] text-white/70 transition hover:text-white"
+                    >
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/5 transition group-hover:border-primary group-hover:bg-primary/10">
+                        <PlayCircle className="h-4 w-4" />
+                      </span>
+                      {t.cta.watchReel ?? (lang === "ar" ? "شاهد أعمالنا" : "Watch reel")}
+                    </Link>
+                  </div>
+
+                  {/* Trust chips */}
+                  <ul className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-white/55">
+                    <li className="flex items-center gap-2">
+                      <Trophy className="h-4 w-4 text-primary" />
+                      {lang === "ar" ? "معتمد من FIFA & World Athletics" : "FIFA & World Athletics certified"}
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <ShieldCheck className="h-4 w-4 text-primary" />
+                      {lang === "ar" ? "ضمان تنفيذ ومواد" : "Warranty on materials & workmanship"}
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Ruler className="h-4 w-4 text-primary" />
+                      {lang === "ar" ? "تصميم وتنفيذ متكامل" : "Design–build turnkey"}
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Right — CTA posters */}
+                <div className="grid gap-4 lg:col-span-4">
+                  <Link
+                    to="/quote"
+                    className="group relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/25 via-primary/10 to-transparent p-5 backdrop-blur-sm transition hover:border-primary/60 hover:from-primary/35"
+                  >
+                    <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/25 blur-2xl transition group-hover:bg-primary/40" />
+                    <div className="relative flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
+                          {lang === "ar" ? "ابدأ مشروعك" : "Start your build"}
+                        </p>
+                        <h3 className="mt-2 font-display text-xl font-semibold text-white">
+                          {t.cta.quote}
+                        </h3>
+                        <p className="mt-1.5 text-xs leading-relaxed text-white/60">
+                          {lang === "ar"
+                            ? "استشارة ودراسة جدوى مجانية خلال 24 ساعة."
+                            : "Free feasibility & quote within 24 hours."}
+                        </p>
+                      </div>
+                      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition group-hover:translate-x-1 rtl:group-hover:-translate-x-1">
+                        <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                      </span>
+                    </div>
+                  </Link>
+
+                  <Link
+                    to="/projects"
+                    className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm transition hover:border-white/25 hover:bg-white/[0.07]"
+                  >
+                    <div className="relative flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/60">
+                          {lang === "ar" ? "أعمالنا" : "Portfolio"}
+                        </p>
+                        <h3 className="mt-2 font-display text-xl font-semibold text-white">
+                          {t.cta.explore}
+                        </h3>
+                        <p className="mt-1.5 text-xs leading-relaxed text-white/60">
+                          {lang === "ar"
+                            ? "استعرض ملاعب ومنشآت سلّمناها في مصر."
+                            : "Browse stadiums & facilities delivered across Egypt."}
+                        </p>
+                      </div>
+                      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition group-hover:border-primary group-hover:bg-primary/10">
+                        <ArrowUpRight className="h-4 w-4" />
+                      </span>
+                    </div>
+                  </Link>
+
+                  <Link
+                    to="/services"
+                    className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm transition hover:border-white/25 hover:bg-white/[0.07]"
+                  >
+                    <div className="relative flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/60">
+                          {lang === "ar" ? "الخدمات" : "Services"}
+                        </p>
+                        <h3 className="mt-2 font-display text-xl font-semibold text-white">
+                          {lang === "ar" ? "منظومة متكاملة" : "End-to-end solutions"}
+                        </h3>
+                        <p className="mt-1.5 text-xs leading-relaxed text-white/60">
+                          {lang === "ar"
+                            ? "عشب صناعي، مضامير، أرضيات، إنارة، وصيانة."
+                            : "Turf, tracks, flooring, lighting & maintenance."}
+                        </p>
+                      </div>
+                      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition group-hover:border-primary group-hover:bg-primary/10">
+                        <ArrowUpRight className="h-4 w-4" />
+                      </span>
+                    </div>
+                  </Link>
                 </div>
               </div>
+            </div>
+
+            {/* Scroll indicator */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center">
+              <span className="inline-flex flex-col items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-white/40">
+                {lang === "ar" ? "مرّر للأسفل" : "Scroll"}
+                <ChevronDown className="h-4 w-4 animate-bounce text-primary/70" />
+              </span>
             </div>
           </section>
         }
       />
+
 
       {/* Stats strip */}
       <section className="border-b border-border bg-ink py-10 text-white">
