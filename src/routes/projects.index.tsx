@@ -278,7 +278,7 @@ function ProjectsPage() {
             <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {dbFiltered.length === 0 ? (
                 <p className="col-span-full rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground">
-                  {lang === "ar" ? "لا توجد نتائج مطابقة." : "No matching results."}
+                  {t.projects.noMatching}
                 </p>
               ) : dbFiltered.map((p, i) => (
                 <Reveal key={p.id} delay={i * 50}>
