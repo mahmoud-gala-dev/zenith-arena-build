@@ -1,54 +1,61 @@
-# Phase 7 — Zero Static Data (Final)
+# خطة تنفيذ Batches A → D بالتوازي المنطقي
 
-نطاق شامل من 4 حزم يُنفَّذ بالترتيب. كل حزمة قائمة بذاتها ويمكن مراجعتها قبل الانتقال للتالية.
+الهدف: إزالة كل البيانات الثابتة المتبقية وربطها بالأدمن، مع تنظيف الأنواع.
 
-## Batch A — About page dynamic (DB + Admin + Route)
+## Batch A — About Page ديناميكية (رسالة واحدة)
+**Migration:**
+- جدول `about_sections` (key, title_en, title_ar, body_en, body_ar, image_url, sort_order, kind: story|mission|vision|value|stat|milestone)
+- GRANT: SELECT لـ anon + authenticated، ALL لـ service_role
+- RLS: قراءة عامة، كتابة لـ `is_staff(auth.uid())`
+- Seed بالمحتوى الحالي من صفحة About (story/mission/values)
 
-**Migration** `about_content` (single-row keyed content):
-- عمود واحد `key` (unique) + `value jsonb` — يخزّن: hero image url, story_en/ar, mission_en/ar, values[] (icon + title_en/ar + desc_en/ar), stats[] (key, value, label_en/ar).
-- Public SELECT (anon+authenticated), staff write via `is_staff()`.
-- Audit trigger.
+**Frontend:**
+- `src/lib/queries.ts`: `aboutSectionsQuery()`
+- `src/routes/about.tsx`: loader + `useSuspenseQuery`، عرض الأقسام حسب `kind` و`sort_order`
+- SEO bilingual من `seo_settings`
 
-**Admin**: `src/routes/_authenticated/admin.about.tsx` — form ثنائي اللغة مع رفع صورة hero عبر `StrictImageUrlField`، محرر لـ values/stats (add/remove/reorder).
+**Admin:**
+- `src/components/admin/AboutPanel.tsx`: CRUD كامل (إضافة/تعديل/حذف/ترتيب drag)
+- رفع صور عبر bucket `media`
+- تسجيله في `src/routes/admin/about.tsx`
 
-**Frontend**: refactor `src/routes/about.tsx` ليقرأ من `aboutContentQueryOptions` بدل `aboutImg` و `heroStats`.
+## Batch B — بذر Legal Pages (شرطي)
+- فحص `pages` للتأكد من وجود صفحات: privacy, terms, cookies, refund
+- إن نقصت: `supabase--insert` بالمحتوى الأساسي EN/AR
+- لا تغييرات على الكود (الصفحات ديناميكية بالفعل)
 
-## Batch B — Legal pages dynamic (/privacy, /terms)
+## Batch C — i18n في قاعدة البيانات (رسالتان)
 
-استخدام جدول `pages` الموجود بالفعل:
-- بذر صفّي `privacy` و `terms` (bilingual title/body HTML).
-- Refactor `src/routes/privacy.tsx` و `src/routes/terms.tsx` لقراءة `pageBySlugQueryOptions` من DB وعرض HTML عبر sanitized renderer.
-- Admin editor موجود في `admin.pages.tsx` — نتأكد أن CRUD يعمل مع rich text (bilingual).
+**رسالة 1 — Migration + Seed:**
+- جدول `translations` (key TEXT PK, en TEXT, ar TEXT, namespace TEXT, updated_at)
+- GRANT + RLS (قراءة عامة، كتابة staff)
+- Seed كل مفاتيح `src/lib/translations.ts` الحالية (~240 مفتاح)
+- Trigger `update_updated_at`
 
-## Batch C — Dynamic i18n
+**رسالة 2 — Provider + Admin:**
+- `src/lib/queries.ts`: `translationsQuery()` مع `staleTime: 5min`
+- تحديث `LanguageProvider.tsx`: يجلب الترجمات من DB، fallback على الملف الثابت أثناء التحميل
+- `src/components/admin/TranslationsPanel.tsx`: جدول قابل للتحرير inline مع بحث وفلترة namespace وتصدير/استيراد JSON
+- زر "Reload translations" يستدعي `queryClient.invalidateQueries`
 
-**Migration** `translations`:
-- `namespace text` + `key text` + `value_en text` + `value_ar text` + unique(namespace,key).
-- Public SELECT, staff write, audit trigger.
+## Batch D — تنظيف نهائي وبناء
+- حذف/تقليل `src/lib/translations.ts` (يبقى fallback أدنى فقط)
+- توحيد الأنواع في `src/lib/types.ts` (About, Translation, ...) وإزالة التكرارات
+- فحص `rg` لأي بيانات ثابتة متبقية (arrays hardcoded في components)
+- التأكد من كل الصفحات تجلب من DB
+- تشغيل typecheck + build وإصلاح أي أخطاء
+- تقرير نهائي للمستخدم بما تم
 
-**Bootstrap**: seed migration ينسخ كل نصوص `src/i18n/translations.ts` الحالية إلى الجدول (namespace = section: nav, hero, footer, cta, ...).
+## ملاحظات تقنية
+- كل الجداول الجديدة تتبع قاعدة GRANT الإلزامية قبل RLS
+- كل loader في route عام لا يستدعي server fn محمي
+- الأدمن محمي بـ `is_staff()` كالمعتاد
+- كل CRUD في الأدمن يستخدم `queryClient.invalidateQueries` بعد النجاح
 
-**Runtime**: `src/i18n/LanguageProvider.tsx` يحمّل translations عبر server-safe query عند bootstrap (loader في `__root.tsx`) ويدمجها فوق fallback static (يبقى في-code كـ safety net فقط، لا يُستخدم إن نجح الفetch).
+## ترتيب التنفيذ
+1. Batch A (migration ينتظر موافقة → ثم كود)
+2. Batch B (فحص أولاً، seed إن لزم)
+3. Batch C رسالة 1 (migration+seed) → رسالة 2 (كود)
+4. Batch D (تنظيف + build)
 
-**Admin**: `src/routes/_authenticated/admin.translations.tsx` — جدول بحث/تصفية حسب namespace، edit inline لكل مفتاح (EN/AR)، زر "Add key".
-
-## Batch D — حذف site-data.ts
-
-- نقل الأنواع (`Project`, `Service`, `Article`, إلخ) إلى `src/lib/types.ts`.
-- تحديث كل imports في المشروع.
-- حذف `src/lib/site-data.ts` والأصول المرتبطة غير المستخدمة.
-- typecheck نظيف.
-
-## ترتيب التسليم
-1. Batch A (migration → admin → route) — رسالة واحدة.
-2. Batch B — رسالة واحدة.
-3. Batch C (migration + seed + provider + admin) — رسالتان (migration منفصلة عن الكود).
-4. Batch D (تنظيف نهائي) — رسالة واحدة.
-
-## خارج النطاق
-- تغيير التصميم البصري.
-- ترجمة محتوى جديد لم يكن موجودًا مسبقًا (فقط نقل الحالي إلى DB).
-- تعديل الجداول الموجودة (services, products, ...) لأنها ديناميكية بالفعل.
-
-## Confirm
-قل **"ابدأ Batch A"** لأبدأ التنفيذ، أو حدّد أي batch تريد تخطّيه.
+كل batch يبدأ فقط بعد اكتمال السابق للحفاظ على استقرار البناء.
