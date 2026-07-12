@@ -288,44 +288,27 @@ function AuditLogsPage() {
               {filtered.length === 0 && !loading && (
                 <tr><td colSpan={6} className="px-3 py-8 text-center text-sm text-muted-foreground">No audit events match these filters.</td></tr>
               )}
-              {filtered.map((r) => {
-                const isOpen = expanded === r.id;
-                return (
-                  <>
-                    <tr key={r.id} className="cursor-pointer hover:bg-muted/30" onClick={() => setExpanded(isOpen ? null : r.id)}>
-                      <td className="px-3 py-2 tabular-nums text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</td>
-                      <td className="px-3 py-2">{r.actor_email ?? <span className="text-muted-foreground">system</span>}</td>
-                      <td className="px-3 py-2 font-mono text-xs">{r.table_name}</td>
-                      <td className="px-3 py-2">
-                        <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", actionTone(r.action))}>{r.action}</span>
-                      </td>
-                      <td className="px-3 py-2 font-mono text-[11px] text-muted-foreground">
-                        {r.record_id ? r.record_id.slice(0, 8) + (r.record_id.length > 8 ? "…" : "") : "—"}
-                      </td>
-                      <td className="px-3 py-2 text-xs text-muted-foreground">
-                        {r.changes?.changed_fields?.length ? r.changes?.changed_fields.slice(0, 4).join(", ") + (r.changes?.changed_fields.length > 4 ? "…" : "") : "—"}
-                      </td>
-                    </tr>
-                    {isOpen && (
-                      <tr key={`${r.id}-detail`} className="bg-muted/20">
-                        <td colSpan={6} className="px-3 py-3">
-                          <div className="grid gap-3 md:grid-cols-2">
-                            <div>
-                              <div className="mb-1 text-xs font-semibold text-muted-foreground">Before</div>
-                              <pre className="max-h-72 overflow-auto rounded bg-background p-2 text-xs">{JSON.stringify(r.changes?.old ?? {}, null, 2)}</pre>
-                            </div>
-                            <div>
-                              <div className="mb-1 text-xs font-semibold text-muted-foreground">After</div>
-                              <pre className="max-h-72 overflow-auto rounded bg-background p-2 text-xs">{JSON.stringify(r.changes?.new ?? {}, null, 2)}</pre>
-                            </div>
-                          </div>
-                          <p className="mt-2 text-xs text-muted-foreground">Record id: <span className="font-mono">{r.record_id}</span></p>
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                );
-              })}
+              {filtered.map((r) => (
+                <tr
+                  key={r.id}
+                  className="cursor-pointer hover:bg-muted/30"
+                  onClick={() => setSelected(r)}
+                >
+                  <td className="px-3 py-2 tabular-nums text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</td>
+                  <td className="px-3 py-2">{r.actor_email ?? <span className="text-muted-foreground">system</span>}</td>
+                  <td className="px-3 py-2 font-mono text-xs">{r.table_name}</td>
+                  <td className="px-3 py-2">
+                    <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", actionTone(r.action))}>{r.action}</span>
+                  </td>
+                  <td className="px-3 py-2 font-mono text-[11px] text-muted-foreground">
+                    {r.record_id ? r.record_id.slice(0, 8) + (r.record_id.length > 8 ? "…" : "") : "—"}
+                  </td>
+                  <td className="px-3 py-2 text-xs text-muted-foreground">
+                    {r.changes?.changed_fields?.length ? r.changes.changed_fields.slice(0, 4).join(", ") + (r.changes.changed_fields.length > 4 ? "…" : "") : "—"}
+                  </td>
+                </tr>
+              ))}
+
             </tbody>
           </table>
         </div>
