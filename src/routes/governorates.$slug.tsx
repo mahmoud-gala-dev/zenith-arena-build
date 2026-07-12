@@ -73,7 +73,7 @@ export const Route = createFileRoute("/governorates/$slug")({
 
 function GovernoratePage() {
   const { gov, projects } = Route.useLoaderData() as { gov: Gov; projects: P[] };
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const [q, setQ] = useState("");
   const [sport, setSport] = useState<string>("all");
 
