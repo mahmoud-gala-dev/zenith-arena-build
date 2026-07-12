@@ -89,17 +89,21 @@ function CareersPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Reveal><h2 className="text-2xl font-bold text-foreground">{tx.whyTitle}</h2></Reveal>
           <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {perks.map((p, i) => (
-              <Reveal key={i}>
-                <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-primary">
-                    <p.icon className="h-6 w-6" />
+            {cfg.perks.map((p, i) => {
+              const Icon = getLucideIcon(p.icon);
+              return (
+                <Reveal key={i}>
+                  <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-primary">
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="mt-4 font-semibold text-foreground">{ar ? p.title_ar : p.title_en}</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">{ar ? p.desc_ar : p.desc_en}</p>
                   </div>
-                  <h3 className="mt-4 font-semibold text-foreground">{ar ? p.title.ar : p.title.en}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{ar ? p.desc.ar : p.desc.en}</p>
-                </div>
-              </Reveal>
-            ))}
+                </Reveal>
+              );
+            })}
+
           </div>
         </div>
       </section>
