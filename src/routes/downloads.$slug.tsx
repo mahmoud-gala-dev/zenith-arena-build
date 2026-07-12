@@ -86,6 +86,8 @@ function DownloadDetailPage() {
   const { data: allItems } = useSuspenseQuery(downloadsPublishedQueryOptions);
   const { data: page } = useSuspenseQuery(downloadsPageSettingsQueryOptions);
 
+  useEffect(() => { if (item?.id) trackDownloadEvent("view_detail", item.id); }, [item?.id]);
+
   if (!item) return null;
 
   const L = page.labels;
