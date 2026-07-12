@@ -268,7 +268,8 @@ export function Header() {
                 key={l.to}
                 to={l.to}
                 className={cn(
-                  "group/link relative rounded-md px-3 py-2 text-[13px] font-semibold uppercase tracking-wider transition-colors",
+                  "group/link relative rounded-md px-3 py-2 text-[13px] font-semibold tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+                  ar ? "text-sm" : "uppercase",
                   scrolled
                     ? "text-muted-foreground hover:text-foreground"
                     : "text-white/85 hover:text-white",
