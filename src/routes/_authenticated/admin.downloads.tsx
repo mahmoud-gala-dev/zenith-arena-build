@@ -158,8 +158,10 @@ function AdminDownloadsPage() {
     if (error) { toast.error(error.message); return; }
     toast.success("Deleted");
     setDeleteRow(null);
+    invalidate();
     void load();
   }
+
 
   return (
     <AdminShell title="Downloads Library">
