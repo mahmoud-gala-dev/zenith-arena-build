@@ -421,8 +421,8 @@ function Index() {
                   <div className="text-4xl leading-none text-primary/30">"</div>
                   <blockquote className="mt-2 flex-1 text-foreground/85">{L({ en: tm.quote_en, ar: tm.quote_ar ?? tm.quote_en })}</blockquote>
                   <figcaption className="mt-6">
-                    <p className="font-semibold text-foreground">{L({ en: tm.author_name_en, ar: tm.author_name_ar ?? tm.author_name_en })}</p>
-                    <p className="text-sm text-muted-foreground">{L({ en: tm.author_title_en ?? "", ar: tm.author_title_ar ?? tm.author_title_en ?? "" })}</p>
+                    <p className="font-semibold text-foreground">{L({ en: tm.name_en, ar: tm.name_ar ?? tm.name_en })}</p>
+                    <p className="text-sm text-muted-foreground">{L({ en: tm.company_en ?? "", ar: tm.company_ar ?? tm.company_en ?? "" })}</p>
                   </figcaption>
                 </figure>
               </Reveal>
