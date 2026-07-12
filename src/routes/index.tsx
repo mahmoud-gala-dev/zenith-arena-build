@@ -287,15 +287,14 @@ function Index() {
                     <div className="relative flex items-start justify-between gap-3">
                       <div>
                         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/60">
-                          {lang === "ar" ? "أعمالنا" : "Portfolio"}
+                          {t.home.posterPortfolioEyebrow}
                         </p>
                         <h3 className="mt-2 font-display text-xl font-semibold text-white">
                           {t.cta.explore}
                         </h3>
                         <p className="mt-1.5 text-xs leading-relaxed text-white/60">
-                          {lang === "ar"
-                            ? "استعرض ملاعب ومنشآت سلّمناها في مصر."
-                            : "Browse stadiums & facilities delivered across Egypt."}
+                          {t.home.posterPortfolioDesc}
+
                         </p>
                       </div>
                       <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition group-hover:border-primary group-hover:bg-primary/10">
