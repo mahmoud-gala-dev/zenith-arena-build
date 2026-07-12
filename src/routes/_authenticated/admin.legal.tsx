@@ -186,6 +186,10 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
 
   async function save() {
     if (!form) return;
+    if (!validation.valid) {
+      toast.error("Please complete all required fields in EN and AR before saving");
+      return;
+    }
     setSaving(true);
     try {
       const payload = {
