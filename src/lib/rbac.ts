@@ -125,6 +125,7 @@ export function Can({
 }) {
   const { can, isLoading } = useCan(perm);
   if (isLoading) return null;
-  return <>{can ? children : fallback}</>;
+  return createElement(Fragment, null, can ? children : fallback);
 }
+
 
