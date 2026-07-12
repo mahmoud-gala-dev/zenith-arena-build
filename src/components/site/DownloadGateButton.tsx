@@ -46,7 +46,7 @@ export function DownloadGateButton({
   variant = "default",
   className,
 }: Props) {
-  const { lang } = useLang();
+  const { t, lang } = useLang();
   const ar = lang === "ar";
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -73,7 +73,7 @@ export function DownloadGateButton({
 
   async function openSignedUrl(): Promise<string | null> {
     if (!downloadId) {
-      toast.error(ar ? "الملف غير متاح" : "File unavailable");
+      toast.error(t.components.downloadGate.unavailable);
       return null;
     }
     try {
@@ -83,7 +83,7 @@ export function DownloadGateButton({
       setPopupBlocked(!win);
       return url;
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : ar ? "تعذّر إنشاء رابط التحميل" : "Could not create download link");
+      toast.error(err instanceof Error ? err.message : t.components.downloadGate.linkError);
       return null;
     }
   }
