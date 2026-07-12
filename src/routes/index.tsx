@@ -131,24 +131,29 @@ function Index() {
 
   const { data: dbClients } = useQuery<HomeClient[]>(homeClientsQueryOptions);
   const { data: dbServices, isLoading: servicesLoading } = useQuery(servicesPublishedQueryOptions);
+  const { data: dbProjects } = useQuery(projectsPublishedListQueryOptions);
+  const { data: dbArticles } = useQuery(blogPostsPublishedQueryOptions);
+  const { data: dbTestimonials } = useQuery(testimonialsPublishedQueryOptions);
   const servicesList = dbServices ?? [];
   const withSlug = servicesList.filter((s) => Boolean(s.slug_en));
   const featuredServices = (withSlug.filter((s) => s.featured).length > 0
     ? withSlug.filter((s) => s.featured)
     : withSlug
   ).slice(0, 6);
+  const homeProjects = (dbProjects ?? []).slice(0, 6);
+  const homeArticles = (dbArticles ?? []).slice(0, 3);
+  const homeTestimonials = (dbTestimonials ?? []).slice(0, 3);
 
   const clients: TrustClient[] =
-    dbClients && dbClients.length > 0
-      ? dbClients.map((c, i) => ({
-          name: { en: c.name_en, ar: c.name_ar },
-          sector: { en: c.industry ?? "Client", ar: c.industry ?? "عميل" },
-          monogram: monogramFor(c.name_en),
-          accent: ACCENTS[i % ACCENTS.length],
-          logo_url: c.logo_url,
-          description: { en: c.description_en ?? "", ar: c.description_ar ?? "" },
-        }))
-      : fallbackClients;
+    (dbClients ?? []).map((c, i) => ({
+      name: { en: c.name_en, ar: c.name_ar },
+      sector: { en: c.industry ?? "Client", ar: c.industry ?? "عميل" },
+      monogram: monogramFor(c.name_en),
+      accent: ACCENTS[i % ACCENTS.length],
+      logo_url: c.logo_url,
+      description: { en: c.description_en ?? "", ar: c.description_ar ?? "" },
+    }));
+
 
 
 
