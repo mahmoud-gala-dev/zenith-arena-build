@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { PreviewLinksCard } from "@/components/admin/PreviewLinksCard";
+import { PreviewLinksExportCard } from "@/components/admin/PreviewLinksExportCard";
 
 export const Route = createFileRoute("/_authenticated/admin/legal")({
   component: AdminLegalPage,
