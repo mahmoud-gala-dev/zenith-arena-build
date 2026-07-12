@@ -41,33 +41,15 @@ export function Footer() {
     .join(" · ");
 
 
-  const resources = ar
-    ? [
-        { to: "/downloads", label: "التحميلات" },
-        { to: "/certificates", label: "الشهادات" },
-        { to: "/clients", label: "العملاء" },
-        { to: "/gallery", label: "المعرض" },
-        { to: "/faq", label: "الأسئلة الشائعة" },
-      ]
-    : [
-        { to: "/downloads", label: "Downloads" },
-        { to: "/certificates", label: "Certifications" },
-        { to: "/clients", label: "Clients" },
-        { to: "/gallery", label: "Gallery" },
-        { to: "/faq", label: "FAQ" },
-      ];
+  const { data: footerMenu } = useQuery(menusByLocationQueryOptions("footer"));
+  const legalHrefs = new Set(["/privacy", "/terms", "/careers"]);
+  const items = (footerMenu ?? []).map((m) => ({
+    to: m.href,
+    label: ar ? m.label_ar || m.label_en : m.label_en,
+  }));
+  const resources = items.filter((i) => !legalHrefs.has(i.to));
+  const legal = items.filter((i) => legalHrefs.has(i.to));
 
-  const legal = ar
-    ? [
-        { to: "/careers", label: "الوظائف" },
-        { to: "/privacy", label: "سياسة الخصوصية" },
-        { to: "/terms", label: "الشروط والأحكام" },
-      ]
-    : [
-        { to: "/careers", label: "Careers" },
-        { to: "/privacy", label: "Privacy Policy" },
-        { to: "/terms", label: "Terms & Conditions" },
-      ];
 
   return (
     <footer className="hidden bg-ink text-ink-foreground md:block">
