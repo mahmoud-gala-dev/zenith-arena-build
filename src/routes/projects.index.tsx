@@ -105,7 +105,7 @@ function ProjectsPage() {
                 type="search"
                 value={qInput}
                 onChange={(e) => setQInput(e.target.value)}
-                placeholder={lang === "ar" ? "ابحث بالاسم، الموقع، أو الرياضة…" : "Search by title, location, or sport…"}
+                placeholder={t.projects.searchPlaceholder}
                 className="h-11 w-full rounded-full border border-border bg-card ps-10 pe-4 text-sm text-foreground shadow-soft outline-none placeholder:text-muted-foreground focus:border-primary"
               />
             </div>
