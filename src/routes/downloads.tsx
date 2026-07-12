@@ -269,7 +269,26 @@ function CategoryChip({
         (active
           ? "border-primary bg-primary text-primary-foreground"
           : "border-border bg-card text-foreground hover:border-primary/50 hover:text-primary")
-      }
+}
+
+function HighlightText({ text, query }: { text: string; query: string }) {
+  const q = query.trim();
+  if (!q) return <>{text}</>;
+  const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const parts = text.split(new RegExp(`(${escaped})`, "gi"));
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.toLowerCase() === q.toLowerCase() ? (
+          <mark key={i} className="rounded bg-primary/20 px-0.5 text-foreground">{part}</mark>
+        ) : (
+          <span key={i}>{part}</span>
+        ),
+      )}
+    </>
+  );
+}
+
       aria-pressed={active}
     >
       {children}
