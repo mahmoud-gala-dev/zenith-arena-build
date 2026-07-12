@@ -40,6 +40,7 @@ export function Header() {
   const { data: branding } = useBranding();
   const contact = useContactInfo();
   const social = useSocialLinks();
+  const brand = useBrandName();
   const ar = lang === "ar";
 
   const lowPower = useMemo(() => {
