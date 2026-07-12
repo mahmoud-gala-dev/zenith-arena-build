@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { useInvalidateTables } from "@/lib/invalidate";
+
 
 export const Route = createFileRoute("/_authenticated/admin/governorates")({
   component: GovernoratesPage,
