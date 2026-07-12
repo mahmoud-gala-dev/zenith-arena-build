@@ -32,7 +32,7 @@ export const Route = createFileRoute("/faq")({
 });
 
 function FaqPage() {
-  const { lang } = useLang();
+  const { lang, t: T } = useLang();
   const ar = lang === "ar";
   const { data: items } = useSuspenseQuery(faqItemsPublishedQueryOptions);
 
