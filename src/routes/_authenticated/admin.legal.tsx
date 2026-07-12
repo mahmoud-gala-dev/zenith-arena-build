@@ -241,9 +241,33 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
         // First save — create the row. Fill the OTHER language's NOT NULL title
         // with the page label as a placeholder so the row satisfies constraints,
         // but leave its content/seo empty for the other language's editor to fill.
-        const insertRow = lang === "en"
-          ? { ...langPayload, slug_ar: slug, title_ar: label, template: "legal", status: "draft" as const }
-          : { ...langPayload, slug_en: slug, title_en: label, template: "legal", status: "draft" as const };
+        const insertRow: {
+          slug_en: string; slug_ar: string;
+          title_en: string; title_ar: string;
+          content_en?: string; content_ar?: string;
+          seo_title_en?: string | null; seo_title_ar?: string | null;
+          seo_description_en?: string | null; seo_description_ar?: string | null;
+          seo_keywords_en?: string | null; seo_keywords_ar?: string | null;
+          template: string; status: "draft";
+        } = lang === "en"
+          ? {
+              slug_en: slug, slug_ar: slug,
+              title_en: form.en.title, title_ar: label,
+              content_en: serialize(form.en.intro, form.en.sections),
+              seo_title_en: form.en.seoTitle || null,
+              seo_description_en: form.en.seoDescription || null,
+              seo_keywords_en: form.en.seoKeywords || null,
+              template: "legal", status: "draft",
+            }
+          : {
+              slug_en: slug, slug_ar: slug,
+              title_en: label, title_ar: form.ar.title,
+              content_ar: serialize(form.ar.intro, form.ar.sections),
+              seo_title_ar: form.ar.seoTitle || null,
+              seo_description_ar: form.ar.seoDescription || null,
+              seo_keywords_ar: form.ar.seoKeywords || null,
+              template: "legal", status: "draft",
+            };
         const { data: inserted, error } = await supabase
           .from("pages")
           .insert(insertRow)
