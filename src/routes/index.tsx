@@ -601,13 +601,14 @@ function Index() {
             title={t.sections.clientsTitle}
             subtitle={t.sections.clientsSub}
           />
-          <ul
+          <div
+            role="list"
             className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-6"
             aria-label={t.sections.clientsTitle}
           >
             {clients.map((c, i) => (
               <Reveal key={c.monogram + i} delay={i * 40}>
-                <li className="group relative flex h-full flex-col items-center justify-center gap-3 overflow-hidden rounded-2xl border border-border bg-card/80 p-5 text-center shadow-soft backdrop-blur transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-elegant">
+                <div role="listitem" className="group relative flex h-full flex-col items-center justify-center gap-3 overflow-hidden rounded-2xl border border-border bg-card/80 p-5 text-center shadow-soft backdrop-blur transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-elegant">
                   <span
                     aria-hidden
                     className="pointer-events-none absolute -inset-x-4 -top-16 h-24 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-60"
@@ -664,10 +665,10 @@ function Index() {
                     )}
                   </div>
 
-                </li>
+                </div>
               </Reveal>
             ))}
-          </ul>
+          </div>
         </div>
       </section>
 
