@@ -342,6 +342,48 @@ export const faqItemsPublishedQueryOptions = queryOptions<FaqItem[]>({
   },
 });
 
+export type AboutValueItem = {
+  icon: string;
+  title_en: string;
+  title_ar: string;
+  desc_en: string;
+  desc_ar: string;
+};
+export type AboutStatItem = {
+  key: string;
+  value: string;
+  label_en: string;
+  label_ar: string;
+};
+export type AboutContent = {
+  hero: { image_url: string; eyebrow_en: string; eyebrow_ar: string; title_en: string; title_ar: string; subtitle_en: string; subtitle_ar: string };
+  story: { title_en: string; title_ar: string; body_en: string; body_ar: string };
+  values: AboutValueItem[];
+  stats: AboutStatItem[];
+};
+
+export const aboutContentQueryOptions = queryOptions<AboutContent>({
+  queryKey: ["about_content"],
+  staleTime: FIFTEEN_MIN,
+  gcTime: ONE_HOUR,
+  queryFn: async () => {
+    const { data, error } = await (supabase as unknown as {
+      from: (t: string) => { select: (c: string) => Promise<{ data: Array<{ key: string; value: unknown }> | null; error: unknown }> };
+    })
+      .from("about_content")
+      .select("key,value");
+    if (error) throw error;
+    const map: Record<string, unknown> = {};
+    for (const row of data ?? []) map[row.key] = row.value;
+    return {
+      hero: (map.hero as AboutContent["hero"]) ?? { image_url: "", eyebrow_en: "About", eyebrow_ar: "من نحن", title_en: "", title_ar: "", subtitle_en: "", subtitle_ar: "" },
+      story: (map.story as AboutContent["story"]) ?? { title_en: "", title_ar: "", body_en: "", body_ar: "" },
+      values: (map.values as AboutValueItem[]) ?? [],
+      stats: (map.stats as AboutStatItem[]) ?? [],
+    };
+  },
+});
+
 export const jobOpeningsOpenQueryOptions = queryOptions<JobOpening[]>({
   queryKey: ["job_openings", "open"],
   staleTime: FIVE_MIN,
