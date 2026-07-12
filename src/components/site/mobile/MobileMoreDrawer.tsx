@@ -30,37 +30,38 @@ export function MobileMoreDrawer({
     label: ar ? m.label_ar || m.label_en : m.label_en,
   }));
 
+  const M = t.components.mobile;
   const fallbackGroups: { label: string; items: Item[] }[] = [
     {
-      label: ar ? "استكشف" : "Explore",
+      label: M.drawer.groupExplore,
       items: [
         { to: "/services", label: t.nav.services },
-        { to: "/gallery", label: ar ? "معرض الصور" : "Gallery" },
-        { to: "/clients", label: ar ? "العملاء" : "Clients" },
+        { to: "/gallery", label: M.titles.gallery },
+        { to: "/clients", label: M.titles.clients },
         { to: "/about", label: t.nav.about },
       ],
     },
     {
-      label: ar ? "الشركة" : "Company",
+      label: M.drawer.groupCompany,
       items: [
         { to: "/contact", label: t.nav.contact },
-        { to: "/careers", label: ar ? "الوظائف" : "Careers" },
-        { to: "/faq", label: ar ? "الأسئلة الشائعة" : "FAQ" },
-        { to: "/downloads", label: ar ? "التحميلات" : "Downloads" },
-        { to: "/certificates", label: ar ? "الشهادات" : "Certificates" },
+        { to: "/careers", label: M.titles.careers },
+        { to: "/faq", label: M.titles.faq },
+        { to: "/downloads", label: M.titles.downloads },
+        { to: "/certificates", label: M.titles.certificates },
       ],
     },
     {
-      label: ar ? "قانوني" : "Legal",
+      label: M.drawer.groupLegal,
       items: [
-        { to: "/privacy", label: ar ? "الخصوصية" : "Privacy" },
-        { to: "/terms", label: ar ? "الشروط" : "Terms" },
+        { to: "/privacy", label: M.titles.privacy },
+        { to: "/terms", label: M.titles.terms },
       ],
     },
   ];
 
   const groups: { label: string; items: Item[] }[] = dbGroup.length
-    ? [{ label: ar ? "القائمة" : "Menu", items: dbGroup }]
+    ? [{ label: M.drawer.menu, items: dbGroup }]
     : fallbackGroups;
 
   return (
@@ -71,7 +72,7 @@ export function MobileMoreDrawer({
       >
         <SheetHeader className="border-b border-border/70 px-5 pb-4 pt-6">
           <SheetTitle className="text-xl font-black tracking-tight">
-            {ar ? "القائمة" : "Menu"}
+            {M.drawer.menu}
           </SheetTitle>
         </SheetHeader>
 
@@ -116,7 +117,7 @@ export function MobileMoreDrawer({
                 className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl border border-border/70 bg-card text-xs font-medium text-foreground transition-colors hover:bg-accent active:scale-[0.97]"
               >
                 <Phone className="h-4 w-4 text-primary" />
-                {ar ? "اتصال" : "Call"}
+                {M.drawer.call}
               </a>
             )}
             {contact.email && (
@@ -125,7 +126,7 @@ export function MobileMoreDrawer({
                 className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl border border-border/70 bg-card text-xs font-medium text-foreground transition-colors hover:bg-accent active:scale-[0.97]"
               >
                 <Mail className="h-4 w-4 text-primary" />
-                {ar ? "بريد" : "Email"}
+                {M.drawer.email}
               </a>
             )}
             {wa && (
