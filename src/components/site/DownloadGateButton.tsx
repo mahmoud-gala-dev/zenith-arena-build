@@ -37,6 +37,7 @@ export function DownloadGateButton({
   fileUrl,
   title,
   slug,
+  downloadId = null,
   requiresLead,
   label,
   size = "default",
