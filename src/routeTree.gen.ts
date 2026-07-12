@@ -68,6 +68,7 @@ import { Route as AuthenticatedAdminBlogRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminAuditLogsRouteImport } from './routes/_authenticated/admin.audit-logs'
 import { Route as AuthenticatedAdminApplicationsRouteImport } from './routes/_authenticated/admin.applications'
 import { Route as AuthenticatedAdminAboutRouteImport } from './routes/_authenticated/admin.about'
+import { Route as AuthenticatedAdminLegalPreviewSlugRouteImport } from './routes/_authenticated/admin.legal.preview.$slug'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -381,6 +382,12 @@ const AuthenticatedAdminAboutRoute = AuthenticatedAdminAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminLegalPreviewSlugRoute =
+  AuthenticatedAdminLegalPreviewSlugRouteImport.update({
+    id: '/preview/$slug',
+    path: '/preview/$slug',
+    getParentRoute: () => AuthenticatedAdminLegalRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -427,7 +434,7 @@ export interface FileRoutesByFullPath {
   '/admin/governorates': typeof AuthenticatedAdminGovernoratesRoute
   '/admin/hero-slides': typeof AuthenticatedAdminHeroSlidesRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
-  '/admin/legal': typeof AuthenticatedAdminLegalRoute
+  '/admin/legal': typeof AuthenticatedAdminLegalRouteWithChildren
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
@@ -441,6 +448,7 @@ export interface FileRoutesByFullPath {
   '/admin/testimonials': typeof AuthenticatedAdminTestimonialsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -482,7 +490,7 @@ export interface FileRoutesByTo {
   '/admin/governorates': typeof AuthenticatedAdminGovernoratesRoute
   '/admin/hero-slides': typeof AuthenticatedAdminHeroSlidesRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
-  '/admin/legal': typeof AuthenticatedAdminLegalRoute
+  '/admin/legal': typeof AuthenticatedAdminLegalRouteWithChildren
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
@@ -496,6 +504,7 @@ export interface FileRoutesByTo {
   '/admin/testimonials': typeof AuthenticatedAdminTestimonialsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -544,7 +553,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/governorates': typeof AuthenticatedAdminGovernoratesRoute
   '/_authenticated/admin/hero-slides': typeof AuthenticatedAdminHeroSlidesRoute
   '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRoute
-  '/_authenticated/admin/legal': typeof AuthenticatedAdminLegalRoute
+  '/_authenticated/admin/legal': typeof AuthenticatedAdminLegalRouteWithChildren
   '/_authenticated/admin/media': typeof AuthenticatedAdminMediaRoute
   '/_authenticated/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
   '/_authenticated/admin/pages': typeof AuthenticatedAdminPagesRoute
@@ -558,6 +567,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/testimonials': typeof AuthenticatedAdminTestimonialsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -620,6 +630,7 @@ export interface FileRouteTypes {
     | '/admin/testimonials'
     | '/admin/users'
     | '/admin/'
+    | '/admin/legal/preview/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -675,6 +686,7 @@ export interface FileRouteTypes {
     | '/admin/testimonials'
     | '/admin/users'
     | '/admin'
+    | '/admin/legal/preview/$slug'
   id:
     | '__root__'
     | '/'
@@ -736,6 +748,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/testimonials'
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/'
+    | '/_authenticated/admin/legal/preview/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1178,8 +1191,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAboutRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/legal/preview/$slug': {
+      id: '/_authenticated/admin/legal/preview/$slug'
+      path: '/preview/$slug'
+      fullPath: '/admin/legal/preview/$slug'
+      preLoaderRoute: typeof AuthenticatedAdminLegalPreviewSlugRouteImport
+      parentRoute: typeof AuthenticatedAdminLegalRoute
+    }
   }
 }
+
+interface AuthenticatedAdminLegalRouteChildren {
+  AuthenticatedAdminLegalPreviewSlugRoute: typeof AuthenticatedAdminLegalPreviewSlugRoute
+}
+
+const AuthenticatedAdminLegalRouteChildren: AuthenticatedAdminLegalRouteChildren =
+  {
+    AuthenticatedAdminLegalPreviewSlugRoute:
+      AuthenticatedAdminLegalPreviewSlugRoute,
+  }
+
+const AuthenticatedAdminLegalRouteWithChildren =
+  AuthenticatedAdminLegalRoute._addFileChildren(
+    AuthenticatedAdminLegalRouteChildren,
+  )
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAboutRoute: typeof AuthenticatedAdminAboutRoute
@@ -1196,7 +1231,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminGovernoratesRoute: typeof AuthenticatedAdminGovernoratesRoute
   AuthenticatedAdminHeroSlidesRoute: typeof AuthenticatedAdminHeroSlidesRoute
   AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
-  AuthenticatedAdminLegalRoute: typeof AuthenticatedAdminLegalRoute
+  AuthenticatedAdminLegalRoute: typeof AuthenticatedAdminLegalRouteWithChildren
   AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
   AuthenticatedAdminNewsletterRoute: typeof AuthenticatedAdminNewsletterRoute
   AuthenticatedAdminPagesRoute: typeof AuthenticatedAdminPagesRoute
@@ -1227,7 +1262,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminGovernoratesRoute: AuthenticatedAdminGovernoratesRoute,
   AuthenticatedAdminHeroSlidesRoute: AuthenticatedAdminHeroSlidesRoute,
   AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
-  AuthenticatedAdminLegalRoute: AuthenticatedAdminLegalRoute,
+  AuthenticatedAdminLegalRoute: AuthenticatedAdminLegalRouteWithChildren,
   AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
   AuthenticatedAdminNewsletterRoute: AuthenticatedAdminNewsletterRoute,
   AuthenticatedAdminPagesRoute: AuthenticatedAdminPagesRoute,
