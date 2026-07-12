@@ -1,0 +1,155 @@
+{
+  "qaDir": "qa-report",
+  "baselineDir": "qa-baselines",
+  "pixelmatchThreshold": 0.1,
+  "diffRatioMax": 0.005,
+  "total": 36,
+  "seeded": 36,
+  "failed": 0,
+  "results": [
+    {
+      "file": "android-scrollbar/gallery-1-before.png",
+      "status": "seeded"
+    },
+    {
+      "file": "android-scrollbar/gallery-2-during.png",
+      "status": "seeded"
+    },
+    {
+      "file": "android-scrollbar/gallery-3-after.png",
+      "status": "seeded"
+    },
+    {
+      "file": "android-scrollbar/home-1-before.png",
+      "status": "seeded"
+    },
+    {
+      "file": "android-scrollbar/home-2-during.png",
+      "status": "seeded"
+    },
+    {
+      "file": "android-scrollbar/home-3-after.png",
+      "status": "seeded"
+    },
+    {
+      "file": "android-scrollbar/knowledge-1-before.png",
+      "status": "seeded"
+    },
+    {
+      "file": "android-scrollbar/knowledge-2-during.png",
+      "status": "seeded"
+    },
+    {
+      "file": "android-scrollbar/knowledge-3-after.png",
+      "status": "seeded"
+    },
+    {
+      "file": "android-scrollbar/projects-1-before.png",
+      "status": "seeded"
+    },
+    {
+      "file": "android-scrollbar/projects-2-during.png",
+      "status": "seeded"
+    },
+    {
+      "file": "android-scrollbar/projects-3-after.png",
+      "status": "seeded"
+    },
+    {
+      "file": "android-scrollbar/services-1-before.png",
+      "status": "seeded"
+    },
+    {
+      "file": "android-scrollbar/services-2-during.png",
+      "status": "seeded"
+    },
+    {
+      "file": "android-scrollbar/services-3-after.png",
+      "status": "seeded"
+    },
+    {
+      "file": "ios-scrollbar/gallery-1-before.png",
+      "status": "seeded"
+    },
+    {
+      "file": "ios-scrollbar/gallery-2-during.png",
+      "status": "seeded"
+    },
+    {
+      "file": "ios-scrollbar/gallery-3-after.png",
+      "status": "seeded"
+    },
+    {
+      "file": "ios-scrollbar/home-1-before.png",
+      "status": "seeded"
+    },
+    {
+      "file": "ios-scrollbar/home-2-during.png",
+      "status": "seeded"
+    },
+    {
+      "file": "ios-scrollbar/home-3-after.png",
+      "status": "seeded"
+    },
+    {
+      "file": "ios-scrollbar/knowledge-1-before.png",
+      "status": "seeded"
+    },
+    {
+      "file": "ios-scrollbar/knowledge-2-during.png",
+      "status": "seeded"
+    },
+    {
+      "file": "ios-scrollbar/knowledge-3-after.png",
+      "status": "seeded"
+    },
+    {
+      "file": "ios-scrollbar/projects-1-before.png",
+      "status": "seeded"
+    },
+    {
+      "file": "ios-scrollbar/projects-2-during.png",
+      "status": "seeded"
+    },
+    {
+      "file": "ios-scrollbar/projects-3-after.png",
+      "status": "seeded"
+    },
+    {
+      "file": "ios-scrollbar/services-1-before.png",
+      "status": "seeded"
+    },
+    {
+      "file": "ios-scrollbar/services-2-during.png",
+      "status": "seeded"
+    },
+    {
+      "file": "ios-scrollbar/services-3-after.png",
+      "status": "seeded"
+    },
+    {
+      "file": "scrollbar/chromium-dark-scrollbar-strip.png",
+      "status": "seeded"
+    },
+    {
+      "file": "scrollbar/chromium-light-scrollbar-strip.png",
+      "status": "seeded"
+    },
+    {
+      "file": "scrollbar/firefox-dark-scrollbar-strip.png",
+      "status": "seeded"
+    },
+    {
+      "file": "scrollbar/firefox-light-scrollbar-strip.png",
+      "status": "seeded"
+    },
+    {
+      "file": "scrollbar/webkit-dark-scrollbar-strip.png",
+      "status": "seeded"
+    },
+    {
+      "file": "scrollbar/webkit-light-scrollbar-strip.png",
+      "status": "seeded"
+    }
+  ]
+}
