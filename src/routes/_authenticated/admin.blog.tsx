@@ -20,7 +20,9 @@ import {
   Plus, Pencil, Trash2, Loader2, Search, ExternalLink, Upload, X, Languages, Star, ImageIcon, Link2 as Link2Icon,
 } from "lucide-react";
 import { BlogCategoriesManager } from "@/components/admin/BlogCategoriesManager";
+import { TagsManager, slugifyTag, type Tag } from "@/components/admin/TagsManager";
 import { TranslationLinkPanel } from "@/components/admin/TranslationLinkPanel";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export const Route = createFileRoute("/_authenticated/admin/blog")({
   component: AdminBlogPage,
@@ -66,7 +68,7 @@ function slugify(s: string) {
 function AdminBlogPage() {
   const [rows, setRows] = useState<Article[]>([]);
   const [cats, setCats] = useState<Category[]>([]);
-  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [query, setQuery] = useState("");
@@ -78,17 +80,15 @@ function AdminBlogPage() {
 
   async function load() {
     setLoading(true);
-    const [{ data: posts, error }, { data: c }] = await Promise.all([
+    const [{ data: posts, error }, { data: c }, { data: t }] = await Promise.all([
       supabase.from("blog_posts").select("*").order("updated_at", { ascending: false }),
       supabase.from("blog_categories").select("id, slug_en, title_en, title_ar").order("title_en"),
+      supabase.from("tags").select("id, slug, name_en, name_ar").order("name_en"),
     ]);
     if (error) toast.error(error.message);
     setRows((posts as Article[]) ?? []);
     setCats((c as Category[]) ?? []);
-    // Derive tag suggestions from existing posts
-    const tagSet = new Set<string>();
-    (posts as Article[] | null)?.forEach((p) => p.tags?.forEach((t) => t && tagSet.add(t)));
-    setSuggestedTags(Array.from(tagSet).sort());
+    setTags((t as Tag[]) ?? []);
     setLoading(false);
   }
   useEffect(() => { load(); }, []);
@@ -112,13 +112,18 @@ function AdminBlogPage() {
     if (!editing.title_en?.trim() && !editing.title_ar?.trim())
       return toast.error("At least one title (EN or AR) is required");
     if (!editing.slug_en?.trim()) return toast.error("English slug is required");
+    const validSlugs = new Set(tags.map((t) => t.slug));
+    const invalid = (editing.tags ?? []).filter((t) => !validSlugs.has(t));
+    if (invalid.length) {
+      return toast.error(`Unknown tag${invalid.length > 1 ? "s" : ""}: ${invalid.join(", ")}. Create ${invalid.length > 1 ? "them" : "it"} in Manage tags first.`);
+    }
     setSaving(true);
     try {
       const payload: Article = {
         ...editing,
         slug_en: slugify(editing.slug_en ?? editing.title_en ?? ""),
         slug_ar: editing.slug_ar ? slugify(editing.slug_ar) : editing.slug_ar,
-        tags: (editing.tags ?? []).map((t) => t.trim()).filter(Boolean),
+        tags: Array.from(new Set((editing.tags ?? []).filter(Boolean))),
         reading_time: Number(editing.reading_time) || 5,
         category_id: editing.category_id || null,
         published_at: editing.status === "published"
@@ -190,6 +195,7 @@ function AdminBlogPage() {
             </SelectContent>
           </Select>
           <BlogCategoriesManager onChanged={load} />
+          <TagsManager onChanged={load} />
           <Button onClick={() => setEditing({ ...EMPTY })}><Plus className="h-4 w-4" /> New article</Button>
         </div>
 
@@ -245,7 +251,14 @@ function AdminBlogPage() {
                     </td>
                     <td className="p-3">
                       <div className="flex flex-wrap gap-1">
-                        {(r.tags ?? []).slice(0, 3).map((t) => <Badge key={t} variant="outline" className="text-[10px]">{t}</Badge>)}
+                        {(r.tags ?? []).slice(0, 3).map((slug) => {
+                          const tag = tags.find((t) => t.slug === slug);
+                          return (
+                            <Badge key={slug} variant={tag ? "outline" : "destructive"} className="text-[10px]" title={tag ? tag.name_ar : "Unknown tag"}>
+                              {tag?.name_en ?? slug}
+                            </Badge>
+                          );
+                        })}
                         {(r.tags?.length ?? 0) > 3 && <span className="text-xs text-muted-foreground">+{(r.tags!.length - 3)}</span>}
                       </div>
                     </td>
@@ -289,8 +302,10 @@ function AdminBlogPage() {
               value={editing}
               onChange={setEditing}
               cats={cats}
-              suggestedTags={suggestedTags}
+              tags={tags}
+              onTagsChanged={load}
             />
+
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
@@ -316,23 +331,58 @@ function AdminBlogPage() {
 }
 
 function ArticleEditor({
-  value, onChange, cats, suggestedTags,
+  value, onChange, cats, tags, onTagsChanged,
 }: {
   value: Article;
   onChange: (v: Article) => void;
   cats: Category[];
-  suggestedTags: string[];
+  tags: Tag[];
+  onTagsChanged: () => void;
 }) {
   const set = (patch: Partial<Article>) => onChange({ ...value, ...patch });
-  const [tagInput, setTagInput] = useState("");
+  const [tagSearch, setTagSearch] = useState("");
+  const [tagPickerOpen, setTagPickerOpen] = useState(false);
+  const [creatingTag, setCreatingTag] = useState(false);
 
-  function addTag(raw: string) {
-    const t = raw.trim().replace(/,$/, "");
-    if (!t) return;
-    const next = Array.from(new Set([...(value.tags ?? []), t]));
+  const selectedSlugs = new Set(value.tags ?? []);
+  const tagsBySlug = useMemo(() => Object.fromEntries(tags.map((t) => [t.slug, t] as const)), [tags]);
+  const unknownSelected = (value.tags ?? []).filter((s) => !tagsBySlug[s]);
+  const filteredTags = useMemo(() => {
+    const q = tagSearch.trim().toLowerCase();
+    return tags.filter((t) => {
+      if (selectedSlugs.has(t.slug)) return false;
+      if (!q) return true;
+      return [t.slug, t.name_en, t.name_ar].some((v) => v.toLowerCase().includes(q));
+    });
+  }, [tags, selectedSlugs, tagSearch]);
+
+  function toggleTag(slug: string) {
+    const next = selectedSlugs.has(slug)
+      ? (value.tags ?? []).filter((s) => s !== slug)
+      : Array.from(new Set([...(value.tags ?? []), slug]));
     set({ tags: next });
-    setTagInput("");
   }
+
+  async function createTagFromSearch() {
+    const raw = tagSearch.trim();
+    if (!raw) return;
+    const slug = slugifyTag(raw);
+    if (!slug) return toast.error("Invalid tag name");
+    if (tagsBySlug[slug]) {
+      toggleTag(slug);
+      setTagSearch("");
+      return;
+    }
+    setCreatingTag(true);
+    const { error } = await supabase.from("tags").insert({ slug, name_en: raw, name_ar: raw } as never);
+    setCreatingTag(false);
+    if (error) return toast.error(error.message);
+    toast.success(`Tag "${raw}" created — remember to add its Arabic name in Manage tags.`);
+    set({ tags: Array.from(new Set([...(value.tags ?? []), slug])) });
+    setTagSearch("");
+    onTagsChanged();
+  }
+
 
   return (
     <div className="space-y-5">
@@ -459,49 +509,101 @@ function ArticleEditor({
         </TabsContent>
 
         <TabsContent value="tags" className="space-y-3 pt-3">
-          <Label>Tags</Label>
-          <div className="flex flex-wrap gap-2 min-h-[40px] p-2 rounded border border-border/60 bg-background/50">
-            {(value.tags ?? []).map((t) => (
-              <Badge key={t} variant="secondary" className="gap-1">
-                {t}
-                <button type="button" onClick={() => set({ tags: (value.tags ?? []).filter((x) => x !== t) })}>
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
-            <Input
-              className="border-0 flex-1 min-w-[160px] h-6 p-0 focus-visible:ring-0 shadow-none"
-              value={tagInput}
-              placeholder="Type and press Enter or comma…"
-              onChange={(e) => {
-                const v = e.target.value;
-                if (v.endsWith(",")) addTag(v);
-                else setTagInput(v);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") { e.preventDefault(); addTag(tagInput); }
-                if (e.key === "Backspace" && !tagInput && (value.tags?.length ?? 0)) {
-                  set({ tags: (value.tags ?? []).slice(0, -1) });
-                }
-              }}
-            />
+          <div className="flex items-center justify-between">
+            <Label>Tags <span className="text-xs text-muted-foreground font-normal">({(value.tags ?? []).length} selected)</span></Label>
+            <span className="text-xs text-muted-foreground">Only tags from the tag library can be assigned.</span>
           </div>
-          {suggestedTags.length > 0 && (
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Suggestions</Label>
-              <div className="flex flex-wrap gap-1.5">
-                {suggestedTags
-                  .filter((t) => !(value.tags ?? []).includes(t))
-                  .slice(0, 24)
-                  .map((t) => (
-                    <button key={t} type="button" onClick={() => addTag(t)}>
-                      <Badge variant="outline" className="cursor-pointer hover:bg-accent">{t}</Badge>
-                    </button>
-                  ))}
-              </div>
+
+          <div className="flex flex-wrap gap-2 min-h-[44px] p-2 rounded border border-border/60 bg-background/50">
+            {(value.tags ?? []).length === 0 && (
+              <span className="text-xs text-muted-foreground px-1 py-0.5">No tags selected yet.</span>
+            )}
+            {(value.tags ?? []).map((slug) => {
+              const tag = tagsBySlug[slug];
+              const known = !!tag;
+              return (
+                <Badge
+                  key={slug}
+                  variant={known ? "secondary" : "destructive"}
+                  className="gap-1"
+                  title={known ? `${tag.name_en} — ${tag.name_ar}` : "Unknown tag — remove or create it in Manage tags"}
+                >
+                  <span>{tag?.name_en ?? slug}</span>
+                  {tag?.name_ar && <span className="text-[10px] opacity-70" dir="rtl">· {tag.name_ar}</span>}
+                  <button type="button" onClick={() => toggleTag(slug)} aria-label={`Remove ${tag?.name_en ?? slug}`}>
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              );
+            })}
+          </div>
+
+          {unknownSelected.length > 0 && (
+            <div className="rounded-md border border-destructive/50 bg-destructive/10 p-2 text-xs text-destructive">
+              {unknownSelected.length} unknown tag{unknownSelected.length > 1 ? "s" : ""}: {unknownSelected.join(", ")}. Remove or register them before saving.
             </div>
           )}
+
+          <Popover open={tagPickerOpen} onOpenChange={setTagPickerOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" type="button">
+                <Plus className="h-4 w-4" /> Add tags
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-2" align="start">
+              <Input
+                autoFocus
+                value={tagSearch}
+                onChange={(e) => setTagSearch(e.target.value)}
+                placeholder="Search or create tag…"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && filteredTags.length === 0 && tagSearch.trim()) {
+                    e.preventDefault();
+                    createTagFromSearch();
+                  }
+                }}
+              />
+              <div className="mt-2 max-h-64 overflow-y-auto">
+                {filteredTags.length === 0 ? (
+                  <div className="p-3 text-center text-xs text-muted-foreground space-y-2">
+                    <div>No matching tags.</div>
+                    {tagSearch.trim() && (
+                      <Button size="sm" variant="secondary" onClick={createTagFromSearch} disabled={creatingTag}>
+                        {creatingTag ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                        Create "{tagSearch.trim()}"
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <ul className="text-sm">
+                    {filteredTags.slice(0, 30).map((t) => (
+                      <li key={t.id}>
+                        <button
+                          type="button"
+                          className="w-full text-left px-2 py-1.5 rounded hover:bg-accent flex items-center justify-between gap-2"
+                          onClick={() => { toggleTag(t.slug); setTagSearch(""); }}
+                        >
+                          <span>
+                            <span className="font-medium">{t.name_en}</span>
+                            <span className="text-xs text-muted-foreground ml-2" dir="rtl">{t.name_ar}</span>
+                          </span>
+                          <span className="text-[10px] text-muted-foreground font-mono">{t.slug}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {tags.length === 0 && (
+            <p className="text-xs text-muted-foreground">
+              No tags exist yet. Use <strong>Manage tags</strong> in the toolbar to create some.
+            </p>
+          )}
         </TabsContent>
+
 
         <TabsContent value="seo" className="space-y-3 pt-3">
           <div className="grid gap-3 sm:grid-cols-2">
