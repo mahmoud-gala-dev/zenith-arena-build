@@ -320,7 +320,7 @@ function DownloadEditor({
     const slug = values.slug_en?.trim() || slugify(values.title_en);
     if (!slug) { toast.error("Slug is required"); return; }
     setSaving(true);
-    const payload: Partial<DownloadRow> = {
+    const payload = {
       title_en: values.title_en.trim(),
       title_ar: values.title_ar.trim(),
       slug_en: slug,
@@ -337,7 +337,7 @@ function DownloadEditor({
     };
     const { error } = values.id
       ? await supabase.from("downloads").update(payload).eq("id", values.id)
-      : await supabase.from("downloads").insert(payload);
+      : await supabase.from("downloads").insert([payload]);
     setSaving(false);
     if (error) { toast.error(error.message); return; }
     toast.success(values.id ? "Updated" : "Created");
