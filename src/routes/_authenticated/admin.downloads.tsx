@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus, Pencil, Trash2, Loader2, Search, Upload, X, FileText, ExternalLink, Download as DownloadIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Search, Upload, X, FileText, ExternalLink, Download as DownloadIcon, GripVertical, Image as ImageIcon, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { StrictImageUrlField } from "@/components/admin/StrictImageUrlField";
@@ -24,6 +24,15 @@ export const Route = createFileRoute("/_authenticated/admin/downloads")({
   component: AdminDownloadsPage,
 });
 
+type DownloadFile = {
+  label_en: string;
+  label_ar: string;
+  url: string;
+  lang: "en" | "ar" | "both";
+  size?: number | null;
+  mime?: string | null;
+};
+
 type DownloadRow = {
   id: string;
   title_en: string;
@@ -45,6 +54,8 @@ type DownloadRow = {
   seo_description_ar: string | null;
   og_image: string | null;
   og_image_ar: string | null;
+  files: DownloadFile[];
+  gallery: string[];
   created_at: string;
   updated_at: string;
 };
@@ -82,6 +93,8 @@ const emptyRow = (): Partial<DownloadRow> => ({
   seo_description_ar: "",
   og_image: "",
   og_image_ar: "",
+  files: [],
+  gallery: [],
 });
 
 
@@ -282,16 +295,109 @@ function AdminDownloadsPage() {
 function DownloadEditor({
   row, onClose, onSaved,
 }: { row: Partial<DownloadRow>; onClose: () => void; onSaved: () => void }) {
-  const [values, setValues] = useState<Partial<DownloadRow>>(row);
+  const [values, setValues] = useState<Partial<DownloadRow>>(() => ({
+    ...row,
+    files: Array.isArray(row.files) ? (row.files as DownloadFile[]) : [],
+    gallery: Array.isArray(row.gallery) ? (row.gallery as string[]) : [],
+  }));
   const [saving, setSaving] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadPct, setUploadPct] = useState(0);
   const [uploadLabel, setUploadLabel] = useState("");
   const [fileMeta, setFileMeta] = useState<{ name: string; size: number } | null>(null);
+  const [multiUploading, setMultiUploading] = useState(false);
+  const [galleryUploading, setGalleryUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const multiInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   function set<K extends keyof DownloadRow>(k: K, v: DownloadRow[K] | string | number | boolean | null) {
     setValues((prev) => ({ ...prev, [k]: v }));
+  }
+
+  const files = (values.files ?? []) as DownloadFile[];
+  const gallery = (values.gallery ?? []) as string[];
+
+  function updateFiles(next: DownloadFile[]) { setValues((p) => ({ ...p, files: next })); }
+  function updateGallery(next: string[]) { setValues((p) => ({ ...p, gallery: next })); }
+
+  async function uploadOneToStorage(file: File, folder: string) {
+    const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
+    const stamp = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const base = slugify(values.slug_en || values.title_en || "file") || "file";
+    const path = `${folder}/${base}-${stamp}.${ext}`;
+    const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+      contentType: file.type || undefined,
+      cacheControl: "31536000",
+      upsert: false,
+    });
+    if (error) throw error;
+    return signPath(BUCKET, path, TEN_YEARS);
+  }
+
+  async function handleMultiFilePick(list: FileList) {
+    setMultiUploading(true);
+    const added: DownloadFile[] = [];
+    try {
+      for (const file of Array.from(list)) {
+        if (file.size > 100 * 1024 * 1024) { toast.error(`${file.name}: max 100 MB — skipped`); continue; }
+        const url = await uploadOneToStorage(file, "files");
+        added.push({
+          label_en: file.name.replace(/\.[^.]+$/, ""),
+          label_ar: file.name.replace(/\.[^.]+$/, ""),
+          url,
+          lang: "both",
+          size: file.size,
+          mime: file.type || null,
+        });
+      }
+      if (added.length) {
+        updateFiles([...files, ...added]);
+        toast.success(`${added.length} file(s) added`);
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setMultiUploading(false);
+      if (multiInputRef.current) multiInputRef.current.value = "";
+    }
+  }
+
+  async function handleGalleryPick(list: FileList) {
+    setGalleryUploading(true);
+    const added: string[] = [];
+    try {
+      for (const file of Array.from(list)) {
+        if (!file.type.startsWith("image/")) { toast.error(`${file.name}: not an image — skipped`); continue; }
+        if (file.size > 10 * 1024 * 1024) { toast.error(`${file.name}: max 10 MB — skipped`); continue; }
+        const url = await uploadOneToStorage(file, "gallery");
+        added.push(url);
+      }
+      if (added.length) {
+        updateGallery([...gallery, ...added]);
+        toast.success(`${added.length} image(s) added`);
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setGalleryUploading(false);
+      if (galleryInputRef.current) galleryInputRef.current.value = "";
+    }
+  }
+
+  function moveFile(idx: number, dir: -1 | 1) {
+    const next = [...files];
+    const j = idx + dir;
+    if (j < 0 || j >= next.length) return;
+    [next[idx], next[j]] = [next[j], next[idx]];
+    updateFiles(next);
+  }
+  function moveImage(idx: number, dir: -1 | 1) {
+    const next = [...gallery];
+    const j = idx + dir;
+    if (j < 0 || j >= next.length) return;
+    [next[idx], next[j]] = [next[j], next[idx]];
+    updateGallery(next);
   }
 
   async function handleFilePick(file: File) {
@@ -353,11 +459,20 @@ function DownloadEditor({
       seo_description_ar: values.seo_description_ar?.trim() || null,
       og_image: values.og_image?.trim() || null,
       og_image_ar: values.og_image_ar?.trim() || null,
+      files: files.filter((f) => f.url?.trim()).map((f) => ({
+        label_en: f.label_en?.trim() || "",
+        label_ar: f.label_ar?.trim() || "",
+        url: f.url.trim(),
+        lang: f.lang ?? "both",
+        size: f.size ?? null,
+        mime: f.mime ?? null,
+      })),
+      gallery: gallery.filter((u) => u?.trim()),
     };
 
     const { error } = values.id
-      ? await supabase.from("downloads").update(payload).eq("id", values.id)
-      : await supabase.from("downloads").insert([payload]);
+      ? await supabase.from("downloads").update(payload as never).eq("id", values.id)
+      : await supabase.from("downloads").insert([payload as never]);
     setSaving(false);
     if (error) { toast.error(error.message); return; }
     toast.success(values.id ? "Updated" : "Created");
@@ -493,6 +608,145 @@ function DownloadEditor({
               folder="thumbnails"
               help="Square-ish cover image shown in the catalog list and detail hero. Upload from your device or paste a URL."
             />
+          </div>
+
+          {/* Multiple downloadable files */}
+          <div className="md:col-span-2 rounded-xl border border-border bg-secondary/30 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm font-semibold">Additional files (multi-file catalog)</Label>
+                <p className="text-xs text-muted-foreground">
+                  Attach as many files as you need. Set a language tag (EN / AR / both) and bilingual button labels.
+                </p>
+              </div>
+              <Button
+                type="button" size="sm" variant="secondary"
+                onClick={() => multiInputRef.current?.click()}
+                disabled={multiUploading}
+              >
+                {multiUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                <span className="ml-1">Upload files</span>
+              </Button>
+              <input
+                ref={multiInputRef} type="file" multiple className="hidden"
+                onChange={(e) => { if (e.target.files?.length) void handleMultiFilePick(e.target.files); }}
+              />
+            </div>
+
+            {files.length === 0 ? (
+              <p className="text-xs text-muted-foreground italic">No extra files yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {files.map((f, i) => (
+                  <div key={i} className="rounded-lg border border-border bg-background p-3 space-y-2">
+                    <div className="flex items-start gap-2">
+                      <GripVertical className="mt-2 h-4 w-4 text-muted-foreground shrink-0" />
+                      <div className="grid flex-1 gap-2 md:grid-cols-2">
+                        <Input
+                          placeholder="Label (EN)"
+                          value={f.label_en}
+                          onChange={(e) => { const n = [...files]; n[i] = { ...n[i], label_en: e.target.value }; updateFiles(n); }}
+                        />
+                        <Input
+                          dir="rtl" placeholder="التسمية (AR)"
+                          value={f.label_ar}
+                          onChange={(e) => { const n = [...files]; n[i] = { ...n[i], label_ar: e.target.value }; updateFiles(n); }}
+                        />
+                        <Input
+                          className="md:col-span-2"
+                          placeholder="File URL"
+                          value={f.url}
+                          onChange={(e) => { const n = [...files]; n[i] = { ...n[i], url: e.target.value }; updateFiles(n); }}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <Button size="icon" variant="ghost" onClick={() => moveFile(i, -1)} disabled={i === 0} aria-label="Move up"><ArrowUp className="h-4 w-4" /></Button>
+                        <Button size="icon" variant="ghost" onClick={() => moveFile(i, 1)} disabled={i === files.length - 1} aria-label="Move down"><ArrowDown className="h-4 w-4" /></Button>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 pl-6">
+                      <Select
+                        value={f.lang ?? "both"}
+                        onValueChange={(v) => { const n = [...files]; n[i] = { ...n[i], lang: v as DownloadFile["lang"] }; updateFiles(n); }}
+                      >
+                        <SelectTrigger className="h-8 w-32"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="both">EN + AR</SelectItem>
+                          <SelectItem value="en">English only</SelectItem>
+                          <SelectItem value="ar">Arabic only</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {f.size ? <Badge variant="outline" className="text-[11px]">{formatBytes(f.size)}</Badge> : null}
+                      {f.mime ? <Badge variant="outline" className="text-[11px]">{f.mime}</Badge> : null}
+                      <div className="ml-auto flex gap-1">
+                        {f.url && (
+                          <Button asChild size="sm" variant="ghost">
+                            <a href={f.url} target="_blank" rel="noreferrer" className="gap-1">
+                              <DownloadIcon className="h-4 w-4" /> Test
+                            </a>
+                          </Button>
+                        )}
+                        <Button size="sm" variant="ghost" onClick={() => updateFiles(files.filter((_, j) => j !== i))}>
+                          <X className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <Button
+              type="button" size="sm" variant="outline"
+              onClick={() => updateFiles([...files, { label_en: "", label_ar: "", url: "", lang: "both" }])}
+            >
+              <Plus className="mr-1 h-4 w-4" /> Add empty row
+            </Button>
+          </div>
+
+          {/* Gallery preview images */}
+          <div className="md:col-span-2 rounded-xl border border-border bg-secondary/30 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm font-semibold">Preview gallery images</Label>
+                <p className="text-xs text-muted-foreground">
+                  Extra preview images shown on the catalog detail page (in addition to the thumbnail above).
+                </p>
+              </div>
+              <Button
+                type="button" size="sm" variant="secondary"
+                onClick={() => galleryInputRef.current?.click()}
+                disabled={galleryUploading}
+              >
+                {galleryUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
+                <span className="ml-1">Upload images</span>
+              </Button>
+              <input
+                ref={galleryInputRef} type="file" multiple accept="image/*" className="hidden"
+                onChange={(e) => { if (e.target.files?.length) void handleGalleryPick(e.target.files); }}
+              />
+            </div>
+            {gallery.length === 0 ? (
+              <p className="text-xs text-muted-foreground italic">No preview images yet.</p>
+            ) : (
+              <div className="grid grid-cols-3 gap-3 md:grid-cols-4">
+                {gallery.map((src, i) => (
+                  <div key={i} className="group relative overflow-hidden rounded-lg border border-border bg-background">
+                    <div className="aspect-[4/3]">
+                      <img src={src} alt={`Preview ${i + 1}`} className="h-full w-full object-cover" loading="lazy" />
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 flex justify-between gap-1 bg-background/90 p-1 opacity-0 transition group-hover:opacity-100">
+                      <div className="flex gap-1">
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => moveImage(i, -1)} disabled={i === 0}><ArrowUp className="h-3.5 w-3.5" /></Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => moveImage(i, 1)} disabled={i === gallery.length - 1}><ArrowDown className="h-3.5 w-3.5" /></Button>
+                      </div>
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => updateGallery(gallery.filter((_, j) => j !== i))}>
+                        <X className="h-3.5 w-3.5 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="md:col-span-2 rounded-xl border border-border bg-secondary/30 p-4 space-y-4">
