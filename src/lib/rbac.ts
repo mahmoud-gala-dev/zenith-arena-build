@@ -148,7 +148,7 @@ export function useGuard(perm: PermissionKey | null | undefined) {
       "aria-disabled": (blocked || pending) as boolean,
       "data-pending": pending || undefined,
       disabled: blocked || pending,
-      onClickCapture: (e: React.MouseEvent) => {
+      onClickCapture: (e: ReactMouseEvent) => {
         if (blocked) {
           e.preventDefault();
           e.stopPropagation();
@@ -163,12 +163,12 @@ export function useGuard(perm: PermissionKey | null | undefined) {
    * permission — preventing browser-native form actions AND user handlers.
    */
   function submitProps<E extends HTMLFormElement>(
-    handler: (e: React.FormEvent<E>) => void | Promise<void>,
+    handler: (e: ReactFormEvent<E>) => void | Promise<void>,
     context?: { resource?: string; action?: string; recordId?: string | null },
   ) {
     return {
       "aria-disabled": (!can) as boolean,
-      onSubmit: (e: React.FormEvent<E>) => {
+      onSubmit: (e: ReactFormEvent<E>) => {
         if (!can) {
           e.preventDefault();
           e.stopPropagation();
