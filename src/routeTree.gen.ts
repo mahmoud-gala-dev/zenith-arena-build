@@ -64,6 +64,7 @@ import { Route as AuthenticatedAdminGalleryRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminFaqsRouteImport } from './routes/_authenticated/admin.faqs'
 import { Route as AuthenticatedAdminDownloadsAnalyticsRouteImport } from './routes/_authenticated/admin.downloads-analytics'
 import { Route as AuthenticatedAdminDownloadsRouteImport } from './routes/_authenticated/admin.downloads'
+import { Route as AuthenticatedAdminDownloadLeadsRouteImport } from './routes/_authenticated/admin.download-leads'
 import { Route as AuthenticatedAdminClientsRouteImport } from './routes/_authenticated/admin.clients'
 import { Route as AuthenticatedAdminCertificatesRouteImport } from './routes/_authenticated/admin.certificates'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
@@ -362,6 +363,12 @@ const AuthenticatedAdminDownloadsRoute =
     path: '/downloads',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminDownloadLeadsRoute =
+  AuthenticatedAdminDownloadLeadsRouteImport.update({
+    id: '/download-leads',
+    path: '/download-leads',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminClientsRoute =
   AuthenticatedAdminClientsRouteImport.update({
     id: '/clients',
@@ -455,6 +462,7 @@ export interface FileRoutesByFullPath {
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/admin/download-leads': typeof AuthenticatedAdminDownloadLeadsRoute
   '/admin/downloads': typeof AuthenticatedAdminDownloadsRoute
   '/admin/downloads-analytics': typeof AuthenticatedAdminDownloadsAnalyticsRoute
   '/admin/faqs': typeof AuthenticatedAdminFaqsRoute
@@ -515,6 +523,7 @@ export interface FileRoutesByTo {
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/admin/download-leads': typeof AuthenticatedAdminDownloadLeadsRoute
   '/admin/downloads': typeof AuthenticatedAdminDownloadsRoute
   '/admin/downloads-analytics': typeof AuthenticatedAdminDownloadsAnalyticsRoute
   '/admin/faqs': typeof AuthenticatedAdminFaqsRoute
@@ -582,6 +591,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/_authenticated/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/_authenticated/admin/download-leads': typeof AuthenticatedAdminDownloadLeadsRoute
   '/_authenticated/admin/downloads': typeof AuthenticatedAdminDownloadsRoute
   '/_authenticated/admin/downloads-analytics': typeof AuthenticatedAdminDownloadsAnalyticsRoute
   '/_authenticated/admin/faqs': typeof AuthenticatedAdminFaqsRoute
@@ -649,6 +659,7 @@ export interface FileRouteTypes {
     | '/admin/categories'
     | '/admin/certificates'
     | '/admin/clients'
+    | '/admin/download-leads'
     | '/admin/downloads'
     | '/admin/downloads-analytics'
     | '/admin/faqs'
@@ -709,6 +720,7 @@ export interface FileRouteTypes {
     | '/admin/categories'
     | '/admin/certificates'
     | '/admin/clients'
+    | '/admin/download-leads'
     | '/admin/downloads'
     | '/admin/downloads-analytics'
     | '/admin/faqs'
@@ -775,6 +787,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/certificates'
     | '/_authenticated/admin/clients'
+    | '/_authenticated/admin/download-leads'
     | '/_authenticated/admin/downloads'
     | '/_authenticated/admin/downloads-analytics'
     | '/_authenticated/admin/faqs'
@@ -1214,6 +1227,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminDownloadsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/download-leads': {
+      id: '/_authenticated/admin/download-leads'
+      path: '/download-leads'
+      fullPath: '/admin/download-leads'
+      preLoaderRoute: typeof AuthenticatedAdminDownloadLeadsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/clients': {
       id: '/_authenticated/admin/clients'
       path: '/clients'
@@ -1304,6 +1324,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
   AuthenticatedAdminCertificatesRoute: typeof AuthenticatedAdminCertificatesRoute
   AuthenticatedAdminClientsRoute: typeof AuthenticatedAdminClientsRoute
+  AuthenticatedAdminDownloadLeadsRoute: typeof AuthenticatedAdminDownloadLeadsRoute
   AuthenticatedAdminDownloadsRoute: typeof AuthenticatedAdminDownloadsRoute
   AuthenticatedAdminDownloadsAnalyticsRoute: typeof AuthenticatedAdminDownloadsAnalyticsRoute
   AuthenticatedAdminFaqsRoute: typeof AuthenticatedAdminFaqsRoute
@@ -1337,6 +1358,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
   AuthenticatedAdminCertificatesRoute: AuthenticatedAdminCertificatesRoute,
   AuthenticatedAdminClientsRoute: AuthenticatedAdminClientsRoute,
+  AuthenticatedAdminDownloadLeadsRoute: AuthenticatedAdminDownloadLeadsRoute,
   AuthenticatedAdminDownloadsRoute: AuthenticatedAdminDownloadsRoute,
   AuthenticatedAdminDownloadsAnalyticsRoute:
     AuthenticatedAdminDownloadsAnalyticsRoute,
