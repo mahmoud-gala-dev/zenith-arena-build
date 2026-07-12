@@ -128,6 +128,23 @@ export const Route = createFileRoute("/downloads/$slug")({
   component: DownloadDetailPage,
 });
 
+type DownloadFile = {
+  label_en?: string;
+  label_ar?: string;
+  url: string;
+  lang?: "en" | "ar" | "both";
+  size?: number | null;
+  mime?: string | null;
+};
+
+function formatBytes(n?: number | null) {
+  if (!n || n <= 0) return "";
+  const units = ["B", "KB", "MB", "GB"];
+  let i = 0; let v = n;
+  while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+  return `${v.toFixed(v >= 10 || i === 0 ? 0 : 1)} ${units[i]}`;
+}
+
 function DownloadDetailPage() {
   const { slug } = Route.useParams();
   const { lang } = useLang();
@@ -149,6 +166,12 @@ function DownloadDetailPage() {
     if (preset) return ar ? preset.label_ar : preset.label_en;
     return item.category ? item.category.charAt(0).toUpperCase() + item.category.slice(1) : "";
   })();
+
+  const rawFiles = (Array.isArray(item.files) ? (item.files as unknown as DownloadFile[]) : []).filter((f) => f?.url);
+  const langCode: "en" | "ar" = ar ? "ar" : "en";
+  const localizedFiles = rawFiles.filter((f) => !f.lang || f.lang === "both" || f.lang === langCode);
+  const gallery = (Array.isArray(item.gallery) ? (item.gallery as unknown as string[]) : []).filter((u) => typeof u === "string" && u.trim().length > 0);
+
 
   const related = allItems.filter((r) => r.id !== item.id && r.category === item.category).slice(0, 4);
 
