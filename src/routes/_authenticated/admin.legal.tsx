@@ -178,6 +178,37 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
   const [activeLang, setActiveLang] = useState<"en" | "ar">("en");
   const [savingLang, setSavingLang] = useState<"en" | "ar" | null>(null);
   const [savingPublishing, setSavingPublishing] = useState(false);
+  const [scheduleMode, setScheduleMode] = useState(false);
+
+  useEffect(() => {
+    if (!form) return;
+    const future = form.effectiveAt ? new Date(form.effectiveAt).getTime() > Date.now() : false;
+    setScheduleMode(form.status === "published" && future);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form?.id]);
+
+  const publishingValidation = useMemo(() => {
+    const errors: string[] = [];
+    const warnings: string[] = [];
+    if (!form) return { errors, warnings };
+    const raw = form.effectiveAt?.trim() ?? "";
+    const parsed = raw ? new Date(raw) : null;
+    const parsedValid = parsed && !Number.isNaN(parsed.getTime());
+    if (raw && !parsedValid) errors.push("Effective date is invalid.");
+    if (scheduleMode) {
+      if (form.status !== "published") errors.push("Scheduling requires status = Published.");
+      if (!raw) errors.push("Effective date is required when scheduling.");
+      else if (parsedValid && parsed!.getTime() <= Date.now())
+        errors.push("Scheduled effective date must be in the future.");
+    } else {
+      if (form.status === "draft" && raw)
+        warnings.push("Effective date is ignored while Unpublished. Clear it or switch to Published.");
+      if (form.status === "published" && parsedValid && parsed!.getTime() > Date.now())
+        warnings.push("A future date is set but Schedule mode is off — page will go live now.");
+    }
+    return { errors, warnings };
+  }, [form, scheduleMode]);
+
 
   const isLive = useMemo(() => {
     if (!form) return false;
