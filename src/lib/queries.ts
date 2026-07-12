@@ -8,7 +8,7 @@ const HALF_HOUR = 30 * 60 * 1000;
 const ONE_HOUR = 60 * 60 * 1000;
 const TWO_HOUR = 2 * 60 * 60 * 1000;
 
-const ONE_HOUR = 60 * 60 * 1000;
+
 
 export type Gov = {
   id: string;
