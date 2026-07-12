@@ -5,6 +5,9 @@ import { Icon } from "./Icon";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import type { Article, Project, Service } from "@/lib/site-data";
 
+function ServiceCardImpl({ service }: { service: Service }) {
+
+
   const L = useLocalized();
   const { t } = useLang();
   return (
