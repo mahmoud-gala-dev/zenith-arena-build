@@ -493,12 +493,27 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
                   ? "Unpublished — hidden from visitors"
                   : "Scheduled — not live yet"}
             </span>
-            <Button
-              onClick={savePublishing}
-              disabled={savingPublishing || !form.id || publishingValidation.errors.length > 0}
-            >
-              {savingPublishing ? "Saving…" : "Save publishing"}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  const iso = form.effectiveAt
+                    ? new Date(form.effectiveAt).toISOString()
+                    : new Date().toISOString();
+                  window.open(`/admin/legal/preview/${slug}?at=${encodeURIComponent(iso)}`, "_blank", "noopener");
+                }}
+              >
+                Preview at effective date
+              </Button>
+              <Button
+                onClick={savePublishing}
+                disabled={savingPublishing || !form.id || publishingValidation.errors.length > 0}
+              >
+                {savingPublishing ? "Saving…" : "Save publishing"}
+              </Button>
+            </div>
+
           </div>
 
         </CardContent>
