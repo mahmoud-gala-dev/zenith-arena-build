@@ -41,6 +41,7 @@ import { Route as KnowledgeSlugRouteImport } from './routes/knowledge.$slug'
 import { Route as GovernoratesSlugRouteImport } from './routes/governorates.$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as PreviewPagesSlugRouteImport } from './routes/preview.pages.$slug'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminTestimonialsRouteImport } from './routes/_authenticated/admin.testimonials'
 import { Route as AuthenticatedAdminSocialCacheRouteImport } from './routes/_authenticated/admin.social-cache'
@@ -228,6 +229,11 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const PreviewPagesSlugRoute = PreviewPagesSlugRouteImport.update({
+  id: '/preview/pages/$slug',
+  path: '/preview/pages/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/users',
@@ -447,6 +453,7 @@ export interface FileRoutesByFullPath {
   '/admin/social-cache': typeof AuthenticatedAdminSocialCacheRoute
   '/admin/testimonials': typeof AuthenticatedAdminTestimonialsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
@@ -503,6 +510,7 @@ export interface FileRoutesByTo {
   '/admin/social-cache': typeof AuthenticatedAdminSocialCacheRoute
   '/admin/testimonials': typeof AuthenticatedAdminTestimonialsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
@@ -566,6 +574,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/social-cache': typeof AuthenticatedAdminSocialCacheRoute
   '/_authenticated/admin/testimonials': typeof AuthenticatedAdminTestimonialsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
@@ -629,6 +638,7 @@ export interface FileRouteTypes {
     | '/admin/social-cache'
     | '/admin/testimonials'
     | '/admin/users'
+    | '/preview/pages/$slug'
     | '/admin/'
     | '/admin/legal/preview/$slug'
   fileRoutesByTo: FileRoutesByTo
@@ -685,6 +695,7 @@ export interface FileRouteTypes {
     | '/admin/social-cache'
     | '/admin/testimonials'
     | '/admin/users'
+    | '/preview/pages/$slug'
     | '/admin'
     | '/admin/legal/preview/$slug'
   id:
@@ -747,6 +758,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/social-cache'
     | '/_authenticated/admin/testimonials'
     | '/_authenticated/admin/users'
+    | '/preview/pages/$slug'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/legal/preview/$slug'
   fileRoutesById: FileRoutesById
@@ -774,6 +786,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   GovernoratesSlugRoute: typeof GovernoratesSlugRoute
+  PreviewPagesSlugRoute: typeof PreviewPagesSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1001,6 +1014,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/preview/pages/$slug': {
+      id: '/preview/pages/$slug'
+      path: '/preview/pages/$slug'
+      fullPath: '/preview/pages/$slug'
+      preLoaderRoute: typeof PreviewPagesSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/users': {
       id: '/_authenticated/admin/users'
@@ -1371,6 +1391,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   GovernoratesSlugRoute: GovernoratesSlugRoute,
+  PreviewPagesSlugRoute: PreviewPagesSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
