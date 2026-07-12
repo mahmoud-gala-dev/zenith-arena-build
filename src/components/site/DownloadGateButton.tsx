@@ -294,6 +294,7 @@ export function DownloadGateButton({
               </Button>
             </DialogFooter>
           </form>
+          )}
         </DialogContent>
       </Dialog>
     </>
