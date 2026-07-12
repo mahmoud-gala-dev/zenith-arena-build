@@ -229,29 +229,83 @@ export function Header() {
 
         <div className="hidden items-center gap-3 lg:flex">
           {contact.phone && (
-            <a
-              href={`tel:${contact.phone}`}
-              className={cn(
-                "hidden items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors xl:inline-flex",
-                scrolled
-                  ? "border-border text-foreground hover:border-[color:var(--gold)] hover:text-[color:var(--gold)]"
-                  : "border-white/25 text-white hover:border-[color:var(--gold)] hover:text-[color:var(--gold)]",
-              )}
-            >
-              <Phone className="h-3.5 w-3.5" />
-              <span dir="ltr" className="tabular-nums">{contact.phone}</span>
-            </a>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    "hidden items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors xl:inline-flex",
+                    scrolled
+                      ? "border-border text-foreground hover:border-[color:var(--gold)] hover:text-[color:var(--gold)]"
+                      : "border-white/25 text-white hover:border-[color:var(--gold)] hover:text-[color:var(--gold)]",
+                  )}
+                >
+                  <Phone className="h-3.5 w-3.5" />
+                  <span dir="ltr" className="tabular-nums">{contact.phone}</span>
+                  <ChevronDown className="h-3 w-3 opacity-70" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-64 p-2" dir={ar ? "rtl" : "ltr"}>
+                <a
+                  href={`tel:${contact.phone}`}
+                  onClick={() => trackEvent({ name: "header_phone_click", surface: "main_bar", phone: contact.phone })}
+                  className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold text-foreground transition hover:bg-accent"
+                >
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-primary">
+                    <Phone className="h-4 w-4" />
+                  </span>
+                  <span className="flex-1">
+                    <span className="block">{ar ? "اتصل الآن" : "Call now"}</span>
+                    <span dir="ltr" className="block text-[11px] font-normal text-muted-foreground">{contact.phone}</span>
+                  </span>
+                </a>
+                {wa && (
+                  <a
+                    href={`https://wa.me/${wa}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent({ name: "header_whatsapp_click", surface: "top_bar", number: wa })}
+                    className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold text-foreground transition hover:bg-accent"
+                  >
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600">
+                      <MessageCircle className="h-4 w-4" />
+                    </span>
+                    <span className="flex-1">
+                      <span className="block">WhatsApp</span>
+                      <span className="block text-[11px] font-normal text-muted-foreground">{ar ? "دردشة فورية" : "Instant chat"}</span>
+                    </span>
+                  </a>
+                )}
+                <button
+                  type="button"
+                  onClick={() => openLead("callback", "header_phone_popover")}
+                  className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-start text-sm font-semibold text-foreground transition hover:bg-accent"
+                >
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--gold)]/15 text-[color:var(--gold)]">
+                    <MessageCircle className="h-4 w-4" />
+                  </span>
+                  <span className="flex-1">
+                    <span className="block">{ar ? "اطلب مكالمة" : "Request callback"}</span>
+                    <span className="block text-[11px] font-normal text-muted-foreground">{ar ? "نتصل بك خلال ساعات" : "We'll call you back"}</span>
+                  </span>
+                </button>
+              </PopoverContent>
+            </Popover>
           )}
           <Button
-            asChild
+            type="button"
             variant="hero"
             size="sm"
+            onClick={() => {
+              trackEvent({ name: "header_cta_click", surface: "main_bar", action: "open_dialog" });
+              openLead("quote", "header_cta");
+            }}
             className={cn(
               "h-10 rounded-full px-5 transition-all duration-500",
               !scrolled && "shadow-[0_0_28px_-4px_rgba(201,168,76,0.6)] hover:shadow-[0_0_36px_-2px_rgba(201,168,76,0.85)]",
             )}
           >
-            <Link to="/quote">{t.nav.quote}</Link>
+            {t.nav.quote}
           </Button>
         </div>
 
