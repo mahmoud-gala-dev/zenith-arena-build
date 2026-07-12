@@ -1,6 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { services, projects, products, articles } from "@/lib/site-data";
 
 const STATIC_PATHS = [
   "/", "/about", "/services", "/products", "/projects", "/knowledge",
@@ -11,28 +10,25 @@ const STATIC_PATHS = [
 export interface SitemapEntry { path: string; lastmod?: string }
 
 export async function buildSitemapEntries(): Promise<SitemapEntry[]> {
-  const entries: SitemapEntry[] = [
-    ...STATIC_PATHS.map((path) => ({ path })),
-    ...projects.map((p) => ({ path: `/projects/${p.slug}` })),
-    ...products.map((p) => ({ path: `/products/${p.id}` })),
-  ];
+  const entries: SitemapEntry[] = STATIC_PATHS.map((path) => ({ path }));
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_PUBLISHABLE_KEY;
-  const sb = url && key ? createClient<Database>(url, key, { auth: { persistSession: false, autoRefreshToken: false } }) : null;
-  try {
-    if (sb) {
-      const { data } = await sb.from("services").select("slug_en,updated_at").eq("status", "published");
-      if (data?.length) for (const r of data) { if (r.slug_en) entries.push({ path: `/services/${r.slug_en}`, lastmod: r.updated_at ?? undefined }); }
-      else for (const s of services) entries.push({ path: `/services/${s.id}` });
-    } else for (const s of services) entries.push({ path: `/services/${s.id}` });
-  } catch { for (const s of services) entries.push({ path: `/services/${s.id}` }); }
-  try {
-    if (sb) {
-      const { data } = await sb.from("blog_posts").select("slug_en,updated_at,published_at").eq("status", "published");
-      if (data?.length) for (const r of data) entries.push({ path: `/knowledge/${r.slug_en}`, lastmod: (r.updated_at ?? r.published_at) ?? undefined });
-      else for (const a of articles) entries.push({ path: `/knowledge/${a.slug}` });
-    } else for (const a of articles) entries.push({ path: `/knowledge/${a.slug}` });
-  } catch { for (const a of articles) entries.push({ path: `/knowledge/${a.slug}` }); }
+  const sb = url && key
+    ? createClient<Database>(url, key, { auth: { persistSession: false, autoRefreshToken: false } })
+    : null;
+  if (!sb) return entries;
+
+  const [services, posts, projects, products] = await Promise.all([
+    sb.from("services").select("slug_en,updated_at").eq("status", "published"),
+    sb.from("blog_posts").select("slug_en,updated_at,published_at").eq("status", "published"),
+    sb.from("projects").select("slug_en,updated_at").eq("status", "published"),
+    sb.from("products").select("slug_en,updated_at").eq("status", "published"),
+  ]);
+
+  for (const r of services.data ?? []) if (r.slug_en) entries.push({ path: `/services/${r.slug_en}`, lastmod: r.updated_at ?? undefined });
+  for (const r of posts.data ?? []) if (r.slug_en) entries.push({ path: `/knowledge/${r.slug_en}`, lastmod: (r.updated_at ?? r.published_at) ?? undefined });
+  for (const r of projects.data ?? []) if (r.slug_en) entries.push({ path: `/projects/${r.slug_en}`, lastmod: r.updated_at ?? undefined });
+  for (const r of products.data ?? []) if (r.slug_en) entries.push({ path: `/products/${r.slug_en}`, lastmod: r.updated_at ?? undefined });
   return entries;
 }
 
