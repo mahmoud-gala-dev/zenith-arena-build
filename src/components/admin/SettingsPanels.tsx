@@ -239,3 +239,91 @@ export function BrandNamePanel() {
     </Card>
   );
 }
+
+export function SeoDefaultsPanel() {
+  const initial = useSeoDefaults();
+  const qc = useQueryClient();
+  const [v, setV] = useState<SeoDefaults>(DEFAULT_SEO_DEFAULTS);
+  useEffect(() => { setV(initial); }, [initial]);
+
+  const save = useMutation({
+    mutationFn: () => saveSetting("seo_defaults", v),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["settings", "seo_defaults"] });
+      toast.success("SEO defaults saved");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const set = <K extends keyof SeoDefaults>(k: K, val: SeoDefaults[K]) => setV({ ...v, [k]: val });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>SEO Defaults</CardTitle>
+        <CardDescription>
+          Global fallback metadata used by the root layout and every page that doesn't set its own.
+          Changes may take a few minutes to appear in social share previews.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Site name (EN)</Label>
+            <Input value={v.site_name_en} onChange={(e) => set("site_name_en", e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label>Site name (AR)</Label>
+            <Input dir="rtl" value={v.site_name_ar} onChange={(e) => set("site_name_ar", e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label>Default title (EN)</Label>
+            <Input value={v.default_title_en} onChange={(e) => set("default_title_en", e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label>Default title (AR)</Label>
+            <Input dir="rtl" value={v.default_title_ar} onChange={(e) => set("default_title_ar", e.target.value)} />
+          </div>
+          <div className="space-y-2 md:col-span-2">
+            <Label>Default description (EN)</Label>
+            <Textarea rows={3} value={v.default_description_en} onChange={(e) => set("default_description_en", e.target.value)} />
+          </div>
+          <div className="space-y-2 md:col-span-2">
+            <Label>Default description (AR)</Label>
+            <Textarea dir="rtl" rows={3} value={v.default_description_ar} onChange={(e) => set("default_description_ar", e.target.value)} />
+          </div>
+          <div className="space-y-2 md:col-span-2">
+            <Label>Default OG image URL</Label>
+            <Input value={v.default_og_image_url} onChange={(e) => set("default_og_image_url", e.target.value)} placeholder="https://.../og.jpg (1200×630)" />
+            <p className="text-xs text-muted-foreground">Used as the social share fallback across the site.</p>
+          </div>
+          <div className="space-y-2">
+            <Label>Twitter handle</Label>
+            <Input value={v.twitter_handle} onChange={(e) => set("twitter_handle", e.target.value)} placeholder="@egytic" />
+          </div>
+          <div className="space-y-2">
+            <Label>Theme color</Label>
+            <Input type="color" value={v.theme_color} onChange={(e) => set("theme_color", e.target.value)} className="h-10 w-24 p-1" />
+          </div>
+          <div className="space-y-2">
+            <Label>Author / Publisher</Label>
+            <Input value={v.author} onChange={(e) => set("author", e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label>Title template (EN)</Label>
+            <Input value={v.title_template_en} onChange={(e) => set("title_template_en", e.target.value)} placeholder="{page} — {site}" />
+          </div>
+          <div className="space-y-2 md:col-span-2">
+            <Label>Title template (AR)</Label>
+            <Input dir="rtl" value={v.title_template_ar} onChange={(e) => set("title_template_ar", e.target.value)} placeholder="{page} — {site}" />
+          </div>
+        </div>
+        <div className="flex justify-end">
+          <Button onClick={() => save.mutate()} disabled={save.isPending}>
+            {save.isPending ? "Saving…" : "Save changes"}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
