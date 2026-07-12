@@ -128,6 +128,23 @@ export const Route = createFileRoute("/downloads/$slug")({
   component: DownloadDetailPage,
 });
 
+type DownloadFile = {
+  label_en?: string;
+  label_ar?: string;
+  url: string;
+  lang?: "en" | "ar" | "both";
+  size?: number | null;
+  mime?: string | null;
+};
+
+function formatBytes(n?: number | null) {
+  if (!n || n <= 0) return "";
+  const units = ["B", "KB", "MB", "GB"];
+  let i = 0; let v = n;
+  while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+  return `${v.toFixed(v >= 10 || i === 0 ? 0 : 1)} ${units[i]}`;
+}
+
 function DownloadDetailPage() {
   const { slug } = Route.useParams();
   const { lang } = useLang();
@@ -149,6 +166,12 @@ function DownloadDetailPage() {
     if (preset) return ar ? preset.label_ar : preset.label_en;
     return item.category ? item.category.charAt(0).toUpperCase() + item.category.slice(1) : "";
   })();
+
+  const rawFiles = (Array.isArray(item.files) ? (item.files as unknown as DownloadFile[]) : []).filter((f) => f?.url);
+  const langCode: "en" | "ar" = ar ? "ar" : "en";
+  const localizedFiles = rawFiles.filter((f) => !f.lang || f.lang === "both" || f.lang === langCode);
+  const gallery = (Array.isArray(item.gallery) ? (item.gallery as unknown as string[]) : []).filter((u) => typeof u === "string" && u.trim().length > 0);
+
 
   const related = allItems.filter((r) => r.id !== item.id && r.category === item.category).slice(0, 4);
 
@@ -226,7 +249,36 @@ function DownloadDetailPage() {
                 <p className="mt-3 whitespace-pre-line text-muted-foreground">{description}</p>
               </Reveal>
             )}
+
+            {gallery.length > 0 && (
+              <Reveal className="mt-8">
+                <h2 className="text-xl font-bold text-foreground">
+                  {ar ? "معاينات إضافية" : "More previews"}
+                </h2>
+                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {gallery.map((src, i) => (
+                    <a
+                      key={i}
+                      href={src}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group block overflow-hidden rounded-xl border border-border bg-card"
+                    >
+                      <div className="aspect-[4/3] overflow-hidden">
+                        <img
+                          src={src}
+                          alt={`${title} preview ${i + 1}`}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </Reveal>
+            )}
           </div>
+
 
           <aside className="space-y-6">
             <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
@@ -247,7 +299,41 @@ function DownloadDetailPage() {
                 className="mt-4 w-full"
               />
 
+              {localizedFiles.length > 0 && (
+                <div className="mt-5 space-y-2 border-t border-border pt-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    {ar ? "ملفات إضافية" : "Additional files"}
+                  </p>
+                  <ul className="space-y-2">
+                    {localizedFiles.map((f, i) => {
+                      const label = (ar ? f.label_ar : f.label_en) || f.label_en || f.label_ar || (ar ? "تحميل" : "Download");
+                      return (
+                        <li key={i}>
+                          <a
+                            href={f.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2 text-sm transition hover:border-primary hover:bg-accent"
+                          >
+                            <span className="flex min-w-0 items-center gap-2">
+                              <Download className="h-4 w-4 shrink-0 text-primary" />
+                              <span className="truncate font-medium">{label}</span>
+                            </span>
+                            {f.size ? (
+                              <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+                                {formatBytes(f.size)}
+                              </span>
+                            ) : null}
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+
             </div>
+
 
             <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
               <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
