@@ -33,7 +33,7 @@ function PrivacyPage() {
           { h: "كيف نستخدم معلوماتك", p: "نستخدم معلوماتك للرد على استفساراتك وإعداد عروض الأسعار وتحسين خدماتنا وإرسال تحديثات ذات صلة عند اشتراكك في ذلك." },
           { h: "مشاركة المعلومات", p: "لا نبيع بياناتك. قد نشاركها فقط مع مزودي خدمة موثوقين لتمكين تشغيلنا (استضافة، بريد إلكتروني، تحليلات) وضمن حدود التزامات السرية." },
           { h: "أمن البيانات", p: "نطبق ضوابط إدارية وتقنية لحماية معلوماتك، بما في ذلك التشفير أثناء النقل والوصول المقيّد." },
-          { h: "حقوقك", p: "يحق لك طلب الوصول إلى بياناتك أو تصحيحها أو حذفها. تواصل معنا عبر privacy@apexsports.co." },
+          { h: "حقوقك", p: "يحق لك طلب الوصول إلى بياناتك أو تصحيحها أو حذفها. تواصل معنا عبر privacy@egyticsports.com." },
           { h: "ملفات تعريف الارتباط", p: "نستخدم ملفات تعريف الارتباط لتشغيل الموقع وقياس الأداء. يمكنك التحكم في تفضيلاتك من إعدادات المتصفح." },
         ],
       }
@@ -46,7 +46,7 @@ function PrivacyPage() {
           { h: "How we use your information", p: "We use your information to respond to inquiries, prepare quotes, improve our services, and send relevant updates when you opt in." },
           { h: "Sharing", p: "We do not sell your data. We may share it only with trusted service providers who enable our operations (hosting, email, analytics), under confidentiality obligations." },
           { h: "Data security", p: "We apply administrative and technical safeguards, including encryption in transit and restricted access." },
-          { h: "Your rights", p: "You may request access to, correction of, or deletion of your data. Contact us at privacy@apexsports.co." },
+          { h: "Your rights", p: "You may request access to, correction of, or deletion of your data. Contact us at privacy@egyticsports.com." },
           { h: "Cookies", p: "We use cookies to operate the site and measure performance. You can manage your preferences through your browser settings." },
         ],
       };

@@ -47,8 +47,8 @@ export const Route = createFileRoute("/governorates/$slug")({
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [{ title: "Governorate not found" }, { name: "robots", content: "noindex" }] };
     const g = loaderData.gov;
-    const title = `${g.name_en} — Apex Sport Projects`;
-    const desc = `Sports construction projects delivered by Apex across ${g.name_en}${g.region_en ? `, ${g.region_en}` : ""}, Egypt.`;
+    const title = `${g.name_en} — Egytic Sport Projects`;
+    const desc = `Sports construction projects delivered by Egytic across ${g.name_en}${g.region_en ? `, ${g.region_en}` : ""}, Egypt.`;
     return {
       meta: [
         { title },
@@ -99,7 +99,7 @@ function GovernoratePage() {
 
   const brief = lang === "ar"
     ? `تنفيذ مشاريع منشآت رياضية متكاملة في محافظة ${gov.name_ar}${gov.region_ar ? ` (${gov.region_ar})` : ""}. نقدم حلولاً هندسية ورياضية معتمدة تشمل الملاعب، المضامير، الصالات المغطاة، وملاعب المضرب.`
-    : `Apex delivers turnkey sports facilities across ${gov.name_en}${gov.region_en ? ` (${gov.region_en})` : ""} — from certified football pitches and IAAF-grade tracks to indoor halls and tennis / padel courts.`;
+    : `Egytic delivers turnkey sports facilities across ${gov.name_en}${gov.region_en ? ` (${gov.region_en})` : ""} — from certified football pitches and IAAF-grade tracks to indoor halls and tennis / padel courts.`;
 
   return (
     <SiteLayout>

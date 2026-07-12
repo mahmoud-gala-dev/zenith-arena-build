@@ -4,7 +4,7 @@ export const translations = {
   en: {
     dir: "ltr",
     brand: "Egytic",
-    brandFull: "Apex Sports Infrastructure",
+    brandFull: "Egytic Sports Infrastructure",
     nav: {
       home: "Home",
       services: "Services",
@@ -45,7 +45,7 @@ export const translations = {
       projectsSub: "A portfolio trusted by federations, clubs, schools and governments.",
       productsTitle: "Systems & products",
       productsSub: "Certified surfaces, structures and equipment engineered for elite performance.",
-      whyTitle: "Why Apex",
+      whyTitle: "Why Egytic",
       whySub: "The standard the industry measures itself against.",
       processTitle: "Our process",
       processSub: "A disciplined, transparent path from vision to opening day.",

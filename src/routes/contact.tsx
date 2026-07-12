@@ -68,13 +68,13 @@ export const Route = createFileRoute("/contact")({
           mainEntity: {
             "@type": "Organization",
             name: "Egytic Sports",
-            email: "hello@apexsports.co",
+            email: "hello@egyticsports.com",
             areaServed: ["EG", "SA", "AE", "QA"],
             contactPoint: [
               {
                 "@type": "ContactPoint",
                 contactType: "sales",
-                email: "hello@apexsports.co",
+                email: "hello@egyticsports.com",
                 availableLanguage: ["en", "ar"],
               },
             ],

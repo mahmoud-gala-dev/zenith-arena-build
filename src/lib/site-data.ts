@@ -559,7 +559,7 @@ export interface Testimonial {
 export const testimonials: Testimonial[] = [
   {
     quote: {
-      en: "Apex delivered our national stadium ahead of schedule and beyond specification. Their engineering discipline is world-class.",
+      en: "Egytic delivered our national stadium ahead of schedule and beyond specification. Their engineering discipline is world-class.",
       ar: "سلّمت أبيكس استادنا الوطني قبل الموعد وبمواصفات تفوق المطلوب. انضباطهم الهندسي عالمي المستوى.",
     },
     name: "Ahmed Al-Rashid",
@@ -575,7 +575,7 @@ export const testimonials: Testimonial[] = [
   },
   {
     quote: {
-      en: "From concept to handover, Apex was a single accountable partner. We would build with them again without hesitation.",
+      en: "From concept to handover, Egytic was a single accountable partner. We would build with them again without hesitation.",
       ar: "من الفكرة حتى التسليم، كانت أبيكس شريكًا واحدًا مسؤولًا. سنبني معهم مجددًا دون تردد.",
     },
     name: "Khalid Mansour",
