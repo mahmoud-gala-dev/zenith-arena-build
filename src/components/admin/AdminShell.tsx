@@ -227,3 +227,32 @@ export function AdminShell({ children, title }: { children: React.ReactNode; tit
   );
 }
 
+function AccessDeniedPanel({ perm }: { perm: ReturnType<typeof permissionForPath> }) {
+  // Fire the unified deny toast + audit log once per page-view attempt.
+  useEffect(() => {
+    notifyAccessDenied(perm ?? null, {
+      resource: typeof window !== "undefined" ? window.location.pathname : "admin",
+      action: "view_page",
+    });
+  }, [perm]);
+
+  return (
+    <div
+      role="alert"
+      aria-live="polite"
+      className="mx-auto flex max-w-md flex-col items-center gap-3 rounded-xl border border-border bg-card p-8 text-center shadow-soft"
+    >
+      <h2 className="text-xl font-bold">Access denied · تم رفض الوصول</h2>
+      <p className="text-sm text-muted-foreground">
+        You don't have permission to open this page.
+        <br />
+        لا تملك الصلاحية اللازمة لفتح هذه الصفحة.
+      </p>
+      <Link to="/admin" className="text-sm text-primary underline">
+        ← Back to overview · العودة للوحة التحكم
+      </Link>
+    </div>
+  );
+}
+
+
