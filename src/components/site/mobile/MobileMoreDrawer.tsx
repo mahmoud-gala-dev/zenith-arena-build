@@ -98,29 +98,35 @@ export function MobileMoreDrawer({
           ))}
 
           <div className="mt-2 grid grid-cols-3 gap-2">
-            <a
-              href="tel:+201000000000"
-              className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl border border-border/70 bg-card text-xs font-medium text-foreground transition-colors hover:bg-accent active:scale-[0.97]"
-            >
-              <Phone className="h-4 w-4 text-primary" />
-              {ar ? "اتصال" : "Call"}
-            </a>
-            <a
-              href="mailto:info@egytic.com"
-              className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl border border-border/70 bg-card text-xs font-medium text-foreground transition-colors hover:bg-accent active:scale-[0.97]"
-            >
-              <Mail className="h-4 w-4 text-primary" />
-              {ar ? "بريد" : "Email"}
-            </a>
-            <a
-              href="https://wa.me/201000000000"
-              target="_blank"
-              rel="noopener"
-              className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl border border-border/70 bg-card text-xs font-medium text-foreground transition-colors hover:bg-accent active:scale-[0.97]"
-            >
-              <MessageCircle className="h-4 w-4 text-primary" />
-              WhatsApp
-            </a>
+            {contact.phone && (
+              <a
+                href={`tel:${contact.phone}`}
+                className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl border border-border/70 bg-card text-xs font-medium text-foreground transition-colors hover:bg-accent active:scale-[0.97]"
+              >
+                <Phone className="h-4 w-4 text-primary" />
+                {ar ? "اتصال" : "Call"}
+              </a>
+            )}
+            {contact.email && (
+              <a
+                href={`mailto:${contact.email}`}
+                className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl border border-border/70 bg-card text-xs font-medium text-foreground transition-colors hover:bg-accent active:scale-[0.97]"
+              >
+                <Mail className="h-4 w-4 text-primary" />
+                {ar ? "بريد" : "Email"}
+              </a>
+            )}
+            {wa && (
+              <a
+                href={`https://wa.me/${wa}`}
+                target="_blank"
+                rel="noopener"
+                className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl border border-border/70 bg-card text-xs font-medium text-foreground transition-colors hover:bg-accent active:scale-[0.97]"
+              >
+                <MessageCircle className="h-4 w-4 text-primary" />
+                WhatsApp
+              </a>
+            )}
           </div>
         </div>
       </SheetContent>
