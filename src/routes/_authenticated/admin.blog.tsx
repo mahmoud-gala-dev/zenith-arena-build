@@ -112,13 +112,18 @@ function AdminBlogPage() {
     if (!editing.title_en?.trim() && !editing.title_ar?.trim())
       return toast.error("At least one title (EN or AR) is required");
     if (!editing.slug_en?.trim()) return toast.error("English slug is required");
+    const validSlugs = new Set(tags.map((t) => t.slug));
+    const invalid = (editing.tags ?? []).filter((t) => !validSlugs.has(t));
+    if (invalid.length) {
+      return toast.error(`Unknown tag${invalid.length > 1 ? "s" : ""}: ${invalid.join(", ")}. Create ${invalid.length > 1 ? "them" : "it"} in Manage tags first.`);
+    }
     setSaving(true);
     try {
       const payload: Article = {
         ...editing,
         slug_en: slugify(editing.slug_en ?? editing.title_en ?? ""),
         slug_ar: editing.slug_ar ? slugify(editing.slug_ar) : editing.slug_ar,
-        tags: (editing.tags ?? []).map((t) => t.trim()).filter(Boolean),
+        tags: Array.from(new Set((editing.tags ?? []).filter(Boolean))),
         reading_time: Number(editing.reading_time) || 5,
         category_id: editing.category_id || null,
         published_at: editing.status === "published"
