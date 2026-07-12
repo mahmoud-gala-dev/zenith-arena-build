@@ -34,6 +34,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useMyPermissions, permissionForPath } from "@/lib/rbac";
 
 const nav: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
@@ -133,6 +134,16 @@ export function AdminShell({ children, title }: { children: React.ReactNode; tit
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { data: myPerms, isLoading: permsLoading } = useMyPermissions();
+  const perms = myPerms ?? [];
+
+  const visibleNav = nav.filter((item) => {
+    const required = permissionForPath(item.to);
+    return !required || perms.includes(required);
+  });
+
+  const requiredForPage = permissionForPath(pathname);
+  const canView = !requiredForPage || perms.includes(requiredForPage);
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -152,7 +163,7 @@ export function AdminShell({ children, title }: { children: React.ReactNode; tit
           </Link>
         </div>
         <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-          {nav.map((item) => {
+          {visibleNav.map((item) => {
             const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
             return (
               <Link
@@ -192,7 +203,7 @@ export function AdminShell({ children, title }: { children: React.ReactNode; tit
                 value={pathname.startsWith("/admin/") ? pathname : "/admin"}
                 onChange={(event) => navigate({ to: event.target.value as "/admin" })}
               >
-                {nav.map((item) => <option key={item.to} value={item.to}>{item.label}</option>)}
+                {visibleNav.map((item) => <option key={item.to} value={item.to}>{item.label}</option>)}
               </select>
               <Button variant="outline" size="sm" onClick={signOut}>
                 <LogOut className="h-4 w-4" />
@@ -201,8 +212,25 @@ export function AdminShell({ children, title }: { children: React.ReactNode; tit
           </div>
         </header>
 
-        <div className="p-6">{children}</div>
+        <div className="p-6">
+          {permsLoading ? (
+            <div className="text-sm text-muted-foreground">Loading permissions…</div>
+          ) : canView ? (
+            children
+          ) : (
+            <div className="mx-auto flex max-w-md flex-col items-center gap-3 rounded-xl border border-border bg-card p-8 text-center shadow-soft">
+              <h2 className="text-xl font-bold">Access denied — لا تملك الصلاحية</h2>
+              <p className="text-sm text-muted-foreground">
+                Your role doesn't include the <code className="rounded bg-muted px-1">{requiredForPage}</code> permission required for this page.
+                <br />
+                لا يحتوي دورك على الصلاحية اللازمة للوصول إلى هذه الصفحة.
+              </p>
+              <Link to="/admin" className="text-sm text-primary underline">← Back to overview</Link>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );
 }
+
