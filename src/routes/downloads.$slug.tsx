@@ -193,7 +193,7 @@ function DownloadDetailPage() {
             )}
             {item.featured && (
               <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium">
-                {ar ? "مميز" : "Featured"}
+                {t.downloadDetail.featured}
               </span>
             )}
           </div>
@@ -214,7 +214,7 @@ function DownloadDetailPage() {
             />
             <Button asChild size="lg" variant="outline" className="border-white/30 bg-transparent text-white hover:bg-white/10">
               <Link to="/downloads">
-                <ArrowLeft className="h-4 w-4" /> {ar ? "كل التحميلات" : "All downloads"}
+                <ArrowLeft className="h-4 w-4" /> {t.downloadDetail.allDownloads}
               </Link>
             </Button>
           </div>
@@ -244,7 +244,7 @@ function DownloadDetailPage() {
             {description && (
               <Reveal className="mt-8">
                 <h2 className="text-xl font-bold text-foreground">
-                  {ar ? "نظرة عامة" : "Overview"}
+                  {t.downloadDetail.overview}
                 </h2>
                 <p className="mt-3 whitespace-pre-line text-muted-foreground">{description}</p>
               </Reveal>
@@ -253,7 +253,7 @@ function DownloadDetailPage() {
             {gallery.length > 0 && (
               <Reveal className="mt-8">
                 <h2 className="text-xl font-bold text-foreground">
-                  {ar ? "معاينات إضافية" : "More previews"}
+                  {t.downloadDetail.morePreviews}
                 </h2>
                 <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {gallery.map((src, i) => (
@@ -283,7 +283,7 @@ function DownloadDetailPage() {
           <aside className="space-y-6">
             <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
               <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                {ar ? "التحميل" : "Download"}
+                {t.downloadDetail.download}
               </h3>
               <p className="mt-2 text-base font-medium text-foreground">{title}</p>
               {categoryLabel && (
@@ -302,11 +302,11 @@ function DownloadDetailPage() {
               {localizedFiles.length > 0 && (
                 <div className="mt-5 space-y-2 border-t border-border pt-4">
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    {ar ? "ملفات إضافية" : "Additional files"}
+                    {t.downloadDetail.additionalFiles}
                   </p>
                   <ul className="space-y-2">
                     {localizedFiles.map((f, i) => {
-                      const label = (ar ? f.label_ar : f.label_en) || f.label_en || f.label_ar || (ar ? "تحميل" : "Download");
+                      const label = (ar ? f.label_ar : f.label_en) || f.label_en || f.label_ar || t.downloadDetail.downloadFallback;
                       return (
                         <li key={i}>
                           <a
@@ -337,7 +337,7 @@ function DownloadDetailPage() {
 
             <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
               <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                {ar ? "مشاركة" : "Share"}
+                {t.downloadDetail.share}
               </h3>
               <div className="mt-3">
                 <ShareButtons title={title} />
@@ -351,7 +351,7 @@ function DownloadDetailPage() {
         <section className="border-t border-border bg-muted/30 py-14">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
             <h2 className="mb-6 text-2xl font-bold text-foreground">
-              {ar ? "تحميلات ذات صلة" : "Related downloads"}
+              {t.downloadDetail.related}
             </h2>
             <div className="grid gap-4 md:grid-cols-2">
               {related.map((r) => (
