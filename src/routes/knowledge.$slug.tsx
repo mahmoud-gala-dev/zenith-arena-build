@@ -166,19 +166,21 @@ function ArticleDetail() {
   // Parse content into blocks: `## Heading` → h2 with id, otherwise paragraph.
   const slugify = (s: string) =>
     s.toLowerCase().trim().replace(/[^\p{L}\p{N}\s-]/gu, "").replace(/\s+/g, "-").slice(0, 80);
-  const blocks = (content || "")
+  type Block = { kind: "h2"; id: string; text: string } | { kind: "p"; id: string; text: string };
+  const blocks: Block[] = (content || "")
     .split(/\n\n+/)
     .map((b) => b.trim())
     .filter(Boolean)
-    .map((b, i) => {
+    .map((b, i): Block => {
       const m = /^##\s+(.+)$/.exec(b);
       if (m) {
         const text = m[1].trim();
-        return { kind: "h2" as const, id: `${slugify(text)}-${i}`, text };
+        return { kind: "h2", id: `${slugify(text)}-${i}`, text };
       }
-      return { kind: "p" as const, id: `p-${i}`, text: b };
+      return { kind: "p", id: `p-${i}`, text: b };
     });
-  const toc = blocks.filter((b) => b.kind === "h2") as Array<{ id: string; text: string }>;
+  const toc = blocks.filter((b): b is Extract<Block, { kind: "h2" }> => b.kind === "h2");
+
 
   return (
     <SiteLayout>
