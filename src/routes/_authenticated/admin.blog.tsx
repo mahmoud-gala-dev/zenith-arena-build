@@ -44,11 +44,28 @@ type Article = {
   seo_keywords?: string;
   status?: "published" | "draft" | "archived";
   featured?: boolean;
+  scheduled_at?: string | null;
   published_at?: string | null;
   updated_at?: string;
 };
 
 type Category = { id: string; slug_en: string; title_en: string; title_ar: string };
+
+type PublishState = "draft" | "scheduled" | "published";
+
+function derivePublishState(a: Pick<Article, "status" | "scheduled_at">): PublishState {
+  if (a.status === "published") return "published";
+  if (a.status === "draft" && a.scheduled_at && new Date(a.scheduled_at) > new Date()) return "scheduled";
+  return "draft";
+}
+
+// Format a UTC ISO string into a value <input type="datetime-local"> accepts.
+function toLocalInput(iso?: string | null) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const off = d.getTimezoneOffset();
+  return new Date(d.getTime() - off * 60000).toISOString().slice(0, 16);
+}
 
 const EMPTY: Article = {
   slug_en: "", slug_ar: "", title_en: "", title_ar: "",
@@ -56,7 +73,7 @@ const EMPTY: Article = {
   featured_image: "", og_image: "", author_name: "Egytic Editorial Team",
   reading_time: 5, tags: [], seo_title_en: "", seo_title_ar: "",
   seo_description_en: "", seo_description_ar: "", seo_keywords: "",
-  status: "published", featured: false, category_id: null,
+  status: "draft", featured: false, category_id: null, scheduled_at: null,
 };
 
 function slugify(s: string) {
