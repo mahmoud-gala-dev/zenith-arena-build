@@ -1,17 +1,21 @@
-name: pwa-update-e2e
+name: pwa-e2e
 
 on:
   pull_request:
     paths:
       - "src/lib/pwa/**"
       - "src/components/site/PwaController.tsx"
+      - "public/offline.html"
+      - "vite.config.ts"
       - "scripts/pwa-update-e2e.py"
+      - "scripts/pwa-offline-e2e.py"
       - "scripts/pwa-fixture/**"
+      - "scripts/pwa-offline-fixture/**"
       - ".github/workflows/pwa-update-e2e.yml"
   workflow_dispatch:
 
 concurrency:
-  group: pwa-update-e2e-${{ github.ref }}
+  group: pwa-e2e-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -35,17 +39,22 @@ jobs:
           python -m pip install --no-cache-dir playwright
           python -m playwright install --with-deps chromium
 
-      - name: Sync workbox-window into fixture
-        # The fixture ships the module list from node_modules so CI matches local.
-        run: cp node_modules/workbox-window/build/*.mjs scripts/pwa-fixture/
+      - name: Sync workbox-window into fixtures
+        # Both fixtures serve the same module list from node_modules.
+        run: |
+          cp node_modules/workbox-window/build/*.mjs scripts/pwa-fixture/
+          cp node_modules/workbox-window/build/*.mjs scripts/pwa-offline-fixture/
 
       - name: Run PWA Reload E2E
         run: python scripts/pwa-update-e2e.py
+
+      - name: Run PWA Offline E2E
+        run: python scripts/pwa-offline-e2e.py
 
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pwa-update-e2e
-          path: qa-report/pwa-update/
+          name: pwa-e2e
+          path: qa-report/
           if-no-files-found: ignore

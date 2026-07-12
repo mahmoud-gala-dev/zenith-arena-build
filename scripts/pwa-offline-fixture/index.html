@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8" /><title>Home — offline fixture</title></head>
+<body>
+  <h1 data-testid="page">Home</h1>
+  <nav>
+    <a id="to-about" href="/about.html">About</a>
+    <a id="to-missing" href="/never-cached.html">Missing</a>
+  </nav>
+  <script type="module">
+    // Mirror of src/lib/pwa/register.ts — controlled registration.
+    import { Workbox } from "/workbox-window.prod.mjs";
+    const wb = new Workbox("/sw.js", { scope: "/" });
+    wb.register()
+      .then(() => { document.body.dataset.registered = "1"; })
+      .catch((e) => { document.body.dataset.registered = "err:" + e.message; });
+  </script>
+</body>
+</html>
