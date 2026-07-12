@@ -150,7 +150,7 @@ function DownloadsPage() {
 
           <div className="mt-4 flex flex-wrap gap-2">
             <CategoryChip active={cat === "all"} onClick={() => setCat("all")}>
-              {ar ? "الكل" : "All"} ({items.length})
+              {T.pages.downloads.all} ({items.length})
             </CategoryChip>
             {availableCategories.map((key) => {
               const count = items.filter((i) => (i.category || "other") === key).length;
