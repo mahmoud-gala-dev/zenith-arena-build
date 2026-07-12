@@ -338,15 +338,26 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Desktop / tablet: fully custom, branded scrollbar */
+/* Desktop / tablet: fully custom, branded scrollbar.
+   Applied to the root AND every nested scroll container (dialogs, sidebars,
+   dropdowns, code blocks, tables, textareas, admin panes, etc.) so the look
+   is identical wherever overflow scrolls — not just on <html>. */
 @media (min-width: 768px) {
   html {
-    scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb) transparent;
     scrollbar-gutter: stable;
   }
+  /* Firefox / Gecko: props only apply to the element they're set on, so hit
+     every element (excluding opt-out `.scrollbar-none`) — cheap because the
+     browser only paints scrollbars for actual scrollers. */
+  html,
+  *:not(.scrollbar-none) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
 
-  /* WebKit / Blink — Chrome, Edge, Safari (desktop) */
+  /* WebKit / Blink — Chrome, Edge, Safari (desktop). These pseudo-elements
+     are already global (they match any scrollable element), so no scope
+     needed beyond an opt-out for `.scrollbar-none`. */
   ::-webkit-scrollbar {
     width: var(--scrollbar-size);
     height: var(--scrollbar-size);
@@ -377,17 +388,29 @@ html {
   }
   ::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
   ::-webkit-scrollbar-corner { background: transparent; }
+
+  /* Slim variant for tight surfaces (chat panes, popovers, code blocks).
+     Add `class="scrollbar-slim"` to any overflow container. */
+  .scrollbar-slim { scrollbar-width: thin; }
+  .scrollbar-slim::-webkit-scrollbar { width: 8px; height: 8px; }
+  .scrollbar-slim::-webkit-scrollbar-thumb { border-width: 2px; min-height: 28px; }
+
+  /* Explicit opt-out — hides the custom (and native) scrollbar for
+     carousels/rails that scroll horizontally without a visible bar. */
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { width: 0; height: 0; display: none; }
 }
 
 /* Mobile: rely on native overlay scrollbars. iOS Safari never renders
    ::-webkit-scrollbar for the root element anyway, so we just make sure
    nested scrollers don't force a reserved gutter and shift layout. */
 @media (max-width: 767px) {
-  html {
+  html,
+  * {
     scrollbar-width: none;
     scrollbar-gutter: auto;
   }
-  ::-webkit-scrollbar { width: 0; height: 0; background: transparent; }
+  ::-webkit-scrollbar { width: 0; height: 0; background: transparent; display: none; }
   /* iOS momentum scrolling for any scroll containers */
   * { -webkit-overflow-scrolling: touch; }
 }
