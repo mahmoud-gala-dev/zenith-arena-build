@@ -145,12 +145,15 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
           <TabsTrigger value="ar">العربية</TabsTrigger>
         </TabsList>
         {(["en", "ar"] as const).map((lang) => (
-          <TabsContent key={lang} value={lang} className="mt-4 space-y-4">
-            <LangEditor
-              rtl={lang === "ar"}
-              value={form[lang]}
-              onChange={(next) => setForm({ ...form, [lang]: next })}
-            />
+          <TabsContent key={lang} value={lang} className="mt-4">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <LangEditor
+                rtl={lang === "ar"}
+                value={form[lang]}
+                onChange={(next) => setForm({ ...form, [lang]: next })}
+              />
+              <LivePreview rtl={lang === "ar"} value={form[lang]} />
+            </div>
           </TabsContent>
         ))}
       </Tabs>
@@ -161,6 +164,43 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
     </div>
   );
 }
+
+function LivePreview({ value, rtl }: { value: LangContent; rtl?: boolean }) {
+  return (
+    <div className="lg:sticky lg:top-4 lg:self-start">
+      <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        Live preview
+      </div>
+      <div
+        dir={rtl ? "rtl" : "ltr"}
+        className="max-h-[80vh] overflow-y-auto rounded-lg border bg-background p-6"
+      >
+        <h1 className="text-2xl font-bold text-foreground">{value.title || "Untitled"}</h1>
+        {value.intro && (
+          <p className="mt-3 whitespace-pre-line leading-relaxed text-muted-foreground">
+            {value.intro}
+          </p>
+        )}
+        <div className="mt-6 space-y-6">
+          {value.sections.map((s, i) => (
+            <section key={i}>
+              <h2 className="text-lg font-bold text-foreground">{s.h || `Section ${i + 1}`}</h2>
+              {s.body && (
+                <p className="mt-2 whitespace-pre-line leading-relaxed text-muted-foreground">
+                  {s.body}
+                </p>
+              )}
+            </section>
+          ))}
+          {value.sections.length === 0 && (
+            <p className="text-sm italic text-muted-foreground">No sections yet.</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 function LangEditor({
   value,
