@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { Mail, MapPin, Facebook, Instagram, Linkedin, Youtube, Twitter, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Logo } from "./Logo";
@@ -8,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLang } from "@/i18n/LanguageProvider";
 import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
+import { menusByLocationQueryOptions } from "@/lib/queries";
 import { subscribeNewsletter } from "@/lib/newsletter.functions";
+
 
 
 
@@ -38,33 +41,15 @@ export function Footer() {
     .join(" · ");
 
 
-  const resources = ar
-    ? [
-        { to: "/downloads", label: "التحميلات" },
-        { to: "/certificates", label: "الشهادات" },
-        { to: "/clients", label: "العملاء" },
-        { to: "/gallery", label: "المعرض" },
-        { to: "/faq", label: "الأسئلة الشائعة" },
-      ]
-    : [
-        { to: "/downloads", label: "Downloads" },
-        { to: "/certificates", label: "Certifications" },
-        { to: "/clients", label: "Clients" },
-        { to: "/gallery", label: "Gallery" },
-        { to: "/faq", label: "FAQ" },
-      ];
+  const { data: footerMenu } = useQuery(menusByLocationQueryOptions("footer"));
+  const legalHrefs = new Set(["/privacy", "/terms", "/careers"]);
+  const items = (footerMenu ?? []).map((m) => ({
+    to: m.href,
+    label: ar ? m.label_ar || m.label_en : m.label_en,
+  }));
+  const resources = items.filter((i) => !legalHrefs.has(i.to));
+  const legal = items.filter((i) => legalHrefs.has(i.to));
 
-  const legal = ar
-    ? [
-        { to: "/careers", label: "الوظائف" },
-        { to: "/privacy", label: "سياسة الخصوصية" },
-        { to: "/terms", label: "الشروط والأحكام" },
-      ]
-    : [
-        { to: "/careers", label: "Careers" },
-        { to: "/privacy", label: "Privacy Policy" },
-        { to: "/terms", label: "Terms & Conditions" },
-      ];
 
   return (
     <footer className="hidden bg-ink text-ink-foreground md:block">
