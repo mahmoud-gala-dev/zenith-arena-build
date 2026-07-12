@@ -55,33 +55,42 @@ export function VirtualCardGrid<T>({
     observeElementRect: (instance, cb) => {
       const el = parentRef.current;
       if (!el) return () => {};
+      let raf = 0;
       const measure = () => {
+        raf = 0;
         const rect = el.getBoundingClientRect();
         cb({ width: rect.width, height: window.innerHeight });
       };
+      const schedule = () => { if (!raf) raf = requestAnimationFrame(measure); };
       measure();
-      window.addEventListener("resize", measure);
-      window.addEventListener("scroll", measure, { passive: true });
+      window.addEventListener("resize", schedule);
+      window.addEventListener("scroll", schedule, { passive: true });
       return () => {
-        window.removeEventListener("resize", measure);
-        window.removeEventListener("scroll", measure);
+        if (raf) cancelAnimationFrame(raf);
+        window.removeEventListener("resize", schedule);
+        window.removeEventListener("scroll", schedule);
       };
     },
     observeElementOffset: (instance, cb) => {
       const el = parentRef.current;
       if (!el) return () => {};
+      let raf = 0;
       const measure = () => {
+        raf = 0;
         const rect = el.getBoundingClientRect();
         cb(-rect.top, false);
       };
+      const schedule = () => { if (!raf) raf = requestAnimationFrame(measure); };
       measure();
-      window.addEventListener("scroll", measure, { passive: true });
-      window.addEventListener("resize", measure);
+      window.addEventListener("scroll", schedule, { passive: true });
+      window.addEventListener("resize", schedule);
       return () => {
-        window.removeEventListener("scroll", measure);
-        window.removeEventListener("resize", measure);
+        if (raf) cancelAnimationFrame(raf);
+        window.removeEventListener("scroll", schedule);
+        window.removeEventListener("resize", schedule);
       };
     },
+
   });
 
   const virtualRows = shouldVirtualize ? rowVirtualizer.getVirtualItems() : [];

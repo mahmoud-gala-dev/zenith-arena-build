@@ -47,19 +47,20 @@ export function HeroSlider({ fallback }: { fallback?: React.ReactNode }) {
     ...heroSlidesActiveQueryOptions(lang),
   });
 
-  // Auto-publish check: refetch every 60s so scheduled slides light up when their time arrives,
-  // plus a realtime channel for instant admin edits.
+  // Realtime channel invalidates the query on any admin edit or scheduled
+  // publish. No polling interval needed — realtime + route-level staleTime
+  // already covers reconnect-catch-up.
   useEffect(() => {
     const key = ["hero_slides", "active", lang];
-    const t = setInterval(() => { qc.invalidateQueries({ queryKey: key }); }, 60_000);
     const ch = supabase
       .channel("hero_slides-live")
       .on("postgres_changes", { event: "*", schema: "public", table: "hero_slides" }, () => {
         qc.invalidateQueries({ queryKey: key });
       })
       .subscribe();
-    return () => { clearInterval(t); supabase.removeChannel(ch); };
+    return () => { supabase.removeChannel(ch); };
   }, [qc, lang]);
+
 
   const [index, setIndex] = useState(0);
 

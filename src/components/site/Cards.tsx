@@ -1,10 +1,13 @@
+import { memo } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { Icon } from "./Icon";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import type { Article, Project, Service } from "@/lib/site-data";
 
-export function ServiceCard({ service }: { service: Service }) {
+function ServiceCardImpl({ service }: { service: Service }) {
+
+
   const L = useLocalized();
   const { t } = useLang();
   return (
@@ -48,7 +51,7 @@ export function ServiceCard({ service }: { service: Service }) {
   );
 }
 
-export function ProjectCard({ project }: { project: Project }) {
+function ProjectCardImpl({ project }: { project: Project }) {
   const L = useLocalized();
   const { t } = useLang();
   return (
@@ -62,6 +65,8 @@ export function ProjectCard({ project }: { project: Project }) {
           src={project.image}
           alt={L(project.title)}
           loading="lazy"
+          decoding="async"
+          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/10 to-transparent" />
@@ -84,7 +89,7 @@ export function ProjectCard({ project }: { project: Project }) {
   );
 }
 
-export function ArticleCard({ article }: { article: Article }) {
+function ArticleCardImpl({ article }: { article: Article }) {
   const L = useLocalized();
   const { t, lang } = useLang();
   return (
@@ -98,6 +103,8 @@ export function ArticleCard({ article }: { article: Article }) {
           src={article.image}
           alt={L(article.title)}
           loading="lazy"
+          decoding="async"
+          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         <span className="absolute left-4 top-4 rounded-full bg-gradient-primary px-3 py-1 text-xs font-semibold text-primary-foreground rtl:left-auto rtl:right-4">
@@ -122,3 +129,10 @@ export function ArticleCard({ article }: { article: Article }) {
     </Link>
   );
 }
+
+// Memoized exports — cards render often inside long grids and their props are
+// stable references from parent data, so shallow equality is a safe win.
+export const ServiceCard = memo(ServiceCardImpl);
+export const ProjectCard = memo(ProjectCardImpl);
+export const ArticleCard = memo(ArticleCardImpl);
+

@@ -3,8 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
 const FIVE_MIN = 5 * 60 * 1000;
+const FIFTEEN_MIN = 15 * 60 * 1000;
 const HALF_HOUR = 30 * 60 * 1000;
 const ONE_HOUR = 60 * 60 * 1000;
+const TWO_HOUR = 2 * 60 * 60 * 1000;
+
+
 
 export type Gov = {
   id: string;
@@ -45,12 +49,12 @@ export type HeroSlide = Database["public"]["Tables"]["hero_slides"]["Row"];
 
 export const governoratesActiveQueryOptions = queryOptions<Gov[]>({
   queryKey: ["governorates", "active"],
-  staleTime: FIVE_MIN,
-  gcTime: HALF_HOUR,
+  staleTime: FIFTEEN_MIN,
+  gcTime: TWO_HOUR,
   queryFn: async () => {
     const { data, error } = await supabase
       .from("governorates")
-      .select("*")
+      .select("id,slug,name_en,name_ar,logo_url,region_en,region_ar")
       .eq("active", true)
       .order("sort_order");
     if (error) throw error;
@@ -76,9 +80,10 @@ export const projectsPublishedListQueryOptions = queryOptions<DbProject[]>({
 
 export const homeClientsQueryOptions = queryOptions<HomeClient[]>({
   queryKey: ["home-clients"],
-  staleTime: FIVE_MIN,
-  gcTime: HALF_HOUR,
+  staleTime: FIFTEEN_MIN,
+  gcTime: TWO_HOUR,
   queryFn: async () => {
+
     const { data, error } = await supabase
       .from("clients")
       .select("id,name_en,name_ar,logo_url,industry,description_en,description_ar")
