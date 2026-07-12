@@ -248,17 +248,25 @@ function ArticleDetail() {
                   </p>
                   <nav aria-label={ar ? "قائمة المحتوى" : "Table of contents"}>
                     <ol className="space-y-2 text-sm">
-                      {toc.map((h, i) => (
-                        <li key={h.id}>
-                          <a
-                            href={`#${h.id}`}
-                            className="flex gap-2 text-muted-foreground transition hover:text-primary"
-                          >
-                            <span className="text-primary/60">{i + 1}.</span>
-                            <span className="line-clamp-2">{h.text}</span>
-                          </a>
-                        </li>
-                      ))}
+                      {toc.map((h, i) => {
+                        const active = activeId === h.id;
+                        return (
+                          <li key={h.id}>
+                            <a
+                              href={`#${h.id}`}
+                              aria-current={active ? "location" : undefined}
+                              className={`flex gap-2 border-s-2 ps-3 transition ${
+                                active
+                                  ? "border-primary font-medium text-primary"
+                                  : "border-transparent text-muted-foreground hover:text-primary"
+                              }`}
+                            >
+                              <span className={active ? "text-primary" : "text-primary/60"}>{i + 1}.</span>
+                              <span className="line-clamp-2">{h.text}</span>
+                            </a>
+                          </li>
+                        );
+                      })}
                     </ol>
                   </nav>
                 </div>
