@@ -197,5 +197,7 @@ export function QuickLeadDialog({ open, onOpenChange, source, intent = "callback
         </form>
       </DialogContent>
     </Dialog>
+    <LeadSuccessDialog open={successOpen} onOpenChange={setSuccessOpen} summary={summary} />
+    </>
   );
 }
