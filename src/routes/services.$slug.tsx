@@ -431,7 +431,7 @@ function ServiceDetailPage() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between gap-4">
               <h2 className="text-2xl font-bold text-foreground">{copy.gallery}</h2>
-              <span className="text-sm text-muted-foreground tabular-nums">{gallery.length} {ar ? "صورة" : "images"}</span>
+              <span className="text-sm text-muted-foreground tabular-nums">{gallery.length} {t.serviceDetail.imagesLabel}</span>
             </div>
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {gallery.map((url, i) => (
