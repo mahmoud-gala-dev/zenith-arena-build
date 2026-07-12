@@ -14,7 +14,8 @@ import { QuickLeadDialog } from "./QuickLeadDialog";
 import { useBranding, DEFAULT_LOGO_MOTION } from "@/hooks/useBranding";
 
 import { useLang } from "@/i18n/LanguageProvider";
-import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
+import { useContactInfo, useSocialLinks, toWhatsAppNumber, useBrandName } from "@/lib/settings";
+import { buildWhatsAppUrl, inferServiceFromPath } from "@/lib/whatsapp";
 import { menusByLocationQueryOptions } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
@@ -39,6 +40,7 @@ export function Header() {
   const { data: branding } = useBranding();
   const contact = useContactInfo();
   const social = useSocialLinks();
+  const brand = useBrandName();
   const ar = lang === "ar";
 
   const lowPower = useMemo(() => {
@@ -113,13 +115,26 @@ export function Header() {
     : fallbackLinks);
 
   const wa = toWhatsAppNumber(social.whatsapp || contact.whatsapp);
+  const buildWaHref = (surface: string) =>
+    wa
+      ? buildWhatsAppUrl(wa, {
+          brand: ar ? brand.ar : brand.en,
+          service: inferServiceFromPath(pathname, ar),
+          pageUrl: typeof window !== "undefined" ? window.location.href : pathname,
+          phone: contact.phone,
+          ar,
+        })
+      : "#";
+  const handleWaClick = (surface: "top_bar" | "mobile") => {
+    trackEvent({ name: "header_whatsapp_click", surface, number: wa });
+  };
   const topSocials = [
     social.facebook && { href: social.facebook, Icon: Facebook, name: "Facebook" },
     social.instagram && { href: social.instagram, Icon: Instagram, name: "Instagram" },
     social.linkedin && { href: social.linkedin, Icon: Linkedin, name: "LinkedIn" },
     social.youtube && { href: social.youtube, Icon: Youtube, name: "YouTube" },
-    wa && { href: `https://wa.me/${wa}`, Icon: MessageCircle, name: "WhatsApp" },
-  ].filter(Boolean) as { href: string; Icon: typeof Facebook; name: string }[];
+    wa && { href: buildWaHref("social"), Icon: MessageCircle, name: "WhatsApp", isWa: true },
+  ].filter(Boolean) as { href: string; Icon: typeof Facebook; name: string; isWa?: boolean }[];
 
   const officeLine = contact.offices
     ?.map((o) => (ar ? o.city_ar || o.city_en : o.city_en))
@@ -329,10 +344,10 @@ export function Header() {
                 </a>
                 {wa && (
                   <a
-                    href={`https://wa.me/${wa}`}
+                    href={buildWaHref("top_bar")}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => trackEvent({ name: "header_whatsapp_click", surface: "top_bar", number: wa })}
+                    onClick={() => handleWaClick("top_bar")}
                     className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold text-foreground transition hover:bg-accent"
                   >
                     <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600">
@@ -451,10 +466,10 @@ export function Header() {
                     )}
                     {wa && (
                       <a
-                        href={`https://wa.me/${wa}`}
+                        href={buildWaHref("mobile")}
                         target="_blank"
                         rel="noreferrer noopener"
-                        onClick={() => trackEvent({ name: "header_whatsapp_click", surface: "mobile", number: wa })}
+                        onClick={() => handleWaClick("mobile")}
                         aria-label={`WhatsApp ${ar ? "(يفتح في نافذة جديدة)" : "(opens in new tab)"}`}
                         className="flex min-h-11 items-center justify-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:text-emerald-300"
                       >
