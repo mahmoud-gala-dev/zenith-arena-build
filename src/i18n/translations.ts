@@ -593,6 +593,36 @@ export const translations = {
     productsList: {
       empty: "لا توجد منتجات بعد.",
     },
+    serviceDetail: {
+      imagesLabel: "صورة",
+      expand: "تكبير",
+      openImage: "افتح الصورة",
+      overviewFallback: "احصل على المواصفات والمتطلبات الأساسية لهذه الخدمة.",
+      seoTitleFallback: "خدمة — إيجيتك سبورتس",
+      seoDescFallback: "خدمات إنشاءات رياضية متكاملة من إيجيتك سبورتس.",
+      home: "الرئيسية",
+      services: "الخدمات",
+      country: "مصر",
+    },
+    knowledgeList: {
+      empty: "لا توجد مقالات بعد.",
+    },
+    knowledgeArticle: {
+      toc: "قائمة المحتوى",
+      tocMobile: "المحتوى",
+    },
+    downloadDetail: {
+      featured: "مميز",
+      allDownloads: "كل التحميلات",
+      overview: "نظرة عامة",
+      morePreviews: "معاينات إضافية",
+      download: "التحميل",
+      additionalFiles: "ملفات إضافية",
+      downloadFallback: "تحميل",
+      share: "مشاركة",
+      related: "تحميلات ذات صلة",
+      breadcrumb: "التحميلات",
+    },
     projects: {
       filterAll: "الكل",
       location: "الموقع",
