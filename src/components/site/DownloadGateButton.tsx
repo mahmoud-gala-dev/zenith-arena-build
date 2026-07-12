@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { submitLead } from "@/lib/leads.functions";
+import { getDownloadSignedUrl } from "@/lib/downloads.functions";
 import { trackDownloadEvent } from "@/lib/downloadTracking";
 import { useLang } from "@/i18n/LanguageProvider";
 
@@ -48,8 +49,25 @@ export function DownloadGateButton({
   const ar = lang === "ar";
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [fetchingUrl, setFetchingUrl] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "", website: "" });
   const submit = useServerFn(submitLead);
+  const sign = useServerFn(getDownloadSignedUrl);
+
+  async function openSignedUrl(): Promise<string | null> {
+    if (!downloadId) {
+      toast.error(ar ? "الملف غير متاح" : "File unavailable");
+      return null;
+    }
+    try {
+      const { url } = await sign({ data: { downloadId } });
+      window.open(url, "_blank", "noopener,noreferrer");
+      return url;
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : ar ? "تعذّر إنشاء رابط التحميل" : "Could not create download link");
+      return null;
+    }
+  }
 
   if (!fileUrl) {
     return (
@@ -61,18 +79,26 @@ export function DownloadGateButton({
 
   if (!requiresLead) {
     return (
-      <Button asChild size={size} variant={variant} className={className}>
-        <a
-          href={fileUrl}
-          target="_blank"
-          rel="noreferrer"
-          onClick={() => { void trackDownloadEvent("download", downloadId); }}
-        >
-          <Download className="h-4 w-4" /> {label}
-        </a>
+      <Button
+        size={size}
+        variant={variant}
+        className={className}
+        disabled={fetchingUrl}
+        onClick={async () => {
+          setFetchingUrl(true);
+          try {
+            const url = await openSignedUrl();
+            if (url) void trackDownloadEvent("download", downloadId);
+          } finally {
+            setFetchingUrl(false);
+          }
+        }}
+      >
+        {fetchingUrl ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} {label}
       </Button>
     );
   }
+
 
   const T = ar
     ? {
@@ -125,9 +151,10 @@ export function DownloadGateButton({
       setOpen(false);
       setForm({ name: "", email: "", phone: "", website: "" });
       void trackDownloadEvent("download", downloadId);
-      window.open(fileUrl!, "_blank", "noopener,noreferrer");
+      await openSignedUrl();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : T.error);
+
     } finally {
       setSubmitting(false);
     }
