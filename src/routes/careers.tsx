@@ -57,20 +57,24 @@ function CareersPage() {
   const { lang } = useLang();
   const ar = lang === "ar";
   const { data: jobs } = useSuspenseQuery(jobOpeningsOpenQueryOptions);
+  const { data: cfg } = useSuspenseQuery(careersPageSettingsQueryOptions);
+  const L = cfg.labels;
 
   const [selected, setSelected] = useState<JobOpening | null>(null);
   const [open, setOpen] = useState(false);
 
-  const tx = ar
-    ? { eyebrow: "الوظائف", title: "ابنِ مسيرتك مع إيجيتك", sub: "انضم إلى فريق يصمم وينفّذ أرقى المنشآت الرياضية في المنطقة.", whyTitle: "لماذا إيجيتك", openTitle: "الوظائف المتاحة", apply: "قدّم الآن", noJobsTitle: "لا ترى وظيفتك المناسبة؟", noJobsSub: "أرسل سيرتك الذاتية وسنتواصل معك عند توفر الفرصة المناسبة.", sendCv: "أرسل السيرة الذاتية" }
-    : { eyebrow: "Careers", title: "Build your career with Egytic", sub: "Join a team designing and delivering the finest sports facilities in the region.", whyTitle: "Why Egytic", openTitle: "Open positions", apply: "Apply now", noJobsTitle: "Don't see the right role?", noJobsSub: "Send us your CV and we'll be in touch when a matching role opens.", sendCv: "Send your CV" };
+  const tx = {
+    eyebrow: ar ? L.eyebrow_ar : L.eyebrow_en,
+    title: ar ? L.title_ar : L.title_en,
+    sub: ar ? L.sub_ar : L.sub_en,
+    whyTitle: ar ? L.why_title_ar : L.why_title_en,
+    openTitle: ar ? L.open_title_ar : L.open_title_en,
+    apply: ar ? "قدّم الآن" : "Apply now",
+    noJobsTitle: ar ? L.no_jobs_title_ar : L.no_jobs_title_en,
+    noJobsSub: ar ? L.no_jobs_sub_ar : L.no_jobs_sub_en,
+    sendCv: ar ? L.send_cv_ar : L.send_cv_en,
+  };
 
-  const perks = [
-    { icon: TrendingUp, title: { en: "Career growth", ar: "نمو مهني" }, desc: { en: "Clear paths, mentorship and international project exposure.", ar: "مسارات واضحة وتوجيه وتعرّض لمشاريع دولية." } },
-    { icon: Heart, title: { en: "Great benefits", ar: "مزايا مميّزة" }, desc: { en: "Competitive salary, healthcare, relocation and family support.", ar: "راتب تنافسي ورعاية صحية ودعم انتقال وعائلة." } },
-    { icon: Users, title: { en: "World-class team", ar: "فريق عالمي المستوى" }, desc: { en: "Work alongside FIFA & World Athletics-certified engineers.", ar: "اعمل بجانب مهندسين معتمدين من الفيفا والاتحاد الدولي." } },
-    { icon: Globe, title: { en: "Iconic projects", ar: "مشاريع مميزة" }, desc: { en: "Stadiums, Olympic tracks and landmark arenas across the region.", ar: "استادات ومضامير أولمبية ومنشآت بارزة في المنطقة." } },
-  ];
 
   function openApply(job: JobOpening | null) {
     setSelected(job);
