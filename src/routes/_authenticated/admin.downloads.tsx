@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { signPath } from "@/lib/signedUrl";
+import { useInvalidateTables } from "@/lib/invalidate";
+
 
 export const Route = createFileRoute("/_authenticated/admin/downloads")({
   component: AdminDownloadsPage,
