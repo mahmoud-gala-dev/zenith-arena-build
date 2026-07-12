@@ -24,6 +24,7 @@ interface Props {
   fileUrl: string | null;
   title: string;
   slug: string;
+  downloadId?: string | null;
   requiresLead: boolean;
   label: string;
   size?: Size;
