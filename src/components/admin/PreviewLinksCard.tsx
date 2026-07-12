@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Copy, Link2, Trash2, Ban, Search } from "lucide-react";
+import { Copy, Link2, Trash2, Ban, Search, RefreshCw } from "lucide-react";
 import { useMyRoles } from "@/hooks/useMyRoles";
 
 type StatusFilter = "all" | "active" | "expired" | "revoked";
