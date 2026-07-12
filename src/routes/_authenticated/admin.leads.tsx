@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Search, Download, Trash2, ExternalLink } from "lucide-react";
+import { Search, Download, Trash2, ExternalLink, Plus, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
@@ -60,6 +60,8 @@ function LeadsPage() {
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("all");
   const [selected, setSelected] = useState<Lead | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<Lead | null>(null);
 
   async function load() {
     setLoading(true);
@@ -208,6 +210,7 @@ function LeadsPage() {
         </Select>
         <Button variant="ghost" onClick={resetFilters}>Reset</Button>
         <Button variant="outline" onClick={exportCSV}><Download className="mr-2 h-4 w-4" /> Export CSV ({filtered.length})</Button>
+        <Button onClick={() => { setEditing(null); setFormOpen(true); }}><Plus className="mr-2 h-4 w-4" /> New Lead</Button>
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-soft">
@@ -256,9 +259,14 @@ function LeadsPage() {
                   <span className="opacity-60">{new Date(l.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                 </td>
                 <td className="px-4 py-3">
-                  <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); deleteLead(l.id); }}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="flex justify-end gap-1">
+                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setEditing(l); setFormOpen(true); }}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); deleteLead(l.id); }}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -274,6 +282,9 @@ function LeadsPage() {
                 <DialogTitle className="flex items-center gap-2">
                   {selected.name}
                   <Badge variant="outline" className="text-xs">{selected.intent ?? selected.type}</Badge>
+                  <Button size="sm" variant="outline" className="ml-auto" onClick={() => { setEditing(selected); setFormOpen(true); }}>
+                    <Pencil className="mr-1 h-3 w-3" /> Edit
+                  </Button>
                 </DialogTitle>
               </DialogHeader>
               <div className="grid gap-4 sm:grid-cols-2 text-sm">
@@ -344,6 +355,20 @@ function LeadsPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      <LeadFormDialog
+        open={formOpen}
+        lead={editing}
+        onOpenChange={setFormOpen}
+        onSaved={(saved) => {
+          setLeads((prev) => {
+            const exists = prev.some((l) => l.id === saved.id);
+            return exists ? prev.map((l) => (l.id === saved.id ? saved : l)) : [saved, ...prev];
+          });
+          if (selected?.id === saved.id) setSelected(saved);
+          setFormOpen(false);
+        }}
+      />
     </AdminShell>
   );
 }
@@ -362,6 +387,177 @@ function StatCard({ label, value, tone }: { label: string; value: number; tone?:
     <div className="rounded-xl border border-border bg-card p-4 shadow-soft">
       <p className="text-xs uppercase text-muted-foreground">{label}</p>
       <p className={`mt-1 text-2xl font-semibold ${tone ?? "text-foreground"}`}>{value}</p>
+    </div>
+  );
+}
+
+const TYPES = ["quote", "contact", "download", "newsletter", "career"] as const;
+const CONTACT_PREFS = ["email", "phone", "whatsapp"] as const;
+
+type LeadFormState = {
+  name: string; email: string; phone: string; company: string;
+  country: string; city: string; type: string; status: string;
+  intent: string; source: string; service: string; budget_range: string;
+  project_type: string; sport_type: string; project_area: string;
+  preferred_contact: string; start_date: string; message: string;
+  internal_notes: string; attachment_url: string;
+};
+
+function emptyForm(): LeadFormState {
+  return {
+    name: "", email: "", phone: "", company: "", country: "", city: "",
+    type: "contact", status: "new", intent: "", source: "manual", service: "",
+    budget_range: "", project_type: "", sport_type: "", project_area: "",
+    preferred_contact: "", start_date: "", message: "", internal_notes: "", attachment_url: "",
+  };
+}
+
+function toForm(l: Lead): LeadFormState {
+  return {
+    name: l.name ?? "", email: l.email ?? "", phone: l.phone ?? "", company: l.company ?? "",
+    country: l.country ?? "", city: l.city ?? "", type: l.type ?? "contact", status: l.status ?? "new",
+    intent: l.intent ?? "", source: l.source ?? "", service: l.service ?? "",
+    budget_range: l.budget_range ?? "", project_type: l.project_type ?? "",
+    sport_type: l.sport_type ?? "", project_area: l.project_area ?? "",
+    preferred_contact: l.preferred_contact ?? "", start_date: l.start_date ?? "",
+    message: l.message ?? "", internal_notes: l.internal_notes ?? "", attachment_url: l.attachment_url ?? "",
+  };
+}
+
+function LeadFormDialog({
+  open, lead, onOpenChange, onSaved,
+}: {
+  open: boolean;
+  lead: Lead | null;
+  onOpenChange: (o: boolean) => void;
+  onSaved: (l: Lead) => void;
+}) {
+  const [form, setForm] = useState<LeadFormState>(emptyForm());
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (open) setForm(lead ? toForm(lead) : emptyForm());
+  }, [open, lead]);
+
+  function set<K extends keyof LeadFormState>(k: K, v: LeadFormState[K]) {
+    setForm((f) => ({ ...f, [k]: v }));
+  }
+
+  async function save() {
+    if (!form.name.trim() || !form.email.trim()) {
+      toast.error("Name and email are required");
+      return;
+    }
+    setSaving(true);
+    const payload = {
+      name: form.name.trim(),
+      email: form.email.trim(),
+      phone: form.phone || null,
+      company: form.company || null,
+      country: form.country || null,
+      city: form.city || null,
+      type: form.type as Lead["type"],
+      status: form.status as Lead["status"],
+      intent: form.intent || null,
+      source: form.source || null,
+      service: form.service || null,
+      budget_range: form.budget_range || null,
+      project_type: form.project_type || null,
+      sport_type: form.sport_type || null,
+      project_area: form.project_area || null,
+      preferred_contact: form.preferred_contact || null,
+      start_date: form.start_date || null,
+      message: form.message || null,
+      internal_notes: form.internal_notes || null,
+      attachment_url: form.attachment_url || null,
+    };
+    if (lead) {
+      const { data, error } = await supabase.from("leads").update(payload as never).eq("id", lead.id).select().single();
+      setSaving(false);
+      if (error) return toast.error(error.message);
+      toast.success("Lead updated");
+      onSaved(data as unknown as Lead);
+    } else {
+      const { data, error } = await supabase.from("leads").insert(payload as never).select().single();
+      setSaving(false);
+      if (error) return toast.error(error.message);
+      toast.success("Lead created");
+      onSaved(data as unknown as Lead);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{lead ? "Edit Lead" : "New Lead"}</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label="Name *"><Input value={form.name} onChange={(e) => set("name", e.target.value)} /></Field>
+          <Field label="Email *"><Input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} /></Field>
+          <Field label="Phone"><Input value={form.phone} onChange={(e) => set("phone", e.target.value)} /></Field>
+          <Field label="Company"><Input value={form.company} onChange={(e) => set("company", e.target.value)} /></Field>
+          <Field label="Country"><Input value={form.country} onChange={(e) => set("country", e.target.value)} /></Field>
+          <Field label="City"><Input value={form.city} onChange={(e) => set("city", e.target.value)} /></Field>
+          <Field label="Type">
+            <Select value={form.type} onValueChange={(v) => set("type", v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Status">
+            <Select value={form.status} onValueChange={(v) => set("status", v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {STATUSES.map((s) => <SelectItem key={s} value={s}>{s.replace("_", " ")}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Intent"><Input value={form.intent} onChange={(e) => set("intent", e.target.value)} /></Field>
+          <Field label="Source"><Input value={form.source} onChange={(e) => set("source", e.target.value)} /></Field>
+          <Field label="Service"><Input value={form.service} onChange={(e) => set("service", e.target.value)} /></Field>
+          <Field label="Budget range"><Input value={form.budget_range} onChange={(e) => set("budget_range", e.target.value)} /></Field>
+          <Field label="Project type"><Input value={form.project_type} onChange={(e) => set("project_type", e.target.value)} /></Field>
+          <Field label="Sport type"><Input value={form.sport_type} onChange={(e) => set("sport_type", e.target.value)} /></Field>
+          <Field label="Project area"><Input value={form.project_area} onChange={(e) => set("project_area", e.target.value)} /></Field>
+          <Field label="Preferred contact">
+            <Select value={form.preferred_contact || "none"} onValueChange={(v) => set("preferred_contact", v === "none" ? "" : v)}>
+              <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">—</SelectItem>
+                {CONTACT_PREFS.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Start date"><Input type="date" value={form.start_date ? form.start_date.slice(0, 10) : ""} onChange={(e) => set("start_date", e.target.value)} /></Field>
+          <div className="sm:col-span-2"><Field label="Attachment URL"><Input value={form.attachment_url} onChange={(e) => set("attachment_url", e.target.value)} /></Field></div>
+          <div className="sm:col-span-2">
+            <Field label="Message">
+              <textarea rows={3} className="w-full rounded-md border border-border bg-background p-2 text-sm" value={form.message} onChange={(e) => set("message", e.target.value)} />
+            </Field>
+          </div>
+          <div className="sm:col-span-2">
+            <Field label="Internal notes">
+              <textarea rows={3} className="w-full rounded-md border border-border bg-background p-2 text-sm" value={form.internal_notes} onChange={(e) => set("internal_notes", e.target.value)} />
+            </Field>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={saving}>Cancel</Button>
+          <Button onClick={save} disabled={saving}>{saving ? "Saving…" : lead ? "Save changes" : "Create lead"}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="text-xs uppercase text-muted-foreground">{label}</label>
+      <div className="mt-1">{children}</div>
     </div>
   );
 }
