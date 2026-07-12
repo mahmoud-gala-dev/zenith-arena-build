@@ -127,10 +127,18 @@ function MediaPage() {
                   <Button variant="ghost" size="sm" className="flex-1" onClick={() => copyUrl(f.file_url)}>
                     <Copy className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="sm" className="flex-1" onClick={() => remove(f)}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex-1"
+                    aria-disabled={!can}
+                    disabled={!can}
+                    onClick={guard(() => remove(f), { action: "delete_media", recordId: f.id })}
+                  >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
+
               </div>
             </div>
           ))}
