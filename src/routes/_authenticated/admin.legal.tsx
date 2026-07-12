@@ -184,9 +184,69 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
         ))}
       </Tabs>
 
-      <div className="flex justify-end">
-        <Button onClick={save} disabled={!canSave}>{saving ? "Saving…" : "Save"}</Button>
-      </div>
+      <Card>
+        <CardHeader className="pb-3"><CardTitle className="text-base">Publishing</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-2">
+              <Label>Status</Label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={form.status === "published" ? "default" : "outline"}
+                  onClick={() => setForm({ ...form, status: "published" })}
+                >
+                  Published
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={form.status === "draft" ? "default" : "outline"}
+                  onClick={() => setForm({ ...form, status: "draft" })}
+                >
+                  Unpublished
+                </Button>
+              </div>
+            </div>
+            <div className="grid gap-2 md:col-span-2">
+              <Label htmlFor={`eff-${slug}`}>Effective date (optional)</Label>
+              <div className="flex flex-wrap items-center gap-2">
+                <Input
+                  id={`eff-${slug}`}
+                  type="datetime-local"
+                  value={form.effectiveAt}
+                  onChange={(e) => setForm({ ...form, effectiveAt: e.target.value })}
+                  className="max-w-xs"
+                />
+                {form.effectiveAt && (
+                  <Button type="button" size="sm" variant="ghost" onClick={() => setForm({ ...form, effectiveAt: "" })}>
+                    Clear
+                  </Button>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Public visitors see this version only when it is Published and the effective date has passed. Leave empty to publish immediately.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center justify-between border-t pt-3">
+            <span
+              className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${
+                isLive ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"
+              }`}
+            >
+              <span className={`h-2 w-2 rounded-full ${isLive ? "bg-emerald-500" : "bg-amber-500"}`} />
+              {isLive
+                ? "Live to visitors"
+                : form.status !== "published"
+                  ? "Unpublished — hidden from visitors"
+                  : "Scheduled — not live yet"}
+            </span>
+            <Button onClick={save} disabled={!canSave}>{saving ? "Saving…" : "Save"}</Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <AuditHistory recordId={form.id} />
     </div>
