@@ -133,21 +133,30 @@ function LeadsPage() {
 
   function exportCSV() {
     const rows = [
-      ["Name", "Email", "Phone", "Company", "Country", "City", "Service", "Budget", "Type", "Intent", "Source", "Status", "Date"],
+      [
+        "Name", "Email", "Phone", "Company", "Country", "City",
+        "Type", "Intent", "Service", "Project Type", "Sport Type", "Area (m²)",
+        "Budget", "Start Date", "Preferred Contact", "Source",
+        "Status", "Message", "Internal Notes", "Attachment URL", "Created At",
+      ],
       ...filtered.map((l) => [
         l.name, l.email, l.phone ?? "", l.company ?? "", l.country ?? "", l.city ?? "",
-        l.service ?? "", l.budget_range ?? "", l.type, l.intent ?? "", l.source ?? "",
-        l.status, new Date(l.created_at).toISOString(),
+        l.type, l.intent ?? "", l.service ?? "", l.project_type ?? "", l.sport_type ?? "", l.project_area ?? "",
+        l.budget_range ?? "", l.start_date ?? "", l.preferred_contact ?? "", l.source ?? "",
+        l.status, (l.message ?? "").replace(/\r?\n/g, " "), (l.internal_notes ?? "").replace(/\r?\n/g, " "),
+        l.attachment_url ?? "", new Date(l.created_at).toISOString(),
       ]),
     ];
     const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
+    // BOM so Excel opens UTF-8 (Arabic) correctly
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `leads-${Date.now()}.csv`;
+    a.download = `leads-${new Date().toISOString().slice(0, 10)}-${filtered.length}rows.csv`;
     a.click();
     URL.revokeObjectURL(url);
+    toast.success(`Exported ${filtered.length} leads`);
   }
 
   function resetFilters() {
