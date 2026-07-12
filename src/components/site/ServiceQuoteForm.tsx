@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { Loader2, Mail, MessageCircle, Send } from "lucide-react";
+import { Loader2, Mail, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { submitLead } from "@/lib/leads.functions";
-import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
+import { useContactInfo } from "@/lib/settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useLang } from "@/i18n/LanguageProvider";
 import { LeadSuccessDialog, type LeadSummary } from "@/components/site/LeadSuccessDialog";
+import { WhatsAppSendButton } from "@/components/site/WhatsAppSendButton";
 
 interface Props {
   serviceSlug: string;
