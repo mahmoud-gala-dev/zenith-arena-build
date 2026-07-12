@@ -1,17 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { Mail, MapPin, Facebook, Instagram, Linkedin, Youtube, Twitter } from "lucide-react";
+import { Mail, MapPin, Facebook, Instagram, Linkedin, Youtube, Twitter, MessageCircle } from "lucide-react";
 import { Logo } from "./Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLang } from "@/i18n/LanguageProvider";
+import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
 
-const socialLinks = [
-  { name: "LinkedIn", href: "https://www.linkedin.com/company/apexsports", Icon: Linkedin },
-  { name: "Instagram", href: "https://www.instagram.com/apexsports", Icon: Instagram },
-  { name: "Facebook", href: "https://www.facebook.com/apexsports", Icon: Facebook },
-  { name: "X (Twitter)", href: "https://twitter.com/apexsports", Icon: Twitter },
-  { name: "YouTube", href: "https://www.youtube.com/@apexsports", Icon: Youtube },
-];
 
 export function Footer() {
   const { t, lang } = useLang();
