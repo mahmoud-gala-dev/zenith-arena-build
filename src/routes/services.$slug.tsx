@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, Download, MessageCircle, Expand, CheckCircle2, ShieldCheck, Award, Clock, Wrench, Users, Sparkles } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
