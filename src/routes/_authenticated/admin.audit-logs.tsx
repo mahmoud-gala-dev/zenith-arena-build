@@ -313,6 +313,9 @@ function AuditLogsPage() {
           </table>
         </div>
       </div>
+
+      <AuditDetailDrawer row={selected} onClose={() => setSelected(null)} />
+
     </AdminShell>
   );
 }
