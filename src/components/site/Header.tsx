@@ -298,16 +298,19 @@ export function Header() {
               <PopoverTrigger asChild>
                 <button
                   type="button"
+                  aria-label={ar ? "خيارات التواصل" : "Contact options"}
+                  aria-haspopup="menu"
                   className={cn(
                     "hidden items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors xl:inline-flex",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
                     scrolled
                       ? "border-border text-foreground hover:border-[color:var(--gold)] hover:text-[color:var(--gold)]"
                       : "border-white/25 text-white hover:border-[color:var(--gold)] hover:text-[color:var(--gold)]",
                   )}
                 >
-                  <Phone className="h-3.5 w-3.5" />
+                  <Phone aria-hidden="true" className="h-3.5 w-3.5" />
                   <span dir="ltr" className="tabular-nums">{contact.phone}</span>
-                  <ChevronDown className="h-3 w-3 opacity-70" />
+                  <ChevronDown aria-hidden="true" className="h-3 w-3 opacity-70" />
                 </button>
               </PopoverTrigger>
               <PopoverContent align="end" className="w-64 p-2" dir={ar ? "rtl" : "ltr"}>
