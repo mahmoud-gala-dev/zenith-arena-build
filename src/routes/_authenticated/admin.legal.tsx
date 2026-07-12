@@ -520,6 +520,7 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
       </Card>
 
       <AuditHistory recordId={form.id} />
+      <VersionHistory pageId={form.id} slug={slug} />
     </div>
   );
 }
@@ -599,6 +600,160 @@ function AuditHistory({ recordId }: { recordId?: string }) {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+type VersionRow = {
+  id: string;
+  version_number: number;
+  actor_email: string | null;
+  actor_id: string | null;
+  action: string;
+  created_at: string;
+  snapshot: Record<string, unknown>;
+};
+
+const RESTORE_FIELDS = [
+  "title_en", "title_ar", "content_en", "content_ar",
+  "seo_title_en", "seo_title_ar",
+  "seo_description_en", "seo_description_ar",
+  "seo_keywords_en", "seo_keywords_ar",
+  "slug_en", "slug_ar", "template", "status", "effective_at",
+] as const;
+
+function VersionHistory({ pageId, slug }: { pageId?: string; slug: string }) {
+  const qc = useQueryClient();
+  const [restoringId, setRestoringId] = useState<string | null>(null);
+  const [preview, setPreview] = useState<VersionRow | null>(null);
+
+  const { data, isLoading, refetch, isFetching } = useQuery({
+    queryKey: ["admin", "legal", "versions", pageId ?? "none"],
+    enabled: !!pageId,
+    queryFn: async (): Promise<VersionRow[]> => {
+      const { data, error } = await supabase
+        .from("page_versions")
+        .select("id, version_number, actor_email, actor_id, action, created_at, snapshot")
+        .eq("page_id", pageId!)
+        .order("version_number", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return (data ?? []) as VersionRow[];
+    },
+  });
+
+  async function restore(row: VersionRow) {
+    if (!pageId) return;
+    if (!confirm(`Restore version #${row.version_number}? Current content will be saved as a new version first.`)) return;
+    setRestoringId(row.id);
+    try {
+      const snap = row.snapshot;
+      const payload: Record<string, unknown> = {};
+      for (const key of RESTORE_FIELDS) {
+        if (key in snap) payload[key] = snap[key];
+      }
+      const { error } = await supabase.from("pages").update(payload as never).eq("id", pageId);
+      if (error) throw error;
+      toast.success(`Restored version #${row.version_number}`);
+      qc.invalidateQueries({ queryKey: ["admin", "legal", slug] });
+      qc.invalidateQueries({ queryKey: ["admin", "legal", "versions", pageId] });
+      qc.invalidateQueries({ queryKey: ["pages", "by-slug", slug] });
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Failed to restore");
+    } finally {
+      setRestoringId(null);
+    }
+  }
+
+  if (!pageId) {
+    return (
+      <Card>
+        <CardHeader><CardTitle className="text-base">Version history</CardTitle></CardHeader>
+        <CardContent><p className="text-sm text-muted-foreground">Save the page first to start tracking versions.</p></CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+        <CardTitle className="text-base">Version history</CardTitle>
+        <Button size="sm" variant="outline" onClick={() => refetch()} disabled={isFetching}>
+          {isFetching ? "Refreshing…" : "Refresh"}
+        </Button>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : !data || data.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No versions yet.</p>
+        ) : (
+          <ul className="divide-y">
+            {data.map((row, idx) => {
+              const isCurrent = idx === 0;
+              return (
+                <li key={row.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded bg-muted px-2 py-0.5 font-mono text-xs">v{row.version_number}</span>
+                      {isCurrent && <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-600">Current</span>}
+                      <span className="rounded bg-muted/60 px-2 py-0.5 text-[10px] uppercase">{row.action}</span>
+                      <span className="font-medium">{row.actor_email ?? row.actor_id ?? "System"}</span>
+                    </div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">{new Date(row.created_at).toLocaleString()}</div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="ghost" onClick={() => setPreview(row)}>Preview</Button>
+                    <Button
+                      size="sm"
+                      variant={isCurrent ? "ghost" : "outline"}
+                      onClick={() => restore(row)}
+                      disabled={isCurrent || restoringId !== null}
+                    >
+                      {restoringId === row.id ? "Restoring…" : "Restore"}
+                    </Button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </CardContent>
+      {preview && <VersionPreviewDialog row={preview} onClose={() => setPreview(null)} />}
+    </Card>
+  );
+}
+
+function VersionPreviewDialog({ row, onClose }: { row: VersionRow; onClose: () => void }) {
+  const snap = row.snapshot as Record<string, string | null>;
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="max-h-[85vh] w-full max-w-3xl overflow-hidden rounded-lg border bg-background shadow-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b px-4 py-3">
+          <div className="text-sm font-medium">
+            Version v{row.version_number} · {new Date(row.created_at).toLocaleString()}
+          </div>
+          <Button size="sm" variant="ghost" onClick={onClose}>Close</Button>
+        </div>
+        <div className="grid max-h-[70vh] gap-4 overflow-y-auto p-4 md:grid-cols-2">
+          <div>
+            <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">English</div>
+            <h3 className="text-base font-bold">{snap.title_en || "—"}</h3>
+            <pre className="mt-2 whitespace-pre-wrap text-xs text-muted-foreground">{snap.content_en || "—"}</pre>
+          </div>
+          <div dir="rtl">
+            <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Arabic</div>
+            <h3 className="text-base font-bold">{snap.title_ar || "—"}</h3>
+            <pre className="mt-2 whitespace-pre-wrap text-xs text-muted-foreground">{snap.content_ar || "—"}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
