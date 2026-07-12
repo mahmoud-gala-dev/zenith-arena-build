@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Logo } from "./Logo";
 
-const KEY = "egytic-splash-seen";
+const KEY = "egytic-splash-seen-v1";
 const DURATION_MS = 3800;
 
 /**
