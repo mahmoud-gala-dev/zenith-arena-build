@@ -12,6 +12,7 @@ import { useLang } from "@/i18n/LanguageProvider";
 import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
 import { submitLead } from "@/lib/leads.functions";
 import { trackEvent } from "@/lib/analytics";
+import { LeadSuccessDialog, type LeadSummary } from "@/components/site/LeadSuccessDialog";
 
 type Props = {
   open: boolean;
@@ -37,6 +38,8 @@ export function QuickLeadDialog({ open, onOpenChange, source, intent = "callback
   const [message, setMessage] = useState("");
   const [website, setWebsite] = useState(""); // honeypot
   const [busy, setBusy] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [summary, setSummary] = useState<LeadSummary | null>(null);
 
   useEffect(() => {
     if (open) trackEvent({ name: "quick_lead_open", source });
@@ -75,8 +78,17 @@ export function QuickLeadDialog({ open, onOpenChange, source, intent = "callback
         has_phone: Boolean(phone.trim()),
       });
       toast.success(ar ? "تم إرسال طلبك — سنتواصل قريبًا." : "Thanks! We'll be in touch shortly.");
+      setSummary({
+        name: name.trim(),
+        email: email.trim(),
+        phone: phone.trim() || null,
+        message: message.trim() || null,
+        intent: intent === "quote" ? "quote" : "callback",
+        source,
+      });
       setName(""); setPhone(""); setEmail(""); setMessage("");
       onOpenChange(false);
+      setSuccessOpen(true);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong.";
       trackEvent({ name: "quick_lead_error", source, message: msg });
@@ -93,6 +105,7 @@ export function QuickLeadDialog({ open, onOpenChange, source, intent = "callback
     : null;
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md" dir={ar ? "rtl" : "ltr"}>
         <DialogHeader>
@@ -184,5 +197,7 @@ export function QuickLeadDialog({ open, onOpenChange, source, intent = "callback
         </form>
       </DialogContent>
     </Dialog>
+    <LeadSuccessDialog open={successOpen} onOpenChange={setSuccessOpen} summary={summary} />
+    </>
   );
 }

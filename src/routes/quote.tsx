@@ -18,6 +18,7 @@ import { quotePageSettingsQueryOptions } from "@/lib/queries";
 import { submitLead } from "@/lib/leads.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { LeadSuccessDialog, type LeadSummary } from "@/components/site/LeadSuccessDialog";
 
 
 
@@ -49,6 +50,8 @@ function QuotePage() {
   const [serviceValue, setServiceValue] = useState("");
   const [budgetValue, setBudgetValue] = useState("");
   const [contactMethod, setContactMethod] = useState("email");
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [summary, setSummary] = useState<LeadSummary | null>(null);
   const { data: dbServices } = useQuery(servicesPublishedQueryOptions);
   const { data: quotePage } = useQuery(quotePageSettingsQueryOptions);
 
@@ -85,7 +88,19 @@ function QuotePage() {
     setSubmitting(true);
     try {
       await submit({ data: payload });
+      const svcLabel = dbServices?.find((s) => s.slug_en === serviceValue);
+      setSummary({
+        name: payload.name,
+        email: payload.email,
+        phone: payload.phone,
+        service: serviceValue || null,
+        serviceLabel: svcLabel ? (ar ? svcLabel.title_ar ?? svcLabel.title_en : svcLabel.title_en) : null,
+        message: payload.message,
+        intent: "quote",
+        source: "quote_page",
+      });
       setSent(true);
+      setSuccessOpen(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Submission failed");
@@ -272,6 +287,7 @@ function QuotePage() {
           </div>
         </div>
       </section>
+      <LeadSuccessDialog open={successOpen} onOpenChange={setSuccessOpen} summary={summary} />
     </SiteLayout>
   );
 }

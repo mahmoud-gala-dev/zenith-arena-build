@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2, CheckCircle2, Mail, MessageCircle, Send } from "lucide-react";
+import { Loader2, Mail, MessageCircle, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { submitLead } from "@/lib/leads.functions";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useLang } from "@/i18n/LanguageProvider";
+import { LeadSuccessDialog, type LeadSummary } from "@/components/site/LeadSuccessDialog";
 
 interface Props {
   serviceSlug: string;
@@ -25,6 +26,8 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
   const [formData, setFormData] = useState({ name: "", phone: "", email: "" });
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [summary, setSummary] = useState<LeadSummary | null>(null);
   const submit = useServerFn(submitLead);
 
   const t = ar
@@ -107,7 +110,18 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
         },
       });
       setFormData({ name, phone, email });
+      setSummary({
+        name,
+        email,
+        phone: phone || null,
+        service: serviceSlug,
+        serviceLabel: serviceTitle,
+        message: message || null,
+        intent: "quote",
+        source: `service:${serviceSlug}`,
+      });
       setSent(true);
+      setSuccessOpen(true);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t.error);
     } finally {
@@ -116,6 +130,7 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
   }
 
   return (
+    <>
     <section className="relative overflow-hidden border-t border-border bg-gradient-to-b from-secondary/30 via-background to-background py-16">
       {/* Ambient accents */}
       <div className="pointer-events-none absolute -top-24 left-1/2 h-64 w-[600px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" aria-hidden />
@@ -153,18 +168,14 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
                 <div className="flex flex-col items-center justify-center text-center py-10 animate-fade-in">
                   <div className="relative">
                     <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
-                    <CheckCircle2 className="relative h-16 w-16 text-primary" strokeWidth={1.5} />
+                    <Send className="relative h-16 w-16 text-primary" strokeWidth={1.5} />
                   </div>
                   <h3 className="mt-6 text-xl font-bold text-foreground">{t.success}</h3>
                   <p className="mt-2 text-sm text-muted-foreground max-w-sm">{t.successBody}</p>
                   <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                    {waHref && (
-                      <Button asChild variant="hero">
-                        <a href={waHref} target="_blank" rel="noopener noreferrer">
-                          <MessageCircle className="h-4 w-4" /> {t.whatsapp}
-                        </a>
-                      </Button>
-                    )}
+                    <Button variant="hero" onClick={() => setSuccessOpen(true)}>
+                      {ar ? "عرض ملخص الطلب" : "View submission"}
+                    </Button>
                     <Button variant="outline" onClick={() => setSent(false)}>{t.another}</Button>
                   </div>
                 </div>
@@ -202,5 +213,7 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
         </div>
       </div>
     </section>
+    <LeadSuccessDialog open={successOpen} onOpenChange={setSuccessOpen} summary={summary} />
+    </>
   );
 }

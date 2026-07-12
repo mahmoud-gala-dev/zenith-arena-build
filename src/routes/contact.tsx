@@ -3,6 +3,7 @@ import { z } from "zod";
 import { submitLead } from "@/lib/leads.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { LeadSuccessDialog, type LeadSummary } from "@/components/site/LeadSuccessDialog";
 
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MapPin, Clock, CheckCircle2, MessageCircle } from "lucide-react";
@@ -101,6 +102,8 @@ function ContactPage() {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [projectType, setProjectType] = useState("");
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [summary, setSummary] = useState<LeadSummary | null>(null);
   const { data: dbServices } = useQuery(servicesPublishedQueryOptions);
 
 
@@ -130,7 +133,19 @@ function ContactPage() {
     setSubmitting(true);
     try {
       await submit({ data: payload });
+      const svc = dbServices?.find((s) => s.slug_en === projectType);
+      setSummary({
+        name: payload.name,
+        email: payload.email,
+        phone: payload.phone,
+        service: projectType || null,
+        serviceLabel: svc ? (ar ? svc.title_ar ?? svc.title_en : svc.title_en) : null,
+        message: payload.message,
+        intent: "contact",
+        source: "contact_page",
+      });
       setSent(true);
+      setSuccessOpen(true);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Submission failed");
     } finally {
@@ -247,6 +262,7 @@ function ContactPage() {
           </div>
         </div>
       </section>
+      <LeadSuccessDialog open={successOpen} onOpenChange={setSuccessOpen} summary={summary} />
     </SiteLayout>
   );
 }

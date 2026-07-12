@@ -22,7 +22,9 @@ export type AnalyticsEvent =
   | { name: "header_cta_click"; surface: "main_bar" | "mobile"; action: "open_dialog" | "full_form" }
   | { name: "quick_lead_open"; source: string }
   | { name: "quick_lead_submit"; source: string; type: "callback" | "quote"; has_phone: boolean }
-  | { name: "quick_lead_error"; source: string; message: string };
+  | { name: "quick_lead_error"; source: string; message: string }
+  | { name: "lead_success_whatsapp_click"; source: string; intent: string }
+  | { name: "lead_success_catalog_click"; source: string; intent: string; catalog: string };
 
 
 type AnyEvent = AnalyticsEvent & { [k: string]: unknown };
