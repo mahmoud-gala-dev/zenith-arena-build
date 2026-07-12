@@ -40,9 +40,7 @@ function ClientsPage() {
   const { data: clients } = useSuspenseQuery(clientsPublishedQueryOptions);
   const { data: testimonials } = useSuspenseQuery(testimonialsPublishedQueryOptions);
 
-  const tx = ar
-    ? { eyebrow: "العملاء", title: "شركاء نجاح عبر المنطقة", sub: "نفخر بخدمة اتحادات رياضية وحكومات وأندية ومؤسسات تعليمية رائدة.", testimonialsTitle: "شهادات العملاء", cta: "انضم إلى قائمة عملائنا", ctaBtn: "ابدأ مشروعك", other: "عملاء آخرون", emptyClients: "لا يوجد عملاء بعد.", emptyTestimonials: "لا توجد شهادات بعد." }
-    : { eyebrow: "Clients", title: "Partners we're proud to serve", sub: "Federations, ministries, universities and leading clubs across the region trust Egytic.", testimonialsTitle: "What our clients say", cta: "Join our roster of clients", ctaBtn: "Start your project", other: "Other clients", emptyClients: "No clients yet.", emptyTestimonials: "No testimonials yet." };
+  const tx = T.pages.clients;
 
   const groups = useMemo(() => {
     const map = new Map<string, typeof clients>();

@@ -8,13 +8,6 @@ import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import { faqItemsPublishedQueryOptions, type FaqItem } from "@/lib/queries";
 
-const CATEGORY_LABELS: Record<string, { en: string; ar: string }> = {
-  projects: { en: "Projects & Timelines", ar: "المشاريع والجداول الزمنية" },
-  costs: { en: "Costs & Budget", ar: "التكاليف والميزانية" },
-  certifications: { en: "Certifications & Standards", ar: "الاعتمادات والمعايير" },
-  maintenance: { en: "Maintenance & Warranty", ar: "الصيانة والضمان" },
-  general: { en: "General", ar: "عام" },
-};
 
 export const Route = createFileRoute("/faq")({
   loader: ({ context }) => context.queryClient.ensureQueryData(faqItemsPublishedQueryOptions),
@@ -43,9 +36,8 @@ function FaqPage() {
     groups.get(key)!.push(it);
   }
 
-  const tx = ar
-    ? { eyebrow: "الأسئلة الشائعة", title: "إجابات على أكثر ما يُسأل عنه", sub: "لم تجد إجابتك؟ تحدث مع فريقنا مباشرة.", ctaTitle: "لا يزال لديك سؤال؟", ctaBtn: "تواصل معنا" }
-    : { eyebrow: "FAQ", title: "Answers to the questions we hear most", sub: "Can't find what you're looking for? Speak with our team directly.", ctaTitle: "Still have a question?", ctaBtn: "Contact us" };
+  const tx = T.pages.faq;
+  const CATEGORY_LABELS = T.pages.faq.categories as Record<string, string>;
 
   const faqJsonLd = {
     "@context": "https://schema.org",
@@ -68,10 +60,10 @@ function FaqPage() {
       <section className="py-16">
         <div className="mx-auto max-w-4xl space-y-12 px-4 sm:px-6 lg:px-8">
           {[...groups.entries()].map(([cat, list], gi) => {
-            const label = CATEGORY_LABELS[cat] ?? { en: cat, ar: cat };
+            const label = CATEGORY_LABELS[cat] ?? cat;
             return (
               <Reveal key={cat}>
-                <h2 className="mb-4 text-xl font-bold text-foreground">{ar ? label.ar : label.en}</h2>
+                <h2 className="mb-4 text-xl font-bold text-foreground">{label}</h2>
                 <Accordion type="single" collapsible className="rounded-2xl border border-border bg-card px-2 shadow-soft">
                   {list.map((it, i) => (
                     <AccordionItem key={it.id} value={`${gi}-${i}`} className="border-border">

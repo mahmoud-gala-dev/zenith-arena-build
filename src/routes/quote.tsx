@@ -115,56 +115,7 @@ function QuotePage() {
   }
 
 
-  const tx = ar
-    ? {
-        eyebrow: "طلب عرض سعر",
-        title: "احصل على عرض دقيق خلال 48 ساعة",
-        sub: "أخبرنا عن مشروعك وسيتواصل معك أحد مهندسينا الأول بعرض تفصيلي.",
-        name: "الاسم الكامل",
-        company: "الشركة / الجهة",
-        email: "البريد الإلكتروني",
-        phone: "الهاتف",
-        country: "الدولة",
-        city: "المدينة",
-        projectType: "نوع المشروع",
-        sport: "الرياضة",
-        service: "الخدمة المطلوبة",
-        area: "المساحة التقديرية (م²)",
-        budget: "نطاق الميزانية",
-        start: "تاريخ البدء المتوقع",
-        message: "تفاصيل إضافية",
-        contactMethod: "طريقة التواصل المفضلة",
-        methods: { email: "البريد", phone: "الهاتف", whatsapp: "واتساب" },
-        submit: "إرسال طلب العرض",
-        successTitle: "تم استلام طلبك",
-        successSub: "سيتواصل معك أحد مهندسينا خلال يوم عمل واحد بعرض تفصيلي.",
-        another: "طلب آخر",
-      }
-
-    : {
-        eyebrow: "Request a Quote",
-        title: "Get an accurate proposal within 48 hours",
-        sub: "Tell us about your project and one of our senior engineers will respond with a detailed proposal.",
-        name: "Full name",
-        company: "Company / organization",
-        email: "Email",
-        phone: "Phone",
-        country: "Country",
-        city: "City",
-        projectType: "Project type",
-        sport: "Sport",
-        service: "Service required",
-        area: "Estimated area (m²)",
-        budget: "Budget range",
-        start: "Expected start date",
-        message: "Additional details",
-        contactMethod: "Preferred contact method",
-        methods: { email: "Email", phone: "Phone", whatsapp: "WhatsApp" },
-        submit: "Send my request",
-        successTitle: "Request received",
-        successSub: "One of our engineers will be in touch within one business day with a detailed proposal.",
-        another: "Send another",
-      };
+  const tx = L({ en: null, ar: null }) as unknown as typeof import("@/i18n/translations").translations.en.pages.quote;
 
   const budgetRanges = ar
     ? (quotePage?.budget_ranges_ar ?? [])
