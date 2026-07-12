@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import logoAsset from "@/assets/apex-logo.svg.asset.json";
+import logoAsset from "@/assets/apex-logo.webp.asset.json";
 import { useBranding } from "@/hooks/useBranding";
 
 /**
