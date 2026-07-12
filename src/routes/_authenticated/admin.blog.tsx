@@ -23,6 +23,8 @@ import { BlogCategoriesManager } from "@/components/admin/BlogCategoriesManager"
 import { TagsManager, slugifyTag, type Tag } from "@/components/admin/TagsManager";
 import { TranslationLinkPanel } from "@/components/admin/TranslationLinkPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useInvalidateTables } from "@/lib/invalidate";
+
 
 export const Route = createFileRoute("/_authenticated/admin/blog")({
   component: AdminBlogPage,
