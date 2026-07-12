@@ -118,10 +118,7 @@ export function DownloadGateButton({
       setForm({ name: "", email: "", phone: "", website: "" });
       window.open(fileUrl!, "_blank", "noopener,noreferrer");
     } catch (err) {
-      toast({
-        title: err instanceof Error ? err.message : T.error,
-        variant: "destructive",
-      });
+      toast.error(err instanceof Error ? err.message : T.error);
     } finally {
       setSubmitting(false);
     }
