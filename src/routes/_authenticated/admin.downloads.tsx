@@ -24,6 +24,15 @@ export const Route = createFileRoute("/_authenticated/admin/downloads")({
   component: AdminDownloadsPage,
 });
 
+type DownloadFile = {
+  label_en: string;
+  label_ar: string;
+  url: string;
+  lang: "en" | "ar" | "both";
+  size?: number | null;
+  mime?: string | null;
+};
+
 type DownloadRow = {
   id: string;
   title_en: string;
@@ -45,6 +54,8 @@ type DownloadRow = {
   seo_description_ar: string | null;
   og_image: string | null;
   og_image_ar: string | null;
+  files: DownloadFile[];
+  gallery: string[];
   created_at: string;
   updated_at: string;
 };
