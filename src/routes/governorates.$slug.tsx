@@ -127,7 +127,7 @@ function GovernoratePage() {
               <p className="mt-3 max-w-2xl text-white/85">{brief}</p>
               <div className="mt-4 flex flex-wrap gap-4 text-sm">
                 <span className="rounded-full bg-white/10 px-3 py-1">
-                  {projects.length} {lang === "ar" ? "مشروع منجز" : "delivered projects"}
+                  {projects.length} {t.governorate.deliveredProjects}
                 </span>
                 {sportOptions.length > 0 && (
                   <span className="rounded-full bg-white/10 px-3 py-1">
