@@ -1,6 +1,23 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import type { Project as ViewProject } from "@/lib/site-data";
+
+export function dbProjectToView(p: DbProject): ViewProject {
+  return {
+    slug: p.slug_en,
+    image: p.cover_image ?? "",
+    category: p.sport_type ?? p.service_category ?? "other",
+    title: { en: p.title_en, ar: p.title_ar ?? p.title_en },
+    client: { en: p.client ?? "", ar: p.client ?? "" },
+    location: { en: p.location ?? p.city ?? p.country ?? "", ar: p.location ?? p.city ?? p.country ?? "" },
+    year: p.year ? String(p.year) : "",
+    scope: { en: p.service_category ?? "", ar: p.service_category ?? "" },
+    overview: { en: p.overview_en ?? p.description_en ?? "", ar: p.overview_ar ?? p.description_ar ?? p.overview_en ?? p.description_en ?? "" },
+    stats: [],
+  };
+}
+
 
 const FIVE_MIN = 5 * 60 * 1000;
 const FIFTEEN_MIN = 15 * 60 * 1000;
@@ -23,15 +40,26 @@ export type Gov = {
 export type DbProject = {
   id: string;
   slug_en: string;
+  slug_ar: string | null;
   title_en: string;
   title_ar: string | null;
   description_en: string | null;
   description_ar: string | null;
+  overview_en: string | null;
+  overview_ar: string | null;
+  client: string | null;
   location: string | null;
+  country: string | null;
+  city: string | null;
   year: number | null;
+  area_sqm: number | null;
+  surface_type: string | null;
   sport_type: string | null;
   service_category: string | null;
   cover_image: string | null;
+  gallery: unknown;
+  seo_title: string | null;
+  seo_description: string | null;
   governorate_id: string | null;
 };
 
@@ -62,6 +90,9 @@ export const governoratesActiveQueryOptions = queryOptions<Gov[]>({
   },
 });
 
+const PROJECT_COLUMNS =
+  "id,slug_en,slug_ar,title_en,title_ar,description_en,description_ar,overview_en,overview_ar,client,location,country,city,year,area_sqm,surface_type,sport_type,service_category,cover_image,gallery,seo_title,seo_description,governorate_id";
+
 export const projectsPublishedListQueryOptions = queryOptions<DbProject[]>({
   queryKey: ["projects", "published-list"],
   staleTime: FIVE_MIN,
@@ -69,14 +100,30 @@ export const projectsPublishedListQueryOptions = queryOptions<DbProject[]>({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("projects")
-      .select(
-        "id,slug_en,title_en,title_ar,description_en,description_ar,location,year,sport_type,service_category,cover_image,governorate_id",
-      )
-      .eq("status", "published");
+      .select(PROJECT_COLUMNS)
+      .eq("status", "published")
+      .order("sort_order");
     if (error) throw error;
     return (data ?? []) as DbProject[];
   },
 });
+
+export const projectBySlugQueryOptions = (slug: string) =>
+  queryOptions<DbProject | null>({
+    queryKey: ["projects", "by-slug", slug],
+    staleTime: FIVE_MIN,
+    gcTime: HALF_HOUR,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select(PROJECT_COLUMNS)
+        .eq("status", "published")
+        .or(`slug_en.eq.${slug},slug_ar.eq.${slug}`)
+        .maybeSingle();
+      if (error) throw error;
+      return (data ?? null) as DbProject | null;
+    },
+  });
 
 export const homeClientsQueryOptions = queryOptions<HomeClient[]>({
   queryKey: ["home-clients"],
