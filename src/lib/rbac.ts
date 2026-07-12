@@ -81,3 +81,49 @@ export function useCan(perm: PermissionKey | null | undefined) {
   if (!perm) return { can: true, isLoading };
   return { can: (data ?? []).includes(perm), isLoading };
 }
+
+const DENY_MSG_EN = "Access denied — you don't have permission for this action.";
+const DENY_MSG_AR = "لا تملك الصلاحية لتنفيذ هذا الإجراء.";
+
+export function notifyAccessDenied(perm?: PermissionKey | null) {
+  toast.error(DENY_MSG_EN, {
+    description: perm ? `${DENY_MSG_AR}  (${perm})` : DENY_MSG_AR,
+  });
+}
+
+/**
+ * Returns a guard() wrapper that blocks the action with a toast when the
+ * caller lacks `perm`. Also exposes `can` for disabling UI in the same call.
+ *
+ *   const { can, guard } = useGuard("users.manage");
+ *   <Button disabled={!can} onClick={guard(async () => save())}>Save</Button>
+ */
+export function useGuard(perm: PermissionKey | null | undefined) {
+  const { can, isLoading } = useCan(perm);
+  function guard<T extends unknown[], R>(fn: (...args: T) => R) {
+    return (...args: T): R | undefined => {
+      if (!can) {
+        notifyAccessDenied(perm ?? null);
+        return undefined;
+      }
+      return fn(...args);
+    };
+  }
+  return { can, isLoading, guard };
+}
+
+/** Conditionally renders children only when the current user has `perm`. */
+export function Can({
+  perm,
+  fallback = null,
+  children,
+}: {
+  perm: PermissionKey | null | undefined;
+  fallback?: ReactNode;
+  children: ReactNode;
+}) {
+  const { can, isLoading } = useCan(perm);
+  if (isLoading) return null;
+  return <>{can ? children : fallback}</>;
+}
+
