@@ -232,7 +232,7 @@ function Index() {
                       <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/5 transition group-hover:border-primary group-hover:bg-primary/10">
                         <PlayCircle className="h-4 w-4" />
                       </span>
-                      {t.cta.watchReel ?? (lang === "ar" ? "شاهد أعمالنا" : "Watch reel")}
+                      {lang === "ar" ? "شاهد أعمالنا" : "Watch reel"}
                     </Link>
                   </div>
 
