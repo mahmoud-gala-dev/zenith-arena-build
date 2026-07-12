@@ -344,9 +344,30 @@ function AdminBlogPage() {
             />
 
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
-            <Button onClick={save} disabled={saving}>{saving && <Loader2 className="h-4 w-4 animate-spin mr-1" />}Save</Button>
+          <DialogFooter className="gap-2 sm:justify-between">
+            <div className="flex flex-wrap gap-2">
+              {editing?.slug_en && (
+                <>
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={`/preview/knowledge/${editing.slug_en}?lang=en`} target="_blank" rel="noreferrer">
+                      <Eye className="h-4 w-4" /> Preview EN
+                    </a>
+                  </Button>
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={`/preview/knowledge/${editing.slug_en}?lang=ar`} target="_blank" rel="noreferrer">
+                      <Eye className="h-4 w-4" /> Preview AR
+                    </a>
+                  </Button>
+                </>
+              )}
+              {!editing?.id && (
+                <span className="text-xs text-muted-foreground self-center">Save first to enable preview.</span>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
+              <Button onClick={save} disabled={saving}>{saving && <Loader2 className="h-4 w-4 animate-spin mr-1" />}Save</Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
