@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { useInvalidateTables } from "@/lib/invalidate";
+
 
 export const Route = createFileRoute("/_authenticated/admin/governorates")({
   component: GovernoratesPage,
@@ -29,9 +31,11 @@ type Gov = {
 const empty: Partial<Gov> = { slug: "", name_en: "", name_ar: "", region_en: "", region_ar: "", logo_url: "", sort_order: 0, active: true };
 
 function GovernoratesPage() {
+  const invalidate = useInvalidateTables(["governorates"]);
   const [rows, setRows] = useState<Gov[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<Gov> | null>(null);
+
 
   async function load() {
     setLoading(true);
@@ -54,15 +58,16 @@ function GovernoratesPage() {
       ? await supabase.from("governorates").update(payload).eq("id", editing.id)
       : await supabase.from("governorates").insert(payload);
     if (error) return toast.error(error.message);
-    toast.success("Saved"); setEditing(null); load();
+    toast.success("Saved"); setEditing(null); invalidate(); load();
   }
 
   async function remove(id: string) {
     if (!confirm("Delete this governorate? Assigned projects will be unlinked.")) return;
     const { error } = await supabase.from("governorates").delete().eq("id", id);
     if (error) return toast.error(error.message);
-    toast.success("Deleted"); load();
+    toast.success("Deleted"); invalidate(); load();
   }
+
 
   return (
     <AdminShell title="Governorates">

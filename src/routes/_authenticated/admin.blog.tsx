@@ -23,6 +23,8 @@ import { BlogCategoriesManager } from "@/components/admin/BlogCategoriesManager"
 import { TagsManager, slugifyTag, type Tag } from "@/components/admin/TagsManager";
 import { TranslationLinkPanel } from "@/components/admin/TranslationLinkPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useInvalidateTables } from "@/lib/invalidate";
+
 
 export const Route = createFileRoute("/_authenticated/admin/blog")({
   component: AdminBlogPage,
@@ -83,8 +85,10 @@ function slugify(s: string) {
 }
 
 function AdminBlogPage() {
+  const invalidate = useInvalidateTables(["blog_posts", "blog_categories", "tags"]);
   const [rows, setRows] = useState<Article[]>([]);
   const [cats, setCats] = useState<Category[]>([]);
+
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -161,6 +165,7 @@ function AdminBlogPage() {
       if (error) throw error;
       toast.success(id ? "Article updated" : "Article created");
       setEditing(null);
+      invalidate();
       load();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Save failed");
@@ -173,7 +178,7 @@ function AdminBlogPage() {
     if (!deleteId) return;
     const { error } = await supabase.from("blog_posts").delete().eq("id", deleteId);
     if (error) toast.error(error.message);
-    else { toast.success("Deleted"); load(); }
+    else { toast.success("Deleted"); invalidate(); load(); }
     setDeleteId(null);
   }
 
@@ -182,7 +187,9 @@ function AdminBlogPage() {
     const { error } = await supabase.from("blog_posts").update({ [key]: value } as never).eq("id", row.id);
     if (error) return toast.error(error.message);
     setRows((rs) => rs.map((r) => (r.id === row.id ? { ...r, [key]: value } : r)));
+    invalidate();
   }
+
 
   return (
     <AdminShell title="Knowledge Center — Articles">

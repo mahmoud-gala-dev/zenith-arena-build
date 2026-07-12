@@ -15,6 +15,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { CinematicBackdrop } from "@/components/site/CinematicBackdrop";
+import { useInvalidateTables } from "@/lib/invalidate";
+
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8 MB
 const MIN_IMAGE_WIDTH = 1200;
@@ -48,8 +50,10 @@ const empty: SlideInput = {
 } as SlideInput;
 
 function AdminHeroSlides() {
+  const invalidate = useInvalidateTables(["hero_slides"]);
   const [slides, setSlides] = useState<Slide[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [editing, setEditing] = useState<SlideInput | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -167,8 +171,10 @@ function AdminHeroSlides() {
     if (res.error) return toast.error(res.error.message);
     toast.success(editingId ? "Slide updated" : "Slide created");
     setEditing(null); setEditingId(null);
+    invalidate();
     load();
   }
+
 
   async function remove() {
     if (!deleteId) return;
@@ -176,8 +182,10 @@ function AdminHeroSlides() {
     if (error) return toast.error(error.message);
     toast.success("Deleted");
     setDeleteId(null);
+    invalidate();
     load();
   }
+
 
   async function reorder(id: string, dir: -1 | 1) {
     const idx = slides.findIndex((s) => s.id === id);
@@ -211,14 +219,17 @@ function AdminHeroSlides() {
       load();
     } else {
       toast.success(`Saved ${orderLang.toUpperCase()} order`);
+      invalidate();
     }
   }
 
 
   async function toggleActive(s: Slide) {
     await supabase.from("hero_slides").update({ is_active: !s.is_active }).eq("id", s.id);
+    invalidate();
     load();
   }
+
 
   const set = <K extends keyof SlideInput>(k: K, v: SlideInput[K]) => setEditing((e) => (e ? { ...e, [k]: v } : e));
 

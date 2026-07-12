@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Search, Plus, Pencil, Trash2, Loader2, Filter, ArrowUpDown, ExternalLink } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { TableRowsSkeleton } from "@/components/site/Skeletons";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -68,6 +70,12 @@ const textValueSchema = z.string().trim().max(5000);
 const urlSchema = z.union([z.literal(""), z.string().trim().url()]);
 
 export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
+  const queryClient = useQueryClient();
+  const invalidatePublic = () => {
+    queryClient.invalidateQueries({
+      predicate: (q) => Array.isArray(q.queryKey) && q.queryKey[0] === config.table,
+    });
+  };
   const [rows, setRows] = useState<AnyRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -81,6 +89,7 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [editing, setEditing] = useState<AnyRow | null>(null);
   const [deleteIds, setDeleteIds] = useState<string[] | null>(null);
+
 
   async function load() {
     setLoading(true);
@@ -208,8 +217,10 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
     }
 
     setEditing(null);
+    invalidatePublic();
     load();
   }
+
 
 
   async function confirmDelete() {
@@ -223,7 +234,9 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
     setRows((prev) => prev.filter((row) => !deleteIds.includes(String(row.id))));
     setSelectedIds(new Set());
     setDeleteIds(null);
+    invalidatePublic();
   }
+
 
   async function updateInline(row: AnyRow, key: string, value: unknown) {
     if (!row.id) return;
@@ -234,7 +247,9 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
     }
     setRows((prev) => prev.map((item) => (item.id === row.id ? { ...item, [key]: value } : item)));
     toast.success("Updated");
+    invalidatePublic();
   }
+
 
   const allVisibleSelected = visibleRows.length > 0 && visibleRows.every((row) => row.id && selectedIds.has(row.id));
 

@@ -10,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { useInvalidateTables } from "@/lib/invalidate";
+
 
 export const Route = createFileRoute("/_authenticated/admin/projects")({
   component: ProjectsPage,
@@ -44,8 +46,10 @@ const emptyProject: Partial<Project> = {
 };
 
 function ProjectsPage() {
+  const invalidate = useInvalidateTables(["projects"]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [editing, setEditing] = useState<Partial<Project> | null>(null);
   const [govs, setGovs] = useState<GovOption[]>([]);
 
@@ -81,6 +85,7 @@ function ProjectsPage() {
     if (error) return toast.error(error.message);
     toast.success("Saved");
     setEditing(null);
+    invalidate();
     load();
   }
 
@@ -89,8 +94,10 @@ function ProjectsPage() {
     const { error } = await supabase.from("projects").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted");
+    invalidate();
     load();
   }
+
 
   return (
     <AdminShell title="Projects">

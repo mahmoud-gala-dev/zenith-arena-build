@@ -23,6 +23,8 @@ import { invalidateManifestCache } from "@/hooks/useSignedImage";
 import { insertImageVersion } from "@/hooks/useImageVersions";
 import { ImageHistoryButton } from "@/components/admin/ImageHistoryButton";
 import { ArrowDown, ArrowUp, GripVertical } from "lucide-react";
+import { useInvalidateTables } from "@/lib/invalidate";
+
 
 type ServiceFaq = { q_en: string; q_ar?: string; a_en: string; a_ar?: string };
 
@@ -124,8 +126,10 @@ function loadImageDims(url: string): Promise<{ w: number; h: number } | null> {
 }
 
 function AdminServicesPage() {
+  const invalidate = useInvalidateTables(["services"]);
   const [rows, setRows] = useState<ServiceRow[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [editing, setEditing] = useState<ServiceRow | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -232,6 +236,7 @@ function AdminServicesPage() {
     IMAGE_FIELDS.forEach((f) => editing[f.variantsKey] && invalidateManifestCache(editing[f.variantsKey]));
     toast.success("Service saved");
     setEditing(null);
+    invalidate();
     load();
   }
 
@@ -243,7 +248,9 @@ function AdminServicesPage() {
     toast.success("Service deleted");
     setDeleteId(null);
     setRows((p) => p.filter((r) => r.id !== deleteId));
+    invalidate();
   }
+
 
   return (
     <AdminShell title="Services CMS">

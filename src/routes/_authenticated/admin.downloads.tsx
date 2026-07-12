@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { signPath } from "@/lib/signedUrl";
+import { useInvalidateTables } from "@/lib/invalidate";
+
 
 export const Route = createFileRoute("/_authenticated/admin/downloads")({
   component: AdminDownloadsPage,
@@ -116,8 +118,10 @@ function formatBytes(n?: number | null) {
 }
 
 function AdminDownloadsPage() {
+  const invalidate = useInvalidateTables(["downloads"]);
   const [rows, setRows] = useState<DownloadRow[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -154,8 +158,10 @@ function AdminDownloadsPage() {
     if (error) { toast.error(error.message); return; }
     toast.success("Deleted");
     setDeleteRow(null);
+    invalidate();
     void load();
   }
+
 
   return (
     <AdminShell title="Downloads Library">
@@ -270,7 +276,7 @@ function AdminDownloadsPage() {
         <DownloadEditor
           row={editing}
           onClose={() => setEditing(null)}
-          onSaved={() => { setEditing(null); void load(); }}
+          onSaved={() => { setEditing(null); invalidate(); void load(); }}
         />
       )}
 
