@@ -161,10 +161,35 @@ export const Route = createFileRoute("/services/$slug")({
 
 function ServiceDetailPage() {
   const { slug } = Route.useLoaderData();
-  const { lang, t } = useLang();
+  const { lang, t, dir } = useLang();
   const { data: service, loading } = useServiceBySlug(slug);
   const ar = lang === "ar";
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Live-sync <html lang/dir>, document title, meta description, canonical & og:locale on client-side language toggle.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.setAttribute("lang", lang);
+    document.documentElement.setAttribute("dir", dir);
+    if (!service) return;
+    const title = ar
+      ? `${service.title_ar || service.title_en} — إيجيتك سبورتس`
+      : `${service.title_en} — Egytic Sports`;
+    document.title = title;
+    const desc = (ar ? service.description_ar : service.description_en) || service.description_en || "";
+    const setMeta = (selector: string, attr: "content" | "href", value: string) => {
+      const el = document.head.querySelector(selector) as HTMLMetaElement | HTMLLinkElement | null;
+      if (el) el.setAttribute(attr, value);
+    };
+    setMeta('meta[name="description"]', "content", desc);
+    setMeta('meta[property="og:title"]', "content", title);
+    setMeta('meta[property="og:description"]', "content", desc);
+    setMeta('meta[property="og:locale"]', "content", ar ? "ar_EG" : "en_US");
+    setMeta('meta[name="twitter:title"]', "content", title);
+    setMeta('meta[name="twitter:description"]', "content", desc);
+    const canonical = `${SITE_URL}/services/${slug}${ar ? "?lang=ar" : ""}`;
+    setMeta('link[rel="canonical"]', "href", canonical);
+  }, [lang, dir, ar, service, slug]);
 
   const { data: allServices } = useQuery(servicesPublishedQueryOptions);
   const { data: allProjectsDb } = useQuery(projectsPublishedListQueryOptions);
