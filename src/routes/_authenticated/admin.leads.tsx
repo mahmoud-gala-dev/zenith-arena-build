@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { z } from "zod";
 import { LeadTimeline } from "@/components/admin/LeadTimeline";
-import { useGuard, useCan } from "@/lib/rbac";
+import { useGuard } from "@/lib/rbac";
 
 
 export const Route = createFileRoute("/_authenticated/admin/leads")({
