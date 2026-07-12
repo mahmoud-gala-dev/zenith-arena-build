@@ -110,13 +110,17 @@ export function notifyAccessDenied(
 
 /**
  * Returns a guard() wrapper that blocks the action with a toast when the
- * caller lacks `perm`. Also exposes `can` for disabling UI in the same call.
+ * caller lacks `perm`. Also exposes helpers for consistent UI blocking:
  *
- *   const { can, guard } = useGuard("users.manage");
- *   <Button disabled={!can} onClick={guard(async () => save())}>Save</Button>
+ *   const { can, guard, buttonProps, submitProps } = useGuard("users.manage");
+ *   <Button {...buttonProps({ pending: isSaving })} onClick={guard(save)}>
+ *     Save
+ *   </Button>
+ *   <form {...submitProps(onSubmit)}>…</form>
  */
 export function useGuard(perm: PermissionKey | null | undefined) {
   const { can, isLoading } = useCan(perm);
+
   function guard<T extends unknown[], R>(
     fn: (...args: T) => R,
     context?: { resource?: string; action?: string; recordId?: string | null },
@@ -129,7 +133,54 @@ export function useGuard(perm: PermissionKey | null | undefined) {
       return fn(...args);
     };
   }
-  return { can, isLoading, guard };
+
+  /**
+   * Spreadable props for any button/action element. When blocked the button is
+   * visually disabled (aria-disabled + disabled), keeps focusable semantics,
+   * and — if the caller forgets to wrap onClick in `guard` — the pointer-down
+   * still gets intercepted. When a mutation is `pending`, the button also
+   * disables to prevent duplicate submits.
+   */
+  function buttonProps(opts?: { pending?: boolean }) {
+    const pending = !!opts?.pending;
+    const blocked = !can;
+    return {
+      "aria-disabled": (blocked || pending) as boolean,
+      "data-pending": pending || undefined,
+      disabled: blocked || pending,
+      onClickCapture: (e: React.MouseEvent) => {
+        if (blocked) {
+          e.preventDefault();
+          e.stopPropagation();
+          notifyAccessDenied(perm ?? null);
+        }
+      },
+    } as const;
+  }
+
+  /**
+   * Spreadable props for a <form>. Blocks submit entirely when the user lacks
+   * permission — preventing browser-native form actions AND user handlers.
+   */
+  function submitProps<E extends HTMLFormElement>(
+    handler: (e: React.FormEvent<E>) => void | Promise<void>,
+    context?: { resource?: string; action?: string; recordId?: string | null },
+  ) {
+    return {
+      "aria-disabled": (!can) as boolean,
+      onSubmit: (e: React.FormEvent<E>) => {
+        if (!can) {
+          e.preventDefault();
+          e.stopPropagation();
+          notifyAccessDenied(perm ?? null, context);
+          return;
+        }
+        return handler(e);
+      },
+    } as const;
+  }
+
+  return { can, isLoading, guard, buttonProps, submitProps };
 }
 
 /** Conditionally renders children only when the current user has `perm`. */
@@ -146,5 +197,6 @@ export function Can({
   if (isLoading) return null;
   return createElement(Fragment, null, can ? children : fallback);
 }
+
 
 
