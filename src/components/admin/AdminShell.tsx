@@ -37,6 +37,7 @@ const nav: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exac
   { to: "/admin/hero-slides", label: "Hero Slider", icon: GalleryHorizontalEnd },
   { to: "/admin/pages", label: "Pages", icon: FileText },
   { to: "/admin/about", label: "About Page", icon: FileText },
+  { to: "/admin/legal", label: "Legal (Privacy/Terms)", icon: FileText },
   { to: "/admin/services", label: "Services", icon: Layers },
   { to: "/admin/products", label: "Products", icon: Package },
   { to: "/admin/leads", label: "Leads", icon: Inbox },
