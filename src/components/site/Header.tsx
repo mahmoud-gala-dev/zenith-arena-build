@@ -452,6 +452,23 @@ export function Header() {
         </div>
       </div>
 
+      {/* Scroll progress indicator */}
+      <div
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-x-0 bottom-0 h-[2px] overflow-hidden transition-opacity duration-500",
+          scrolled ? "opacity-100" : "opacity-0",
+        )}
+      >
+        <div
+          className="h-full bg-gradient-to-r from-[color:var(--gold)] via-[color:var(--primary)] to-[color:var(--gold)] transition-transform duration-150 ease-out"
+          style={{
+            transformOrigin: ar ? "right" : "left",
+            transform: `scaleX(${progress})`,
+          }}
+        />
+      </div>
+
       <QuickLeadDialog
         open={leadOpen}
         onOpenChange={setLeadOpen}
