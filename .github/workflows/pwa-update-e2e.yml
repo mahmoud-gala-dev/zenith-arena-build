@@ -1,0 +1,51 @@
+name: pwa-update-e2e
+
+on:
+  pull_request:
+    paths:
+      - "src/lib/pwa/**"
+      - "src/components/site/PwaController.tsx"
+      - "scripts/pwa-update-e2e.py"
+      - "scripts/pwa-fixture/**"
+      - ".github/workflows/pwa-update-e2e.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: pwa-update-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with: { bun-version: latest }
+
+      - name: Install JS deps
+        run: bun install --frozen-lockfile
+
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+
+      - name: Install Playwright + Chromium
+        run: |
+          python -m pip install --no-cache-dir playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Sync workbox-window into fixture
+        # The fixture ships the module list from node_modules so CI matches local.
+        run: cp node_modules/workbox-window/build/*.mjs scripts/pwa-fixture/
+
+      - name: Run PWA Reload E2E
+        run: python scripts/pwa-update-e2e.py
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pwa-update-e2e
+          path: qa-report/pwa-update/
+          if-no-files-found: ignore
