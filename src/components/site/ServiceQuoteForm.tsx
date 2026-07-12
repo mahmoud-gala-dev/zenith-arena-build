@@ -26,6 +26,8 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
   const [formData, setFormData] = useState({ name: "", phone: "", email: "" });
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [summary, setSummary] = useState<LeadSummary | null>(null);
   const submit = useServerFn(submitLead);
 
   const t = ar
