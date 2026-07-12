@@ -211,6 +211,16 @@ function ArticleDetail() {
     return () => observer.disconnect();
   }, [toc.map((h) => h.id).join("|")]);
 
+  const [mobileTocOpen, setMobileTocOpen] = useState(false);
+  const handleTocClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    e.preventDefault();
+    setMobileTocOpen(false);
+    const top = el.getBoundingClientRect().top + window.scrollY - 88;
+    window.scrollTo({ top, behavior: "smooth" });
+    if (typeof history !== "undefined") history.replaceState(null, "", `#${id}`);
+  };
 
 
   return (
