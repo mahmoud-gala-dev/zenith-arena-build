@@ -38,6 +38,8 @@ export function QuickLeadDialog({ open, onOpenChange, source, intent = "callback
   const [message, setMessage] = useState("");
   const [website, setWebsite] = useState(""); // honeypot
   const [busy, setBusy] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [summary, setSummary] = useState<LeadSummary | null>(null);
 
   useEffect(() => {
     if (open) trackEvent({ name: "quick_lead_open", source });
