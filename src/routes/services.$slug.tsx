@@ -15,124 +15,140 @@ import { serviceBySlugQueryOptions, useServiceBySlug } from "@/hooks/useServiceC
 
 const SITE_URL = "https://zenith-arena-build.lovable.app";
 
+type ServiceSearch = { lang?: "en" | "ar" };
+
 export const Route = createFileRoute("/services/$slug")({
+  validateSearch: (search: Record<string, unknown>): ServiceSearch => {
+    const raw = typeof search.lang === "string" ? search.lang.toLowerCase() : undefined;
+    return { lang: raw === "ar" ? "ar" : raw === "en" ? "en" : undefined };
+  },
+  loaderDeps: ({ search }) => ({ lang: search.lang ?? "en" }),
   loader: async ({ params, context: { queryClient } }) => {
     const service = await queryClient.ensureQueryData(serviceBySlugQueryOptions(params.slug));
     return { slug: params.slug, service };
   },
-  head: ({ params, loaderData }) => {
+  head: ({ params, loaderData, match }) => {
     const s = loaderData?.service;
-    const canonical = `${SITE_URL}/services/${params.slug}`;
+    const search = (match?.search ?? {}) as ServiceSearch;
+    const activeLang: "en" | "ar" = search.lang === "ar" ? "ar" : "en";
+    const isAr = activeLang === "ar";
+    const enUrl = `${SITE_URL}/services/${params.slug}`;
+    const arUrl = `${enUrl}?lang=ar`;
+    const canonical = isAr ? arUrl : enUrl;
+
     if (!s) {
       return {
         meta: [
-          { title: "Service — Egytic Sports" },
-          { name: "description", content: "Turnkey sports construction services by Egytic Sports." },
+          { title: isAr ? "خدمة — إيجيتك سبورتس" : "Service — Egytic Sports" },
+          { name: "description", content: isAr ? "خدمات إنشاءات رياضية متكاملة من إيجيتك سبورتس." : "Turnkey sports construction services by Egytic Sports." },
           { name: "robots", content: "noindex" },
           { property: "og:url", content: canonical },
         ],
         links: [{ rel: "canonical", href: canonical }],
       };
     }
+
     const titleEn = s.seo_title_en || `${s.title_en} — Egytic Sports`;
     const titleAr = s.seo_title_ar || `${s.title_ar ?? s.title_en} — إيجيتك سبورتس`;
     const descEn = s.seo_description_en || s.description_en || "Turnkey sports construction services by Egytic Sports.";
-    const descAr = s.seo_description_ar || s.description_ar || descEn;
+    const descAr = s.seo_description_ar || s.description_ar || "خدمات إنشاءات رياضية متكاملة من إيجيتك سبورتس.";
     const altEn = s.alt_en || s.title_en;
     const altAr = s.alt_ar || s.title_ar || s.title_en;
-    const arUrl = `${canonical}?lang=ar`;
 
-    // Deterministic per-language og:image with layered fallbacks so social previews
-    // never show a broken URL: language-specific og → shared og → header → cover → site hero.
+    const activeTitle = isAr ? titleAr : titleEn;
+    const activeDesc = isAr ? descAr : descEn;
+    const activeAlt = isAr ? altAr : altEn;
+
+    // Layered image fallbacks so social previews never break.
     const SITE_FALLBACK = `${SITE_URL}/og-default.jpg`;
     const enChain = [s.og_image, s.header_image, s.cover_image, SITE_FALLBACK];
     const arChain = [s.og_image_ar, s.og_image, s.header_image, s.cover_image, SITE_FALLBACK];
-    const pick = (chain: (string | null | undefined)[]) => chain.find((v) => typeof v === "string" && v.trim().length > 0) as string;
+    const pick = (chain: (string | null | undefined)[]) =>
+      chain.find((v) => typeof v === "string" && v.trim().length > 0) as string;
     const ogEn = pick(enChain);
     const ogAr = pick(arChain);
-    // Emit ONE og:image (meta dedupes by property) — the English one is primary;
-    // Arabic browsers reach the AR variant through the ?lang=ar canonical which
-    // renders its own head with ogAr promoted below.
-    const primaryOg = ogEn;
-    const primaryAlt = altEn;
+    const activeOg = isAr ? ogAr : ogEn;
 
     const serviceLd = {
       "@context": "https://schema.org",
       "@type": "Service",
-      name: s.title_en,
-      alternateName: s.title_ar ?? undefined,
-      description: descEn,
+      name: isAr ? (s.title_ar ?? s.title_en) : s.title_en,
+      alternateName: isAr ? s.title_en : (s.title_ar ?? undefined),
+      description: activeDesc,
+      inLanguage: isAr ? "ar" : "en",
       serviceType: s.category ?? "Sports Construction",
       url: canonical,
       image: [ogEn, ogAr].filter((v, i, a) => v && a.indexOf(v) === i),
-      areaServed: { "@type": "Country", name: "Egypt" },
+      areaServed: { "@type": "Country", name: isAr ? "مصر" : "Egypt" },
       provider: { "@type": "Organization", name: "Egytic Sports", url: SITE_URL },
     };
     const breadcrumbsLd = {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
-        { "@type": "ListItem", position: 2, name: "Services", item: `${SITE_URL}/services` },
-        { "@type": "ListItem", position: 3, name: s.title_en, item: canonical },
+        { "@type": "ListItem", position: 1, name: isAr ? "الرئيسية" : "Home", item: `${SITE_URL}/${isAr ? "?lang=ar" : ""}` },
+        { "@type": "ListItem", position: 2, name: isAr ? "الخدمات" : "Services", item: `${SITE_URL}/services${isAr ? "?lang=ar" : ""}` },
+        { "@type": "ListItem", position: 3, name: isAr ? (s.title_ar ?? s.title_en) : s.title_en, item: canonical },
       ],
     };
     const faqLd = s.faqs && s.faqs.length
       ? {
           "@context": "https://schema.org",
           "@type": "FAQPage",
-          mainEntity: s.faqs.map((f) => ({
-            "@type": "Question",
-            name: f.q_en,
-            acceptedAnswer: { "@type": "Answer", text: f.a_en },
-            inLanguage: "en",
-          })).concat(
-            s.faqs
-              .filter((f) => f.q_ar && f.a_ar)
-              .map((f) => ({
+          inLanguage: isAr ? "ar" : "en",
+          mainEntity: (isAr
+            ? s.faqs.filter((f) => f.q_ar && f.a_ar).map((f) => ({
                 "@type": "Question",
                 name: f.q_ar as string,
                 acceptedAnswer: { "@type": "Answer", text: f.a_ar as string },
-                inLanguage: "ar",
-              })),
-          ),
+              }))
+            : s.faqs.map((f) => ({
+                "@type": "Question",
+                name: f.q_en,
+                acceptedAnswer: { "@type": "Answer", text: f.a_en },
+              }))),
         }
       : null;
+
     return {
       meta: [
-        { title: `${titleEn} | ${titleAr}` },
-        { name: "description", content: `${descEn} — ${descAr}` },
+        { title: activeTitle },
+        { name: "description", content: activeDesc },
+        { name: "language", content: isAr ? "ar" : "en" },
         { property: "og:type", content: "website" },
         { property: "og:site_name", content: "Egytic Sports" },
         { property: "og:url", content: canonical },
-        { property: "og:title", content: titleEn },
-        { property: "og:description", content: descEn },
-        { property: "og:locale", content: "en_US" },
-        { property: "og:locale:alternate", content: "ar_EG" },
-        { property: "og:image", content: primaryOg },
-        { property: "og:image:alt", content: primaryAlt },
+        { property: "og:title", content: activeTitle },
+        { property: "og:description", content: activeDesc },
+        { property: "og:locale", content: isAr ? "ar_EG" : "en_US" },
+        { property: "og:locale:alternate", content: isAr ? "en_US" : "ar_EG" },
+        { property: "og:image", content: activeOg },
+        { property: "og:image:alt", content: activeAlt },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:title", content: titleEn },
-        { name: "twitter:description", content: descEn },
-        { name: "twitter:image", content: primaryOg },
-        { name: "twitter:image:alt", content: primaryAlt },
+        { name: "twitter:title", content: activeTitle },
+        { name: "twitter:description", content: activeDesc },
+        { name: "twitter:image", content: activeOg },
+        { name: "twitter:image:alt", content: activeAlt },
       ],
       links: [
         { rel: "canonical", href: canonical },
-        { rel: "alternate", hreflang: "en", href: canonical },
+        { rel: "alternate", hreflang: "en", href: enUrl },
         { rel: "alternate", hreflang: "ar", href: arUrl },
-        { rel: "alternate", hreflang: "x-default", href: canonical },
+        { rel: "alternate", hreflang: "x-default", href: enUrl },
       ],
       scripts: [
         { type: "application/ld+json", children: JSON.stringify(serviceLd) },
         { type: "application/ld+json", children: JSON.stringify(breadcrumbsLd) },
-        ...(faqLd ? [{ type: "application/ld+json", children: JSON.stringify(faqLd) }] : []),
+        ...(faqLd && (faqLd.mainEntity as unknown[]).length ? [{ type: "application/ld+json", children: JSON.stringify(faqLd) }] : []),
       ],
     };
   },
 
   component: ServiceDetailPage,
 });
+
 
 
 function ServiceDetailPage() {
