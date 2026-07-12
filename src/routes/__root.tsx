@@ -16,6 +16,7 @@ import { SmoothScroll } from "../components/site/SmoothScroll";
 import { PerfOverlay } from "../components/site/PerfOverlay";
 import { initPerf } from "../lib/perf";
 import { PwaController } from "../components/site/PwaController";
+import { seoDefaultsQueryOptions, DEFAULT_SEO_DEFAULTS } from "../lib/settings";
 
 
 
