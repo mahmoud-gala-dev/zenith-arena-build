@@ -66,6 +66,8 @@ function LeadsPage() {
   const [selected, setSelected] = useState<Lead | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Lead | null>(null);
+  const { can: canManage, guard } = useGuard("leads.manage");
+
 
   async function load() {
     setLoading(true);
