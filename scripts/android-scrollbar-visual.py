@@ -17,6 +17,10 @@ Exit != 0 on any drift.
 import asyncio, json, os, sys
 from pathlib import Path
 from playwright.async_api import async_playwright
+from _scroll_assertions import (
+    install_stability_probes, measure_boxes, read_cls,
+    assert_scroll_progress, assert_boxes_stable, assert_cls_ok,
+)
 
 BASE = os.environ.get("BASE_URL", "http://localhost:8080")
 OUT = Path(os.environ.get("QA_OUT", "qa-report")) / "android-scrollbar"
@@ -46,6 +50,7 @@ async def audit_route(context, route, errors):
     await page.evaluate("() => window.scrollTo(0, 0)")
     await page.wait_for_timeout(200)
     m_before = await page.evaluate(MEASURE)
+    boxes_before = await measure_boxes(page)
     p_before = OUT / f"{slug}-1-before.png"
     await page.screenshot(path=str(p_before), timeout=15000, animations="disabled")
     phases["before"] = {"metrics": m_before, "screenshot": str(p_before)}
@@ -54,6 +59,7 @@ async def audit_route(context, route, errors):
     await page.evaluate("(y) => window.scrollTo({ top: y, behavior: 'smooth' })", target_y)
     await page.wait_for_timeout(120)
     m_during = await page.evaluate(MEASURE)
+    boxes_during = await measure_boxes(page)
     p_during = OUT / f"{slug}-2-during.png"
     await page.screenshot(path=str(p_during), timeout=15000, animations="disabled")
     phases["during"] = {"metrics": m_during, "screenshot": str(p_during)}
@@ -61,9 +67,11 @@ async def audit_route(context, route, errors):
     await page.evaluate("() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'auto' })")
     await page.wait_for_timeout(400)
     m_after = await page.evaluate(MEASURE)
+    boxes_after = await measure_boxes(page)
+    cls = await read_cls(page)
     p_after = OUT / f"{slug}-3-after.png"
     await page.screenshot(path=str(p_after), timeout=15000, animations="disabled")
-    phases["after"] = {"metrics": m_after, "screenshot": str(p_after)}
+    phases["after"] = {"metrics": m_after, "screenshot": str(p_after), "cls": cls}
 
     cw = {k: v["metrics"]["clientWidth"] for k, v in phases.items()}
     sw = {k: v["metrics"]["scrollWidth"] for k, v in phases.items()}
@@ -88,6 +96,16 @@ async def audit_route(context, route, errors):
                 f"[{route}/{phase}] unexpected scrollbar-gutter={mm['scrollbarGutter']!r}"
             )
 
+    assert_scroll_progress(route, m_before["scrollY"], m_during["scrollY"], m_after["scrollY"], errors)
+    assert_boxes_stable(route, boxes_before, boxes_during, m_during["scrollY"] - m_before["scrollY"], errors)
+    # before→after box comparison intentionally omitted: on long scrolls the
+    # document height changes as below-the-fold images/iframes lazy-load,
+    # which produces expected y drift that isn't a layout shift near the
+    # viewport. The before→during comparison above still catches drift near
+    # the fold, and the CLS observer catches accumulated shifts across the
+    # page lifecycle.
+    assert_cls_ok(route, cls, errors)
+
     await page.close()
     return phases
 
@@ -98,6 +116,7 @@ async def main():
         pixel = p.devices["Pixel 7"]
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(**pixel, service_workers="block")
+        await install_stability_probes(context)
         try:
             for route in ROUTES:
                 try:
