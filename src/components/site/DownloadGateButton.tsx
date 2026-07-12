@@ -51,9 +51,23 @@ export function DownloadGateButton({
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [fetchingUrl, setFetchingUrl] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "", website: "" });
+  const [whatsapp, setWhatsapp] = useState<string | null>(null);
   const submit = useServerFn(submitLead);
   const sign = useServerFn(getDownloadSignedUrl);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase.from("settings").select("value").eq("key", "contact_info").maybeSingle().then(({ data }) => {
+      if (cancelled) return;
+      const v = (data?.value ?? {}) as { whatsapp?: string; phone?: string };
+      const raw = (v.whatsapp || v.phone || "").trim();
+      const digits = raw.replace(/[^\d]/g, "");
+      setWhatsapp(digits || null);
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   async function openSignedUrl(): Promise<string | null> {
     if (!downloadId) {
