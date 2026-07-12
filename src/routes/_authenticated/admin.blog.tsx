@@ -230,9 +230,17 @@ function AdminBlogPage() {
                     </td>
                     <td className="p-3">{cat ? <Badge variant="secondary">{cat.title_en}</Badge> : <span className="text-muted-foreground">—</span>}</td>
                     <td className="p-3">
-                      <div className="flex gap-1">
+                      <div className="flex gap-1 items-center">
                         <Badge variant={enOk ? "default" : "outline"} className="text-[10px]">EN</Badge>
                         <Badge variant={arOk ? "default" : "outline"} className="text-[10px]">AR</Badge>
+                        {(() => {
+                          const linked = rows.filter((x) => x.id !== r.id && x.translation_group_id === r.translation_group_id).length;
+                          return linked > 0 ? (
+                            <Badge variant="secondary" className="text-[10px] gap-1" title="Linked translations">
+                              <Link2Icon className="h-3 w-3" />{linked}
+                            </Badge>
+                          ) : null;
+                        })()}
                       </div>
                     </td>
                     <td className="p-3">
