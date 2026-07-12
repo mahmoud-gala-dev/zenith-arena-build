@@ -174,6 +174,12 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
         template: "legal",
         status: form.status,
         effective_at: form.effectiveAt ? new Date(form.effectiveAt).toISOString() : null,
+        seo_title_en: form.en.seoTitle || null,
+        seo_title_ar: form.ar.seoTitle || null,
+        seo_description_en: form.en.seoDescription || null,
+        seo_description_ar: form.ar.seoDescription || null,
+        seo_keywords_en: form.en.seoKeywords || null,
+        seo_keywords_ar: form.ar.seoKeywords || null,
       };
       const q = form.id
         ? supabase.from("pages").update(payload).eq("id", form.id)
