@@ -247,7 +247,9 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
     }
     setRows((prev) => prev.map((item) => (item.id === row.id ? { ...item, [key]: value } : item)));
     toast.success("Updated");
+    invalidatePublic();
   }
+
 
   const allVisibleSelected = visibleRows.length > 0 && visibleRows.every((row) => row.id && selectedIds.has(row.id));
 
