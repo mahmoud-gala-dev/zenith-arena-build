@@ -1,0 +1,207 @@
+{
+  "/": {
+    "before": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 915,
+        "scrollY": 0,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-firefox-scrollbar/home-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 915,
+        "scrollY": 228,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-firefox-scrollbar/home-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 915,
+        "scrollY": 12821,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-firefox-scrollbar/home-3-after.png"
+    }
+  },
+  "/projects": {
+    "before": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 915,
+        "scrollY": 0,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-firefox-scrollbar/projects-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 915,
+        "scrollY": 409,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-firefox-scrollbar/projects-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 915,
+        "scrollY": 3211,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-firefox-scrollbar/projects-3-after.png"
+    }
+  },
+  "/services": {
+    "before": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 915,
+        "scrollY": 0,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-firefox-scrollbar/services-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 915,
+        "scrollY": 436,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-firefox-scrollbar/services-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 915,
+        "scrollY": 4320,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-firefox-scrollbar/services-3-after.png"
+    }
+  },
+  "/knowledge": {
+    "before": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 915,
+        "scrollY": 0,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-firefox-scrollbar/knowledge-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 915,
+        "scrollY": 332,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-firefox-scrollbar/knowledge-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 915,
+        "scrollY": 4760,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-firefox-scrollbar/knowledge-3-after.png"
+    }
+  },
+  "/gallery": {
+    "before": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 915,
+        "scrollY": 0,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-firefox-scrollbar/gallery-1-before.png"
+    },
+    "during": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 915,
+        "scrollY": 409,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-firefox-scrollbar/gallery-2-during.png"
+    },
+    "after": {
+      "metrics": {
+        "clientWidth": 412,
+        "scrollWidth": 412,
+        "clientHeight": 915,
+        "scrollY": 1883,
+        "scrollbarWidth": "none",
+        "scrollbarGutter": "auto",
+        "bodyOverflowX": "hidden",
+        "htmlOverflowX": "visible"
+      },
+      "screenshot": "qa-report/android-firefox-scrollbar/gallery-3-after.png"
+    }
+  }
+}
