@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Search, Download, Trash2, ExternalLink, Plus, Pencil } from "lucide-react";
+import { Search, Download, Trash2, ExternalLink, Plus, Pencil, Phone, Mail, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Input } from "@/components/ui/input";
