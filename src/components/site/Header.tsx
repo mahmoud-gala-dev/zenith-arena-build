@@ -464,20 +464,24 @@ export function Header() {
                     )}
                   </div>
                   {topSocials.length > 0 && (
-                    <div className="flex items-center justify-center gap-4 pt-2">
+                    <ul
+                      aria-label={ar ? "روابط التواصل الاجتماعي" : "Social links"}
+                      className="flex items-center justify-center gap-2 pt-2"
+                    >
                       {topSocials.map(({ href, Icon, name }) => (
-                        <a
-                          key={name}
-                          href={href}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          aria-label={name}
-                          className="text-muted-foreground transition-colors hover:text-[color:var(--gold)]"
-                        >
-                          <Icon className="h-5 w-5" />
-                        </a>
+                        <li key={name}>
+                          <a
+                            href={href}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            aria-label={`${name} ${ar ? "(يفتح في نافذة جديدة)" : "(opens in new tab)"}`}
+                            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-[color:var(--gold)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)]"
+                          >
+                            <Icon aria-hidden="true" className="h-5 w-5" />
+                          </a>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   )}
                 </div>
               </div>
