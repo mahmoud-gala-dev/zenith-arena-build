@@ -153,7 +153,7 @@ function withClient(node: ReactNode) {
 }
 
 describe("useGuard.buttonProps + submitProps", () => {
-  it("marks the button aria-disabled and intercepts onClick when denied (admin.leads.manage missing)", async () => {
+  it("marks the button aria-disabled and prevents onClick when denied (admin.leads.manage missing)", async () => {
     seedPermissions([]); // no leads.manage
     const clicked = vi.fn();
     function Host() {
@@ -170,18 +170,44 @@ describe("useGuard.buttonProps + submitProps", () => {
       );
     }
     const { getByTestId } = withClient(createElement(Host));
-    // wait a tick for the RPC to settle
     await act(async () => {
       await new Promise((r) => setTimeout(r, 20));
     });
     const btn = getByTestId("delete-lead") as HTMLButtonElement;
-    expect(btn.getAttribute("aria-disabled")).toBe("true");
+    // native disable prevents click entirely (defence in depth)
     expect(btn.disabled).toBe(true);
+    expect(btn.getAttribute("aria-disabled")).toBe("true");
     fireEvent.click(btn);
+    expect(clicked).not.toHaveBeenCalled();
+  });
+
+  it("still intercepts and toasts when the element is aria-disabled only (e.g. a Slot link)", async () => {
+    seedPermissions([]);
+    const clicked = vi.fn();
+    function Host() {
+      const { buttonProps } = useGuard("leads.manage");
+      const { disabled: _d, ...bp } = buttonProps(); // strip native disabled
+      return createElement(
+        "a",
+        {
+          "data-testid": "delete-link",
+          href: "#",
+          onClick: clicked,
+          ...bp,
+        },
+        "Delete",
+      );
+    }
+    const { getByTestId } = withClient(createElement(Host));
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 20));
+    });
+    fireEvent.click(getByTestId("delete-link"));
     expect(clicked).not.toHaveBeenCalled();
     expect(toastError).toHaveBeenCalledTimes(1);
     expect(toastError.mock.calls[0][1].description).toContain("Manage leads");
   });
+
 
   it("marks the button aria-disabled during a permitted pending mutation (loading state)", async () => {
     seedPermissions(["leads.manage"]);
