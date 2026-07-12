@@ -68,7 +68,7 @@ function slugify(s: string) {
 function AdminBlogPage() {
   const [rows, setRows] = useState<Article[]>([]);
   const [cats, setCats] = useState<Category[]>([]);
-  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [query, setQuery] = useState("");
@@ -80,17 +80,15 @@ function AdminBlogPage() {
 
   async function load() {
     setLoading(true);
-    const [{ data: posts, error }, { data: c }] = await Promise.all([
+    const [{ data: posts, error }, { data: c }, { data: t }] = await Promise.all([
       supabase.from("blog_posts").select("*").order("updated_at", { ascending: false }),
       supabase.from("blog_categories").select("id, slug_en, title_en, title_ar").order("title_en"),
+      supabase.from("tags").select("id, slug, name_en, name_ar").order("name_en"),
     ]);
     if (error) toast.error(error.message);
     setRows((posts as Article[]) ?? []);
     setCats((c as Category[]) ?? []);
-    // Derive tag suggestions from existing posts
-    const tagSet = new Set<string>();
-    (posts as Article[] | null)?.forEach((p) => p.tags?.forEach((t) => t && tagSet.add(t)));
-    setSuggestedTags(Array.from(tagSet).sort());
+    setTags((t as Tag[]) ?? []);
     setLoading(false);
   }
   useEffect(() => { load(); }, []);
