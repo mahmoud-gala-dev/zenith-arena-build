@@ -1,0 +1,45 @@
+name: pwa-manifest-check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "public/manifest.webmanifest"
+      - "public/manifest.json"
+      - "public/icon*"
+      - "public/apple-touch-icon*"
+      - "public/favicon*"
+      - "src/routes/**"
+      - "scripts/check-manifest.mjs"
+      - ".github/workflows/pwa-manifest-check.yml"
+  pull_request:
+    paths:
+      - "public/manifest.webmanifest"
+      - "public/manifest.json"
+      - "public/icon*"
+      - "public/apple-touch-icon*"
+      - "public/favicon*"
+      - "src/routes/**"
+      - "scripts/check-manifest.mjs"
+      - ".github/workflows/pwa-manifest-check.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: pwa-manifest-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with: { bun-version: latest }
+
+      - name: Install JS deps
+        run: bun install --frozen-lockfile
+
+      - name: Validate manifest, icons, and shortcuts
+        run: node scripts/check-manifest.mjs
