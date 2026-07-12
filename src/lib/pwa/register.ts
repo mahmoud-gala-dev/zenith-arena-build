@@ -62,14 +62,13 @@ export async function registerPwa(onUpdateAvailable?: PwaUpdateHandler): Promise
 
   const updateAndReload = async () => {
     await new Promise<void>((resolve) => {
-      wb.addEventListener("controlling", () => resolve(), { once: true });
+      wb.addEventListener("controlling", () => resolve());
       wb.messageSkipWaiting();
     });
     window.location.reload();
   };
 
   wb.addEventListener("waiting", () => onUpdateAvailable?.({ updateAndReload }));
-  wb.addEventListener("externalwaiting", () => onUpdateAvailable?.({ updateAndReload }));
 
   try {
     await wb.register();
