@@ -141,11 +141,22 @@ export function Header() {
           : "border-b border-transparent text-white",
       )}
     >
+      {/* Skip to content — a11y for keyboard users */}
+      <a
+        href="#main-content"
+        className={cn(
+          "sr-only focus:not-sr-only focus:absolute focus:z-[60] focus:top-2 focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-foreground focus:shadow-lg focus:ring-2 focus:ring-primary",
+          ar ? "focus:right-2" : "focus:left-2",
+        )}
+      >
+        {ar ? "تخطي إلى المحتوى" : "Skip to content"}
+      </a>
 
       {/* Ambient gradient overlay when at top */}
       {!scrolled && (
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-full bg-gradient-to-b from-black/70 via-black/35 to-transparent" />
       )}
+
 
       {/* Utility top bar */}
       <div
@@ -162,41 +173,47 @@ export function Header() {
               <a
                 href={`tel:${contact.phone}`}
                 onClick={() => trackEvent({ name: "header_phone_click", surface: "top_bar", phone: contact.phone })}
-                className="inline-flex items-center gap-1.5 transition-colors hover:text-[color:var(--gold)]"
+                className="inline-flex items-center gap-1.5 rounded-sm transition-colors hover:text-[color:var(--gold)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)]"
+                aria-label={ar ? `اتصل: ${contact.phone}` : `Call ${contact.phone}`}
               >
-                <Phone className="h-3.5 w-3.5" />
+                <Phone aria-hidden="true" className="h-3.5 w-3.5" />
                 <span dir="ltr" className="tabular-nums">{contact.phone}</span>
               </a>
             )}
             {contact.email && (
-              <a href={`mailto:${contact.email}`} className="hidden items-center gap-1.5 transition-colors hover:text-[color:var(--gold)] sm:inline-flex">
-                <Mail className="h-3.5 w-3.5" />
+              <a
+                href={`mailto:${contact.email}`}
+                className="hidden items-center gap-1.5 rounded-sm transition-colors hover:text-[color:var(--gold)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)] sm:inline-flex"
+                aria-label={ar ? `راسلنا: ${contact.email}` : `Email ${contact.email}`}
+              >
+                <Mail aria-hidden="true" className="h-3.5 w-3.5" />
                 <span>{contact.email}</span>
               </a>
             )}
             {officeLine && (
               <span className="hidden min-w-0 items-center gap-1.5 truncate text-white/70 lg:inline-flex">
-                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <MapPin aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
                 <span className="truncate">{officeLine}</span>
               </span>
             )}
           </div>
           <div className="flex shrink-0 items-center gap-3">
             {topSocials.length > 0 && (
-              <div className="flex items-center gap-2">
+              <ul className="flex items-center gap-2" aria-label={ar ? "روابط التواصل الاجتماعي" : "Social links"}>
                 {topSocials.map(({ href, Icon, name }) => (
-                  <a
-                    key={name}
-                    href={href}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    aria-label={name}
-                    className="text-white/70 transition-colors hover:text-[color:var(--gold)]"
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                  </a>
+                  <li key={name}>
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      aria-label={`${name} ${ar ? "(يفتح في نافذة جديدة)" : "(opens in new tab)"}`}
+                      className="inline-flex rounded-sm text-white/70 transition-colors hover:text-[color:var(--gold)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)]"
+                    >
+                      <Icon aria-hidden="true" className="h-3.5 w-3.5" />
+                    </a>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
             <div className="h-3.5 w-px bg-white/20" />
             <ThemeToggle light />
@@ -243,7 +260,7 @@ export function Header() {
           </motion.span>
         </Link>
 
-        <nav className="hidden items-center gap-0.5 lg:flex">
+        <nav aria-label={ar ? "التنقل الرئيسي" : "Primary"} className="hidden items-center gap-0.5 lg:flex">
           {links.map((l) => {
             const active = pathname === l.to || (l.to !== "/" && pathname.startsWith(l.to));
             return (
@@ -251,7 +268,8 @@ export function Header() {
                 key={l.to}
                 to={l.to}
                 className={cn(
-                  "group/link relative rounded-md px-3 py-2 text-[13px] font-semibold uppercase tracking-wider transition-colors",
+                  "group/link relative rounded-md px-3 py-2 text-[13px] font-semibold tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+                  ar ? "text-sm" : "uppercase",
                   scrolled
                     ? "text-muted-foreground hover:text-foreground"
                     : "text-white/85 hover:text-white",
@@ -280,16 +298,19 @@ export function Header() {
               <PopoverTrigger asChild>
                 <button
                   type="button"
+                  aria-label={ar ? "خيارات التواصل" : "Contact options"}
+                  aria-haspopup="menu"
                   className={cn(
                     "hidden items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors xl:inline-flex",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
                     scrolled
                       ? "border-border text-foreground hover:border-[color:var(--gold)] hover:text-[color:var(--gold)]"
                       : "border-white/25 text-white hover:border-[color:var(--gold)] hover:text-[color:var(--gold)]",
                   )}
                 >
-                  <Phone className="h-3.5 w-3.5" />
+                  <Phone aria-hidden="true" className="h-3.5 w-3.5" />
                   <span dir="ltr" className="tabular-nums">{contact.phone}</span>
-                  <ChevronDown className="h-3 w-3 opacity-70" />
+                  <ChevronDown aria-hidden="true" className="h-3 w-3 opacity-70" />
                 </button>
               </PopoverTrigger>
               <PopoverContent align="end" className="w-64 p-2" dir={ar ? "rtl" : "ltr"}>
@@ -299,7 +320,7 @@ export function Header() {
                   className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold text-foreground transition hover:bg-accent"
                 >
                   <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-primary">
-                    <Phone className="h-4 w-4" />
+                    <Phone aria-hidden="true" className="h-4 w-4" />
                   </span>
                   <span className="flex-1">
                     <span className="block">{ar ? "اتصل الآن" : "Call now"}</span>
@@ -315,7 +336,7 @@ export function Header() {
                     className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold text-foreground transition hover:bg-accent"
                   >
                     <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600">
-                      <MessageCircle className="h-4 w-4" />
+                      <MessageCircle aria-hidden="true" className="h-4 w-4" />
                     </span>
                     <span className="flex-1">
                       <span className="block">WhatsApp</span>
@@ -329,7 +350,7 @@ export function Header() {
                   className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-start text-sm font-semibold text-foreground transition hover:bg-accent"
                 >
                   <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--gold)]/15 text-[color:var(--gold)]">
-                    <MessageCircle className="h-4 w-4" />
+                    <MessageCircle aria-hidden="true" className="h-4 w-4" />
                   </span>
                   <span className="flex-1">
                     <span className="block">{ar ? "اطلب مكالمة" : "Request callback"}</span>
@@ -364,39 +385,50 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                aria-label="Open menu"
-                className={cn(!scrolled && "text-white hover:bg-white/10 hover:text-white")}
+                aria-label={open ? (ar ? "إغلاق القائمة" : "Close menu") : (ar ? "فتح القائمة" : "Open menu")}
+                aria-expanded={open}
+                aria-controls="mobile-nav-sheet"
+                className={cn("min-h-11 min-w-11", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
               >
-                <Menu className="h-5 w-5" />
+                <Menu aria-hidden="true" className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side={ar ? "left" : "right"} className="w-80 p-0">
-              <SheetTitle className="sr-only">Menu</SheetTitle>
+            <SheetContent
+              id="mobile-nav-sheet"
+              side={ar ? "left" : "right"}
+              className="w-80 p-0"
+              dir={ar ? "rtl" : "ltr"}
+            >
+              <SheetTitle className="sr-only">{ar ? "قائمة التنقل" : "Navigation menu"}</SheetTitle>
               <div className="flex h-full flex-col">
                 <div className="border-b border-border p-6">
                   <Logo />
                 </div>
-                <nav className="flex-1 overflow-y-auto p-4">
-                  <div className="flex flex-col gap-1">
+                <nav
+                  aria-label={ar ? "قائمة الموبايل" : "Mobile"}
+                  className="flex-1 overflow-y-auto p-4"
+                >
+                  <ul className="flex flex-col gap-1">
                     {links.map((l) => (
-                      <Link
-                        key={l.to}
-                        to={l.to}
-                        onClick={() => setOpen(false)}
-                        className="rounded-lg px-4 py-3 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-primary"
-                        activeProps={{ className: "bg-accent text-primary" }}
-                        activeOptions={{ exact: l.to === "/" }}
-                      >
-                        {l.label}
-                      </Link>
+                      <li key={l.to}>
+                        <Link
+                          to={l.to}
+                          onClick={() => setOpen(false)}
+                          className="block min-h-11 rounded-lg px-4 py-3 text-base font-semibold text-foreground transition-colors hover:bg-accent hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)]"
+                          activeProps={{ className: "bg-accent text-primary", "aria-current": "page" }}
+                          activeOptions={{ exact: l.to === "/" }}
+                        >
+                          {l.label}
+                        </Link>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </nav>
                 <div className="border-t border-border p-4 space-y-3">
                   <Button
                     type="button"
                     variant="hero"
-                    className="w-full rounded-full"
+                    className="min-h-11 w-full rounded-full"
                     onClick={() => {
                       trackEvent({ name: "header_cta_click", surface: "mobile", action: "open_dialog" });
                       setOpen(false);
@@ -410,9 +442,10 @@ export function Header() {
                       <a
                         href={`tel:${contact.phone}`}
                         onClick={() => trackEvent({ name: "header_phone_click", surface: "mobile", phone: contact.phone })}
-                        className="flex items-center justify-center gap-2 rounded-full border border-border px-3 py-2 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary"
+                        aria-label={ar ? `اتصل: ${contact.phone}` : `Call ${contact.phone}`}
+                        className="flex min-h-11 items-center justify-center gap-2 rounded-full border border-border px-3 py-2 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                       >
-                        <Phone className="h-4 w-4" />
+                        <Phone aria-hidden="true" className="h-4 w-4" />
                         <span dir="ltr">{ar ? "اتصل" : "Call"}</span>
                       </a>
                     )}
@@ -422,28 +455,33 @@ export function Header() {
                         target="_blank"
                         rel="noreferrer noopener"
                         onClick={() => trackEvent({ name: "header_whatsapp_click", surface: "mobile", number: wa })}
-                        className="flex items-center justify-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300"
+                        aria-label={`WhatsApp ${ar ? "(يفتح في نافذة جديدة)" : "(opens in new tab)"}`}
+                        className="flex min-h-11 items-center justify-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:text-emerald-300"
                       >
-                        <MessageCircle className="h-4 w-4" />
+                        <MessageCircle aria-hidden="true" className="h-4 w-4" />
                         WhatsApp
                       </a>
                     )}
                   </div>
                   {topSocials.length > 0 && (
-                    <div className="flex items-center justify-center gap-4 pt-2">
+                    <ul
+                      aria-label={ar ? "روابط التواصل الاجتماعي" : "Social links"}
+                      className="flex items-center justify-center gap-2 pt-2"
+                    >
                       {topSocials.map(({ href, Icon, name }) => (
-                        <a
-                          key={name}
-                          href={href}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          aria-label={name}
-                          className="text-muted-foreground transition-colors hover:text-[color:var(--gold)]"
-                        >
-                          <Icon className="h-5 w-5" />
-                        </a>
+                        <li key={name}>
+                          <a
+                            href={href}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            aria-label={`${name} ${ar ? "(يفتح في نافذة جديدة)" : "(opens in new tab)"}`}
+                            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-[color:var(--gold)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)]"
+                          >
+                            <Icon aria-hidden="true" className="h-5 w-5" />
+                          </a>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   )}
                 </div>
               </div>
