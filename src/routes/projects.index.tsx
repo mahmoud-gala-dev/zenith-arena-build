@@ -128,7 +128,7 @@ function ProjectsPage() {
       <section className="pb-8">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-lg font-semibold text-foreground">
-            {lang === "ar" ? "تصفح المشاريع حسب المحافظة" : "Browse projects by governorate"}
+            {t.projects.browseByGov}
           </h2>
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             <button
