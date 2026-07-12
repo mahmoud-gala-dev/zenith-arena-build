@@ -34,7 +34,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useMyPermissions, permissionForPath } from "@/lib/rbac";
+import { useMyPermissions, permissionForPath, notifyAccessDenied } from "@/lib/rbac";
 
 const nav: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
@@ -218,19 +218,41 @@ export function AdminShell({ children, title }: { children: React.ReactNode; tit
           ) : canView ? (
             children
           ) : (
-            <div className="mx-auto flex max-w-md flex-col items-center gap-3 rounded-xl border border-border bg-card p-8 text-center shadow-soft">
-              <h2 className="text-xl font-bold">Access denied — لا تملك الصلاحية</h2>
-              <p className="text-sm text-muted-foreground">
-                Your role doesn't include the <code className="rounded bg-muted px-1">{requiredForPage}</code> permission required for this page.
-                <br />
-                لا يحتوي دورك على الصلاحية اللازمة للوصول إلى هذه الصفحة.
-              </p>
-              <Link to="/admin" className="text-sm text-primary underline">← Back to overview</Link>
-            </div>
+            <AccessDeniedPanel perm={requiredForPage} />
           )}
         </div>
+
       </main>
     </div>
   );
 }
+
+function AccessDeniedPanel({ perm }: { perm: ReturnType<typeof permissionForPath> }) {
+  // Fire the unified deny toast + audit log once per page-view attempt.
+  useEffect(() => {
+    notifyAccessDenied(perm ?? null, {
+      resource: typeof window !== "undefined" ? window.location.pathname : "admin",
+      action: "view_page",
+    });
+  }, [perm]);
+
+  return (
+    <div
+      role="alert"
+      aria-live="polite"
+      className="mx-auto flex max-w-md flex-col items-center gap-3 rounded-xl border border-border bg-card p-8 text-center shadow-soft"
+    >
+      <h2 className="text-xl font-bold">Access denied · تم رفض الوصول</h2>
+      <p className="text-sm text-muted-foreground">
+        You don't have permission to open this page.
+        <br />
+        لا تملك الصلاحية اللازمة لفتح هذه الصفحة.
+      </p>
+      <Link to="/admin" className="text-sm text-primary underline">
+        ← Back to overview · العودة للوحة التحكم
+      </Link>
+    </div>
+  );
+}
+
 

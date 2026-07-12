@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Plus, ArrowUp, ArrowDown } from "lucide-react";
 import { IconPicker } from "@/components/admin/IconPicker";
 import { aboutContentQueryOptions, type AboutContent, type AboutValueItem, type AboutStatItem } from "@/lib/queries";
+import { useAdminPageGuard } from "@/lib/rbac";
 
 export const Route = createFileRoute("/_authenticated/admin/about")({
   component: AdminAboutPage,
@@ -24,6 +25,7 @@ const db = supabase as unknown as {
 };
 
 function AdminAboutPage() {
+  const { can, guard, buttonProps } = useAdminPageGuard();
   const qc = useQueryClient();
   const { data, isLoading } = useQuery(aboutContentQueryOptions);
   const [state, setState] = useState<AboutContent | null>(null);
@@ -155,10 +157,19 @@ function AdminAboutPage() {
           </CardContent>
         </Card>
 
-        <div className="sticky bottom-4 flex justify-end">
-          <Button size="lg" onClick={save} disabled={saving}>{saving ? "Saving…" : "Save changes"}</Button>
-        </div>
+        <fieldset disabled={!can} className="contents">
+          <div className="sticky bottom-4 flex justify-end">
+            <Button
+              size="lg"
+              {...buttonProps({ pending: saving })}
+              onClick={guard(save, { action: "save_about_content" })}
+            >
+              {saving ? "Saving…" : "Save changes"}
+            </Button>
+          </div>
+        </fieldset>
       </div>
+
     </AdminShell>
   );
 }

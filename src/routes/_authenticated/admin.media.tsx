@@ -6,6 +6,8 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useAdminPageGuard } from "@/lib/rbac";
+
 
 export const Route = createFileRoute("/_authenticated/admin/media")({
   component: MediaPage,
@@ -22,11 +24,13 @@ type MediaFile = {
 };
 
 function MediaPage() {
+  const { can, guard, buttonProps } = useAdminPageGuard();
   const [files, setFiles] = useState<MediaFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [q, setQ] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
+
 
   async function load() {
     setLoading(true);
@@ -87,12 +91,16 @@ function MediaPage() {
         <div className="ml-auto">
           <input ref={fileInput} type="file" hidden onChange={onUpload}
             accept="image/*,application/pdf" />
-          <Button onClick={() => fileInput.current?.click()} disabled={uploading}>
+          <Button
+            {...buttonProps({ pending: uploading })}
+            onClick={guard(() => fileInput.current?.click(), { action: "upload_media" })}
+          >
             {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
             Upload file
           </Button>
         </div>
       </div>
+
 
       {loading ? (
         <p className="py-12 text-center text-muted-foreground">Loading…</p>
@@ -119,10 +127,18 @@ function MediaPage() {
                   <Button variant="ghost" size="sm" className="flex-1" onClick={() => copyUrl(f.file_url)}>
                     <Copy className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="sm" className="flex-1" onClick={() => remove(f)}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex-1"
+                    aria-disabled={!can}
+                    disabled={!can}
+                    onClick={guard(() => remove(f), { action: "delete_media", recordId: f.id })}
+                  >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
+
               </div>
             </div>
           ))}
