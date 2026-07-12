@@ -305,12 +305,13 @@ function LeadsPage() {
                         </a>
                       </Button>
                     )}
-                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setEditing(l); setFormOpen(true); }} title="Edit">
+                    <Button variant="ghost" size="sm" disabled={!canManage} onClick={(e) => { e.stopPropagation(); setEditing(l); setFormOpen(true); }} title="Edit">
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); deleteLead(l.id); }} title="Delete">
+                    <Button variant="ghost" size="sm" disabled={!canManage} onClick={(e) => { e.stopPropagation(); deleteLead(l.id); }} title="Delete">
                       <Trash2 className="h-4 w-4" />
                     </Button>
+
                   </div>
                 </td>
               </tr>
