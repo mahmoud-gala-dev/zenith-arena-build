@@ -134,6 +134,11 @@ function AdminBlogPage() {
     if (invalid.length) {
       return toast.error(`Unknown tag${invalid.length > 1 ? "s" : ""}: ${invalid.join(", ")}. Create ${invalid.length > 1 ? "them" : "it"} in Manage tags first.`);
     }
+    // Validate scheduled date
+    if (editing.status === "draft" && editing.scheduled_at) {
+      const when = new Date(editing.scheduled_at);
+      if (isNaN(when.getTime())) return toast.error("Invalid schedule date");
+    }
     setSaving(true);
     try {
       const payload: Article = {
@@ -143,6 +148,7 @@ function AdminBlogPage() {
         tags: Array.from(new Set((editing.tags ?? []).filter(Boolean))),
         reading_time: Number(editing.reading_time) || 5,
         category_id: editing.category_id || null,
+        scheduled_at: editing.status === "draft" ? (editing.scheduled_at || null) : null,
         published_at: editing.status === "published"
           ? (editing.published_at ?? new Date().toISOString())
           : editing.published_at ?? null,
