@@ -155,23 +155,17 @@ async def run() -> int:
             # ---- 3. recovery ----
             await context.set_offline(False)
             print("→ back online")
-            # /never-cached.html is a real 404 on the origin; NetworkFirst should
-            # reach the network again and NOT keep masking the response.
-            resp = await page.goto(
-                base + "/never-cached.html", wait_until="load"
-            )
+            # /online-only.html exists on the origin but isn't in the SW cache.
+            # NetworkFirst must reach the network and serve it, not the offline page.
+            resp = await page.goto(base + "/online-only.html", wait_until="load")
             status = resp.status if resp else None
-            if status == 200:
-                # Only tolerable if the SW served offline.html again — which would
-                # be a NetworkFirst regression, so treat as failure.
-                marker = await page.query_selector("[data-testid=offline-marker]")
-                if marker:
-                    problems.append(
-                        "after coming back online, SW still returned offline.html "
-                        "for /never-cached.html instead of reaching the network"
-                    )
-            elif status != 404:
-                problems.append(f"recovery navigation returned unexpected status {status}")
+            heading = await page.text_content("[data-testid=page]")
+            marker = await page.query_selector("[data-testid=offline-marker]")
+            if status != 200 or heading != "Online only" or marker is not None:
+                problems.append(
+                    f"after coming back online, SW did not serve the network response "
+                    f"(status={status} heading={heading!r} offlineMarker={marker is not None})"
+                )
             await page.screenshot(path=str(OUT / "04-recovered.png"))
 
             report = {
