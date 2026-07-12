@@ -159,32 +159,63 @@ export function DownloadGateButton({
         waMsg: (t: string) => `Hi, I just requested the ${t} catalog. I'd like to talk to sales.`,
       };
 
+  const dedupeKey = `dl-lead:${slug}`;
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.name.trim() || !form.email.trim() || !form.phone.trim()) {
+    if (submitting) return;
+    const name = form.name.trim();
+    const email = form.email.trim();
+    const phone = form.phone.trim();
+    if (!name || !email || !phone) {
       toast.error(T.required);
       return;
     }
+    // RFC-lite email pattern.
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+    if (!emailOk) {
+      toast.error(T.invalidEmail);
+      return;
+    }
+    // Phone: allow +, spaces, dashes, parentheses; require ≥7 digits total.
+    const digits = phone.replace(/\D/g, "");
+    const phoneOk = /^[+\d][\d\s\-()]{5,}$/.test(phone) && digits.length >= 7 && digits.length <= 15;
+    if (!phoneOk) {
+      toast.error(T.invalidPhone);
+      return;
+    }
+    // Client-side dedupe — same catalog already submitted from this browser.
+    try {
+      const prev = typeof window !== "undefined" ? window.localStorage.getItem(dedupeKey) : null;
+      if (prev && Date.now() - Number(prev) < 24 * 60 * 60 * 1000) {
+        toast.info(T.duplicate);
+        setSubmitted(true);
+        void trackDownloadEvent("download", downloadId);
+        await openSignedUrl();
+        return;
+      }
+    } catch { /* localStorage unavailable */ }
+
     setSubmitting(true);
     try {
       await submit({
         data: {
           type: "contact",
-          name: form.name.trim(),
-          email: form.email.trim(),
-          phone: form.phone.trim(),
+          name,
+          email,
+          phone,
           service: `Download: ${title}`,
           message: `Download requested: ${title} (/downloads/${slug})`,
           website: form.website,
         },
       });
+      try { window.localStorage.setItem(dedupeKey, String(Date.now())); } catch { /* ignore */ }
       toast.success(T.success);
       setSubmitted(true);
       void trackDownloadEvent("download", downloadId);
       await openSignedUrl();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : T.error);
-
     } finally {
       setSubmitting(false);
     }
