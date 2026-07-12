@@ -442,6 +442,21 @@ function ArticleEditor({
   }
 
 
+  const publishState: PublishState = derivePublishState(value);
+  function setPublishState(next: PublishState) {
+    if (next === "published") {
+      set({ status: "published", scheduled_at: null });
+    } else if (next === "scheduled") {
+      // default schedule = 1 hour from now if none set
+      const when = value.scheduled_at && new Date(value.scheduled_at) > new Date()
+        ? value.scheduled_at
+        : new Date(Date.now() + 60 * 60 * 1000).toISOString();
+      set({ status: "draft", scheduled_at: when });
+    } else {
+      set({ status: "draft", scheduled_at: null });
+    }
+  }
+
   return (
     <div className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-3">
@@ -456,21 +471,45 @@ function ArticleEditor({
           </Select>
         </div>
         <div className="space-y-1.5">
-          <Label>Status</Label>
-          <Select value={value.status ?? "draft"} onValueChange={(v) => set({ status: v as Article["status"] })}>
+          <Label>Publish workflow</Label>
+          <Select value={publishState} onValueChange={(v) => setPublishState(v as PublishState)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="published">Published</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="archived">Archived</SelectItem>
+              <SelectItem value="draft">Draft — hidden from site</SelectItem>
+              <SelectItem value="scheduled">Scheduled — publish at set time</SelectItem>
+              <SelectItem value="published">Published — live now</SelectItem>
+              {value.status === "archived" && <SelectItem value="draft">Archived (unarchive → draft)</SelectItem>}
             </SelectContent>
           </Select>
+          {value.status === "archived" && (
+            <p className="text-xs text-muted-foreground">Currently archived. Choose Draft to restore.</p>
+          )}
         </div>
         <div className="space-y-1.5">
           <Label>Reading time (min)</Label>
           <Input type="number" min={1} value={value.reading_time ?? 5} onChange={(e) => set({ reading_time: Number(e.target.value) })} />
         </div>
       </div>
+
+      {publishState === "scheduled" && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 space-y-2">
+          <Label className="flex items-center gap-2 text-sm">
+            <CalendarIcon className="h-4 w-4 text-amber-600" /> Go-live date &amp; time
+          </Label>
+          <Input
+            type="datetime-local"
+            value={toLocalInput(value.scheduled_at)}
+            onChange={(e) => {
+              const v = e.target.value;
+              set({ scheduled_at: v ? new Date(v).toISOString() : null });
+            }}
+          />
+          <p className="text-xs text-muted-foreground">
+            Kept as Draft until this time, then automatically published. Uses your local timezone.
+          </p>
+        </div>
+      )}
+
 
       {value.id && value.translation_group_id && (
         <TranslationLinkPanel
