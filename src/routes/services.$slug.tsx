@@ -419,7 +419,7 @@ function ServiceDetailPage() {
           </div>
           <aside className="h-fit space-y-4 rounded-2xl border border-border bg-card p-6 shadow-soft">
             <h2 className="text-lg font-semibold text-foreground">{copy.brochure}</h2>
-            <p className="text-sm text-muted-foreground">{ar ? "احصل على المواصفات والمتطلبات الأساسية لهذه الخدمة." : "Get the core specifications and requirements for this service."}</p>
+            <p className="text-sm text-muted-foreground">{t.serviceDetail.overviewFallback}</p>
             <Button className="w-full" variant="hero"><Download className="h-4 w-4" /> {copy.brochure}</Button>
             <Button asChild className="w-full" variant="outline"><Link to="/quote">{copy.quote}<ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link></Button>
           </aside>
