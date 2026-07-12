@@ -179,11 +179,11 @@ function ApplyDialog({ open, onOpenChange, job, ar, T }: { open: boolean; onOpen
     const form = e.currentTarget;
     const fd = new FormData(form);
     if (!file) {
-      toast.error(ar ? "يرجى إرفاق السيرة الذاتية (PDF/Word)." : "Please attach your CV (PDF/Word).");
+      toast.error(T.pages.careers.cvRequired);
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error(ar ? "الحجم الأقصى 5 ميجابايت." : "Max file size is 5 MB.");
+      toast.error(T.pages.careers.maxFileSize);
       return;
     }
     setBusy(true);
