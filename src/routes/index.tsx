@@ -132,11 +132,16 @@ function Index() {
   const { t } = useLang();
   const L = useLocalized();
 
+  const { data: heroSettings } = useQuery(homeHeroSettingsQueryOptions);
+  const heroImg = heroSettings?.hero_image_url || fallbackHeroImg;
+  const heroStats = heroSettings?.stats ?? [];
+
   const { data: dbClients } = useQuery<HomeClient[]>(homeClientsQueryOptions);
   const { data: dbServices, isLoading: servicesLoading } = useQuery(servicesPublishedQueryOptions);
   const { data: dbProjects } = useQuery(projectsPublishedListQueryOptions);
   const { data: dbArticles } = useQuery(blogPostsPublishedQueryOptions);
   const { data: dbTestimonials } = useQuery(testimonialsPublishedQueryOptions);
+
   const servicesList = dbServices ?? [];
   const withSlug = servicesList.filter((s) => Boolean(s.slug_en));
   const featuredServices = (withSlug.filter((s) => s.featured).length > 0
