@@ -251,7 +251,14 @@ function AdminBlogPage() {
                     </td>
                     <td className="p-3">
                       <div className="flex flex-wrap gap-1">
-                        {(r.tags ?? []).slice(0, 3).map((t) => <Badge key={t} variant="outline" className="text-[10px]">{t}</Badge>)}
+                        {(r.tags ?? []).slice(0, 3).map((slug) => {
+                          const tag = tags.find((t) => t.slug === slug);
+                          return (
+                            <Badge key={slug} variant={tag ? "outline" : "destructive"} className="text-[10px]" title={tag ? tag.name_ar : "Unknown tag"}>
+                              {tag?.name_en ?? slug}
+                            </Badge>
+                          );
+                        })}
                         {(r.tags?.length ?? 0) > 3 && <span className="text-xs text-muted-foreground">+{(r.tags!.length - 3)}</span>}
                       </div>
                     </td>
