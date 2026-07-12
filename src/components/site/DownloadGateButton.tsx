@@ -124,6 +124,7 @@ export function DownloadGateButton({
       toast.success(T.success);
       setOpen(false);
       setForm({ name: "", email: "", phone: "", website: "" });
+      void trackDownloadEvent("download", downloadId);
       window.open(fileUrl!, "_blank", "noopener,noreferrer");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : T.error);
