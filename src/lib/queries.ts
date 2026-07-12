@@ -1,6 +1,23 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import type { Project as ViewProject } from "@/lib/site-data";
+
+export function dbProjectToView(p: DbProject): ViewProject {
+  return {
+    slug: p.slug_en,
+    image: p.cover_image ?? "",
+    category: p.sport_type ?? p.service_category ?? "other",
+    title: { en: p.title_en, ar: p.title_ar ?? p.title_en },
+    client: { en: p.client ?? "", ar: p.client ?? "" },
+    location: { en: p.location ?? p.city ?? p.country ?? "", ar: p.location ?? p.city ?? p.country ?? "" },
+    year: p.year ? String(p.year) : "",
+    scope: { en: p.service_category ?? "", ar: p.service_category ?? "" },
+    overview: { en: p.overview_en ?? p.description_en ?? "", ar: p.overview_ar ?? p.description_ar ?? p.overview_en ?? p.description_en ?? "" },
+    stats: [],
+  };
+}
+
 
 const FIVE_MIN = 5 * 60 * 1000;
 const FIFTEEN_MIN = 15 * 60 * 1000;
