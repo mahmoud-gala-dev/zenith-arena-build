@@ -60,6 +60,7 @@ const nav: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exac
   { to: "/admin/audit-logs", label: "Audit Log", icon: ClipboardList },
   { to: "/admin/media", label: "Media Library", icon: ImageIcon },
   { to: "/admin/settings", label: "Settings", icon: Settings },
+  { to: "/admin/settings-keys", label: "Settings Keys (JSON)", icon: Settings },
   { to: "/admin/users", label: "Users & Roles", icon: Users },
 
 ];
