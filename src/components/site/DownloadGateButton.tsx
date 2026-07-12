@@ -78,7 +78,9 @@ export function DownloadGateButton({
     }
     try {
       const { url } = await sign({ data: { downloadId } });
-      window.open(url, "_blank", "noopener,noreferrer");
+      setDownloadUrl(url);
+      const win = window.open(url, "_blank", "noopener,noreferrer");
+      setPopupBlocked(!win);
       return url;
     } catch (err) {
       toast.error(err instanceof Error ? err.message : ar ? "تعذّر إنشاء رابط التحميل" : "Could not create download link");
