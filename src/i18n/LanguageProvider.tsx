@@ -38,7 +38,19 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const setLang = useCallback((next: Lang) => {
     setLangState(next);
-    if (typeof window !== "undefined") window.localStorage.setItem(STORAGE_KEY, next);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(STORAGE_KEY, next);
+      // Keep ?lang= in sync so SEO head(), hreflang links, and shared URLs match the active language.
+      try {
+        const url = new URL(window.location.href);
+        if (url.searchParams.get("lang") !== next) {
+          url.searchParams.set("lang", next);
+          window.history.replaceState(window.history.state, "", url.toString());
+        }
+      } catch {
+        /* noop */
+      }
+    }
   }, []);
 
   const toggleLang = useCallback(() => {
