@@ -271,7 +271,7 @@ function ArticleDetail() {
               <aside className="hidden lg:sticky lg:top-24 lg:block lg:h-fit">
                 <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
                   <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    {ar ? "قائمة المحتوى" : "Table of Contents"}
+                    {t.knowledgeArticle.toc}
                   </p>
                   <TocList toc={toc} activeId={activeId} onNavigate={handleTocClick} />
                 </div>
@@ -317,16 +317,16 @@ function ArticleDetail() {
             <SheetTrigger asChild>
               <button
                 type="button"
-                aria-label={ar ? "قائمة المحتوى" : "Table of contents"}
+                aria-label={t.knowledgeArticle.toc}
                 className="fixed bottom-6 end-6 z-40 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-elegant transition hover:brightness-110 lg:hidden"
               >
                 <ListOrdered className="h-4 w-4" />
-                <span>{ar ? "المحتوى" : "Contents"}</span>
+                <span>{t.knowledgeArticle.tocMobile}</span>
               </button>
             </SheetTrigger>
             <SheetContent side={ar ? "right" : "left"} className="w-[85vw] max-w-sm overflow-y-auto">
               <SheetHeader>
-                <SheetTitle>{ar ? "قائمة المحتوى" : "Table of Contents"}</SheetTitle>
+                <SheetTitle>{t.knowledgeArticle.toc}</SheetTitle>
               </SheetHeader>
               <div className="mt-6">
                 <TocList toc={toc} activeId={activeId} onNavigate={handleTocClick} />

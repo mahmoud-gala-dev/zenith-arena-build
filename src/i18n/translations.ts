@@ -151,6 +151,36 @@ export const translations = {
     productsList: {
       empty: "No products yet.",
     },
+    serviceDetail: {
+      imagesLabel: "images",
+      expand: "Expand",
+      openImage: "Open image",
+      overviewFallback: "Get the core specifications and requirements for this service.",
+      seoTitleFallback: "Service — Egytic Sports",
+      seoDescFallback: "Turnkey sports construction services by Egytic Sports.",
+      home: "Home",
+      services: "Services",
+      country: "Egypt",
+    },
+    knowledgeList: {
+      empty: "No articles yet.",
+    },
+    knowledgeArticle: {
+      toc: "Table of Contents",
+      tocMobile: "Contents",
+    },
+    downloadDetail: {
+      featured: "Featured",
+      allDownloads: "All downloads",
+      overview: "Overview",
+      morePreviews: "More previews",
+      download: "Download",
+      additionalFiles: "Additional files",
+      downloadFallback: "Download",
+      share: "Share",
+      related: "Related downloads",
+      breadcrumb: "Downloads",
+    },
     home: {
       watchReel: "Watch reel",
       chipCertified: "FIFA & World Athletics certified",
@@ -562,6 +592,36 @@ export const translations = {
     },
     productsList: {
       empty: "لا توجد منتجات بعد.",
+    },
+    serviceDetail: {
+      imagesLabel: "صورة",
+      expand: "تكبير",
+      openImage: "افتح الصورة",
+      overviewFallback: "احصل على المواصفات والمتطلبات الأساسية لهذه الخدمة.",
+      seoTitleFallback: "خدمة — إيجيتك سبورتس",
+      seoDescFallback: "خدمات إنشاءات رياضية متكاملة من إيجيتك سبورتس.",
+      home: "الرئيسية",
+      services: "الخدمات",
+      country: "مصر",
+    },
+    knowledgeList: {
+      empty: "لا توجد مقالات بعد.",
+    },
+    knowledgeArticle: {
+      toc: "قائمة المحتوى",
+      tocMobile: "المحتوى",
+    },
+    downloadDetail: {
+      featured: "مميز",
+      allDownloads: "كل التحميلات",
+      overview: "نظرة عامة",
+      morePreviews: "معاينات إضافية",
+      download: "التحميل",
+      additionalFiles: "ملفات إضافية",
+      downloadFallback: "تحميل",
+      share: "مشاركة",
+      related: "تحميلات ذات صلة",
+      breadcrumb: "التحميلات",
     },
     projects: {
       filterAll: "الكل",

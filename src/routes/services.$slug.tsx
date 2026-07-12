@@ -337,7 +337,7 @@ function ServiceDetailPage() {
                 </Button>
                 {gallery.length > 0 && (
                   <span className="text-sm text-white/50">
-                    {gallery.length} {ar ? "صورة" : "images"}
+                    {gallery.length} {t.serviceDetail.imagesLabel}
                   </span>
                 )}
               </div>
@@ -419,7 +419,7 @@ function ServiceDetailPage() {
           </div>
           <aside className="h-fit space-y-4 rounded-2xl border border-border bg-card p-6 shadow-soft">
             <h2 className="text-lg font-semibold text-foreground">{copy.brochure}</h2>
-            <p className="text-sm text-muted-foreground">{ar ? "احصل على المواصفات والمتطلبات الأساسية لهذه الخدمة." : "Get the core specifications and requirements for this service."}</p>
+            <p className="text-sm text-muted-foreground">{t.serviceDetail.overviewFallback}</p>
             <Button className="w-full" variant="hero"><Download className="h-4 w-4" /> {copy.brochure}</Button>
             <Button asChild className="w-full" variant="outline"><Link to="/quote">{copy.quote}<ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link></Button>
           </aside>
@@ -431,7 +431,7 @@ function ServiceDetailPage() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between gap-4">
               <h2 className="text-2xl font-bold text-foreground">{copy.gallery}</h2>
-              <span className="text-sm text-muted-foreground tabular-nums">{gallery.length} {ar ? "صورة" : "images"}</span>
+              <span className="text-sm text-muted-foreground tabular-nums">{gallery.length} {t.serviceDetail.imagesLabel}</span>
             </div>
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {gallery.map((url, i) => (
@@ -439,7 +439,7 @@ function ServiceDetailPage() {
                   key={`${url}-${i}`}
                   type="button"
                   onClick={() => setLightboxIndex(i)}
-                  aria-label={`${ar ? "افتح الصورة" : "Open image"} ${i + 1}`}
+                  aria-label={`${t.serviceDetail.openImage} ${i + 1}`}
                   className="group relative overflow-hidden rounded-xl border border-border bg-card shadow-soft focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <img
@@ -456,7 +456,7 @@ function ServiceDetailPage() {
                   <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <span className="pointer-events-none absolute bottom-3 right-3 rtl:right-auto rtl:left-3 flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium text-foreground opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
                     <Expand className="h-3.5 w-3.5" />
-                    {ar ? "تكبير" : "Expand"}
+                    {t.serviceDetail.expand}
                   </span>
                 </button>
               ))}
