@@ -128,13 +128,20 @@ export function Header() {
 
   return (
     <header
+      dir={ar ? "rtl" : "ltr"}
+      data-scrolled={scrolled ? "true" : "false"}
+      data-hidden={hidden ? "true" : "false"}
       className={cn(
-        "fixed inset-x-0 top-0 z-50 hidden md:block transition-all duration-500 ease-out",
+        "fixed inset-x-0 top-0 z-50 hidden md:block will-change-transform",
+        "transition-[transform,background-color,box-shadow,border-color,color] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
+        "motion-reduce:transition-none",
+        hidden ? "-translate-y-full" : "translate-y-0",
         scrolled
-          ? "border-b border-border/60 bg-background/85 backdrop-blur-xl backdrop-saturate-150 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.25)] text-foreground"
-          : "text-white",
+          ? "border-b border-border/60 bg-background/85 backdrop-blur-xl backdrop-saturate-150 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.35)] text-foreground supports-[backdrop-filter]:bg-background/70"
+          : "border-b border-transparent text-white",
       )}
     >
+
       {/* Ambient gradient overlay when at top */}
       {!scrolled && (
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-full bg-gradient-to-b from-black/70 via-black/35 to-transparent" />
