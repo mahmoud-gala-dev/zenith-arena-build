@@ -459,11 +459,20 @@ function DownloadEditor({
       seo_description_ar: values.seo_description_ar?.trim() || null,
       og_image: values.og_image?.trim() || null,
       og_image_ar: values.og_image_ar?.trim() || null,
+      files: files.filter((f) => f.url?.trim()).map((f) => ({
+        label_en: f.label_en?.trim() || "",
+        label_ar: f.label_ar?.trim() || "",
+        url: f.url.trim(),
+        lang: f.lang ?? "both",
+        size: f.size ?? null,
+        mime: f.mime ?? null,
+      })),
+      gallery: gallery.filter((u) => u?.trim()),
     };
 
     const { error } = values.id
-      ? await supabase.from("downloads").update(payload).eq("id", values.id)
-      : await supabase.from("downloads").insert([payload]);
+      ? await supabase.from("downloads").update(payload as never).eq("id", values.id)
+      : await supabase.from("downloads").insert([payload as never]);
     setSaving(false);
     if (error) { toast.error(error.message); return; }
     toast.success(values.id ? "Updated" : "Created");
