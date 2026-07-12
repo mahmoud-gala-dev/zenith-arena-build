@@ -241,7 +241,7 @@ function ProjectsPage() {
                 </div>
               ) : dbFiltered.length === 0 ? (
                 <p className="rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground">
-                  {lang === "ar" ? "لا توجد مشاريع منشورة مطابقة." : "No published projects match."}
+                  {t.projects.noPublishedMatch}
                 </p>
               ) : (
 
