@@ -50,7 +50,9 @@ export const Route = createFileRoute("/")({
     void queryClient.ensureQueryData(heroSlidesActiveQueryOptions("ar"));
     void queryClient.ensureQueryData(homeClientsQueryOptions);
     void queryClient.ensureQueryData(servicesPublishedQueryOptions);
+    void queryClient.ensureQueryData(homeHeroSettingsQueryOptions);
   },
+
   head: () => {
     const SITE_URL = "https://zenith-arena-build.lovable.app";
     const titleEn = "Egytic Sports — Sports Construction & Infrastructure";
