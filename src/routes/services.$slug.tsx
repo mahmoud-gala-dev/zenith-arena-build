@@ -472,7 +472,107 @@ function ServiceDetailPage() {
         </section>
       )}
 
+      {/* Related projects */}
+      {relatedProjects.length > 0 && (
+        <section className="border-y border-border bg-secondary/40 py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div className="max-w-2xl">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">02</span>
+                <h2 className="mt-2 text-3xl font-bold text-foreground sm:text-4xl">{copy.projects}</h2>
+                <p className="mt-3 text-muted-foreground">{copy.projectsSub}</p>
+              </div>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/projects">{copy.viewAll}<ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
+              </Button>
+            </div>
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {relatedProjects.map((p) => (
+                <Link
+                  key={p.id}
+                  to="/projects/$slug"
+                  params={{ slug: p.slug }}
+                  className="group overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition hover:-translate-y-1 hover:border-gold/40 hover:shadow-elegant"
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                    {p.image ? (
+                      <img
+                        src={p.image}
+                        alt={ar ? p.title.ar : p.title.en}
+                        width={800}
+                        height={600}
+                        loading="lazy"
+                        decoding="async"
+                        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-gradient-to-br from-ink/80 to-primary/40" aria-hidden />
+                    )}
+                    <span className="absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-gold backdrop-blur rtl:left-auto rtl:right-3">
+                      {p.category}
+                    </span>
+                  </div>
+                  <div className="p-5">
+                    <h3 className="line-clamp-2 text-base font-semibold text-foreground group-hover:text-primary">
+                      {ar ? p.title.ar : p.title.en}
+                    </h3>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {[p.city, p.year].filter(Boolean).join(" · ")}
+                    </p>
+                    <span className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-primary">
+                      {copy.viewProject}<ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Related services */}
+      {relatedServices.length > 0 && (
+        <section className="py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="max-w-2xl">
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">03</span>
+              <h2 className="mt-2 text-3xl font-bold text-foreground sm:text-4xl">{copy.related}</h2>
+              <p className="mt-3 text-muted-foreground">{copy.relatedSub}</p>
+            </div>
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {relatedServices.map((rs) => {
+                const rsTitle = (ar ? rs.title_ar : rs.title_en) || rs.title_en;
+                const rsDesc = (ar ? rs.description_ar : rs.description_en) || rs.description_en || "";
+                return (
+                  <Link
+                    key={rs.id}
+                    to="/services/$slug"
+                    params={{ slug: rs.slug_en }}
+                    className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-soft transition hover:-translate-y-1 hover:border-gold/50 hover:shadow-elegant"
+                  >
+                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-gold text-gold-foreground ring-1 ring-gold/30 transition group-hover:scale-110">
+                      <Icon name={rs.icon || "Goal"} className="h-6 w-6" />
+                    </div>
+                    {rs.category && (
+                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-gold/80">{rs.category}</span>
+                    )}
+                    <h3 className="mt-1 text-lg font-semibold text-foreground group-hover:text-primary">{rsTitle}</h3>
+                    {rsDesc && <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{rsDesc}</p>}
+                    <span className="mt-5 inline-flex items-center gap-2 text-xs font-semibold text-primary">
+                      {copy.viewService}<ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
       <ServiceQuoteForm serviceSlug={slug} serviceTitle={title} />
+
+
 
 
       <section className="bg-hero py-16 text-white">
