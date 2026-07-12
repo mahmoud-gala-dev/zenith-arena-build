@@ -23,6 +23,7 @@ function AdminSettingsPage() {
         <TabsList className="flex h-auto flex-wrap justify-start">
           <TabsTrigger value="branding">Branding</TabsTrigger>
           <TabsTrigger value="brand_name">Brand name</TabsTrigger>
+          <TabsTrigger value="seo_defaults">SEO defaults</TabsTrigger>
           <TabsTrigger value="contact_info">Contact info</TabsTrigger>
           <TabsTrigger value="social_links">Social links</TabsTrigger>
           {configs.map((item) => (
@@ -36,6 +37,9 @@ function AdminSettingsPage() {
         </TabsContent>
         <TabsContent value="brand_name">
           <BrandNamePanel />
+        </TabsContent>
+        <TabsContent value="seo_defaults">
+          <SeoDefaultsPanel />
         </TabsContent>
         <TabsContent value="contact_info">
           <ContactInfoPanel />
