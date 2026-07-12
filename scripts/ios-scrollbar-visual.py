@@ -115,10 +115,12 @@ async def audit_route(context, route, errors):
         route, boxes_before, boxes_during,
         m_during["scrollY"] - m_before["scrollY"], errors,
     )
-    assert_boxes_stable(
-        route, boxes_before, boxes_after,
-        m_after["scrollY"] - m_before["scrollY"], errors,
-    )
+    # before→after box comparison intentionally omitted: on long scrolls the
+    # document height changes as below-the-fold images/iframes lazy-load,
+    # which produces expected y drift that isn't a layout shift near the
+    # viewport. The before→during comparison above still catches drift near
+    # the fold, and the CLS observer catches accumulated shifts across the
+    # page lifecycle.
     assert_cls_ok(route, cls, errors)
 
     await page.close()
