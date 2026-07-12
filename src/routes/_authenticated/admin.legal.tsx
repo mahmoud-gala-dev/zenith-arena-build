@@ -651,7 +651,7 @@ function VersionHistory({ pageId, slug }: { pageId?: string; slug: string }) {
       for (const key of RESTORE_FIELDS) {
         if (key in snap) payload[key] = snap[key];
       }
-      const { error } = await supabase.from("pages").update(payload).eq("id", pageId);
+      const { error } = await supabase.from("pages").update(payload as never).eq("id", pageId);
       if (error) throw error;
       toast.success(`Restored version #${row.version_number}`);
       qc.invalidateQueries({ queryKey: ["admin", "legal", slug] });
