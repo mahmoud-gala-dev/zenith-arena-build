@@ -264,16 +264,15 @@ function Index() {
                     <div className="relative flex items-start justify-between gap-3">
                       <div>
                         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
-                          {lang === "ar" ? "ابدأ مشروعك" : "Start your build"}
+                          {t.home.posterQuoteEyebrow}
                         </p>
                         <h3 className="mt-2 font-display text-xl font-semibold text-white">
                           {t.cta.quote}
                         </h3>
                         <p className="mt-1.5 text-xs leading-relaxed text-white/60">
-                          {lang === "ar"
-                            ? "استشارة ودراسة جدوى مجانية خلال 24 ساعة."
-                            : "Free feasibility & quote within 24 hours."}
+                          {t.home.posterQuoteDesc}
                         </p>
+
                       </div>
                       <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition group-hover:translate-x-1 rtl:group-hover:-translate-x-1">
                         <ArrowRight className="h-4 w-4 rtl:rotate-180" />
