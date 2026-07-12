@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
-  Plus, Pencil, Trash2, Loader2, Search, ExternalLink, Upload, X, Languages, Star, ImageIcon, Link2 as Link2Icon,
+  Plus, Pencil, Trash2, Loader2, Search, ExternalLink, Upload, X, Languages, Star, ImageIcon, Link2 as Link2Icon, Eye, Calendar as CalendarIcon,
 } from "lucide-react";
 import { BlogCategoriesManager } from "@/components/admin/BlogCategoriesManager";
 import { TagsManager, slugifyTag, type Tag } from "@/components/admin/TagsManager";
