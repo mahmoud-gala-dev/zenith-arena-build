@@ -157,10 +157,19 @@ function AdminAboutPage() {
           </CardContent>
         </Card>
 
-        <div className="sticky bottom-4 flex justify-end">
-          <Button size="lg" onClick={save} disabled={saving}>{saving ? "Saving…" : "Save changes"}</Button>
-        </div>
+        <fieldset disabled={!can} className="contents">
+          <div className="sticky bottom-4 flex justify-end">
+            <Button
+              size="lg"
+              {...buttonProps({ pending: saving })}
+              onClick={guard(save, { action: "save_about_content" })}
+            >
+              {saving ? "Saving…" : "Save changes"}
+            </Button>
+          </div>
+        </fieldset>
       </div>
+
     </AdminShell>
   );
 }
