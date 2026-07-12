@@ -118,8 +118,10 @@ function formatBytes(n?: number | null) {
 }
 
 function AdminDownloadsPage() {
+  const invalidate = useInvalidateTables(["downloads"]);
   const [rows, setRows] = useState<DownloadRow[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
