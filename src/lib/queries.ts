@@ -180,6 +180,32 @@ export const careersPageSettingsQueryOptions = queryOptions({
   staleTime: FIFTEEN_MIN,
 });
 
+export type MenuItem = {
+  id: string;
+  location: string;
+  href: string;
+  label_en: string;
+  label_ar: string;
+  sort_order: number;
+};
+
+export const menusByLocationQueryOptions = (location: "header" | "footer") =>
+  queryOptions({
+    queryKey: ["menus", location],
+    queryFn: async (): Promise<MenuItem[]> => {
+      const { data, error } = await supabase
+        .from("menus")
+        .select("id,location,href,label_en,label_ar,sort_order")
+        .eq("location", location)
+        .eq("status", "published")
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return (data ?? []) as MenuItem[];
+    },
+    staleTime: FIFTEEN_MIN,
+  });
+
+
 
 
 export type Gov = {
