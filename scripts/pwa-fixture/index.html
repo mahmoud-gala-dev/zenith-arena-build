@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>PWA update E2E fixture</title>
+</head>
+<body>
+  <h1>PWA update fixture</h1>
+  <div id="status">idle</div>
+  <button id="reload-btn" disabled>Reload</button>
+
+  <script type="module">
+    // Mirror of src/lib/pwa/register.ts updateAndReload — the exact chain we test.
+    import { Workbox } from "/workbox-window.prod.mjs";
+
+    const status = document.getElementById("status");
+    const btn = document.getElementById("reload-btn");
+    const setStatus = (s) => { status.textContent = s; };
+
+    const wb = new Workbox("/sw.js", { scope: "/" });
+
+    const updateAndReload = async () => {
+      await new Promise((resolve) => {
+        wb.addEventListener("controlling", () => resolve());
+        wb.messageSkipWaiting();
+      });
+      window.location.reload();
+    };
+
+    wb.addEventListener("waiting", () => {
+      setStatus("waiting");
+      btn.disabled = false;
+    });
+
+    btn.addEventListener("click", () => { void updateAndReload(); });
+
+    wb.register().then(() => setStatus("registered"))
+                 .catch((e) => setStatus("register-failed: " + e.message));
+  </script>
+</body>
+</html>
