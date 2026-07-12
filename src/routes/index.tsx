@@ -232,7 +232,7 @@ function Index() {
                       <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/5 transition group-hover:border-primary group-hover:bg-primary/10">
                         <PlayCircle className="h-4 w-4" />
                       </span>
-                      {lang === "ar" ? "شاهد أعمالنا" : "Watch reel"}
+                      {t.home.watchReel}
                     </Link>
                   </div>
 
@@ -240,15 +240,16 @@ function Index() {
                   <ul className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-white/55">
                     <li className="flex items-center gap-2">
                       <Trophy className="h-4 w-4 text-primary" />
-                      {lang === "ar" ? "معتمد من FIFA & World Athletics" : "FIFA & World Athletics certified"}
+                      {t.home.chipCertified}
                     </li>
                     <li className="flex items-center gap-2">
                       <ShieldCheck className="h-4 w-4 text-primary" />
-                      {lang === "ar" ? "ضمان تنفيذ ومواد" : "Warranty on materials & workmanship"}
+                      {t.home.chipWarranty}
                     </li>
                     <li className="flex items-center gap-2">
                       <Ruler className="h-4 w-4 text-primary" />
-                      {lang === "ar" ? "تصميم وتنفيذ متكامل" : "Design–build turnkey"}
+                      {t.home.chipTurnkey}
+
                     </li>
                   </ul>
                 </div>
@@ -263,16 +264,15 @@ function Index() {
                     <div className="relative flex items-start justify-between gap-3">
                       <div>
                         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
-                          {lang === "ar" ? "ابدأ مشروعك" : "Start your build"}
+                          {t.home.posterQuoteEyebrow}
                         </p>
                         <h3 className="mt-2 font-display text-xl font-semibold text-white">
                           {t.cta.quote}
                         </h3>
                         <p className="mt-1.5 text-xs leading-relaxed text-white/60">
-                          {lang === "ar"
-                            ? "استشارة ودراسة جدوى مجانية خلال 24 ساعة."
-                            : "Free feasibility & quote within 24 hours."}
+                          {t.home.posterQuoteDesc}
                         </p>
+
                       </div>
                       <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition group-hover:translate-x-1 rtl:group-hover:-translate-x-1">
                         <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -287,15 +287,14 @@ function Index() {
                     <div className="relative flex items-start justify-between gap-3">
                       <div>
                         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/60">
-                          {lang === "ar" ? "أعمالنا" : "Portfolio"}
+                          {t.home.posterPortfolioEyebrow}
                         </p>
                         <h3 className="mt-2 font-display text-xl font-semibold text-white">
                           {t.cta.explore}
                         </h3>
                         <p className="mt-1.5 text-xs leading-relaxed text-white/60">
-                          {lang === "ar"
-                            ? "استعرض ملاعب ومنشآت سلّمناها في مصر."
-                            : "Browse stadiums & facilities delivered across Egypt."}
+                          {t.home.posterPortfolioDesc}
+
                         </p>
                       </div>
                       <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition group-hover:border-primary group-hover:bg-primary/10">
@@ -311,15 +310,14 @@ function Index() {
                     <div className="relative flex items-start justify-between gap-3">
                       <div>
                         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/60">
-                          {lang === "ar" ? "الخدمات" : "Services"}
+                          {t.home.posterServicesEyebrow}
                         </p>
                         <h3 className="mt-2 font-display text-xl font-semibold text-white">
-                          {lang === "ar" ? "منظومة متكاملة" : "End-to-end solutions"}
+                          {t.home.posterServicesTitle}
                         </h3>
                         <p className="mt-1.5 text-xs leading-relaxed text-white/60">
-                          {lang === "ar"
-                            ? "عشب صناعي، مضامير، أرضيات، إنارة، وصيانة."
-                            : "Turf, tracks, flooring, lighting & maintenance."}
+                          {t.home.posterServicesDesc}
+
                         </p>
                       </div>
                       <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition group-hover:border-primary group-hover:bg-primary/10">
@@ -334,7 +332,7 @@ function Index() {
             {/* Scroll indicator */}
             <div className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center">
               <span className="inline-flex flex-col items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-white/40">
-                {lang === "ar" ? "مرّر للأسفل" : "Scroll"}
+                {t.home.scroll}
                 <ChevronDown className="h-4 w-4 animate-bounce text-primary/70" />
               </span>
             </div>

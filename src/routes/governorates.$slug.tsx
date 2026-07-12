@@ -73,7 +73,7 @@ export const Route = createFileRoute("/governorates/$slug")({
 
 function GovernoratePage() {
   const { gov, projects } = Route.useLoaderData() as { gov: Gov; projects: P[] };
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const [q, setQ] = useState("");
   const [sport, setSport] = useState<string>("all");
 
@@ -108,8 +108,9 @@ function GovernoratePage() {
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Breadcrumbs
             items={[
-              { label: lang === "ar" ? "الرئيسية" : "Home", to: "/" },
-              { label: lang === "ar" ? "المشاريع" : "Projects", to: "/projects" },
+              { label: t.nav.home, to: "/" },
+              { label: t.nav.projects, to: "/projects" },
+
               { label: name },
             ]}
           />
@@ -119,18 +120,18 @@ function GovernoratePage() {
             )}
             <div>
               <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-gold">
-                {lang === "ar" ? "محافظة مصرية" : "Egyptian Governorate"}
+                {t.governorate.egyptianGov}
               </span>
               <h1 className="mt-2 text-3xl font-bold sm:text-4xl">{name}</h1>
               {region && <p className="mt-1 text-sm text-white/70">{region}</p>}
               <p className="mt-3 max-w-2xl text-white/85">{brief}</p>
               <div className="mt-4 flex flex-wrap gap-4 text-sm">
                 <span className="rounded-full bg-white/10 px-3 py-1">
-                  {projects.length} {lang === "ar" ? "مشروع منجز" : "delivered projects"}
+                  {projects.length} {t.governorate.deliveredProjects}
                 </span>
                 {sportOptions.length > 0 && (
                   <span className="rounded-full bg-white/10 px-3 py-1">
-                    {sportOptions.length} {lang === "ar" ? "نوع رياضة" : "sport types"}
+                    {sportOptions.length} {t.governorate.sportTypes}
                   </span>
                 )}
               </div>
@@ -148,7 +149,7 @@ function GovernoratePage() {
                 type="search"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder={lang === "ar" ? "بحث سريع…" : "Quick search…"}
+                placeholder={t.governorate.quickSearch}
                 className="h-10 w-full rounded-full border border-border bg-card ps-10 pe-4 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
               />
             </div>
@@ -158,7 +159,7 @@ function GovernoratePage() {
                   onClick={() => setSport("all")}
                   className={cn("rounded-full border px-3 py-1.5 text-xs font-medium", sport === "all" ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:bg-accent")}
                 >
-                  {lang === "ar" ? "الكل" : "All"}
+                  {t.governorate.allSports}
                 </button>
                 {sportOptions.map((s) => (
                   <button
@@ -176,7 +177,7 @@ function GovernoratePage() {
           <div className="mt-8">
             {filtered.length === 0 ? (
               <p className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground">
-                {lang === "ar" ? "لا توجد مشاريع مطابقة لهذه المحافظة بعد." : "No matching projects in this governorate yet."}
+                {t.governorate.noMatchInGov}
               </p>
             ) : (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -202,7 +203,7 @@ function GovernoratePage() {
 
           <div className="mt-12 text-center">
             <Link to="/projects" search={{ gov: gov.slug, category: "all", q: "" }} className="text-sm font-medium text-primary hover:underline">
-              {lang === "ar" ? "عرض هذه المحافظة في صفحة المشاريع ←" : "View this governorate in projects filter →"}
+              {t.governorate.viewInFilter}
             </Link>
           </div>
         </div>

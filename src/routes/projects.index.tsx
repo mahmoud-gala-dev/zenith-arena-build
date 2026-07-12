@@ -105,12 +105,12 @@ function ProjectsPage() {
                 type="search"
                 value={qInput}
                 onChange={(e) => setQInput(e.target.value)}
-                placeholder={lang === "ar" ? "ابحث بالاسم، الموقع، أو الرياضة…" : "Search by title, location, or sport…"}
+                placeholder={t.projects.searchPlaceholder}
                 className="h-11 w-full rounded-full border border-border bg-card ps-10 pe-4 text-sm text-foreground shadow-soft outline-none placeholder:text-muted-foreground focus:border-primary"
               />
             </div>
             <button type="submit" className="h-11 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-soft hover:opacity-90">
-              {lang === "ar" ? "بحث" : "Search"}
+              {t.projects.searchBtn}
             </button>
             {hasAny && (
               <button
@@ -118,7 +118,7 @@ function ProjectsPage() {
                 onClick={() => { setQInput(""); navigate({ search: { gov: "all", category: "all", q: "" } }); }}
                 className="inline-flex h-11 items-center gap-1.5 rounded-full border border-border px-4 text-sm text-foreground hover:bg-accent"
               >
-                <X className="h-4 w-4" /> {lang === "ar" ? "مسح" : "Reset"}
+                <X className="h-4 w-4" /> {t.projects.resetBtn}
               </button>
             )}
           </form>
@@ -128,7 +128,7 @@ function ProjectsPage() {
       <section className="pb-8">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-lg font-semibold text-foreground">
-            {lang === "ar" ? "تصفح المشاريع حسب المحافظة" : "Browse projects by governorate"}
+            {t.projects.browseByGov}
           </h2>
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             <button
@@ -139,8 +139,9 @@ function ProjectsPage() {
               )}
             >
               <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-secondary text-lg font-semibold text-foreground">EG</div>
-              <div className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5 text-foreground">{lang === "ar" ? "كل المحافظات" : "All governorates"}</div>
-              <div className="min-h-[1rem] text-xs text-muted-foreground">{dbProjects.length} {lang === "ar" ? "مشروع" : "projects"}</div>
+              <div className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5 text-foreground">{t.projects.allGovernorates}</div>
+              <div className="min-h-[1rem] text-xs text-muted-foreground">{dbProjects.length} {t.projects.projectsCount}</div>
+
             </button>
             {govs.length === 0 && Array.from({ length: 11 }).map((_, i) => (
               <div key={`sk-${i}`} className="flex min-h-[10.5rem] flex-col items-center justify-start gap-2 rounded-2xl border border-border bg-card p-4" aria-hidden>
@@ -175,7 +176,7 @@ function ProjectsPage() {
                     ) : null}
                   </div>
                   <div className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5 text-foreground">{lang === "ar" ? g.name_ar : g.name_en}</div>
-                  <div className="min-h-[1rem] text-xs text-muted-foreground">{count} {lang === "ar" ? "مشروع" : "projects"}</div>
+                  <div className="min-h-[1rem] text-xs text-muted-foreground">{count} {t.projects.projectsCount}</div>
                 </button>
               );
             })}
@@ -225,12 +226,12 @@ function ProjectsPage() {
                   )}
 
                   <h3 className="text-lg font-semibold text-foreground">
-                    {lang === "ar" ? "مشاريع في" : "Projects in"} {selectedGov ? (lang === "ar" ? selectedGov.name_ar : selectedGov.name_en) : ""}
+                    {t.projects.projectsIn} {selectedGov ? (lang === "ar" ? selectedGov.name_ar : selectedGov.name_en) : ""}
                   </h3>
                 </div>
                 {selectedGov && (
                   <Link to="/governorates/$slug" params={{ slug: selectedGov.slug }} className="text-sm font-medium text-primary hover:underline">
-                    {lang === "ar" ? "فتح صفحة المحافظة ←" : "Open governorate page →"}
+                    {t.projects.openGovPage}
                   </Link>
                 )}
               </div>
@@ -240,7 +241,7 @@ function ProjectsPage() {
                 </div>
               ) : dbFiltered.length === 0 ? (
                 <p className="rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground">
-                  {lang === "ar" ? "لا توجد مشاريع منشورة مطابقة." : "No published projects match."}
+                  {t.projects.noPublishedMatch}
                 </p>
               ) : (
 
@@ -277,7 +278,7 @@ function ProjectsPage() {
             <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {dbFiltered.length === 0 ? (
                 <p className="col-span-full rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground">
-                  {lang === "ar" ? "لا توجد نتائج مطابقة." : "No matching results."}
+                  {t.projects.noMatching}
                 </p>
               ) : dbFiltered.map((p, i) => (
                 <Reveal key={p.id} delay={i * 50}>
