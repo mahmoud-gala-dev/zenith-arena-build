@@ -194,12 +194,37 @@ export function DownloadGateButton({
       >
         <Lock className="h-4 w-4" /> {label}
       </Button>
-      <Dialog open={open} onOpenChange={(v) => !submitting && setOpen(v)}>
+      <Dialog open={open} onOpenChange={(v) => {
+        if (submitting) return;
+        setOpen(v);
+        if (!v) { setSubmitted(false); setForm({ name: "", email: "", phone: "", website: "" }); }
+      }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{T.title}</DialogTitle>
-            <DialogDescription>{T.desc}</DialogDescription>
+            <DialogTitle>{submitted ? T.successTitle : T.title}</DialogTitle>
+            <DialogDescription>{submitted ? T.successDesc : T.desc}</DialogDescription>
           </DialogHeader>
+          {submitted ? (
+            <div className="space-y-4" dir={ar ? "rtl" : "ltr"}>
+              <div className="flex items-center gap-3 rounded-lg border border-border bg-secondary/40 p-3 text-sm">
+                <CheckCircle2 className="h-5 w-5 text-primary" />
+                <span>{T.success}</span>
+              </div>
+              {whatsapp ? (
+                <a
+                  href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(T.waMsg(title))}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#25D366] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#1ebe57] transition"
+                >
+                  <MessageCircle className="h-4 w-4" /> {T.whatsapp}
+                </a>
+              ) : null}
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setOpen(false)}>{T.close}</Button>
+              </DialogFooter>
+            </div>
+          ) : (
           <form onSubmit={onSubmit} className="space-y-4" dir={ar ? "rtl" : "ltr"}>
             <div className="space-y-1.5">
               <Label htmlFor="dl-name">{T.name}</Label>
