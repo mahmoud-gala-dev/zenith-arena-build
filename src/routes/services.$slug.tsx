@@ -489,7 +489,8 @@ function ServiceDetailPage() {
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {relatedProjects.map((p) => (
                 <Link
-                  key={p.id}
+                  key={p.slug}
+
                   to="/projects/$slug"
                   params={{ slug: p.slug }}
                   className="group overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition hover:-translate-y-1 hover:border-gold/40 hover:shadow-elegant"
