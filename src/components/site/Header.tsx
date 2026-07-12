@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Menu } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,9 @@ import { ThemeToggle } from "./ThemeToggle";
 import { useBranding, DEFAULT_LOGO_MOTION } from "@/hooks/useBranding";
 
 import { useLang } from "@/i18n/LanguageProvider";
+import { menusByLocationQueryOptions } from "@/lib/queries";
 import { cn } from "@/lib/utils";
+
 
 export function Header() {
   const { t, lang } = useLang();
