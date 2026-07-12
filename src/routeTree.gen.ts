@@ -43,6 +43,7 @@ import { Route as DownloadsSlugRouteImport } from './routes/downloads.$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as PreviewPagesSlugRouteImport } from './routes/preview.pages.$slug'
+import { Route as PreviewKnowledgeSlugRouteImport } from './routes/preview.knowledge.$slug'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminTranslationsRouteImport } from './routes/_authenticated/admin.translations'
 import { Route as AuthenticatedAdminTestimonialsRouteImport } from './routes/_authenticated/admin.testimonials'
@@ -243,6 +244,11 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
 const PreviewPagesSlugRoute = PreviewPagesSlugRouteImport.update({
   id: '/preview/pages/$slug',
   path: '/preview/pages/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreviewKnowledgeSlugRoute = PreviewKnowledgeSlugRouteImport.update({
+  id: '/preview/knowledge/$slug',
+  path: '/preview/knowledge/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
@@ -492,6 +498,7 @@ export interface FileRoutesByFullPath {
   '/admin/testimonials': typeof AuthenticatedAdminTestimonialsRoute
   '/admin/translations': typeof AuthenticatedAdminTranslationsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/preview/knowledge/$slug': typeof PreviewKnowledgeSlugRoute
   '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
@@ -554,6 +561,7 @@ export interface FileRoutesByTo {
   '/admin/testimonials': typeof AuthenticatedAdminTestimonialsRoute
   '/admin/translations': typeof AuthenticatedAdminTranslationsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/preview/knowledge/$slug': typeof PreviewKnowledgeSlugRoute
   '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
@@ -623,6 +631,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/testimonials': typeof AuthenticatedAdminTestimonialsRoute
   '/_authenticated/admin/translations': typeof AuthenticatedAdminTranslationsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/preview/knowledge/$slug': typeof PreviewKnowledgeSlugRoute
   '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
@@ -692,6 +701,7 @@ export interface FileRouteTypes {
     | '/admin/testimonials'
     | '/admin/translations'
     | '/admin/users'
+    | '/preview/knowledge/$slug'
     | '/preview/pages/$slug'
     | '/admin/'
     | '/admin/legal/preview/$slug'
@@ -754,6 +764,7 @@ export interface FileRouteTypes {
     | '/admin/testimonials'
     | '/admin/translations'
     | '/admin/users'
+    | '/preview/knowledge/$slug'
     | '/preview/pages/$slug'
     | '/admin'
     | '/admin/legal/preview/$slug'
@@ -822,6 +833,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/testimonials'
     | '/_authenticated/admin/translations'
     | '/_authenticated/admin/users'
+    | '/preview/knowledge/$slug'
     | '/preview/pages/$slug'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/legal/preview/$slug'
@@ -850,6 +862,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   GovernoratesSlugRoute: typeof GovernoratesSlugRoute
+  PreviewKnowledgeSlugRoute: typeof PreviewKnowledgeSlugRoute
   PreviewPagesSlugRoute: typeof PreviewPagesSlugRoute
 }
 
@@ -1091,6 +1104,13 @@ declare module '@tanstack/react-router' {
       path: '/preview/pages/$slug'
       fullPath: '/preview/pages/$slug'
       preLoaderRoute: typeof PreviewPagesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preview/knowledge/$slug': {
+      id: '/preview/knowledge/$slug'
+      path: '/preview/knowledge/$slug'
+      fullPath: '/preview/knowledge/$slug'
+      preLoaderRoute: typeof PreviewKnowledgeSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/users': {
@@ -1511,6 +1531,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   GovernoratesSlugRoute: GovernoratesSlugRoute,
+  PreviewKnowledgeSlugRoute: PreviewKnowledgeSlugRoute,
   PreviewPagesSlugRoute: PreviewPagesSlugRoute,
 }
 export const routeTree = rootRouteImport

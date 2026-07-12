@@ -165,6 +165,7 @@ export type Database = {
           og_image: string | null
           published_at: string | null
           reading_time: number
+          scheduled_at: string | null
           seo_description_ar: string | null
           seo_description_en: string | null
           seo_keywords: string | null
@@ -195,6 +196,7 @@ export type Database = {
           og_image?: string | null
           published_at?: string | null
           reading_time?: number
+          scheduled_at?: string | null
           seo_description_ar?: string | null
           seo_description_en?: string | null
           seo_keywords?: string | null
@@ -225,6 +227,7 @@ export type Database = {
           og_image?: string | null
           published_at?: string | null
           reading_time?: number
+          scheduled_at?: string | null
           seo_description_ar?: string | null
           seo_description_en?: string | null
           seo_keywords?: string | null
@@ -2178,6 +2181,7 @@ export type Database = {
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       notify_pages_now_live: { Args: never; Returns: number }
+      publish_due_blog_posts: { Args: never; Returns: number }
       publish_due_hero_slides: { Args: never; Returns: number }
     }
     Enums: {

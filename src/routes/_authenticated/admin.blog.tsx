@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
-  Plus, Pencil, Trash2, Loader2, Search, ExternalLink, Upload, X, Languages, Star, ImageIcon, Link2 as Link2Icon,
+  Plus, Pencil, Trash2, Loader2, Search, ExternalLink, Upload, X, Languages, Star, ImageIcon, Link2 as Link2Icon, Eye, Calendar as CalendarIcon,
 } from "lucide-react";
 import { BlogCategoriesManager } from "@/components/admin/BlogCategoriesManager";
 import { TagsManager, slugifyTag, type Tag } from "@/components/admin/TagsManager";
@@ -44,11 +44,28 @@ type Article = {
   seo_keywords?: string;
   status?: "published" | "draft" | "archived";
   featured?: boolean;
+  scheduled_at?: string | null;
   published_at?: string | null;
   updated_at?: string;
 };
 
 type Category = { id: string; slug_en: string; title_en: string; title_ar: string };
+
+type PublishState = "draft" | "scheduled" | "published";
+
+function derivePublishState(a: Pick<Article, "status" | "scheduled_at">): PublishState {
+  if (a.status === "published") return "published";
+  if (a.status === "draft" && a.scheduled_at && new Date(a.scheduled_at) > new Date()) return "scheduled";
+  return "draft";
+}
+
+// Format a UTC ISO string into a value <input type="datetime-local"> accepts.
+function toLocalInput(iso?: string | null) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const off = d.getTimezoneOffset();
+  return new Date(d.getTime() - off * 60000).toISOString().slice(0, 16);
+}
 
 const EMPTY: Article = {
   slug_en: "", slug_ar: "", title_en: "", title_ar: "",
@@ -56,7 +73,7 @@ const EMPTY: Article = {
   featured_image: "", og_image: "", author_name: "Egytic Editorial Team",
   reading_time: 5, tags: [], seo_title_en: "", seo_title_ar: "",
   seo_description_en: "", seo_description_ar: "", seo_keywords: "",
-  status: "published", featured: false, category_id: null,
+  status: "draft", featured: false, category_id: null, scheduled_at: null,
 };
 
 function slugify(s: string) {
@@ -96,7 +113,7 @@ function AdminBlogPage() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return rows.filter((r) => {
-      if (statusFilter !== "all" && r.status !== statusFilter) return false;
+      if (statusFilter !== "all" && derivePublishState(r) !== statusFilter && r.status !== statusFilter) return false;
       if (categoryFilter !== "all" && (r.category_id ?? "") !== categoryFilter) return false;
       if (translationFilter === "complete" && !(r.title_en && r.title_ar)) return false;
       if (translationFilter === "en-only" && !(r.title_en && !r.title_ar)) return false;
@@ -117,6 +134,11 @@ function AdminBlogPage() {
     if (invalid.length) {
       return toast.error(`Unknown tag${invalid.length > 1 ? "s" : ""}: ${invalid.join(", ")}. Create ${invalid.length > 1 ? "them" : "it"} in Manage tags first.`);
     }
+    // Validate scheduled date
+    if (editing.status === "draft" && editing.scheduled_at) {
+      const when = new Date(editing.scheduled_at);
+      if (isNaN(when.getTime())) return toast.error("Invalid schedule date");
+    }
     setSaving(true);
     try {
       const payload: Article = {
@@ -126,6 +148,7 @@ function AdminBlogPage() {
         tags: Array.from(new Set((editing.tags ?? []).filter(Boolean))),
         reading_time: Number(editing.reading_time) || 5,
         category_id: editing.category_id || null,
+        scheduled_at: editing.status === "draft" ? (editing.scheduled_at || null) : null,
         published_at: editing.status === "published"
           ? (editing.published_at ?? new Date().toISOString())
           : editing.published_at ?? null,
@@ -174,6 +197,7 @@ function AdminBlogPage() {
             <SelectContent>
               <SelectItem value="all">All statuses</SelectItem>
               <SelectItem value="published">Published</SelectItem>
+              <SelectItem value="scheduled">Scheduled</SelectItem>
               <SelectItem value="draft">Draft</SelectItem>
               <SelectItem value="archived">Archived</SelectItem>
             </SelectContent>
@@ -263,21 +287,34 @@ function AdminBlogPage() {
                       </div>
                     </td>
                     <td className="p-3">
-                      <Select value={r.status ?? "draft"} onValueChange={(v) => toggleField(r, "status", v)}>
-                        <SelectTrigger className="h-8 w-28"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="published">Published</SelectItem>
-                          <SelectItem value="draft">Draft</SelectItem>
-                          <SelectItem value="archived">Archived</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className="space-y-1">
+                        <Select value={r.status ?? "draft"} onValueChange={(v) => toggleField(r, "status", v)}>
+                          <SelectTrigger className="h-8 w-28"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="published">Published</SelectItem>
+                            <SelectItem value="draft">Draft</SelectItem>
+                            <SelectItem value="archived">Archived</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {derivePublishState(r) === "scheduled" && (
+                          <Badge variant="outline" className="text-[10px] gap-1 border-amber-500/60 text-amber-600">
+                            <CalendarIcon className="h-3 w-3" />
+                            {new Date(r.scheduled_at!).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}
+                          </Badge>
+                        )}
+                      </div>
                     </td>
                     <td className="p-3"><Switch checked={!!r.featured} onCheckedChange={(v) => toggleField(r, "featured", v)} /></td>
                     <td className="p-3">
                       <div className="flex justify-end gap-1">
                         {r.slug_en && (
-                          <Button size="icon" variant="ghost" asChild>
-                            <a href={`/knowledge/${r.slug_en}`} target="_blank" rel="noreferrer" title="Preview"><ExternalLink className="h-4 w-4" /></a>
+                          <Button size="icon" variant="ghost" asChild title="Preview in staff mode">
+                            <a href={`/preview/knowledge/${r.slug_en}`} target="_blank" rel="noreferrer"><Eye className="h-4 w-4" /></a>
+                          </Button>
+                        )}
+                        {r.slug_en && r.status === "published" && (
+                          <Button size="icon" variant="ghost" asChild title="Open live">
+                            <a href={`/knowledge/${r.slug_en}`} target="_blank" rel="noreferrer"><ExternalLink className="h-4 w-4" /></a>
                           </Button>
                         )}
                         <Button size="icon" variant="ghost" onClick={() => setEditing({ ...r, tags: r.tags ?? [] })}><Pencil className="h-4 w-4" /></Button>
@@ -307,9 +344,30 @@ function AdminBlogPage() {
             />
 
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
-            <Button onClick={save} disabled={saving}>{saving && <Loader2 className="h-4 w-4 animate-spin mr-1" />}Save</Button>
+          <DialogFooter className="gap-2 sm:justify-between">
+            <div className="flex flex-wrap gap-2">
+              {editing?.slug_en && (
+                <>
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={`/preview/knowledge/${editing.slug_en}?lang=en`} target="_blank" rel="noreferrer">
+                      <Eye className="h-4 w-4" /> Preview EN
+                    </a>
+                  </Button>
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={`/preview/knowledge/${editing.slug_en}?lang=ar`} target="_blank" rel="noreferrer">
+                      <Eye className="h-4 w-4" /> Preview AR
+                    </a>
+                  </Button>
+                </>
+              )}
+              {!editing?.id && (
+                <span className="text-xs text-muted-foreground self-center">Save first to enable preview.</span>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
+              <Button onClick={save} disabled={saving}>{saving && <Loader2 className="h-4 w-4 animate-spin mr-1" />}Save</Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -384,6 +442,21 @@ function ArticleEditor({
   }
 
 
+  const publishState: PublishState = derivePublishState(value);
+  function setPublishState(next: PublishState) {
+    if (next === "published") {
+      set({ status: "published", scheduled_at: null });
+    } else if (next === "scheduled") {
+      // default schedule = 1 hour from now if none set
+      const when = value.scheduled_at && new Date(value.scheduled_at) > new Date()
+        ? value.scheduled_at
+        : new Date(Date.now() + 60 * 60 * 1000).toISOString();
+      set({ status: "draft", scheduled_at: when });
+    } else {
+      set({ status: "draft", scheduled_at: null });
+    }
+  }
+
   return (
     <div className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-3">
@@ -398,21 +471,45 @@ function ArticleEditor({
           </Select>
         </div>
         <div className="space-y-1.5">
-          <Label>Status</Label>
-          <Select value={value.status ?? "draft"} onValueChange={(v) => set({ status: v as Article["status"] })}>
+          <Label>Publish workflow</Label>
+          <Select value={publishState} onValueChange={(v) => setPublishState(v as PublishState)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="published">Published</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="archived">Archived</SelectItem>
+              <SelectItem value="draft">Draft — hidden from site</SelectItem>
+              <SelectItem value="scheduled">Scheduled — publish at set time</SelectItem>
+              <SelectItem value="published">Published — live now</SelectItem>
+              {value.status === "archived" && <SelectItem value="draft">Archived (unarchive → draft)</SelectItem>}
             </SelectContent>
           </Select>
+          {value.status === "archived" && (
+            <p className="text-xs text-muted-foreground">Currently archived. Choose Draft to restore.</p>
+          )}
         </div>
         <div className="space-y-1.5">
           <Label>Reading time (min)</Label>
           <Input type="number" min={1} value={value.reading_time ?? 5} onChange={(e) => set({ reading_time: Number(e.target.value) })} />
         </div>
       </div>
+
+      {publishState === "scheduled" && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 space-y-2">
+          <Label className="flex items-center gap-2 text-sm">
+            <CalendarIcon className="h-4 w-4 text-amber-600" /> Go-live date &amp; time
+          </Label>
+          <Input
+            type="datetime-local"
+            value={toLocalInput(value.scheduled_at)}
+            onChange={(e) => {
+              const v = e.target.value;
+              set({ scheduled_at: v ? new Date(v).toISOString() : null });
+            }}
+          />
+          <p className="text-xs text-muted-foreground">
+            Kept as Draft until this time, then automatically published. Uses your local timezone.
+          </p>
+        </div>
+      )}
+
 
       {value.id && value.translation_group_id && (
         <TranslationLinkPanel
