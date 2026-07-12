@@ -31,9 +31,11 @@ type Gov = {
 const empty: Partial<Gov> = { slug: "", name_en: "", name_ar: "", region_en: "", region_ar: "", logo_url: "", sort_order: 0, active: true };
 
 function GovernoratesPage() {
+  const invalidate = useInvalidateTables(["governorates"]);
   const [rows, setRows] = useState<Gov[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<Gov> | null>(null);
+
 
   async function load() {
     setLoading(true);
