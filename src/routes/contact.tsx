@@ -102,6 +102,8 @@ function ContactPage() {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [projectType, setProjectType] = useState("");
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [summary, setSummary] = useState<LeadSummary | null>(null);
   const { data: dbServices } = useQuery(servicesPublishedQueryOptions);
 
 
