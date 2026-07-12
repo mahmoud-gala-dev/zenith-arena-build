@@ -357,3 +357,41 @@ function ArticleDetail() {
     </SiteLayout>
   );
 }
+
+function TocList({
+  toc,
+  activeId,
+  onNavigate,
+}: {
+  toc: { id: string; text: string }[];
+  activeId: string;
+  onNavigate: (e: React.MouseEvent<HTMLAnchorElement>, id: string) => void;
+}) {
+  return (
+    <nav aria-label="Table of contents">
+      <ol className="space-y-2 text-sm">
+        {toc.map((h, i) => {
+          const active = activeId === h.id;
+          return (
+            <li key={h.id}>
+              <a
+                href={`#${h.id}`}
+                onClick={(e) => onNavigate(e, h.id)}
+                aria-current={active ? "location" : undefined}
+                className={`flex gap-2 border-s-2 ps-3 py-1 transition ${
+                  active
+                    ? "border-primary font-medium text-primary"
+                    : "border-transparent text-muted-foreground hover:text-primary"
+                }`}
+              >
+                <span className={active ? "text-primary" : "text-primary/60"}>{i + 1}.</span>
+                <span className="line-clamp-2">{h.text}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
+
