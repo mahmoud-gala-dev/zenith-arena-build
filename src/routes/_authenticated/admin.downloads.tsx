@@ -93,6 +93,8 @@ const emptyRow = (): Partial<DownloadRow> => ({
   seo_description_ar: "",
   og_image: "",
   og_image_ar: "",
+  files: [],
+  gallery: [],
 });
 
 
