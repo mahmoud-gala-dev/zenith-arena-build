@@ -68,7 +68,7 @@ interface GalleryItem {
 }
 
 function GalleryPage() {
-  const { lang } = useLang();
+  const { lang, t: T } = useLang();
   const ar = lang === "ar";
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
