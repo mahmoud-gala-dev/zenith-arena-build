@@ -376,12 +376,14 @@ function Index() {
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+            {(() => { const s = section("featured_services", { title: t.sections.servicesTitle, subtitle: t.sections.servicesSub }); return (
             <SectionHeader
               align="start"
               eyebrow={t.nav.services}
-              title={t.sections.servicesTitle}
-              subtitle={t.sections.servicesSub}
-            />
+              title={s.title}
+              subtitle={s.subtitle}
+            />); })()}
+
             <LangToggle />
           </div>
           <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
