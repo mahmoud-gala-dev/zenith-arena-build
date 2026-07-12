@@ -305,6 +305,21 @@ export function PreviewLinksCard({
                       >
                         <Copy className="h-3 w-3 mr-1" /> Copy
                       </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => renew(t)}
+                        disabled={!canPreviewDrafts}
+                        title={
+                          !canPreviewDrafts
+                            ? "Your role cannot renew preview links"
+                            : t.revoked_at
+                            ? "Reactivate and extend this link"
+                            : "Extend expiration; keeps the same token and view count"
+                        }
+                      >
+                        <RefreshCw className="h-3 w-3 mr-1" /> Renew
+                      </Button>
                       {!t.revoked_at && (
                         <Button size="sm" variant="outline" onClick={() => revoke(t.id)}>
                           <Ban className="h-3 w-3 mr-1" /> Revoke
