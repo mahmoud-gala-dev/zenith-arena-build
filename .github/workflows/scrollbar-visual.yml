@@ -1,12 +1,25 @@
 name: scrollbar-visual-regression
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "src/styles.css"
+      - "src/**/*.tsx"
+      - "scripts/*scrollbar*.py"
+      - "scripts/_scroll_assertions.py"
+      - "scripts/visual-diff.mjs"
+      - "scripts/aggregate-report.mjs"
+      - "qa-baselines/**"
+      - ".github/workflows/scrollbar-visual.yml"
   pull_request:
     paths:
       - "src/styles.css"
       - "src/**/*.tsx"
       - "scripts/*scrollbar*.py"
+      - "scripts/_scroll_assertions.py"
       - "scripts/visual-diff.mjs"
+      - "scripts/aggregate-report.mjs"
       - "qa-baselines/**"
       - ".github/workflows/scrollbar-visual.yml"
   workflow_dispatch:
