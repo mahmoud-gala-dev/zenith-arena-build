@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useGuard } from "@/lib/rbac";
+
 
 export const Route = createFileRoute("/_authenticated/admin/users")({
   component: AdminUsersPage,
@@ -61,6 +63,8 @@ function AdminUsersPage() {
   const [query, setQuery] = useState("");
   const [permQuery, setPermQuery] = useState("");
   const [savingId, setSavingId] = useState<string | null>(null);
+  const { can: canManage, guard } = useGuard("users.manage");
+
 
   async function load() {
     setLoading(true);
@@ -210,13 +214,14 @@ function AdminUsersPage() {
                 <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                 <Input value={permQuery} onChange={(e) => setPermQuery(e.target.value)} placeholder="Filter permissions…" className="h-8 w-56 pl-8 text-xs" />
               </div>
-              <Button variant="outline" size="sm" onClick={reset} disabled={!dirty || saving}>
+              <Button variant="outline" size="sm" onClick={guard(reset)} disabled={!canManage || !dirty || saving}>
                 <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
               </Button>
-              <Button size="sm" onClick={save} disabled={!dirty || saving || validationErrors.length > 0}>
+              <Button size="sm" onClick={guard(save)} disabled={!canManage || !dirty || saving || validationErrors.length > 0}>
                 {saving ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Save className="mr-1.5 h-3.5 w-3.5" />}
                 Save changes
               </Button>
+
             </div>
           </div>
 
@@ -262,10 +267,11 @@ function AdminUsersPage() {
                         <td key={r} className={`px-3 py-2 text-center ${changed ? "bg-primary/5" : ""}`}>
                           <Checkbox
                             checked={disabled ? true : checked}
-                            disabled={disabled || saving}
-                            onCheckedChange={(v) => toggle(p.id, r, Boolean(v))}
+                            disabled={disabled || saving || !canManage}
+                            onCheckedChange={guard((v: boolean | "indeterminate") => toggle(p.id, r, Boolean(v)))}
                             aria-label={`${p.key} for ${r}`}
                           />
+
                         </td>
                       );
                     })}
@@ -302,10 +308,11 @@ function AdminUsersPage() {
                     <td className="px-4 py-3"><Badge variant="secondary" className="capitalize">{currentRole.replaceAll("_", " ")}</Badge></td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <Select value={currentRole} onValueChange={(value) => setRole(profile.id, value as Role)} disabled={savingId === profile.id}>
+                        <Select value={currentRole} onValueChange={guard((value: string) => setRole(profile.id, value as Role))} disabled={savingId === profile.id || !canManage}>
                           <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
                           <SelectContent>{roles.map((role) => <SelectItem key={role} value={role} className="capitalize">{role.replaceAll("_", " ")}</SelectItem>)}</SelectContent>
                         </Select>
+
                         {savingId === profile.id && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
                       </div>
                     </td>

@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { z } from "zod";
 import { LeadTimeline } from "@/components/admin/LeadTimeline";
+import { useGuard } from "@/lib/rbac";
+
 
 export const Route = createFileRoute("/_authenticated/admin/leads")({
   component: LeadsPage,
@@ -64,6 +66,8 @@ function LeadsPage() {
   const [selected, setSelected] = useState<Lead | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Lead | null>(null);
+  const { can: canManage, guard } = useGuard("leads.manage");
+
 
   async function load() {
     setLoading(true);
@@ -110,28 +114,29 @@ function LeadsPage() {
     last7: leads.filter((l) => Date.now() - new Date(l.created_at).getTime() < 7 * 86400_000).length,
   }), [leads]);
 
-  async function updateStatus(id: string, status: string) {
+  const updateStatus = guard(async (id: string, status: string) => {
     const { error } = await supabase.from("leads").update({ status: status as Lead["status"] as never }).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Status updated");
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)));
     if (selected?.id === id) setSelected({ ...selected, status });
-  }
+  });
 
-  async function saveNotes(id: string, notes: string) {
+  const saveNotes = guard(async (id: string, notes: string) => {
     const { error } = await supabase.from("leads").update({ internal_notes: notes }).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Notes saved");
-  }
+  });
 
-  async function deleteLead(id: string) {
+  const deleteLead = guard(async (id: string) => {
     if (!confirm("Delete this lead?")) return;
     const { error } = await supabase.from("leads").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted");
     setLeads((prev) => prev.filter((l) => l.id !== id));
     setSelected(null);
-  }
+  });
+
 
   function exportCSV() {
     const rows = [
@@ -221,7 +226,7 @@ function LeadsPage() {
         </Select>
         <Button variant="ghost" onClick={resetFilters}>Reset</Button>
         <Button variant="outline" onClick={exportCSV}><Download className="mr-2 h-4 w-4" /> Export CSV ({filtered.length})</Button>
-        <Button onClick={() => { setEditing(null); setFormOpen(true); }}><Plus className="mr-2 h-4 w-4" /> New Lead</Button>
+        <Button disabled={!canManage} onClick={() => { setEditing(null); setFormOpen(true); }}><Plus className="mr-2 h-4 w-4" /> New Lead</Button>
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-soft">
@@ -300,12 +305,13 @@ function LeadsPage() {
                         </a>
                       </Button>
                     )}
-                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setEditing(l); setFormOpen(true); }} title="Edit">
+                    <Button variant="ghost" size="sm" disabled={!canManage} onClick={(e) => { e.stopPropagation(); setEditing(l); setFormOpen(true); }} title="Edit">
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); deleteLead(l.id); }} title="Delete">
+                    <Button variant="ghost" size="sm" disabled={!canManage} onClick={(e) => { e.stopPropagation(); deleteLead(l.id); }} title="Delete">
                       <Trash2 className="h-4 w-4" />
                     </Button>
+
                   </div>
                 </td>
               </tr>
@@ -322,7 +328,7 @@ function LeadsPage() {
                 <DialogTitle className="flex items-center gap-2">
                   {selected.name}
                   <Badge variant="outline" className="text-xs">{selected.intent ?? selected.type}</Badge>
-                  <Button size="sm" variant="outline" className="ml-auto" onClick={() => { setEditing(selected); setFormOpen(true); }}>
+                  <Button size="sm" variant="outline" className="ml-auto" disabled={!canManage} onClick={() => { setEditing(selected); setFormOpen(true); }}>
                     <Pencil className="mr-1 h-3 w-3" /> Edit
                   </Button>
                 </DialogTitle>
@@ -373,7 +379,7 @@ function LeadsPage() {
                 </div>
                 <div className="sm:col-span-2">
                   <label className="text-xs uppercase text-muted-foreground">Status</label>
-                  <Select value={selected.status} onValueChange={(v) => updateStatus(selected.id, v)}>
+                  <Select value={selected.status} onValueChange={(v) => updateStatus(selected.id, v)} disabled={!canManage}>
                     <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {STATUSES.map((s) => <SelectItem key={s} value={s}>{s.replace("_", " ")}</SelectItem>)}
@@ -385,10 +391,12 @@ function LeadsPage() {
                   <textarea
                     defaultValue={selected.internal_notes ?? ""}
                     rows={4}
-                    className="mt-1 w-full rounded-md border border-border bg-background p-2 text-sm"
+                    disabled={!canManage}
+                    className="mt-1 w-full rounded-md border border-border bg-background p-2 text-sm disabled:opacity-60"
                     onBlur={(e) => saveNotes(selected.id, e.target.value)}
-                    placeholder="Notes are auto-saved on blur…"
+                    placeholder={canManage ? "Notes are auto-saved on blur…" : "Read-only — you don't have permission to edit."}
                   />
+
                 </div>
                 <div className="sm:col-span-2">
                   <label className="text-xs uppercase text-muted-foreground">Activity timeline</label>
