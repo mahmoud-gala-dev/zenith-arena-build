@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Logo } from "./Logo";
 
-const KEY = "egytic-splash-seen";
+const KEY = "egytic-splash-seen-v1";
 const DURATION_MS = 3800;
 
 /**
@@ -26,11 +26,11 @@ export function SplashScreen() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (window.sessionStorage.getItem(KEY)) return;
+    if (window.localStorage.getItem(KEY)) return;
     // Skip splash for Lighthouse / headless audits & bots — avoids inflating LCP.
     const ua = navigator.userAgent || "";
     if (/Lighthouse|HeadlessChrome|PageSpeed|GTmetrix|Chrome-Lighthouse|bot|crawler|spider/i.test(ua)) {
-      window.sessionStorage.setItem(KEY, "1");
+      window.localStorage.setItem(KEY, "1");
       return;
     }
     setShow(true);
@@ -43,7 +43,7 @@ export function SplashScreen() {
       window.setTimeout(() => {
         setShow(false);
         document.body.style.overflow = "";
-        window.sessionStorage.setItem(KEY, "1");
+        window.localStorage.setItem(KEY, "1");
       }, total),
     );
 
@@ -61,7 +61,7 @@ export function SplashScreen() {
     window.setTimeout(() => {
       setShow(false);
       document.body.style.overflow = "";
-      window.sessionStorage.setItem(KEY, "1");
+      window.localStorage.setItem(KEY, "1");
     }, 500);
   };
 
