@@ -70,10 +70,11 @@ function ProjectsPage() {
   const qLower = q.trim().toLowerCase();
 
   const staticFiltered = useMemo(() => {
-    let list = category === "all" ? projects : projects.filter((p) => p.category === category);
+    let list = dbProjects.map(dbProjectToView);
+    if (category !== "all") list = list.filter((p) => p.category === category);
     if (qLower) list = list.filter((p) => `${p.title.en} ${p.title.ar} ${p.location.en} ${p.location.ar}`.toLowerCase().includes(qLower));
     return list;
-  }, [category, qLower]);
+  }, [dbProjects, category, qLower]);
 
   const dbFiltered = useMemo(() => {
     let list = selectedGov ? dbProjects.filter((p) => p.governorate_id === selectedGov.id) : dbProjects;
