@@ -60,7 +60,7 @@ function AuditLogsPage() {
   const [q, setQ] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [selected, setSelected] = useState<AuditRow | null>(null);
   const [tableOptions, setTableOptions] = useState<string[]>([]);
   const [actors, setActors] = useState<string[]>([]);
 
