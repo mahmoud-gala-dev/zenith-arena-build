@@ -348,7 +348,7 @@ export const menusConfig: CmsCollectionConfig = {
   searchFields: ["label_en", "label_ar", "href", "location"],
   orderBy: "sort_order",
   orderAscending: true,
-  filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }, { key: "location", label: "Location", values: ["header", "footer"] }],
+  filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }, { key: "location", label: "Location", values: ["header", "footer", "mobile"] }],
   initialValues: { location: "header", label_en: "", label_ar: "", href: "/", sort_order: 0, status: "published" },
   fields: [
     { name: "location", label: "Location", required: true },
