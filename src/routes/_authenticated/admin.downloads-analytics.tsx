@@ -34,10 +34,12 @@ const RANGES = [
 ];
 
 function DownloadsAnalyticsPage() {
+  const { guard, buttonProps } = useAdminPageGuard();
   const [range, setRange] = useState<string>("30");
   const [events, setEvents] = useState<EventRow[]>([]);
   const [meta, setMeta] = useState<Record<string, DownloadMeta>>({});
   const [loading, setLoading] = useState(true);
+
 
   async function load() {
     setLoading(true);
