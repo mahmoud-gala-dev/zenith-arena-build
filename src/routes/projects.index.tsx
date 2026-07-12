@@ -139,8 +139,9 @@ function ProjectsPage() {
               )}
             >
               <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-secondary text-lg font-semibold text-foreground">EG</div>
-              <div className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5 text-foreground">{lang === "ar" ? "كل المحافظات" : "All governorates"}</div>
-              <div className="min-h-[1rem] text-xs text-muted-foreground">{dbProjects.length} {lang === "ar" ? "مشروع" : "projects"}</div>
+              <div className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5 text-foreground">{t.projects.allGovernorates}</div>
+              <div className="min-h-[1rem] text-xs text-muted-foreground">{dbProjects.length} {t.projects.projectsCount}</div>
+
             </button>
             {govs.length === 0 && Array.from({ length: 11 }).map((_, i) => (
               <div key={`sk-${i}`} className="flex min-h-[10.5rem] flex-col items-center justify-start gap-2 rounded-2xl border border-border bg-card p-4" aria-hidden>
