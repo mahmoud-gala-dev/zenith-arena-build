@@ -338,7 +338,38 @@ export const translations = {
       noMatchInGov: "لا توجد مشاريع مطابقة لهذه المحافظة بعد.",
       viewInFilter: "عرض هذه المحافظة في صفحة المشاريع ←",
     },
+    pages: {
+      clients: { groupsHeading: "قوائم العملاء" },
+      faq: { emptyPublished: "لا توجد أسئلة منشورة بعد." },
+      gallery: { view: "عرض" },
+      downloads: {
+        searchPlaceholder: "ابحث في التحميلات...",
+        search: "بحث",
+        clear: "مسح",
+        reset: "إعادة ضبط",
+        all: "الكل",
+        resetFilters: "إعادة ضبط الفلاتر",
+        details: "التفاصيل",
+      },
+      careers: {
+        applyNow: "قدّم الآن",
+        noJobs: "لا توجد وظائف متاحة حالياً.",
+        cvRequired: "يرجى إرفاق السيرة الذاتية (PDF/Word).",
+        maxFileSize: "الحجم الأقصى 5 ميجابايت.",
+        submitted: "تم إرسال طلبك، سنتواصل معك قريباً.",
+        applyFor: "التقديم لوظيفة:",
+        sendYourCv: "أرسل سيرتك الذاتية",
+        fullName: "الاسم الكامل",
+        email: "البريد الإلكتروني",
+        phone: "الهاتف",
+        cvLabel: "السيرة الذاتية (PDF / Word، حتى 5MB)",
+        coverLetter: "رسالة تعريفية (اختياري)",
+        sending: "جارٍ الإرسال...",
+        submit: "إرسال الطلب",
+      },
+    },
   },
+
 
 };
 
