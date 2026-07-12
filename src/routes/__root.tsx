@@ -137,7 +137,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://phimnzbiqssakrepavik.supabase.co", crossOrigin: "anonymous" },
       { rel: "dns-prefetch", href: "https://phimnzbiqssakrepavik.supabase.co" },
       { rel: "icon", href: "/icon.svg", type: "image/svg+xml" },
-      { rel: "alternate icon", href: "/favicon.ico", type: "image/x-icon" },
       { rel: "mask-icon", href: "/icon.svg", color: "#12b981" },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
