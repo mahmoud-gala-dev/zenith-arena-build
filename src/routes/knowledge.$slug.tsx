@@ -12,6 +12,7 @@ import { DetailPageSkeleton } from "@/components/site/Skeletons";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
+import { alternatesFromGroup } from "@/lib/sitemap";
 
 interface BlogPost {
   id: string;
@@ -33,6 +34,7 @@ interface BlogPost {
   seo_keywords: string | null;
   og_image: string | null;
   tags: string[];
+  translation_group_id: string | null;
 }
 
 async function fetchPost(slug: string): Promise<BlogPost | null> {
@@ -46,11 +48,24 @@ async function fetchPost(slug: string): Promise<BlogPost | null> {
   return data as BlogPost | null;
 }
 
+async function fetchAlternates(post: BlogPost): Promise<{ en: string; ar: string }> {
+  if (!post.translation_group_id) {
+    return alternatesFromGroup([], post.slug_en);
+  }
+  const { data } = await supabase
+    .from("blog_posts")
+    .select("slug_en,slug_ar,content_en,content_ar")
+    .eq("translation_group_id", post.translation_group_id)
+    .eq("status", "published");
+  return alternatesFromGroup(data ?? [], post.slug_en);
+}
+
 export const Route = createFileRoute("/knowledge/$slug")({
   loader: async ({ params }) => {
     const post = await fetchPost(params.slug);
     if (!post) throw notFound();
-    return { post };
+    const alternates = await fetchAlternates(post);
+    return { post, alternates };
   },
   head: ({ loaderData }) => {
     const p = loaderData?.post;
@@ -63,6 +78,7 @@ export const Route = createFileRoute("/knowledge/$slug")({
     const descAr = p.seo_description_ar?.trim() || p.excerpt_ar || p.title_ar;
     const image = p.og_image?.trim() || p.featured_image || undefined;
     const path = `/knowledge/${p.slug_en}`;
+    const alt = loaderData?.alternates ?? { en: path, ar: `${path}?lang=ar` };
 
     const meta: Array<Record<string, string>> = [
       { title },
@@ -94,9 +110,9 @@ export const Route = createFileRoute("/knowledge/$slug")({
       meta,
       links: [
         { rel: "canonical", href: path },
-        { rel: "alternate", hrefLang: "en", href: path },
-        { rel: "alternate", hrefLang: "ar", href: path },
-        { rel: "alternate", hrefLang: "x-default", href: path },
+        { rel: "alternate", hrefLang: "en", href: alt.en },
+        { rel: "alternate", hrefLang: "ar", href: alt.ar },
+        { rel: "alternate", hrefLang: "x-default", href: alt.en },
       ],
       scripts: [{
         type: "application/ld+json",
