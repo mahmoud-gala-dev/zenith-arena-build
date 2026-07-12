@@ -17,7 +17,14 @@ export const Route = createFileRoute("/_authenticated/admin/legal")({
 });
 
 type Section = { h: string; body: string };
-type LangContent = { title: string; intro: string; sections: Section[] };
+type LangContent = {
+  title: string;
+  intro: string;
+  sections: Section[];
+  seoTitle: string;
+  seoDescription: string;
+  seoKeywords: string;
+};
 type PageForm = {
   id?: string;
   en: LangContent;
