@@ -6,6 +6,7 @@ import { PageHero } from "@/components/site/PageHero";
 import { useLang } from "@/i18n/LanguageProvider";
 import { Button } from "@/components/ui/button";
 import { ShieldAlert } from "lucide-react";
+import type { Section } from "@/lib/types";
 
 type Search = { token?: string; lang?: "en" | "ar" };
 
@@ -23,7 +24,7 @@ export const Route = createFileRoute("/preview/pages/$slug")({
   component: PublicPreview,
 });
 
-type Section = { h: string; body: string };
+
 function parseSections(md: string): { intro: string; sections: Section[] } {
   const text = (md ?? "").trim();
   if (!text) return { intro: "", sections: [] };

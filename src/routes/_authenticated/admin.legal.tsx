@@ -14,12 +14,13 @@ import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { useMyRoles } from "@/hooks/useMyRoles";
 import { PreviewLinksCard } from "@/components/admin/PreviewLinksCard";
 import { PreviewLinksExportCard } from "@/components/admin/PreviewLinksExportCard";
+import type { Section } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/admin/legal")({
   component: AdminLegalPage,
 });
 
-type Section = { h: string; body: string };
+
 type LangContent = {
   title: string;
   intro: string;
