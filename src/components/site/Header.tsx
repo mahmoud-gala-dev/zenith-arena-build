@@ -118,14 +118,14 @@ export function Header() {
   const buildWaHref = (surface: string) =>
     wa
       ? buildWhatsAppUrl(wa, {
-          brand: ar ? brand.site_name_ar : brand.site_name_en,
+          brand: ar ? brand.ar : brand.en,
           service: inferServiceFromPath(pathname, ar),
           pageUrl: typeof window !== "undefined" ? window.location.href : pathname,
           phone: contact.phone,
           ar,
         })
       : "#";
-  const handleWaClick = (surface: "top_bar" | "mobile" | "social") => {
+  const handleWaClick = (surface: "top_bar" | "mobile") => {
     trackEvent({ name: "header_whatsapp_click", surface, number: wa, page: pathname });
   };
   const topSocials = [
