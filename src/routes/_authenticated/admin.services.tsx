@@ -126,8 +126,10 @@ function loadImageDims(url: string): Promise<{ w: number; h: number } | null> {
 }
 
 function AdminServicesPage() {
+  const invalidate = useInvalidateTables(["services"]);
   const [rows, setRows] = useState<ServiceRow[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [editing, setEditing] = useState<ServiceRow | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
