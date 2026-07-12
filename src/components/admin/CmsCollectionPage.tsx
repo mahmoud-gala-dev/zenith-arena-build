@@ -217,8 +217,10 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
     }
 
     setEditing(null);
+    invalidatePublic();
     load();
   }
+
 
 
   async function confirmDelete() {
