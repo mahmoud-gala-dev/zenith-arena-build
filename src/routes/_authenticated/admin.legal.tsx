@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
+import { useMyRoles } from "@/hooks/useMyRoles";
 
 export const Route = createFileRoute("/_authenticated/admin/legal")({
   component: AdminLegalPage,
