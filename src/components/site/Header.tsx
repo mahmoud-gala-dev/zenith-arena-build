@@ -344,10 +344,10 @@ export function Header() {
                 </a>
                 {wa && (
                   <a
-                    href={`https://wa.me/${wa}`}
+                    href={buildWaHref("top_bar")}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => trackEvent({ name: "header_whatsapp_click", surface: "top_bar", number: wa })}
+                    onClick={() => handleWaClick("top_bar")}
                     className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold text-foreground transition hover:bg-accent"
                   >
                     <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600">
