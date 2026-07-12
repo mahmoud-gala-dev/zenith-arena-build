@@ -287,21 +287,34 @@ function AdminBlogPage() {
                       </div>
                     </td>
                     <td className="p-3">
-                      <Select value={r.status ?? "draft"} onValueChange={(v) => toggleField(r, "status", v)}>
-                        <SelectTrigger className="h-8 w-28"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="published">Published</SelectItem>
-                          <SelectItem value="draft">Draft</SelectItem>
-                          <SelectItem value="archived">Archived</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className="space-y-1">
+                        <Select value={r.status ?? "draft"} onValueChange={(v) => toggleField(r, "status", v)}>
+                          <SelectTrigger className="h-8 w-28"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="published">Published</SelectItem>
+                            <SelectItem value="draft">Draft</SelectItem>
+                            <SelectItem value="archived">Archived</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {derivePublishState(r) === "scheduled" && (
+                          <Badge variant="outline" className="text-[10px] gap-1 border-amber-500/60 text-amber-600">
+                            <CalendarIcon className="h-3 w-3" />
+                            {new Date(r.scheduled_at!).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}
+                          </Badge>
+                        )}
+                      </div>
                     </td>
                     <td className="p-3"><Switch checked={!!r.featured} onCheckedChange={(v) => toggleField(r, "featured", v)} /></td>
                     <td className="p-3">
                       <div className="flex justify-end gap-1">
                         {r.slug_en && (
-                          <Button size="icon" variant="ghost" asChild>
-                            <a href={`/knowledge/${r.slug_en}`} target="_blank" rel="noreferrer" title="Preview"><ExternalLink className="h-4 w-4" /></a>
+                          <Button size="icon" variant="ghost" asChild title="Preview in staff mode">
+                            <a href={`/preview/knowledge/${r.slug_en}`} target="_blank" rel="noreferrer"><Eye className="h-4 w-4" /></a>
+                          </Button>
+                        )}
+                        {r.slug_en && r.status === "published" && (
+                          <Button size="icon" variant="ghost" asChild title="Open live">
+                            <a href={`/knowledge/${r.slug_en}`} target="_blank" rel="noreferrer"><ExternalLink className="h-4 w-4" /></a>
                           </Button>
                         )}
                         <Button size="icon" variant="ghost" onClick={() => setEditing({ ...r, tags: r.tags ?? [] })}><Pencil className="h-4 w-4" /></Button>
