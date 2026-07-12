@@ -91,6 +91,7 @@ function AdminLegalPage() {
 
 function LegalEditor({ slug, label }: { slug: string; label: string }) {
   const qc = useQueryClient();
+  const { canPreview, canPreviewDrafts, roles } = useMyRoles();
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "legal", slug],
     queryFn: async () => {
