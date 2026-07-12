@@ -1,16 +1,557 @@
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminShell } from "@/components/admin/AdminShell";
-import { CmsCollectionPage } from "@/components/admin/CmsCollectionPage";
-import { blogConfig } from "@/lib/admin-cms-config";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
+import {
+  Plus, Pencil, Trash2, Loader2, Search, ExternalLink, Upload, X, Languages, Star, ImageIcon,
+} from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/blog")({
   component: AdminBlogPage,
 });
 
+type Article = {
+  id?: string;
+  category_id?: string | null;
+  slug_en?: string; slug_ar?: string;
+  title_en?: string; title_ar?: string;
+  excerpt_en?: string; excerpt_ar?: string;
+  content_en?: string; content_ar?: string;
+  featured_image?: string; og_image?: string;
+  author_name?: string; reading_time?: number;
+  tags?: string[];
+  seo_title_en?: string; seo_title_ar?: string;
+  seo_description_en?: string; seo_description_ar?: string;
+  seo_keywords?: string;
+  status?: "published" | "draft" | "archived";
+  featured?: boolean;
+  published_at?: string | null;
+  updated_at?: string;
+};
+
+type Category = { id: string; slug: string; name_en: string; name_ar: string };
+
+const EMPTY: Article = {
+  slug_en: "", slug_ar: "", title_en: "", title_ar: "",
+  excerpt_en: "", excerpt_ar: "", content_en: "", content_ar: "",
+  featured_image: "", og_image: "", author_name: "Egytic Editorial Team",
+  reading_time: 5, tags: [], seo_title_en: "", seo_title_ar: "",
+  seo_description_en: "", seo_description_ar: "", seo_keywords: "",
+  status: "published", featured: false, category_id: null,
+};
+
+function slugify(s: string) {
+  return s.toLowerCase().trim()
+    .replace(/[^\w\u0600-\u06FF\s-]/g, "")
+    .replace(/\s+/g, "-").replace(/-+/g, "-").slice(0, 80);
+}
+
 function AdminBlogPage() {
+  const [rows, setRows] = useState<Article[]>([]);
+  const [cats, setCats] = useState<Category[]>([]);
+  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [translationFilter, setTranslationFilter] = useState<string>("all");
+  const [editing, setEditing] = useState<Article | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  async function load() {
+    setLoading(true);
+    const [{ data: posts, error }, { data: c }] = await Promise.all([
+      supabase.from("blog_posts").select("*").order("updated_at", { ascending: false }),
+      supabase.from("blog_categories").select("id, slug, name_en, name_ar").order("name_en"),
+    ]);
+    if (error) toast.error(error.message);
+    setRows((posts as Article[]) ?? []);
+    setCats((c as Category[]) ?? []);
+    // Derive tag suggestions from existing posts
+    const tagSet = new Set<string>();
+    (posts as Article[] | null)?.forEach((p) => p.tags?.forEach((t) => t && tagSet.add(t)));
+    setSuggestedTags(Array.from(tagSet).sort());
+    setLoading(false);
+  }
+  useEffect(() => { load(); }, []);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return rows.filter((r) => {
+      if (statusFilter !== "all" && r.status !== statusFilter) return false;
+      if (categoryFilter !== "all" && (r.category_id ?? "") !== categoryFilter) return false;
+      if (translationFilter === "complete" && !(r.title_en && r.title_ar)) return false;
+      if (translationFilter === "en-only" && !(r.title_en && !r.title_ar)) return false;
+      if (translationFilter === "ar-only" && !(r.title_ar && !r.title_en)) return false;
+      if (!q) return true;
+      return [r.title_en, r.title_ar, r.slug_en, r.slug_ar, r.excerpt_en, r.excerpt_ar, r.seo_keywords]
+        .some((v) => (v ?? "").toString().toLowerCase().includes(q));
+    });
+  }, [rows, query, statusFilter, categoryFilter, translationFilter]);
+
+  async function save() {
+    if (!editing) return;
+    if (!editing.title_en?.trim() && !editing.title_ar?.trim())
+      return toast.error("At least one title (EN or AR) is required");
+    if (!editing.slug_en?.trim()) return toast.error("English slug is required");
+    setSaving(true);
+    try {
+      const payload: Article = {
+        ...editing,
+        slug_en: slugify(editing.slug_en ?? editing.title_en ?? ""),
+        slug_ar: editing.slug_ar ? slugify(editing.slug_ar) : editing.slug_ar,
+        tags: (editing.tags ?? []).map((t) => t.trim()).filter(Boolean),
+        reading_time: Number(editing.reading_time) || 5,
+        category_id: editing.category_id || null,
+        published_at: editing.status === "published"
+          ? (editing.published_at ?? new Date().toISOString())
+          : editing.published_at ?? null,
+      };
+      const { id, ...rest } = payload;
+      const q = id
+        ? supabase.from("blog_posts").update(rest as never).eq("id", id)
+        : supabase.from("blog_posts").insert(rest as never);
+      const { error } = await q;
+      if (error) throw error;
+      toast.success(id ? "Article updated" : "Article created");
+      setEditing(null);
+      load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Save failed");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function confirmDelete() {
+    if (!deleteId) return;
+    const { error } = await supabase.from("blog_posts").delete().eq("id", deleteId);
+    if (error) toast.error(error.message);
+    else { toast.success("Deleted"); load(); }
+    setDeleteId(null);
+  }
+
+  async function toggleField(row: Article, key: "status" | "featured", value: unknown) {
+    if (!row.id) return;
+    const { error } = await supabase.from("blog_posts").update({ [key]: value } as never).eq("id", row.id);
+    if (error) return toast.error(error.message);
+    setRows((rs) => rs.map((r) => (r.id === row.id ? { ...r, [key]: value } : r)));
+  }
+
   return (
-    <AdminShell title="Blog CMS">
-      <CmsCollectionPage config={blogConfig} />
+    <AdminShell title="Knowledge Center — Articles">
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative flex-1 min-w-[220px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input value={query} onChange={(e) => setQuery(e.target.value)} className="pl-9" placeholder="Search title, slug, keywords…" />
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="published">Published</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="archived">Archived</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-52"><SelectValue placeholder="Category" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All categories</SelectItem>
+              {cats.map((c) => <SelectItem key={c.id} value={c.id}>{c.name_en}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={translationFilter} onValueChange={setTranslationFilter}>
+            <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All translations</SelectItem>
+              <SelectItem value="complete">EN + AR</SelectItem>
+              <SelectItem value="en-only">EN only</SelectItem>
+              <SelectItem value="ar-only">AR only</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={() => setEditing({ ...EMPTY })}><Plus className="h-4 w-4" /> New article</Button>
+        </div>
+
+        <div className="rounded-lg border border-border/60 bg-card/40 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/40 text-left">
+              <tr>
+                <th className="p-3 w-16">Image</th>
+                <th className="p-3">Title</th>
+                <th className="p-3 w-40">Category</th>
+                <th className="p-3 w-32">Translations</th>
+                <th className="p-3 w-40">Tags</th>
+                <th className="p-3 w-32">Status</th>
+                <th className="p-3 w-24">Featured</th>
+                <th className="p-3 w-32 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading && <tr><td colSpan={8} className="p-6 text-center text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin inline" /> Loading…</td></tr>}
+              {!loading && filtered.length === 0 && (
+                <tr><td colSpan={8} className="p-6 text-center text-muted-foreground">No articles found.</td></tr>
+              )}
+              {!loading && filtered.map((r) => {
+                const cat = cats.find((c) => c.id === r.category_id);
+                const enOk = !!r.title_en?.trim();
+                const arOk = !!r.title_ar?.trim();
+                return (
+                  <tr key={r.id} className="border-t border-border/50 hover:bg-muted/20">
+                    <td className="p-3">
+                      {r.featured_image ? (
+                        <img src={r.featured_image} alt="" loading="lazy" className="h-10 w-14 rounded object-cover" />
+                      ) : <div className="h-10 w-14 rounded bg-muted/40 grid place-items-center"><ImageIcon className="h-4 w-4 text-muted-foreground" /></div>}
+                    </td>
+                    <td className="p-3">
+                      <div className="font-medium text-foreground">{r.title_en || <span className="text-muted-foreground">— untitled —</span>}</div>
+                      {r.title_ar && <div className="text-xs text-muted-foreground" dir="rtl">{r.title_ar}</div>}
+                      <div className="text-xs text-muted-foreground">/{r.slug_en}</div>
+                    </td>
+                    <td className="p-3">{cat ? <Badge variant="secondary">{cat.name_en}</Badge> : <span className="text-muted-foreground">—</span>}</td>
+                    <td className="p-3">
+                      <div className="flex gap-1">
+                        <Badge variant={enOk ? "default" : "outline"} className="text-[10px]">EN</Badge>
+                        <Badge variant={arOk ? "default" : "outline"} className="text-[10px]">AR</Badge>
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <div className="flex flex-wrap gap-1">
+                        {(r.tags ?? []).slice(0, 3).map((t) => <Badge key={t} variant="outline" className="text-[10px]">{t}</Badge>)}
+                        {(r.tags?.length ?? 0) > 3 && <span className="text-xs text-muted-foreground">+{(r.tags!.length - 3)}</span>}
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <Select value={r.status ?? "draft"} onValueChange={(v) => toggleField(r, "status", v)}>
+                        <SelectTrigger className="h-8 w-28"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="published">Published</SelectItem>
+                          <SelectItem value="draft">Draft</SelectItem>
+                          <SelectItem value="archived">Archived</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </td>
+                    <td className="p-3"><Switch checked={!!r.featured} onCheckedChange={(v) => toggleField(r, "featured", v)} /></td>
+                    <td className="p-3">
+                      <div className="flex justify-end gap-1">
+                        {r.slug_en && (
+                          <Button size="icon" variant="ghost" asChild>
+                            <a href={`/knowledge/${r.slug_en}`} target="_blank" rel="noreferrer" title="Preview"><ExternalLink className="h-4 w-4" /></a>
+                          </Button>
+                        )}
+                        <Button size="icon" variant="ghost" onClick={() => setEditing({ ...r, tags: r.tags ?? [] })}><Pencil className="h-4 w-4" /></Button>
+                        <Button size="icon" variant="ghost" onClick={() => setDeleteId(r.id ?? null)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editing?.id ? "Edit article" : "New article"}</DialogTitle>
+          </DialogHeader>
+          {editing && (
+            <ArticleEditor
+              value={editing}
+              onChange={setEditing}
+              cats={cats}
+              suggestedTags={suggestedTags}
+            />
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
+            <Button onClick={save} disabled={saving}>{saving && <Loader2 className="h-4 w-4 animate-spin mr-1" />}Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete article?</AlertDialogTitle>
+            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminShell>
+  );
+}
+
+function ArticleEditor({
+  value, onChange, cats, suggestedTags,
+}: {
+  value: Article;
+  onChange: (v: Article) => void;
+  cats: Category[];
+  suggestedTags: string[];
+}) {
+  const set = (patch: Partial<Article>) => onChange({ ...value, ...patch });
+  const [tagInput, setTagInput] = useState("");
+
+  function addTag(raw: string) {
+    const t = raw.trim().replace(/,$/, "");
+    if (!t) return;
+    const next = Array.from(new Set([...(value.tags ?? []), t]));
+    set({ tags: next });
+    setTagInput("");
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="space-y-1.5">
+          <Label>Category</Label>
+          <Select value={value.category_id ?? "__none"} onValueChange={(v) => set({ category_id: v === "__none" ? null : v })}>
+            <SelectTrigger><SelectValue placeholder="Uncategorized" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none">Uncategorized</SelectItem>
+              {cats.map((c) => <SelectItem key={c.id} value={c.id}>{c.name_en} — {c.name_ar}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1.5">
+          <Label>Status</Label>
+          <Select value={value.status ?? "draft"} onValueChange={(v) => set({ status: v as Article["status"] })}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="published">Published</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="archived">Archived</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1.5">
+          <Label>Reading time (min)</Label>
+          <Input type="number" min={1} value={value.reading_time ?? 5} onChange={(e) => set({ reading_time: Number(e.target.value) })} />
+        </div>
+      </div>
+
+      <Tabs defaultValue="en" className="w-full">
+        <TabsList>
+          <TabsTrigger value="en" className="gap-2"><Languages className="h-3 w-3" /> English</TabsTrigger>
+          <TabsTrigger value="ar" className="gap-2"><Languages className="h-3 w-3" /> العربية</TabsTrigger>
+          <TabsTrigger value="media">Media</TabsTrigger>
+          <TabsTrigger value="tags">Tags</TabsTrigger>
+          <TabsTrigger value="seo">SEO</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="en" className="space-y-3 pt-3">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label>Title (EN) *</Label>
+              <Input value={value.title_en ?? ""} onChange={(e) => set({ title_en: e.target.value, slug_en: value.id ? value.slug_en : slugify(e.target.value) })} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Slug (EN) *</Label>
+              <Input value={value.slug_en ?? ""} onChange={(e) => set({ slug_en: e.target.value })} />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Excerpt (EN)</Label>
+            <Textarea rows={3} maxLength={500} value={value.excerpt_en ?? ""} onChange={(e) => set({ excerpt_en: e.target.value })} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Content (EN) — supports "## Heading" for auto-TOC</Label>
+            <Textarea rows={12} maxLength={20000} value={value.content_en ?? ""} onChange={(e) => set({ content_en: e.target.value })} />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="ar" className="space-y-3 pt-3">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label>العنوان (AR)</Label>
+              <Input dir="rtl" value={value.title_ar ?? ""} onChange={(e) => set({ title_ar: e.target.value, slug_ar: value.id ? value.slug_ar : slugify(e.target.value) })} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Slug (AR)</Label>
+              <Input value={value.slug_ar ?? ""} onChange={(e) => set({ slug_ar: e.target.value })} />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label>مقتطف (AR)</Label>
+            <Textarea dir="rtl" rows={3} maxLength={500} value={value.excerpt_ar ?? ""} onChange={(e) => set({ excerpt_ar: e.target.value })} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>المحتوى (AR)</Label>
+            <Textarea dir="rtl" rows={12} maxLength={20000} value={value.content_ar ?? ""} onChange={(e) => set({ content_ar: e.target.value })} />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="media" className="space-y-4 pt-3">
+          <ImageField
+            label="Featured image"
+            value={value.featured_image ?? ""}
+            onChange={(url) => set({ featured_image: url })}
+            folder="blog"
+          />
+          <ImageField
+            label="Social share image (og:image)"
+            value={value.og_image ?? ""}
+            onChange={(url) => set({ og_image: url })}
+            folder="blog/og"
+          />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label>Author</Label>
+              <Input value={value.author_name ?? ""} onChange={(e) => set({ author_name: e.target.value })} />
+            </div>
+            <div className="flex items-center gap-3 pt-6">
+              <Switch checked={!!value.featured} onCheckedChange={(v) => set({ featured: v })} />
+              <Label className="flex items-center gap-1"><Star className="h-3 w-3" /> Featured on Knowledge Center</Label>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="tags" className="space-y-3 pt-3">
+          <Label>Tags</Label>
+          <div className="flex flex-wrap gap-2 min-h-[40px] p-2 rounded border border-border/60 bg-background/50">
+            {(value.tags ?? []).map((t) => (
+              <Badge key={t} variant="secondary" className="gap-1">
+                {t}
+                <button type="button" onClick={() => set({ tags: (value.tags ?? []).filter((x) => x !== t) })}>
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+            <Input
+              className="border-0 flex-1 min-w-[160px] h-6 p-0 focus-visible:ring-0 shadow-none"
+              value={tagInput}
+              placeholder="Type and press Enter or comma…"
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v.endsWith(",")) addTag(v);
+                else setTagInput(v);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") { e.preventDefault(); addTag(tagInput); }
+                if (e.key === "Backspace" && !tagInput && (value.tags?.length ?? 0)) {
+                  set({ tags: (value.tags ?? []).slice(0, -1) });
+                }
+              }}
+            />
+          </div>
+          {suggestedTags.length > 0 && (
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Suggestions</Label>
+              <div className="flex flex-wrap gap-1.5">
+                {suggestedTags
+                  .filter((t) => !(value.tags ?? []).includes(t))
+                  .slice(0, 24)
+                  .map((t) => (
+                    <button key={t} type="button" onClick={() => addTag(t)}>
+                      <Badge variant="outline" className="cursor-pointer hover:bg-accent">{t}</Badge>
+                    </button>
+                  ))}
+              </div>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="seo" className="space-y-3 pt-3">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label>SEO title (EN)</Label>
+              <Input maxLength={70} value={value.seo_title_en ?? ""} onChange={(e) => set({ seo_title_en: e.target.value })} />
+              <p className="text-xs text-muted-foreground">{(value.seo_title_en ?? "").length}/70</p>
+            </div>
+            <div className="space-y-1.5">
+              <Label>SEO title (AR)</Label>
+              <Input dir="rtl" maxLength={70} value={value.seo_title_ar ?? ""} onChange={(e) => set({ seo_title_ar: e.target.value })} />
+              <p className="text-xs text-muted-foreground">{(value.seo_title_ar ?? "").length}/70</p>
+            </div>
+            <div className="space-y-1.5">
+              <Label>SEO description (EN)</Label>
+              <Textarea rows={3} maxLength={160} value={value.seo_description_en ?? ""} onChange={(e) => set({ seo_description_en: e.target.value })} />
+              <p className="text-xs text-muted-foreground">{(value.seo_description_en ?? "").length}/160</p>
+            </div>
+            <div className="space-y-1.5">
+              <Label>SEO description (AR)</Label>
+              <Textarea dir="rtl" rows={3} maxLength={160} value={value.seo_description_ar ?? ""} onChange={(e) => set({ seo_description_ar: e.target.value })} />
+              <p className="text-xs text-muted-foreground">{(value.seo_description_ar ?? "").length}/160</p>
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label>SEO keywords</Label>
+            <Input value={value.seo_keywords ?? ""} onChange={(e) => set({ seo_keywords: e.target.value })} placeholder="football turf, construction, egypt" />
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+function ImageField({
+  label, value, onChange, folder,
+}: {
+  label: string;
+  value: string;
+  onChange: (url: string) => void;
+  folder: string;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  async function upload(file: File) {
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() ?? "jpg";
+      const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from("media").upload(path, file, { upsert: false, contentType: file.type });
+      if (error) throw error;
+      const { data } = supabase.storage.from("media").getPublicUrl(path);
+      onChange(data.publicUrl);
+      toast.success("Image uploaded");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <div className="flex gap-3 items-start">
+        <div className="w-32 h-20 shrink-0 rounded border border-border/60 bg-muted/30 grid place-items-center overflow-hidden">
+          {value ? <img src={value} alt="" className="h-full w-full object-cover" /> : <ImageIcon className="h-6 w-6 text-muted-foreground" />}
+        </div>
+        <div className="flex-1 space-y-2">
+          <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder="https://… or upload" />
+          <div className="flex gap-2">
+            <input ref={inputRef} type="file" accept="image/*" hidden onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+            <Button type="button" variant="outline" size="sm" onClick={() => inputRef.current?.click()} disabled={uploading}>
+              {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />} Upload
+            </Button>
+            {value && <Button type="button" variant="ghost" size="sm" onClick={() => onChange("")}><X className="h-4 w-4" /> Clear</Button>}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
