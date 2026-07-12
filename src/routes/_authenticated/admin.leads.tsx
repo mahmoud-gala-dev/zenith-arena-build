@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { LeadTimeline } from "@/components/admin/LeadTimeline";
 
 export const Route = createFileRoute("/_authenticated/admin/leads")({
   component: LeadsPage,
@@ -387,6 +388,10 @@ function LeadsPage() {
                     onBlur={(e) => saveNotes(selected.id, e.target.value)}
                     placeholder="Notes are auto-saved on blur…"
                   />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="text-xs uppercase text-muted-foreground">Activity timeline</label>
+                  <div className="mt-2"><LeadTimeline leadId={selected.id} /></div>
                 </div>
               </div>
             </>
