@@ -509,49 +509,101 @@ function ArticleEditor({
         </TabsContent>
 
         <TabsContent value="tags" className="space-y-3 pt-3">
-          <Label>Tags</Label>
-          <div className="flex flex-wrap gap-2 min-h-[40px] p-2 rounded border border-border/60 bg-background/50">
-            {(value.tags ?? []).map((t) => (
-              <Badge key={t} variant="secondary" className="gap-1">
-                {t}
-                <button type="button" onClick={() => set({ tags: (value.tags ?? []).filter((x) => x !== t) })}>
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
-            <Input
-              className="border-0 flex-1 min-w-[160px] h-6 p-0 focus-visible:ring-0 shadow-none"
-              value={tagInput}
-              placeholder="Type and press Enter or comma…"
-              onChange={(e) => {
-                const v = e.target.value;
-                if (v.endsWith(",")) addTag(v);
-                else setTagInput(v);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") { e.preventDefault(); addTag(tagInput); }
-                if (e.key === "Backspace" && !tagInput && (value.tags?.length ?? 0)) {
-                  set({ tags: (value.tags ?? []).slice(0, -1) });
-                }
-              }}
-            />
+          <div className="flex items-center justify-between">
+            <Label>Tags <span className="text-xs text-muted-foreground font-normal">({(value.tags ?? []).length} selected)</span></Label>
+            <span className="text-xs text-muted-foreground">Only tags from the tag library can be assigned.</span>
           </div>
-          {suggestedTags.length > 0 && (
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Suggestions</Label>
-              <div className="flex flex-wrap gap-1.5">
-                {suggestedTags
-                  .filter((t) => !(value.tags ?? []).includes(t))
-                  .slice(0, 24)
-                  .map((t) => (
-                    <button key={t} type="button" onClick={() => addTag(t)}>
-                      <Badge variant="outline" className="cursor-pointer hover:bg-accent">{t}</Badge>
-                    </button>
-                  ))}
-              </div>
+
+          <div className="flex flex-wrap gap-2 min-h-[44px] p-2 rounded border border-border/60 bg-background/50">
+            {(value.tags ?? []).length === 0 && (
+              <span className="text-xs text-muted-foreground px-1 py-0.5">No tags selected yet.</span>
+            )}
+            {(value.tags ?? []).map((slug) => {
+              const tag = tagsBySlug[slug];
+              const known = !!tag;
+              return (
+                <Badge
+                  key={slug}
+                  variant={known ? "secondary" : "destructive"}
+                  className="gap-1"
+                  title={known ? `${tag.name_en} — ${tag.name_ar}` : "Unknown tag — remove or create it in Manage tags"}
+                >
+                  <span>{tag?.name_en ?? slug}</span>
+                  {tag?.name_ar && <span className="text-[10px] opacity-70" dir="rtl">· {tag.name_ar}</span>}
+                  <button type="button" onClick={() => toggleTag(slug)} aria-label={`Remove ${tag?.name_en ?? slug}`}>
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              );
+            })}
+          </div>
+
+          {unknownSelected.length > 0 && (
+            <div className="rounded-md border border-destructive/50 bg-destructive/10 p-2 text-xs text-destructive">
+              {unknownSelected.length} unknown tag{unknownSelected.length > 1 ? "s" : ""}: {unknownSelected.join(", ")}. Remove or register them before saving.
             </div>
           )}
+
+          <Popover open={tagPickerOpen} onOpenChange={setTagPickerOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" type="button">
+                <Plus className="h-4 w-4" /> Add tags
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-2" align="start">
+              <Input
+                autoFocus
+                value={tagSearch}
+                onChange={(e) => setTagSearch(e.target.value)}
+                placeholder="Search or create tag…"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && filteredTags.length === 0 && tagSearch.trim()) {
+                    e.preventDefault();
+                    createTagFromSearch();
+                  }
+                }}
+              />
+              <div className="mt-2 max-h-64 overflow-y-auto">
+                {filteredTags.length === 0 ? (
+                  <div className="p-3 text-center text-xs text-muted-foreground space-y-2">
+                    <div>No matching tags.</div>
+                    {tagSearch.trim() && (
+                      <Button size="sm" variant="secondary" onClick={createTagFromSearch} disabled={creatingTag}>
+                        {creatingTag ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                        Create "{tagSearch.trim()}"
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <ul className="text-sm">
+                    {filteredTags.slice(0, 30).map((t) => (
+                      <li key={t.id}>
+                        <button
+                          type="button"
+                          className="w-full text-left px-2 py-1.5 rounded hover:bg-accent flex items-center justify-between gap-2"
+                          onClick={() => { toggleTag(t.slug); setTagSearch(""); }}
+                        >
+                          <span>
+                            <span className="font-medium">{t.name_en}</span>
+                            <span className="text-xs text-muted-foreground ml-2" dir="rtl">{t.name_ar}</span>
+                          </span>
+                          <span className="text-[10px] text-muted-foreground font-mono">{t.slug}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {tags.length === 0 && (
+            <p className="text-xs text-muted-foreground">
+              No tags exist yet. Use <strong>Manage tags</strong> in the toolbar to create some.
+            </p>
+          )}
         </TabsContent>
+
 
         <TabsContent value="seo" className="space-y-3 pt-3">
           <div className="grid gap-3 sm:grid-cols-2">
