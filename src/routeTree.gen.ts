@@ -45,6 +45,7 @@ import { Route as PreviewPagesSlugRouteImport } from './routes/preview.pages.$sl
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminTestimonialsRouteImport } from './routes/_authenticated/admin.testimonials'
 import { Route as AuthenticatedAdminSocialCacheRouteImport } from './routes/_authenticated/admin.social-cache'
+import { Route as AuthenticatedAdminSettingsKeysRouteImport } from './routes/_authenticated/admin.settings-keys'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminServicesRouteImport } from './routes/_authenticated/admin.services'
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated/admin.seo'
@@ -252,6 +253,12 @@ const AuthenticatedAdminSocialCacheRoute =
     path: '/social-cache',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminSettingsKeysRoute =
+  AuthenticatedAdminSettingsKeysRouteImport.update({
+    id: '/settings-keys',
+    path: '/settings-keys',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminSettingsRoute =
   AuthenticatedAdminSettingsRouteImport.update({
     id: '/settings',
@@ -450,6 +457,7 @@ export interface FileRoutesByFullPath {
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/admin/services': typeof AuthenticatedAdminServicesRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/settings-keys': typeof AuthenticatedAdminSettingsKeysRoute
   '/admin/social-cache': typeof AuthenticatedAdminSocialCacheRoute
   '/admin/testimonials': typeof AuthenticatedAdminTestimonialsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -507,6 +515,7 @@ export interface FileRoutesByTo {
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/admin/services': typeof AuthenticatedAdminServicesRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/settings-keys': typeof AuthenticatedAdminSettingsKeysRoute
   '/admin/social-cache': typeof AuthenticatedAdminSocialCacheRoute
   '/admin/testimonials': typeof AuthenticatedAdminTestimonialsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -571,6 +580,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/_authenticated/admin/services': typeof AuthenticatedAdminServicesRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/settings-keys': typeof AuthenticatedAdminSettingsKeysRoute
   '/_authenticated/admin/social-cache': typeof AuthenticatedAdminSocialCacheRoute
   '/_authenticated/admin/testimonials': typeof AuthenticatedAdminTestimonialsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -635,6 +645,7 @@ export interface FileRouteTypes {
     | '/admin/seo'
     | '/admin/services'
     | '/admin/settings'
+    | '/admin/settings-keys'
     | '/admin/social-cache'
     | '/admin/testimonials'
     | '/admin/users'
@@ -692,6 +703,7 @@ export interface FileRouteTypes {
     | '/admin/seo'
     | '/admin/services'
     | '/admin/settings'
+    | '/admin/settings-keys'
     | '/admin/social-cache'
     | '/admin/testimonials'
     | '/admin/users'
@@ -755,6 +767,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/seo'
     | '/_authenticated/admin/services'
     | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/settings-keys'
     | '/_authenticated/admin/social-cache'
     | '/_authenticated/admin/testimonials'
     | '/_authenticated/admin/users'
@@ -1043,6 +1056,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSocialCacheRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/settings-keys': {
+      id: '/_authenticated/admin/settings-keys'
+      path: '/settings-keys'
+      fullPath: '/admin/settings-keys'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsKeysRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/settings': {
       id: '/_authenticated/admin/settings'
       path: '/settings'
@@ -1261,6 +1281,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
   AuthenticatedAdminServicesRoute: typeof AuthenticatedAdminServicesRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminSettingsKeysRoute: typeof AuthenticatedAdminSettingsKeysRoute
   AuthenticatedAdminSocialCacheRoute: typeof AuthenticatedAdminSocialCacheRoute
   AuthenticatedAdminTestimonialsRoute: typeof AuthenticatedAdminTestimonialsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
@@ -1292,6 +1313,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
   AuthenticatedAdminServicesRoute: AuthenticatedAdminServicesRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+  AuthenticatedAdminSettingsKeysRoute: AuthenticatedAdminSettingsKeysRoute,
   AuthenticatedAdminSocialCacheRoute: AuthenticatedAdminSocialCacheRoute,
   AuthenticatedAdminTestimonialsRoute: AuthenticatedAdminTestimonialsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
