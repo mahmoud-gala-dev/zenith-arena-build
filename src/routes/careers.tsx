@@ -164,12 +164,12 @@ function CareersPage() {
         </div>
       </section>
 
-      <ApplyDialog open={open} onOpenChange={setOpen} job={selected} ar={ar} />
+      <ApplyDialog open={open} onOpenChange={setOpen} job={selected} ar={ar} T={T} />
     </SiteLayout>
   );
 }
 
-function ApplyDialog({ open, onOpenChange, job, ar }: { open: boolean; onOpenChange: (v: boolean) => void; job: JobOpening | null; ar: boolean }) {
+function ApplyDialog({ open, onOpenChange, job, ar, T }: { open: boolean; onOpenChange: (v: boolean) => void; job: JobOpening | null; ar: boolean; T: ReturnType<typeof useLang>["t"] }) {
   const submit = useServerFn(submitApplication);
   const [busy, setBusy] = useState(false);
   const [file, setFile] = useState<File | null>(null);
