@@ -424,3 +424,159 @@ export const categoryConfigs: CmsCollectionConfig[] = [
     fields: [...bilingualTitleFields, { name: "description_en", label: "English description", type: "textarea" }, { name: "description_ar", label: "Arabic description", type: "textarea", dir: "rtl" }, ...publicationFields.filter((field) => field.name !== "featured")],
   },
 ];
+
+export const faqItemsConfig: CmsCollectionConfig = {
+  table: "faq_items",
+  title: "FAQ Items",
+  singular: "FAQ",
+  description: "Manage bilingual questions and answers displayed on the public FAQ page.",
+  columns: [
+    { key: "question_en", label: "Question" },
+    { key: "category", label: "Category", type: "badge" },
+    { key: "sort_order", label: "Order" },
+    { key: "is_published", label: "Published", type: "boolean" },
+    { key: "updated_at", label: "Updated", type: "date" },
+  ],
+  searchFields: ["question_en", "question_ar", "answer_en", "category"],
+  orderBy: "sort_order",
+  orderAscending: true,
+  filters: [
+    { key: "category", label: "Category", values: ["projects", "costs", "certifications", "maintenance", "general"] },
+  ],
+  initialValues: {
+    question_en: "", question_ar: "", answer_en: "", answer_ar: "",
+    category: "general", sort_order: 0, is_published: true,
+  },
+  fields: [
+    { name: "question_en", label: "English question", required: true, fullWidth: true, maxLength: 300 },
+    { name: "question_ar", label: "Arabic question", dir: "rtl", fullWidth: true, maxLength: 300 },
+    { name: "answer_en", label: "English answer", type: "textarea", required: true, fullWidth: true, maxLength: 3000 },
+    { name: "answer_ar", label: "Arabic answer", type: "textarea", dir: "rtl", fullWidth: true, maxLength: 3000 },
+    { name: "category", label: "Category", required: true },
+    { name: "sort_order", label: "Sort order", type: "number" },
+    { name: "is_published", label: "Published", type: "switch" },
+  ],
+};
+
+export const jobOpeningsConfig: CmsCollectionConfig = {
+  table: "job_openings",
+  title: "Job Openings",
+  singular: "job",
+  description: "Manage open positions shown on the careers page.",
+  columns: [
+    { key: "title_en", label: "Title" },
+    { key: "department_en", label: "Department", type: "badge" },
+    { key: "location_en", label: "Location" },
+    { key: "employment_type", label: "Type", type: "badge" },
+    { key: "is_open", label: "Open", type: "boolean" },
+    { key: "sort_order", label: "Order" },
+    { key: "updated_at", label: "Updated", type: "date" },
+  ],
+  searchFields: ["title_en", "title_ar", "slug", "department_en", "location_en"],
+  orderBy: "sort_order",
+  orderAscending: true,
+  filters: [
+    { key: "employment_type", label: "Type", values: ["Full-time", "Part-time", "Contract", "Internship"] },
+  ],
+  initialValues: {
+    slug: "", title_en: "", title_ar: "",
+    department_en: "", department_ar: "",
+    location_en: "", location_ar: "",
+    employment_type: "Full-time",
+    description_en: "", description_ar: "",
+    requirements_en: "", requirements_ar: "",
+    is_open: true, sort_order: 0,
+  },
+  fields: [
+    { name: "slug", label: "Slug", required: true, maxLength: 140 },
+    { name: "title_en", label: "English title", required: true },
+    { name: "title_ar", label: "Arabic title", dir: "rtl" },
+    { name: "department_en", label: "Department (EN)" },
+    { name: "department_ar", label: "Department (AR)", dir: "rtl" },
+    { name: "location_en", label: "Location (EN)" },
+    { name: "location_ar", label: "Location (AR)", dir: "rtl" },
+    { name: "employment_type", label: "Employment type", type: "select", options: [
+      { value: "Full-time", label: "Full-time" },
+      { value: "Part-time", label: "Part-time" },
+      { value: "Contract", label: "Contract" },
+      { value: "Internship", label: "Internship" },
+    ] },
+    { name: "description_en", label: "English description", type: "textarea", maxLength: 4000 },
+    { name: "description_ar", label: "Arabic description", type: "textarea", dir: "rtl", maxLength: 4000 },
+    { name: "requirements_en", label: "English requirements", type: "textarea", maxLength: 4000 },
+    { name: "requirements_ar", label: "Arabic requirements", type: "textarea", dir: "rtl", maxLength: 4000 },
+    { name: "sort_order", label: "Sort order", type: "number" },
+    { name: "is_open", label: "Open for applications", type: "switch" },
+  ],
+};
+
+export const jobApplicationsConfig: CmsCollectionConfig = {
+  table: "job_applications",
+  title: "Job Applications",
+  singular: "application",
+  description: "Review incoming CV submissions and update their workflow status.",
+  columns: [
+    { key: "applicant_name", label: "Applicant" },
+    { key: "email", label: "Email" },
+    { key: "job_title", label: "Job" },
+    { key: "status", label: "Status", type: "badge" },
+    { key: "created_at", label: "Received", type: "date" },
+  ],
+  searchFields: ["applicant_name", "email", "phone", "job_title"],
+  orderBy: "created_at",
+  filters: [
+    { key: "status", label: "Status", values: ["new", "reviewing", "interview", "hired", "rejected", "archived"] },
+  ],
+  initialValues: {
+    applicant_name: "", email: "", phone: "", job_title: "",
+    cover_letter: "", cv_url: "", status: "new", notes: "",
+  },
+  fields: [
+    { name: "applicant_name", label: "Applicant name", required: true },
+    { name: "email", label: "Email", required: true },
+    { name: "phone", label: "Phone" },
+    { name: "job_title", label: "Job title" },
+    { name: "cv_url", label: "CV storage path (applications bucket)", fullWidth: true },
+    { name: "cover_letter", label: "Cover letter", type: "textarea", fullWidth: true, maxLength: 5000 },
+    { name: "status", label: "Status", type: "select", options: [
+      { value: "new", label: "New" },
+      { value: "reviewing", label: "Reviewing" },
+      { value: "interview", label: "Interview" },
+      { value: "hired", label: "Hired" },
+      { value: "rejected", label: "Rejected" },
+      { value: "archived", label: "Archived" },
+    ] },
+    { name: "notes", label: "Internal notes", type: "textarea", fullWidth: true, maxLength: 5000 },
+  ],
+};
+
+export const newsletterConfig: CmsCollectionConfig = {
+  table: "newsletter_subscribers",
+  title: "Newsletter Subscribers",
+  singular: "subscriber",
+  description: "View and manage newsletter subscribers.",
+  columns: [
+    { key: "email", label: "Email" },
+    { key: "locale", label: "Locale", type: "badge" },
+    { key: "source", label: "Source" },
+    { key: "subscribed_at", label: "Subscribed", type: "date" },
+    { key: "unsubscribed_at", label: "Unsubscribed", type: "date" },
+  ],
+  searchFields: ["email", "source"],
+  orderBy: "subscribed_at",
+  filters: [
+    { key: "locale", label: "Locale", values: ["en", "ar"] },
+  ],
+  initialValues: {
+    email: "", locale: "en", source: "manual",
+  },
+  fields: [
+    { name: "email", label: "Email", required: true },
+    { name: "locale", label: "Locale", type: "select", options: [
+      { value: "en", label: "English" },
+      { value: "ar", label: "Arabic" },
+    ] },
+    { name: "source", label: "Source" },
+  ],
+};
+

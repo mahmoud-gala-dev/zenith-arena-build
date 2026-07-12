@@ -1,18 +1,28 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Mail, MapPin, Facebook, Instagram, Linkedin, Youtube, Twitter, MessageCircle } from "lucide-react";
+import { toast } from "sonner";
 import { Logo } from "./Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLang } from "@/i18n/LanguageProvider";
 import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
+import { subscribeNewsletter } from "@/lib/newsletter.functions";
+
+
 
 
 export function Footer() {
   const { t, lang } = useLang();
   const contact = useContactInfo();
   const social = useSocialLinks();
+  const subscribe = useServerFn(subscribeNewsletter);
+  const [subEmail, setSubEmail] = useState("");
+  const [subBusy, setSubBusy] = useState(false);
   const year = new Date().getFullYear();
   const ar = lang === "ar";
+
   const wa = toWhatsAppNumber(social.whatsapp || contact.whatsapp);
   const socialLinks: { name: string; href: string; Icon: typeof Linkedin }[] = [
     { name: "LinkedIn", href: social.linkedin, Icon: Linkedin },
@@ -122,17 +132,36 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white">{t.footer.newsletter}</h4>
             <p className="mt-4 text-sm text-white/60">{t.footer.newsletterSub}</p>
-            <form className="mt-4 flex gap-2" onSubmit={(e) => e.preventDefault()}>
+            <form
+              className="mt-4 flex gap-2"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (!subEmail.trim()) return;
+                setSubBusy(true);
+                try {
+                  await subscribe({ data: { email: subEmail.trim(), locale: ar ? "ar" : "en", source: "footer", website: "" } });
+                  toast.success(ar ? "تم الاشتراك بنجاح." : "Subscribed. Thanks!");
+                  setSubEmail("");
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Could not subscribe.");
+                } finally {
+                  setSubBusy(false);
+                }
+              }}
+            >
               <Input
                 type="email"
                 required
+                value={subEmail}
+                onChange={(e) => setSubEmail(e.target.value)}
                 placeholder={t.footer.emailPlaceholder}
                 className="border-white/15 bg-white/5 text-white placeholder:text-white/40"
               />
-              <Button type="submit" variant="gold" size="sm">
-                {t.footer.subscribe}
+              <Button type="submit" variant="gold" size="sm" disabled={subBusy}>
+                {subBusy ? "…" : t.footer.subscribe}
               </Button>
             </form>
+
             <ul className="mt-6 flex flex-wrap gap-x-4 gap-y-2 text-xs text-white/50">
               {legal.map((l) => (
                 <li key={l.to}><Link to={l.to} className="inline-block py-1 hover:text-white">{l.label}</Link></li>
