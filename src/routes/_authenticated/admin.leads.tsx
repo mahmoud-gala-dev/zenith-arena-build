@@ -355,6 +355,20 @@ function LeadsPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      <LeadFormDialog
+        open={formOpen}
+        lead={editing}
+        onOpenChange={setFormOpen}
+        onSaved={(saved) => {
+          setLeads((prev) => {
+            const exists = prev.some((l) => l.id === saved.id);
+            return exists ? prev.map((l) => (l.id === saved.id ? saved : l)) : [saved, ...prev];
+          });
+          if (selected?.id === saved.id) setSelected(saved);
+          setFormOpen(false);
+        }}
+      />
     </AdminShell>
   );
 }
