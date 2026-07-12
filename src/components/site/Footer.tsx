@@ -64,12 +64,18 @@ export function Footer() {
             <Logo light />
             <p className="mt-4 max-w-xs text-sm text-white/60">{t.footer.tagline}</p>
             <div className="mt-6 space-y-2 text-sm text-white/70">
-              <p className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-primary" /> Riyadh · Dubai · Doha
-              </p>
-              <p className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-primary" /> hello@egyticsports.com
-              </p>
+              {officeLine && (
+                <p className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-primary" /> {officeLine}
+                </p>
+              )}
+              {contact.email && (
+                <p className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-primary" />
+                  <a href={`mailto:${contact.email}`} className="hover:text-white">{contact.email}</a>
+                </p>
+              )}
+
 
             </div>
             <div className="mt-6 flex flex-wrap gap-2">
