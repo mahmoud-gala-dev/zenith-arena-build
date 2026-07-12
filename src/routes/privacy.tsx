@@ -14,7 +14,7 @@ export const Route = createFileRoute("/privacy")({
         "How Egytic collects, uses and protects personal information submitted through our website and services.",
       fallbackDescAr:
         "كيف تجمع إيجيتك المعلومات الشخصية وتستخدمها وتحميها عبر موقعنا وخدماتنا.",
-    }),
+    }, "privacy"),
   component: () => (
     <LegalPage slug="privacy" eyebrowEn="Privacy" eyebrowAr="الخصوصية" />
   ),

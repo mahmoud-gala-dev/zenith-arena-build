@@ -332,6 +332,7 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
                 rtl={lang === "ar"}
                 value={form[lang]}
                 onChange={(next) => setForm({ ...form, [lang]: next })}
+                slug={slug}
               />
               <LivePreview rtl={lang === "ar"} value={form[lang]} />
             </div>
@@ -555,11 +556,17 @@ function LangEditor({
   value,
   onChange,
   rtl,
+  slug,
 }: {
   value: LangContent;
   onChange: (next: LangContent) => void;
   rtl?: boolean;
+  slug: string;
 }) {
+  const canonicalUrl = `https://zenith-arena-build.lovable.app/${slug}`;
+  const effectiveTitle = (value.seoTitle.trim() || value.title.trim() || "Untitled");
+  const effectiveDesc = (value.seoDescription.trim() || value.intro.trim() || "");
+  const descPreview = effectiveDesc.length > 160 ? effectiveDesc.slice(0, 157) + "…" : effectiveDesc;
   const dir = rtl ? "rtl" : "ltr";
 
   function updateSection(i: number, patch: Partial<Section>) {
@@ -628,6 +635,30 @@ function LangEditor({
               placeholder="comma, separated, keywords"
               onChange={(e) => onChange({ ...value, seoKeywords: e.target.value })}
             />
+          </div>
+          <div className="grid gap-2">
+            <Label>Canonical URL</Label>
+            <Input value={canonicalUrl} readOnly className="font-mono text-xs" />
+            <p className="text-xs text-muted-foreground">
+              Auto-generated from the page slug and site domain. Emitted as{" "}
+              <code className="rounded bg-muted px-1">rel=&quot;canonical&quot;</code> and{" "}
+              <code className="rounded bg-muted px-1">og:url</code>.
+            </p>
+          </div>
+
+          <div className="mt-2 rounded-md border bg-background p-3" dir={dir}>
+            <div className="mb-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              Google result preview
+            </div>
+            <div className="truncate text-xs text-emerald-700 dark:text-emerald-500">
+              {canonicalUrl}
+            </div>
+            <div className="mt-0.5 line-clamp-1 text-base font-medium text-[#1a0dab] dark:text-[#8ab4f8]">
+              {effectiveTitle}
+            </div>
+            <div className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
+              {descPreview || <span className="italic">Add a meta description to control this snippet.</span>}
+            </div>
           </div>
         </CardContent>
       </Card>
