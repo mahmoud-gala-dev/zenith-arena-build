@@ -142,6 +142,15 @@ function AdminUsersPage() {
         if (error) throw error;
       }
       toast.success(`Saved · +${toAdd.length} / −${toRemove.length}`);
+      void logAdminAudit({
+        action: "SENSITIVE_CHANGE",
+        resource: "role_permissions",
+        details: {
+          summary: "Permission matrix updated",
+          added: toAdd,
+          removed: toRemove,
+        },
+      });
       await load();
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Failed to save permissions";
@@ -186,6 +195,18 @@ function AdminUsersPage() {
       return;
     }
     toast.success("Role updated");
+    const previousRole = existing[0]?.role ?? null;
+    void logAdminAudit({
+      action: "SENSITIVE_CHANGE",
+      resource: "user_roles",
+      recordId: userId,
+      details: {
+        summary: "User role changed",
+        user_id: userId,
+        from: previousRole,
+        to: role,
+      },
+    });
     setUserRoles((prev) => [...prev.filter((item) => item.user_id !== userId), { id: crypto.randomUUID(), user_id: userId, role, created_at: new Date().toISOString() }]);
   }
 
