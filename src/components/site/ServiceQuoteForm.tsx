@@ -18,8 +18,7 @@ interface Props {
 }
 
 export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
-  const { lang } = useLang();
-  const ar = lang === "ar";
+  const { t: T } = useLang();
   const contact = useContactInfo();
 
   const [submitting, setSubmitting] = useState(false);
@@ -32,53 +31,11 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
   const [summary, setSummary] = useState<LeadSummary | null>(null);
   const submit = useServerFn(submitLead);
 
-  const t = ar
-    ? {
-        eyebrow: "طلب سريع",
-        title: "احصل على عرض سعر لهذه الخدمة",
-        subtitle: `تواصل مع فريقنا الهندسي للحصول على عرض مخصص لخدمة ${serviceTitle}. الرد خلال 48 ساعة.`,
-        name: "الاسم الكامل",
-        email: "البريد الإلكتروني",
-        phone: "رقم الجوال",
-        message: "تفاصيل المشروع (اختياري)",
-        submit: "أرسل الطلب",
-        submitting: "جارٍ الإرسال…",
-        or: "أو",
-        whatsapp: "تواصل عبر واتساب مع بياناتك",
-        email_us: "راسلنا عبر البريد",
-        success: "تم استلام طلبك بنجاح",
-        successBody: "سيتواصل معك فريق المبيعات خلال 48 ساعة.",
-        another: "إرسال طلب آخر",
-        invalidEmail: "بريد إلكتروني غير صالح",
-        invalidPhone: "رقم جوال غير صالح",
-        error: "تعذّر إرسال الطلب — حاول مجددًا.",
-      }
-    : {
-        eyebrow: "Quick request",
-        title: "Get a quote for this service",
-        subtitle: `Talk to our engineers about ${serviceTitle}. We respond within 48 hours.`,
-        name: "Full name",
-        email: "Email address",
-        phone: "Phone number",
-        message: "Project details (optional)",
-        submit: "Send request",
-        submitting: "Sending…",
-        or: "or",
-        whatsapp: "Send on WhatsApp with your details",
-        email_us: "Email us",
-        success: "Request received",
-        successBody: "Our sales team will reach out within 48 hours.",
-        another: "Send another request",
-        invalidEmail: "Invalid email address",
-        invalidPhone: "Invalid phone number",
-        error: "Could not send request — please try again.",
-      };
-
-  const mailBody = ar
-    ? `مرحبًا، أرغب في الحصول على عرض سعر لخدمة "${serviceTitle}".`
-    : `Hi, I'd like a quote for "${serviceTitle}".`;
+  const t = T.components.serviceQuote;
+  const subtitle = `${t.subtitlePrefix} ${serviceTitle}. ${t.subtitleSuffix}`;
+  const mailBody = `${t.mailBodyPrefix} "${serviceTitle}".`;
   const mailHref = contact.email
-    ? `mailto:${contact.email}?subject=${encodeURIComponent(`[${serviceTitle}] ${ar ? "طلب عرض سعر" : "Quote request"}`)}&body=${encodeURIComponent(mailBody)}`
+    ? `mailto:${contact.email}?subject=${encodeURIComponent(`[${serviceTitle}] ${t.mailSubjectSuffix}`)}&body=${encodeURIComponent(mailBody)}`
     : null;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -139,7 +96,7 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
             <div className="relative bg-primary/5 p-8 md:col-span-2 md:border-r rtl:md:border-r-0 rtl:md:border-l border-border">
               <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">{t.eyebrow}</span>
               <h2 className="mt-4 text-2xl font-bold text-foreground leading-tight">{t.title}</h2>
-              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{t.subtitle}</p>
+              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{subtitle}</p>
 
               <div className="mt-8 space-y-2">
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">{t.or}</p>
@@ -175,7 +132,7 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
                   <p className="mt-2 text-sm text-muted-foreground max-w-sm">{t.successBody}</p>
                   <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                     <Button variant="hero" onClick={() => setSuccessOpen(true)}>
-                      {ar ? "عرض ملخص الطلب" : "View submission"}
+                      {t.viewSubmission}
                     </Button>
                     <Button variant="outline" onClick={() => setSent(false)}>{t.another}</Button>
                   </div>
@@ -209,7 +166,7 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
                     </Button>
                     <WhatsAppSendButton
                       variant="solid"
-                      label={ar ? "إرسال عبر واتساب" : "Send via WhatsApp"}
+                      label={t.sendViaWhatsapp}
                       source={`service_quote_form_inline:${serviceSlug}`}
                       fields={{ name, email, phone, message, service: serviceTitle }}
                     />

@@ -8,7 +8,7 @@ import { useUiPrefs } from "@/hooks/useUiPrefs";
 import { computeMobileNavVisibility, DEFAULT_IDLE_MS } from "@/lib/mobileNavVisibility";
 
 export function MobileTabBar({ onOpenMore }: { onOpenMore: () => void }) {
-  const { lang } = useLang();
+  const { t: T } = useLang();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const reducedMotion = usePrefersReducedMotion();
   const { data: prefs } = useUiPrefs();
@@ -16,12 +16,12 @@ export function MobileTabBar({ onOpenMore }: { onOpenMore: () => void }) {
   const scrolling = useScrollIdle(idleMs);
   const { hidden, transitionMs } = computeMobileNavVisibility({ scrolling, reducedMotion });
 
-  const ar = lang === "ar";
+  const M = T.components.mobile;
   const tabs = [
-    { to: "/", icon: Home, label: ar ? "الرئيسية" : "Home", match: (p: string) => p === "/" },
-    { to: "/projects", icon: Building2, label: ar ? "مشاريع" : "Projects", match: (p: string) => p.startsWith("/projects") },
-    { to: "/products", icon: Package, label: ar ? "منتجات" : "Products", match: (p: string) => p.startsWith("/products") },
-    { to: "/knowledge", icon: BookOpen, label: ar ? "معرفة" : "Knowledge", match: (p: string) => p.startsWith("/knowledge") },
+    { to: "/", icon: Home, label: M.tabbar.home, match: (p: string) => p === "/" },
+    { to: "/projects", icon: Building2, label: M.tabbar.projects, match: (p: string) => p.startsWith("/projects") },
+    { to: "/products", icon: Package, label: M.tabbar.products, match: (p: string) => p.startsWith("/products") },
+    { to: "/knowledge", icon: BookOpen, label: M.tabbar.knowledge, match: (p: string) => p.startsWith("/knowledge") },
   ] as const;
 
   const moreActive = !tabs.some((t) => t.match(pathname));
@@ -30,7 +30,7 @@ export function MobileTabBar({ onOpenMore }: { onOpenMore: () => void }) {
     <nav
       data-mobile-tabbar
       data-hidden={hidden ? "true" : "false"}
-      aria-label={ar ? "شريط التنقل" : "Bottom navigation"}
+      aria-label={M.tabbar.ariaBottomNav}
       aria-hidden={hidden || undefined}
       className={cn(
         "fixed inset-x-0 bottom-0 z-40 md:hidden will-change-transform",
@@ -78,7 +78,7 @@ export function MobileTabBar({ onOpenMore }: { onOpenMore: () => void }) {
           <button
             type="button"
             onClick={onOpenMore}
-            aria-label={ar ? "المزيد" : "More"}
+            aria-label={M.tabbar.more}
             className={cn(
               "flex min-h-14 w-full flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 text-[10px] font-medium transition-all",
               "active:scale-[0.94]",
@@ -93,7 +93,7 @@ export function MobileTabBar({ onOpenMore }: { onOpenMore: () => void }) {
             >
               <Menu className={cn("h-5 w-5", moreActive && "text-primary")} strokeWidth={moreActive ? 2.4 : 2} />
             </span>
-            <span className="leading-tight">{ar ? "المزيد" : "More"}</span>
+            <span className="leading-tight">{M.tabbar.more}</span>
           </button>
         </li>
       </ul>

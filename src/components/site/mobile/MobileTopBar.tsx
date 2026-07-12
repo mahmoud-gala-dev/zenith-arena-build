@@ -10,25 +10,25 @@ import { cn } from "@/lib/utils";
 // Contextual title per route section.
 function useRouteTitle() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { lang, t } = useLang();
-  const ar = lang === "ar";
+  const { t } = useLang();
+  const M = t.components.mobile.titles;
   if (pathname === "/") return "";
   if (pathname.startsWith("/projects")) return t.nav.projects;
   if (pathname.startsWith("/products")) return t.nav.products;
   if (pathname.startsWith("/services")) return t.nav.services;
   if (pathname.startsWith("/knowledge")) return t.nav.knowledge;
-  if (pathname.startsWith("/gallery")) return ar ? "المعرض" : "Gallery";
+  if (pathname.startsWith("/gallery")) return M.gallery;
   if (pathname.startsWith("/about")) return t.nav.about;
   if (pathname.startsWith("/contact")) return t.nav.contact;
   if (pathname.startsWith("/quote")) return t.nav.quote;
-  if (pathname.startsWith("/clients")) return ar ? "العملاء" : "Clients";
-  if (pathname.startsWith("/careers")) return ar ? "الوظائف" : "Careers";
-  if (pathname.startsWith("/faq")) return ar ? "الأسئلة الشائعة" : "FAQ";
-  if (pathname.startsWith("/downloads")) return ar ? "التحميلات" : "Downloads";
-  if (pathname.startsWith("/certificates")) return ar ? "الشهادات" : "Certificates";
-  if (pathname.startsWith("/governorates")) return ar ? "المحافظات" : "Governorates";
-  if (pathname.startsWith("/privacy")) return ar ? "الخصوصية" : "Privacy";
-  if (pathname.startsWith("/terms")) return ar ? "الشروط" : "Terms";
+  if (pathname.startsWith("/clients")) return M.clients;
+  if (pathname.startsWith("/careers")) return M.careers;
+  if (pathname.startsWith("/faq")) return M.faq;
+  if (pathname.startsWith("/downloads")) return M.downloads;
+  if (pathname.startsWith("/certificates")) return M.certificates;
+  if (pathname.startsWith("/governorates")) return M.governorates;
+  if (pathname.startsWith("/privacy")) return M.privacy;
+  if (pathname.startsWith("/terms")) return M.terms;
   return "";
 }
 

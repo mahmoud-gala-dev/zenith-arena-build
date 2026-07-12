@@ -15,22 +15,8 @@ interface GallerySectionProps {
  * type (and, for projects, the correct category) preselected.
  */
 export function GallerySection({ image, title, source, toCategory }: GallerySectionProps) {
-  const { lang } = useLang();
-  const ar = lang === "ar";
-
-  const copy = ar
-    ? {
-        eyebrow: "من المعرض",
-        heading: "شاهد المزيد من الصور",
-        sub: "استعرض معرض الصور الكامل لهذا القسم وشاهد لقطات المشاريع والمنشآت.",
-        cta: "افتح المعرض",
-      }
-    : {
-        eyebrow: "From the gallery",
-        heading: "Explore more visuals",
-        sub: "Browse the full gallery for this section — pitches, arenas and technical highlights.",
-        cta: "Open gallery",
-      };
+  const { t } = useLang();
+  const copy = t.components.gallerySection;
 
   const search: Record<string, string> = { type: source };
   if (source === "projects" && toCategory) search.category = toCategory;

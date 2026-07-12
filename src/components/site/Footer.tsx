@@ -73,9 +73,7 @@ export function Footer() {
               {t.components.footer.buildWith}
             </p>
             <h3 className="mt-2 max-w-2xl font-display text-2xl leading-tight text-white sm:text-3xl">
-              {ar
-                ? "من التصميم إلى التسليم — منشآت رياضية بمواصفات دولية."
-                : "From design to delivery — world-class sports facilities engineered in Egypt."}
+              {t.components.footer.tagline}
             </h3>
           </div>
           <div className="flex flex-wrap items-center gap-3">
