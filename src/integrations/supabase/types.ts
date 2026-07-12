@@ -1032,6 +1032,7 @@ export type Database = {
           content_ar: string | null
           content_en: string | null
           created_at: string
+          effective_at: string | null
           featured: boolean
           id: string
           slug_ar: string | null
@@ -1047,6 +1048,7 @@ export type Database = {
           content_ar?: string | null
           content_en?: string | null
           created_at?: string
+          effective_at?: string | null
           featured?: boolean
           id?: string
           slug_ar?: string | null
@@ -1062,6 +1064,7 @@ export type Database = {
           content_ar?: string | null
           content_en?: string | null
           created_at?: string
+          effective_at?: string | null
           featured?: boolean
           id?: string
           slug_ar?: string | null

@@ -18,7 +18,13 @@ export const Route = createFileRoute("/_authenticated/admin/legal")({
 
 type Section = { h: string; body: string };
 type LangContent = { title: string; intro: string; sections: Section[] };
-type PageForm = { id?: string; en: LangContent; ar: LangContent };
+type PageForm = {
+  id?: string;
+  en: LangContent;
+  ar: LangContent;
+  status: "published" | "draft";
+  effectiveAt: string; // datetime-local value or ""
+};
 
 const SLUGS = [
   { slug: "privacy", label: "Privacy Policy" },
@@ -45,6 +51,14 @@ function serialize(intro: string, sections: Section[]): string {
     .map((s) => `## ${s.h.trim()}\n${s.body.trim()}`)
     .join("\n\n");
   return [introPart, sectionPart].filter(Boolean).join("\n\n");
+}
+
+function toLocalInput(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function AdminLegalPage() {
@@ -90,6 +104,8 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
       setForm({
         en: { title: label, intro: "", sections: [] },
         ar: { title: label, intro: "", sections: [] },
+        status: "draft",
+        effectiveAt: "",
       });
       return;
     }
@@ -100,11 +116,20 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
         id: data.id,
         en: { title: data.title_en ?? label, intro: en.intro, sections: en.sections },
         ar: { title: data.title_ar ?? label, intro: ar.intro, sections: ar.sections },
+        status: (data.status as "published" | "draft") ?? "draft",
+        effectiveAt: toLocalInput((data as { effective_at?: string | null }).effective_at ?? null),
       });
     }
   }, [data, isLoading, label]);
 
   const canSave = useMemo(() => !!form && !saving, [form, saving]);
+
+  const isLive = useMemo(() => {
+    if (!form) return false;
+    if (form.status !== "published") return false;
+    if (!form.effectiveAt) return true;
+    return new Date(form.effectiveAt).getTime() <= Date.now();
+  }, [form]);
 
   async function save() {
     if (!form) return;
@@ -118,7 +143,8 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
         content_en: serialize(form.en.intro, form.en.sections),
         content_ar: serialize(form.ar.intro, form.ar.sections),
         template: "legal",
-        status: "published" as const,
+        status: form.status,
+        effective_at: form.effectiveAt ? new Date(form.effectiveAt).toISOString() : null,
       };
       const q = form.id
         ? supabase.from("pages").update(payload).eq("id", form.id)
@@ -158,9 +184,69 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
         ))}
       </Tabs>
 
-      <div className="flex justify-end">
-        <Button onClick={save} disabled={!canSave}>{saving ? "Saving…" : "Save"}</Button>
-      </div>
+      <Card>
+        <CardHeader className="pb-3"><CardTitle className="text-base">Publishing</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-2">
+              <Label>Status</Label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={form.status === "published" ? "default" : "outline"}
+                  onClick={() => setForm({ ...form, status: "published" })}
+                >
+                  Published
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={form.status === "draft" ? "default" : "outline"}
+                  onClick={() => setForm({ ...form, status: "draft" })}
+                >
+                  Unpublished
+                </Button>
+              </div>
+            </div>
+            <div className="grid gap-2 md:col-span-2">
+              <Label htmlFor={`eff-${slug}`}>Effective date (optional)</Label>
+              <div className="flex flex-wrap items-center gap-2">
+                <Input
+                  id={`eff-${slug}`}
+                  type="datetime-local"
+                  value={form.effectiveAt}
+                  onChange={(e) => setForm({ ...form, effectiveAt: e.target.value })}
+                  className="max-w-xs"
+                />
+                {form.effectiveAt && (
+                  <Button type="button" size="sm" variant="ghost" onClick={() => setForm({ ...form, effectiveAt: "" })}>
+                    Clear
+                  </Button>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Public visitors see this version only when it is Published and the effective date has passed. Leave empty to publish immediately.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center justify-between border-t pt-3">
+            <span
+              className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${
+                isLive ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"
+              }`}
+            >
+              <span className={`h-2 w-2 rounded-full ${isLive ? "bg-emerald-500" : "bg-amber-500"}`} />
+              {isLive
+                ? "Live to visitors"
+                : form.status !== "published"
+                  ? "Unpublished — hidden from visitors"
+                  : "Scheduled — not live yet"}
+            </span>
+            <Button onClick={save} disabled={!canSave}>{saving ? "Saving…" : "Save"}</Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <AuditHistory recordId={form.id} />
     </div>
