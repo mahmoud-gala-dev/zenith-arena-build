@@ -85,8 +85,10 @@ function slugify(s: string) {
 }
 
 function AdminBlogPage() {
+  const invalidate = useInvalidateTables(["blog_posts", "blog_categories", "tags"]);
   const [rows, setRows] = useState<Article[]>([]);
   const [cats, setCats] = useState<Category[]>([]);
+
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
