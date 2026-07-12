@@ -65,6 +65,11 @@ jobs:
           python scripts/android-scrollbar-visual.py
           python scripts/android-firefox-scrollbar-visual.py
 
+      - name: Run iOS Admin CMS scrollbar visual (skips without a Supabase session)
+        # No-op on public CI (no session); runs the assertions when a maintainer
+        # provides LOVABLE_BROWSER_SUPABASE_* via secrets or a self-hosted runner.
+        run: python scripts/ios-admin-scrollbar-visual.py
+
       - name: Pixelmatch against baselines
         env:
           UPDATE_BASELINES: ${{ github.event.inputs.update_baselines == 'true' && '1' || '' }}
