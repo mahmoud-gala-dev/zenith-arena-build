@@ -1,12 +1,25 @@
 name: scrollbar-visual-regression
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "src/styles.css"
+      - "src/**/*.tsx"
+      - "scripts/*scrollbar*.py"
+      - "scripts/_scroll_assertions.py"
+      - "scripts/visual-diff.mjs"
+      - "scripts/aggregate-report.mjs"
+      - "qa-baselines/**"
+      - ".github/workflows/scrollbar-visual.yml"
   pull_request:
     paths:
       - "src/styles.css"
       - "src/**/*.tsx"
       - "scripts/*scrollbar*.py"
+      - "scripts/_scroll_assertions.py"
       - "scripts/visual-diff.mjs"
+      - "scripts/aggregate-report.mjs"
       - "qa-baselines/**"
       - ".github/workflows/scrollbar-visual.yml"
   workflow_dispatch:
@@ -76,7 +89,11 @@ jobs:
           CI_ALLOW_SEED: ${{ github.event.inputs.update_baselines == 'true' && '1' || '' }}
         run: node scripts/visual-diff.mjs
 
-      - name: Upload qa-report (screenshots + diffs + JSON)
+      - name: Aggregate report.json (fails build on any drift or assertion error)
+        if: always()
+        run: node scripts/aggregate-report.mjs
+
+      - name: Upload qa-report (screenshots + per-suite report.json + top-level report.json + pixel diffs)
         if: always()
         uses: actions/upload-artifact@v4
         with:
