@@ -705,3 +705,48 @@ export const pageBySlugQueryOptions = (slug: string) =>
     },
   });
 
+export type TranslationRow = {
+  key: string;
+  namespace: string;
+  en: string;
+  ar: string;
+  description: string | null;
+  updated_at: string;
+};
+
+export type TranslationsMap = { en: Record<string, string>; ar: Record<string, string> };
+
+export const translationsQueryOptions = queryOptions<TranslationsMap>({
+  queryKey: ["translations"],
+  staleTime: 5 * 60_000,
+  gcTime: 30 * 60_000,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("translations" as never)
+      .select("key,en,ar");
+    if (error) throw error;
+    const rows = (data ?? []) as Array<{ key: string; en: string; ar: string }>;
+    const en: Record<string, string> = {};
+    const ar: Record<string, string> = {};
+    for (const r of rows) {
+      en[r.key] = r.en;
+      ar[r.key] = r.ar;
+    }
+    return { en, ar };
+  },
+});
+
+export const translationsAllQueryOptions = queryOptions<TranslationRow[]>({
+  queryKey: ["translations", "all"],
+  staleTime: 60_000,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("translations" as never)
+      .select("*")
+      .order("namespace", { ascending: true })
+      .order("key", { ascending: true });
+    if (error) throw error;
+    return (data ?? []) as unknown as TranslationRow[];
+  },
+});
+

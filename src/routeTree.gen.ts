@@ -44,6 +44,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as PreviewPagesSlugRouteImport } from './routes/preview.pages.$slug'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
+import { Route as AuthenticatedAdminTranslationsRouteImport } from './routes/_authenticated/admin.translations'
 import { Route as AuthenticatedAdminTestimonialsRouteImport } from './routes/_authenticated/admin.testimonials'
 import { Route as AuthenticatedAdminSocialCacheRouteImport } from './routes/_authenticated/admin.social-cache'
 import { Route as AuthenticatedAdminSettingsKeysRouteImport } from './routes/_authenticated/admin.settings-keys'
@@ -249,6 +250,12 @@ const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminTranslationsRoute =
+  AuthenticatedAdminTranslationsRouteImport.update({
+    id: '/translations',
+    path: '/translations',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminTestimonialsRoute =
   AuthenticatedAdminTestimonialsRouteImport.update({
     id: '/testimonials',
@@ -483,6 +490,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings-keys': typeof AuthenticatedAdminSettingsKeysRoute
   '/admin/social-cache': typeof AuthenticatedAdminSocialCacheRoute
   '/admin/testimonials': typeof AuthenticatedAdminTestimonialsRoute
+  '/admin/translations': typeof AuthenticatedAdminTranslationsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -544,6 +552,7 @@ export interface FileRoutesByTo {
   '/admin/settings-keys': typeof AuthenticatedAdminSettingsKeysRoute
   '/admin/social-cache': typeof AuthenticatedAdminSocialCacheRoute
   '/admin/testimonials': typeof AuthenticatedAdminTestimonialsRoute
+  '/admin/translations': typeof AuthenticatedAdminTranslationsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -612,6 +621,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/settings-keys': typeof AuthenticatedAdminSettingsKeysRoute
   '/_authenticated/admin/social-cache': typeof AuthenticatedAdminSocialCacheRoute
   '/_authenticated/admin/testimonials': typeof AuthenticatedAdminTestimonialsRoute
+  '/_authenticated/admin/translations': typeof AuthenticatedAdminTranslationsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -680,6 +690,7 @@ export interface FileRouteTypes {
     | '/admin/settings-keys'
     | '/admin/social-cache'
     | '/admin/testimonials'
+    | '/admin/translations'
     | '/admin/users'
     | '/preview/pages/$slug'
     | '/admin/'
@@ -741,6 +752,7 @@ export interface FileRouteTypes {
     | '/admin/settings-keys'
     | '/admin/social-cache'
     | '/admin/testimonials'
+    | '/admin/translations'
     | '/admin/users'
     | '/preview/pages/$slug'
     | '/admin'
@@ -808,6 +820,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/settings-keys'
     | '/_authenticated/admin/social-cache'
     | '/_authenticated/admin/testimonials'
+    | '/_authenticated/admin/translations'
     | '/_authenticated/admin/users'
     | '/preview/pages/$slug'
     | '/_authenticated/admin/'
@@ -1087,6 +1100,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/translations': {
+      id: '/_authenticated/admin/translations'
+      path: '/translations'
+      fullPath: '/admin/translations'
+      preLoaderRoute: typeof AuthenticatedAdminTranslationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/testimonials': {
       id: '/_authenticated/admin/testimonials'
       path: '/testimonials'
@@ -1345,6 +1365,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSettingsKeysRoute: typeof AuthenticatedAdminSettingsKeysRoute
   AuthenticatedAdminSocialCacheRoute: typeof AuthenticatedAdminSocialCacheRoute
   AuthenticatedAdminTestimonialsRoute: typeof AuthenticatedAdminTestimonialsRoute
+  AuthenticatedAdminTranslationsRoute: typeof AuthenticatedAdminTranslationsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
@@ -1380,6 +1401,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSettingsKeysRoute: AuthenticatedAdminSettingsKeysRoute,
   AuthenticatedAdminSocialCacheRoute: AuthenticatedAdminSocialCacheRoute,
   AuthenticatedAdminTestimonialsRoute: AuthenticatedAdminTestimonialsRoute,
+  AuthenticatedAdminTranslationsRoute: AuthenticatedAdminTranslationsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }

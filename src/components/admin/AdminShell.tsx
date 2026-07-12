@@ -27,7 +27,9 @@ import {
   Search,
   Settings,
   Tags,
+  Languages,
   Users,
+
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -58,6 +60,7 @@ const nav: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exac
   { to: "/admin/applications", label: "Applications", icon: Inbox },
   { to: "/admin/newsletter", label: "Newsletter", icon: Inbox },
   { to: "/admin/seo", label: "SEO Manager", icon: Search },
+  { to: "/admin/translations", label: "Translations (i18n)", icon: Languages },
   { to: "/admin/social-cache", label: "Social cache", icon: RefreshCw },
   { to: "/admin/qa-reports", label: "QA Reports", icon: LayoutDashboard },
   { to: "/admin/audit-logs", label: "Audit Log", icon: ClipboardList },
