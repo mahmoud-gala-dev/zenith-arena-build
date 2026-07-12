@@ -62,7 +62,12 @@ export function DownloadGateButton({
   if (!requiresLead) {
     return (
       <Button asChild size={size} variant={variant} className={className}>
-        <a href={fileUrl} target="_blank" rel="noreferrer">
+        <a
+          href={fileUrl}
+          target="_blank"
+          rel="noreferrer"
+          onClick={() => { void trackDownloadEvent("download", downloadId); }}
+        >
           <Download className="h-4 w-4" /> {label}
         </a>
       </Button>
