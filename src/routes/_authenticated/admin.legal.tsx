@@ -151,7 +151,31 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
     }
   }, [data, isLoading, label]);
 
-  const canSave = useMemo(() => !!form && !saving, [form, saving]);
+  const validation = useMemo(() => {
+    const errors: { en: string[]; ar: string[] } = { en: [], ar: [] };
+    if (!form) return { errors, valid: false };
+    (["en", "ar"] as const).forEach((lang) => {
+      const c = form[lang];
+      const label = lang === "en" ? "English" : "Arabic";
+      if (!c.title.trim()) errors[lang].push(`${label}: title is required`);
+      if (!c.intro.trim()) errors[lang].push(`${label}: intro paragraph is required`);
+      if (c.sections.length === 0) {
+        errors[lang].push(`${label}: at least one section is required`);
+      } else {
+        c.sections.forEach((s, i) => {
+          if (!s.h.trim()) errors[lang].push(`${label}: section ${i + 1} is missing a heading`);
+          if (!s.body.trim()) errors[lang].push(`${label}: section ${i + 1} is missing body content`);
+        });
+      }
+      if (form.en.sections.length !== form.ar.sections.length && lang === "ar") {
+        errors.ar.push("Arabic must have the same number of sections as English");
+      }
+    });
+    const valid = errors.en.length === 0 && errors.ar.length === 0;
+    return { errors, valid };
+  }, [form]);
+
+  const canSave = useMemo(() => !!form && !saving && validation.valid, [form, saving, validation.valid]);
 
   const isLive = useMemo(() => {
     if (!form) return false;
