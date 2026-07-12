@@ -128,6 +128,11 @@ export function DownloadGateButton({
         success: "تم — يبدأ التحميل الآن",
         error: "تعذّر الإرسال. حاول مرة أخرى.",
         required: "الرجاء تعبئة الاسم والبريد ورقم الجوال.",
+        successTitle: "تم استلام بياناتك بنجاح",
+        successDesc: "بدأ تحميلك. للتحدث مع فريق المبيعات مباشرة، تواصل معنا عبر واتساب.",
+        whatsapp: "تواصل مع المبيعات عبر واتساب",
+        close: "إغلاق",
+        waMsg: (t: string) => `مرحبًا، طلبت تحميل: ${t}. أود التحدث مع فريق المبيعات.`,
       }
     : {
         title: "Enter your details to start the download",
@@ -141,6 +146,11 @@ export function DownloadGateButton({
         success: "Thanks — your download is starting",
         error: "Could not submit. Please try again.",
         required: "Name, email and phone are required.",
+        successTitle: "Your details were received",
+        successDesc: "Your download has started. To talk to our sales team directly, message us on WhatsApp.",
+        whatsapp: "Chat with sales on WhatsApp",
+        close: "Close",
+        waMsg: (t: string) => `Hi, I just requested the ${t} catalog. I'd like to talk to sales.`,
       };
 
   async function onSubmit(e: React.FormEvent) {
