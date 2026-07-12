@@ -167,32 +167,29 @@ export function resolveBaseUrl(request: Request): string {
 }
 
 /**
- * Resolve per-language alternates for a single blog post based on its
- * translation group. Used by the article route's `head()` to emit accurate
- * `<link rel="alternate" hreflang>` tags.
+ * Compute per-language alternates from a set of rows in a translation group.
+ * Callers own the fetch (SSR uses the server client; route loaders use the
+ * shared browser client) — this helper is pure.
  */
-export async function resolveBlogPostAlternates(
-  translationGroupId: string | null | undefined,
+export function alternatesFromGroup(
+  group: Array<Pick<BlogRow, "slug_en" | "slug_ar" | "content_en" | "content_ar">>,
   fallbackSlugEn: string,
-): Promise<{ en: string; ar: string }> {
-  const fallback = {
-    en: `/knowledge/${fallbackSlugEn}`,
-    ar: `/knowledge/${fallbackSlugEn}?lang=ar`,
-  };
-  if (!translationGroupId) return fallback;
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !key) return fallback;
-  const sb = createClient<Database>(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-  const { data } = await sb
-    .from("blog_posts")
-    .select("slug_en,slug_ar,content_en,content_ar,translation_group_id,updated_at,published_at")
-    .eq("translation_group_id", translationGroupId)
-    .eq("status", "published");
-  const group = (data ?? []) as BlogRow[];
-  if (group.length === 0) return fallback;
-  const { enPath, arPath } = pickGroupUrls(group);
+): { en: string; ar: string } {
+  if (group.length === 0) {
+    return {
+      en: `/knowledge/${fallbackSlugEn}`,
+      ar: `/knowledge/${fallbackSlugEn}?lang=ar`,
+    };
+  }
+  const full = group.map((r) => ({
+    slug_en: r.slug_en,
+    slug_ar: r.slug_ar,
+    content_en: r.content_en,
+    content_ar: r.content_ar,
+    updated_at: null,
+    published_at: null,
+    translation_group_id: null,
+  })) as BlogRow[];
+  const { enPath, arPath } = pickGroupUrls(full);
   return { en: enPath, ar: arPath };
 }
