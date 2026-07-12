@@ -2141,6 +2141,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_my_permissions: { Args: never; Returns: string[] }
       get_page_by_preview_token: {
         Args: { _token: string }
         Returns: {
@@ -2160,6 +2161,10 @@ export type Database = {
           updated_at: string
           version_number: number
         }[]
+      }
+      has_permission: {
+        Args: { _perm: string; _user_id: string }
+        Returns: boolean
       }
       has_role: {
         Args: {
