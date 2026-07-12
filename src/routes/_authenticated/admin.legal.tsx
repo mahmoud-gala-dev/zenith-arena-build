@@ -327,6 +327,10 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
       toast.error("Save English or Arabic content first, then publish.");
       return;
     }
+    if (publishingValidation.errors.length > 0) {
+      toast.error(publishingValidation.errors[0]);
+      return;
+    }
     setSavingPublishing(true);
     try {
       const { error } = await supabase
@@ -336,6 +340,7 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
           effective_at: form.effectiveAt ? new Date(form.effectiveAt).toISOString() : null,
         })
         .eq("id", form.id);
+
       if (error) throw error;
       toast.success("Publishing updated");
       qc.invalidateQueries({ queryKey: ["admin", "legal", slug] });
