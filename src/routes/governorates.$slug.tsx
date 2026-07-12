@@ -120,7 +120,7 @@ function GovernoratePage() {
             )}
             <div>
               <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-gold">
-                {lang === "ar" ? "محافظة مصرية" : "Egyptian Governorate"}
+                {t.governorate.egyptianGov}
               </span>
               <h1 className="mt-2 text-3xl font-bold sm:text-4xl">{name}</h1>
               {region && <p className="mt-1 text-sm text-white/70">{region}</p>}
