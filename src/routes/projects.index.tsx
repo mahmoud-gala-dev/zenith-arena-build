@@ -110,7 +110,7 @@ function ProjectsPage() {
               />
             </div>
             <button type="submit" className="h-11 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-soft hover:opacity-90">
-              {lang === "ar" ? "بحث" : "Search"}
+              {t.projects.searchBtn}
             </button>
             {hasAny && (
               <button
