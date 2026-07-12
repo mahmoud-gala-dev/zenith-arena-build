@@ -53,7 +53,9 @@ export const Route = createFileRoute("/")({
     void queryClient.ensureQueryData(homeClientsQueryOptions);
     void queryClient.ensureQueryData(servicesPublishedQueryOptions);
     void queryClient.ensureQueryData(homeHeroSettingsQueryOptions);
+    void queryClient.ensureQueryData(homepageSectionsQueryOptions);
   },
+
 
   head: () => {
     const SITE_URL = "https://zenith-arena-build.lovable.app";
