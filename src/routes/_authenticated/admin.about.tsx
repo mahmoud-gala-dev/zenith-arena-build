@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Plus, ArrowUp, ArrowDown } from "lucide-react";
+import { IconPicker } from "@/components/admin/IconPicker";
 import { aboutContentQueryOptions, type AboutContent, type AboutValueItem, type AboutStatItem } from "@/lib/queries";
 
 export const Route = createFileRoute("/_authenticated/admin/about")({
@@ -112,7 +113,7 @@ function AdminAboutPage() {
                   </div>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div><Label>Icon (lucide-react name)</Label><Input value={v.icon} onChange={(e) => updateItem(state, setState, "values", i, { ...v, icon: e.target.value })} placeholder="ShieldCheck, Cpu, Wrench, Award…" /></div>
+                  <div><Label>Icon</Label><IconPicker value={v.icon} onChange={(name) => updateItem(state, setState, "values", i, { ...v, icon: name })} /></div>
                   <div />
                   <div><Label>Title (EN)</Label><Input value={v.title_en} onChange={(e) => updateItem(state, setState, "values", i, { ...v, title_en: e.target.value })} /></div>
                   <div><Label>Title (AR)</Label><Input dir="rtl" value={v.title_ar} onChange={(e) => updateItem(state, setState, "values", i, { ...v, title_ar: e.target.value })} /></div>

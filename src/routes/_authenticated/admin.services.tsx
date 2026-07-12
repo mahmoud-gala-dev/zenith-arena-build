@@ -18,6 +18,7 @@ import { GalleryOrderEditor } from "@/components/admin/GalleryOrderEditor";
 import { ServiceLivePreview } from "@/components/admin/ServiceLivePreview";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { ImageVariantsManifest } from "@/hooks/useSignedImage";
+import { IconPicker } from "@/components/admin/IconPicker";
 import { invalidateManifestCache } from "@/hooks/useSignedImage";
 import { insertImageVersion } from "@/hooks/useImageVersions";
 import { ImageHistoryButton } from "@/components/admin/ImageHistoryButton";
@@ -310,7 +311,7 @@ function AdminServicesPage() {
                   <Field label="English title *"><Input value={editing.title_en} onChange={(e) => setEditing({ ...editing, title_en: e.target.value })} /></Field>
                   <Field label="Arabic title"><Input dir="rtl" value={editing.title_ar ?? ""} onChange={(e) => setEditing({ ...editing, title_ar: e.target.value })} /></Field>
                   <Field label="Category"><Input value={editing.category ?? ""} onChange={(e) => setEditing({ ...editing, category: e.target.value })} /></Field>
-                  <Field label="Icon"><Input value={editing.icon ?? ""} onChange={(e) => setEditing({ ...editing, icon: e.target.value })} /></Field>
+                  <Field label="Icon"><IconPicker value={editing.icon} onChange={(name) => setEditing({ ...editing, icon: name })} /></Field>
                   <Field label="English alt text (for images)"><Input value={editing.alt_en ?? ""} onChange={(e) => setEditing({ ...editing, alt_en: e.target.value })} maxLength={180} /></Field>
                   <Field label="Arabic alt text"><Input dir="rtl" value={editing.alt_ar ?? ""} onChange={(e) => setEditing({ ...editing, alt_ar: e.target.value })} maxLength={180} /></Field>
                 </div>
