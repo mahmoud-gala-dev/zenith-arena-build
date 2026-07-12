@@ -25,6 +25,14 @@ export function Header() {
   const reduceMotion = useReducedMotion();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [leadOpen, setLeadOpen] = useState(false);
+  const [leadIntent, setLeadIntent] = useState<"callback" | "quote">("quote");
+  const [leadSource, setLeadSource] = useState("header_cta");
+  const openLead = (intent: "callback" | "quote", source: string) => {
+    setLeadIntent(intent);
+    setLeadSource(source);
+    setLeadOpen(true);
+  };
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data: branding } = useBranding();
   const contact = useContactInfo();
