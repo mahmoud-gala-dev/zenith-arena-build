@@ -18,30 +18,42 @@ export const Route = createFileRoute("/_authenticated/admin/users")({
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Role = Database["public"]["Enums"]["app_role"];
 type UserRole = Database["public"]["Tables"]["user_roles"]["Row"];
+type Permission = Database["public"]["Tables"]["permissions"]["Row"];
+type RolePermission = Database["public"]["Tables"]["role_permissions"]["Row"];
 
 const roles: Role[] = ["super_admin", "admin", "editor", "content_manager", "sales_viewer"];
 
 function AdminUsersPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [userRoles, setUserRoles] = useState<UserRole[]>([]);
+  const [permissions, setPermissions] = useState<Permission[]>([]);
+  const [rolePerms, setRolePerms] = useState<RolePermission[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [savingId, setSavingId] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
-    const [profilesResult, rolesResult] = await Promise.all([
+    const [profilesResult, rolesResult, permsResult, rpResult] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("user_roles").select("*"),
+      supabase.from("permissions").select("*").order("key"),
+      supabase.from("role_permissions").select("*"),
     ]);
     if (profilesResult.error) toast.error(profilesResult.error.message);
     if (rolesResult.error) toast.error(rolesResult.error.message);
     setProfiles((profilesResult.data ?? []) as Profile[]);
     setUserRoles((rolesResult.data ?? []) as UserRole[]);
+    setPermissions((permsResult.data ?? []) as Permission[]);
+    setRolePerms((rpResult.data ?? []) as RolePermission[]);
     setLoading(false);
   }
 
   useEffect(() => { load(); }, []);
+
+  const hasPerm = (role: Role, permId: string) =>
+    rolePerms.some((rp) => rp.role === role && rp.permission_id === permId);
+
 
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
