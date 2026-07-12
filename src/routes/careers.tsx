@@ -113,7 +113,7 @@ function CareersPage() {
           <Reveal><h2 className="text-2xl font-bold text-foreground">{tx.openTitle}</h2></Reveal>
           <div className="mt-8 space-y-3">
             {jobs.length === 0 && (
-              <p className="text-muted-foreground">{ar ? "لا توجد وظائف متاحة حالياً." : "No open positions right now."}</p>
+              <p className="text-muted-foreground">{T.pages.careers.noJobs}</p>
             )}
             {jobs.map((j) => (
               <Reveal key={j.id}>
