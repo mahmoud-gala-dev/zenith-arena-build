@@ -262,6 +262,7 @@ function ContactPage() {
           </div>
         </div>
       </section>
+      <LeadSuccessDialog open={successOpen} onOpenChange={setSuccessOpen} summary={summary} />
     </SiteLayout>
   );
 }
