@@ -39,8 +39,8 @@ MEASURE = """() => ({
 
 async def audit_route(context, route, errors):
     page = await context.new_page()
-    await page.goto(BASE + route, wait_until="networkidle", timeout=45000)
-    await page.wait_for_timeout(400)  # let CSS/fonts settle
+    await page.goto(BASE + route, wait_until="domcontentloaded", timeout=45000)
+    await page.wait_for_timeout(1500)  # let CSS/fonts/lenis settle
 
     slug = route.strip("/").replace("/", "-") or "home"
     phases = {}
