@@ -1,13 +1,23 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
-import { Copy, Link2, Trash2, Ban } from "lucide-react";
+import { Copy, Link2, Trash2, Ban, Search } from "lucide-react";
 import { useMyRoles } from "@/hooks/useMyRoles";
+
+type StatusFilter = "all" | "active" | "expired" | "revoked";
+type SortKey = "created_desc" | "expires_asc" | "expires_desc" | "last_viewed_desc" | "views_desc";
 
 type Token = {
   id: string;
@@ -42,6 +52,9 @@ export function PreviewLinksCard({
   const [label, setLabel] = useState("");
   const [days, setDays] = useState(7);
   const [creating, setCreating] = useState(false);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [sortKey, setSortKey] = useState<SortKey>("created_desc");
 
   const { data: tokens = [], isLoading } = useQuery({
     queryKey: ["admin", "legal", "preview-tokens", pageId],
@@ -119,6 +132,48 @@ export function PreviewLinksCard({
     return { label: "Active", className: "bg-emerald-500/15 text-emerald-700" };
   }
 
+  function statusKey(t: Token): Exclude<StatusFilter, "all"> {
+    if (t.revoked_at) return "revoked";
+    if (new Date(t.expires_at) <= new Date()) return "expired";
+    return "active";
+  }
+
+  const counts = useMemo(() => {
+    const c = { all: tokens.length, active: 0, expired: 0, revoked: 0 };
+    for (const t of tokens) c[statusKey(t)] += 1;
+    return c;
+  }, [tokens]);
+
+  const filteredTokens = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const list = tokens.filter((t) => {
+      if (statusFilter !== "all" && statusKey(t) !== statusFilter) return false;
+      if (!q) return true;
+      return (
+        (t.label ?? "").toLowerCase().includes(q) ||
+        (t.created_by_email ?? "").toLowerCase().includes(q) ||
+        t.token.toLowerCase().includes(q)
+      );
+    });
+    const ts = (v: string | null) => (v ? new Date(v).getTime() : 0);
+    const sorted = list.slice().sort((a, b) => {
+      switch (sortKey) {
+        case "expires_asc":
+          return ts(a.expires_at) - ts(b.expires_at);
+        case "expires_desc":
+          return ts(b.expires_at) - ts(a.expires_at);
+        case "last_viewed_desc":
+          return ts(b.last_viewed_at) - ts(a.last_viewed_at);
+        case "views_desc":
+          return (b.view_count ?? 0) - (a.view_count ?? 0);
+        case "created_desc":
+        default:
+          return ts(b.created_at) - ts(a.created_at);
+      }
+    });
+    return sorted;
+  }, [tokens, search, statusFilter, sortKey]);
+
   return (
     <Card className="mt-6">
       <CardHeader>
@@ -163,13 +218,48 @@ export function PreviewLinksCard({
           </Button>
         </div>
 
+        {tokens.length > 0 && (
+          <div className="grid gap-2 sm:grid-cols-[1fr_auto_auto] items-center">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by label, email, or token…"
+                className="pl-7 h-9"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+              <SelectTrigger className="h-9 w-[160px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All ({counts.all})</SelectItem>
+                <SelectItem value="active">Active ({counts.active})</SelectItem>
+                <SelectItem value="expired">Expired ({counts.expired})</SelectItem>
+                <SelectItem value="revoked">Revoked ({counts.revoked})</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
+              <SelectTrigger className="h-9 w-[200px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="created_desc">Newest first</SelectItem>
+                <SelectItem value="last_viewed_desc">Last viewed</SelectItem>
+                <SelectItem value="expires_asc">Expiring soonest</SelectItem>
+                <SelectItem value="expires_desc">Expiring latest</SelectItem>
+                <SelectItem value="views_desc">Most viewed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Loading links…</p>
         ) : tokens.length === 0 ? (
           <p className="text-sm text-muted-foreground">No preview links yet.</p>
+        ) : filteredTokens.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No links match the current filters.</p>
         ) : (
           <ul className="space-y-2">
-            {tokens.map((t) => {
+            {filteredTokens.map((t) => {
               const st = statusOf(t);
               const url = urlFor(t);
               return (
