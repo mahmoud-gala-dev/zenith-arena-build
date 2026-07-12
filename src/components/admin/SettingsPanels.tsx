@@ -11,14 +11,18 @@ import {
   useContactInfo,
   useSocialLinks,
   useBrandName,
+  useSeoDefaults,
   DEFAULT_CONTACT_INFO,
   DEFAULT_SOCIAL_LINKS,
   DEFAULT_BRAND_NAME,
+  DEFAULT_SEO_DEFAULTS,
   type ContactInfo,
   type SocialLinks,
   type BrandName,
+  type SeoDefaults,
   type Office,
 } from "@/lib/settings";
+import { Textarea } from "@/components/ui/textarea";
 
 async function saveSetting(key: string, value: unknown) {
   const { error } = await supabase
