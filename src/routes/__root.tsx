@@ -15,6 +15,7 @@ import { LanguageProvider } from "../i18n/LanguageProvider";
 import { SmoothScroll } from "../components/site/SmoothScroll";
 import { PerfOverlay } from "../components/site/PerfOverlay";
 import { initPerf } from "../lib/perf";
+import { PwaController } from "../components/site/PwaController";
 
 
 
@@ -135,9 +136,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { rel: "preconnect", href: "https://phimnzbiqssakrepavik.supabase.co", crossOrigin: "anonymous" },
       { rel: "dns-prefetch", href: "https://phimnzbiqssakrepavik.supabase.co" },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/icon.svg", type: "image/svg+xml" },
+      { rel: "mask-icon", href: "/icon.svg", color: "#12b981" },
       { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "apple-touch-icon", href: "/favicon.ico" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
     ],
 
   }),
@@ -173,6 +175,7 @@ function RootComponent() {
       <LanguageProvider>
         <SmoothScroll />
         <PerfOverlay />
+        <PwaController />
 
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
