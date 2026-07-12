@@ -1,10 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronRight, Phone, Mail, MessageCircle } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import { cn } from "@/lib/utils";
 import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
+import { menusByLocationQueryOptions } from "@/lib/queries";
 
 type Item = { to: string; label: string };
 
@@ -20,9 +22,15 @@ export function MobileMoreDrawer({
   const contact = useContactInfo();
   const social = useSocialLinks();
   const wa = toWhatsAppNumber(social.whatsapp || contact.whatsapp);
+  const { data: mobileMenu } = useQuery(menusByLocationQueryOptions("mobile"));
   const close = () => onOpenChange(false);
 
-  const groups: { label: string; items: Item[] }[] = [
+  const dbGroup: Item[] = (mobileMenu ?? []).map((m) => ({
+    to: m.href,
+    label: ar ? m.label_ar || m.label_en : m.label_en,
+  }));
+
+  const fallbackGroups: { label: string; items: Item[] }[] = [
     {
       label: ar ? "استكشف" : "Explore",
       items: [
@@ -50,6 +58,10 @@ export function MobileMoreDrawer({
       ],
     },
   ];
+
+  const groups: { label: string; items: Item[] }[] = dbGroup.length
+    ? [{ label: ar ? "القائمة" : "Menu", items: dbGroup }]
+    : fallbackGroups;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
