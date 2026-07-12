@@ -23,15 +23,26 @@ export type Gov = {
 export type DbProject = {
   id: string;
   slug_en: string;
+  slug_ar: string | null;
   title_en: string;
   title_ar: string | null;
   description_en: string | null;
   description_ar: string | null;
+  overview_en: string | null;
+  overview_ar: string | null;
+  client: string | null;
   location: string | null;
+  country: string | null;
+  city: string | null;
   year: number | null;
+  area_sqm: number | null;
+  surface_type: string | null;
   sport_type: string | null;
   service_category: string | null;
   cover_image: string | null;
+  gallery: unknown;
+  seo_title: string | null;
+  seo_description: string | null;
   governorate_id: string | null;
 };
 
