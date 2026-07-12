@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Download, MessageCircle } from "lucide-react";
+import { useState, useCallback } from "react";
+import { ArrowLeft, ArrowRight, Download, MessageCircle, Expand } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { DetailPageSkeleton } from "@/components/site/Skeletons";
 
 import { Icon } from "@/components/site/Icon";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ShareButtons } from "@/components/site/ShareButtons";
+import { ImageLightbox } from "@/components/site/ImageLightbox";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import { serviceBySlugQueryOptions, useServiceBySlug } from "@/hooks/useServiceContent";
