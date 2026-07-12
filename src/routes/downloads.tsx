@@ -7,6 +7,7 @@ import { Download, FileText, Search, X } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
+import { DownloadGateButton } from "@/components/site/DownloadGateButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLang } from "@/i18n/LanguageProvider";
