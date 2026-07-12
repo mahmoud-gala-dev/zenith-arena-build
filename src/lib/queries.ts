@@ -1,7 +1,20 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import type { Project as ViewProject } from "@/lib/site-data";
+
+export type L = { en: string; ar: string };
+export type ViewProject = {
+  slug: string;
+  image: string;
+  category: string;
+  title: L;
+  client: L;
+  location: L;
+  year: string;
+  scope: L;
+  overview: L;
+  stats: { label: L; value: L }[];
+};
 
 export function dbProjectToView(p: DbProject): ViewProject {
   return {
@@ -17,6 +30,7 @@ export function dbProjectToView(p: DbProject): ViewProject {
     stats: [],
   };
 }
+
 
 
 const FIVE_MIN = 5 * 60 * 1000;

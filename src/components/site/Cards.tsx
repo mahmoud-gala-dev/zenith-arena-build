@@ -3,7 +3,33 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { Icon } from "./Icon";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
-import type { Article, Project, Service } from "@/lib/site-data";
+
+type L = { en: string; ar: string };
+export type Service = {
+  id: string;
+  icon: string;
+  image: string;
+  title: L;
+  short: L;
+  features: L[];
+};
+export type Project = {
+  slug: string;
+  image: string;
+  title: L;
+  location: L;
+  year: string;
+  scope: L;
+};
+export type Article = {
+  slug: string;
+  image: string;
+  title: L;
+  excerpt: L;
+  category: L;
+  date: string;
+  readTime: number;
+};
 
 function ServiceCardImpl({ service }: { service: Service }) {
 
