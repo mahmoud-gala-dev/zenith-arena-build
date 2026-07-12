@@ -153,7 +153,38 @@ export const translations = {
       noMatchInGov: "No matching projects in this governorate yet.",
       viewInFilter: "View this governorate in projects filter →",
     },
+    pages: {
+      clients: { groupsHeading: "Client groups" },
+      faq: { emptyPublished: "No published questions yet." },
+      gallery: { view: "View" },
+      downloads: {
+        searchPlaceholder: "Search downloads...",
+        search: "Search",
+        clear: "Clear",
+        reset: "Reset",
+        all: "All",
+        resetFilters: "Reset filters",
+        details: "Details",
+      },
+      careers: {
+        applyNow: "Apply now",
+        noJobs: "No open positions right now.",
+        cvRequired: "Please attach your CV (PDF/Word).",
+        maxFileSize: "Max file size is 5 MB.",
+        submitted: "Application received. We'll be in touch.",
+        applyFor: "Apply —",
+        sendYourCv: "Send your CV",
+        fullName: "Full name",
+        email: "Email",
+        phone: "Phone",
+        cvLabel: "CV (PDF / Word, up to 5MB)",
+        coverLetter: "Cover letter (optional)",
+        sending: "Sending...",
+        submit: "Submit application",
+      },
+    },
   },
+
 
   ar: {
     dir: "rtl",
