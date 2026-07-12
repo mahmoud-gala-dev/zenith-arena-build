@@ -144,16 +144,12 @@ function QuotePage() {
         successTitle: "Request received",
         successSub: "One of our engineers will be in touch within one business day with a detailed proposal.",
         another: "Send another",
-        promises: [
-          { icon: Clock, t: "48-hour response", d: "From a senior engineer." },
-          { icon: Award, t: "Detailed proposal", d: "Transparent line items, no hidden costs." },
-          { icon: Sparkles, t: "Free consultation", d: "Initial call to scope your project." },
-        ],
       };
 
   const budgetRanges = ar
-    ? ["أقل من 100 ألف $", "100 ألف – 500 ألف $", "500 ألف – 1 مليون $", "1 مليون – 5 مليون $", "أكثر من 5 مليون $"]
-    : ["Under $100k", "$100k – $500k", "$500k – $1M", "$1M – $5M", "Over $5M"];
+    ? (quotePage?.budget_ranges_ar ?? [])
+    : (quotePage?.budget_ranges_en ?? []);
+  const promises = quotePage?.promises ?? [];
 
   return (
     <SiteLayout>
@@ -162,18 +158,22 @@ function QuotePage() {
       <section className="py-16">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-3 lg:px-8">
           <aside className="space-y-4 lg:col-span-1">
-            {tx.promises.map((p, i) => (
-              <div key={i} className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-primary text-primary-foreground">
-                  <p.icon className="h-5 w-5" />
+            {promises.map((p, i) => {
+              const IconCmp = (Icons as unknown as Record<string, typeof CheckCircle2>)[p.icon] ?? CheckCircle2;
+              return (
+                <div key={i} className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-primary text-primary-foreground">
+                    <IconCmp className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">{ar ? p.title_ar : p.title_en}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{ar ? p.desc_ar : p.desc_en}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold text-foreground">{p.t}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{p.d}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </aside>
+
 
           <div className="rounded-3xl border border-border bg-card p-8 shadow-soft lg:col-span-2">
             {sent ? (
