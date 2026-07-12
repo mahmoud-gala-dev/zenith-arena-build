@@ -447,6 +447,43 @@ function LangEditor({
         />
       </div>
 
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm">SEO ({rtl ? "AR" : "EN"})</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid gap-2">
+            <Label>SEO title</Label>
+            <Input
+              value={value.seoTitle}
+              maxLength={70}
+              placeholder="Overrides page title in browser tab & search results"
+              onChange={(e) => onChange({ ...value, seoTitle: e.target.value })}
+            />
+            <p className="text-xs text-muted-foreground">{value.seoTitle.length}/70 · Leave empty to fall back to the page title.</p>
+          </div>
+          <div className="grid gap-2">
+            <Label>Meta description</Label>
+            <Textarea
+              rows={3}
+              maxLength={180}
+              value={value.seoDescription}
+              placeholder="Short summary shown by search engines and social shares"
+              onChange={(e) => onChange({ ...value, seoDescription: e.target.value })}
+            />
+            <p className="text-xs text-muted-foreground">{value.seoDescription.length}/180</p>
+          </div>
+          <div className="grid gap-2">
+            <Label>Keywords</Label>
+            <Input
+              value={value.seoKeywords}
+              placeholder="comma, separated, keywords"
+              onChange={(e) => onChange({ ...value, seoKeywords: e.target.value })}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <Label>Sections</Label>
