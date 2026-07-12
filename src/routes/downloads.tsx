@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Download, FileText } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -89,31 +89,49 @@ function DownloadsPage() {
                 <div className="grid gap-4 md:grid-cols-2">
                   {rows.map((r) => (
                     <div key={r.id} className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elegant">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent text-primary overflow-hidden">
+                      <Link
+                        to="/downloads/$slug"
+                        params={{ slug: r.slug_en }}
+                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent text-primary overflow-hidden"
+                        aria-label={ar ? r.title_ar : r.title_en}
+                      >
                         {r.preview_image ? (
                           <img src={r.preview_image} alt="" className="h-full w-full object-cover" loading="lazy" />
                         ) : (
                           <FileText className="h-6 w-6" />
                         )}
-                      </div>
+                      </Link>
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold text-foreground">{ar ? r.title_ar : r.title_en}</h3>
+                        <Link
+                          to="/downloads/$slug"
+                          params={{ slug: r.slug_en }}
+                          className="font-semibold text-foreground hover:text-primary"
+                        >
+                          {ar ? r.title_ar : r.title_en}
+                        </Link>
                         {(ar ? r.description_ar : r.description_en) && (
-                          <p className="mt-1 text-sm text-muted-foreground">{ar ? r.description_ar : r.description_en}</p>
+                          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{ar ? r.description_ar : r.description_en}</p>
                         )}
-                        {r.file_url ? (
-                          <Button asChild size="sm" variant="outline" className="mt-4">
-                            <a href={r.file_url} target="_blank" rel="noreferrer">
+                        <div className="mt-4 flex flex-wrap items-center gap-2">
+                          <Button asChild size="sm" variant="outline">
+                            <Link to="/downloads/$slug" params={{ slug: r.slug_en }}>
+                              {ar ? "التفاصيل" : "Details"}
+                            </Link>
+                          </Button>
+                          {r.file_url ? (
+                            <Button asChild size="sm">
+                              <a href={r.file_url} target="_blank" rel="noreferrer">
+                                <Download className="h-4 w-4" />
+                                {tx.download}
+                              </a>
+                            </Button>
+                          ) : (
+                            <Button size="sm" disabled>
                               <Download className="h-4 w-4" />
                               {tx.download}
-                            </a>
-                          </Button>
-                        ) : (
-                          <Button size="sm" variant="outline" className="mt-4" disabled>
-                            <Download className="h-4 w-4" />
-                            {tx.download}
-                          </Button>
-                        )}
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
