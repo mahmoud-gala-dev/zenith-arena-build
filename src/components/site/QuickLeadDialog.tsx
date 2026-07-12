@@ -12,6 +12,7 @@ import { useLang } from "@/i18n/LanguageProvider";
 import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
 import { submitLead } from "@/lib/leads.functions";
 import { trackEvent } from "@/lib/analytics";
+import { LeadSuccessDialog, type LeadSummary } from "@/components/site/LeadSuccessDialog";
 
 type Props = {
   open: boolean;
