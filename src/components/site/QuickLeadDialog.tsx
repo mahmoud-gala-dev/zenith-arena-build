@@ -99,9 +99,26 @@ export function QuickLeadDialog({ open, onOpenChange, source, intent = "callback
   }
 
   const waHref = wa
-    ? `https://wa.me/${wa}?text=${encodeURIComponent(
-        t.components.quickLead.waHi,
-      )}`
+    ? (() => {
+        // Live-updating link that prefills whatever the user typed so far.
+        const lines: string[] = [];
+        if (ar) {
+          lines.push(t.components.quickLead.waHi);
+          if (name.trim()) lines.push(`الاسم: ${name.trim()}`);
+          if (phone.trim()) lines.push(`الهاتف: ${phone.trim()}`);
+          if (email.trim()) lines.push(`البريد: ${email.trim()}`);
+          if (message.trim()) lines.push(`تفاصيل: ${message.trim()}`);
+          lines.push(`[source: ${source}]`);
+        } else {
+          lines.push(t.components.quickLead.waHi);
+          if (name.trim()) lines.push(`Name: ${name.trim()}`);
+          if (phone.trim()) lines.push(`Phone: ${phone.trim()}`);
+          if (email.trim()) lines.push(`Email: ${email.trim()}`);
+          if (message.trim()) lines.push(`Details: ${message.trim()}`);
+          lines.push(`[source: ${source}]`);
+        }
+        return `https://wa.me/${wa}?text=${encodeURIComponent(lines.join("\n"))}`;
+      })()
     : null;
 
   return (
