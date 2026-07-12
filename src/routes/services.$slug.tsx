@@ -334,6 +334,34 @@ function ServiceDetailPage() {
         </div>
       </section>
 
+      {/* Benefits */}
+      <section className="border-b border-border bg-gradient-to-b from-background to-secondary/30 py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">01</span>
+            <h2 className="mt-2 text-3xl font-bold text-foreground sm:text-4xl">{copy.benefits}</h2>
+            <p className="mt-3 text-muted-foreground">{copy.benefitsSub}</p>
+          </div>
+          <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {benefits.map((b, i) => {
+              const IconEl = b.icon;
+              return (
+                <li key={i} className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-soft transition hover:-translate-y-1 hover:border-gold/50 hover:shadow-elegant">
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-gold text-gold-foreground ring-1 ring-gold/30 transition group-hover:scale-110">
+                    <IconEl className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground">{b.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{b.desc}</p>
+                  <CheckCircle2 className="absolute -bottom-2 -right-2 h-16 w-16 text-gold/5 transition group-hover:text-gold/10 rtl:-left-2 rtl:right-auto" aria-hidden />
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </section>
+
+
+
 
       <section className="py-16">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-3 lg:px-8">
