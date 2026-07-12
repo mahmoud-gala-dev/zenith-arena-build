@@ -1,10 +1,10 @@
+import { memo } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { Icon } from "./Icon";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import type { Article, Project, Service } from "@/lib/site-data";
 
-export function ServiceCard({ service }: { service: Service }) {
   const L = useLocalized();
   const { t } = useLang();
   return (
