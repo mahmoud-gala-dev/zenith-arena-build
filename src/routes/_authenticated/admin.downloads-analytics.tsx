@@ -163,8 +163,17 @@ function DownloadsAnalyticsPage() {
             <Button variant="outline" size="sm" onClick={load} disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
             </Button>
-            <Button variant="outline" size="sm" onClick={exportCsv} disabled={!events.length}>Export CSV</Button>
+            <Button
+              variant="outline"
+              size="sm"
+              {...buttonProps()}
+              disabled={!events.length}
+              onClick={guard(exportCsv, { action: "export_analytics_csv" })}
+            >
+              Export CSV
+            </Button>
           </div>
+
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
