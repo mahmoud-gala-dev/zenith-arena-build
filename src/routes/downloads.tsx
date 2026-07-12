@@ -105,9 +105,9 @@ function DownloadsPage() {
   }, [filtered]);
 
   const setQ = (value: string) =>
-    navigate({ search: (prev) => ({ ...prev, q: value }), replace: true });
+    navigate({ search: (prev: { q: string; cat: string }) => ({ ...prev, q: value }), replace: true });
   const setCat = (value: string) =>
-    navigate({ search: (prev) => ({ ...prev, cat: value }), replace: true });
+    navigate({ search: (prev: { q: string; cat: string }) => ({ ...prev, cat: value }), replace: true });
   const clearAll = () => navigate({ search: { q: "", cat: "all" }, replace: true });
 
   const hasFilters = q.trim() !== "" || cat !== "all";
