@@ -34,7 +34,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useMyPermissions, permissionForPath } from "@/lib/rbac";
+import { useMyPermissions, permissionForPath, notifyAccessDenied } from "@/lib/rbac";
 
 const nav: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
