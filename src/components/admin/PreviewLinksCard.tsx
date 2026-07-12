@@ -354,7 +354,7 @@ export function PreviewLinksCard({
                       >
                         {t.version_id ? `Pinned ${versionLabel(t.version_id)}` : "Current draft"}
                       </span>
-
+                      <span className="text-xs text-muted-foreground">
                         by {t.created_by_email ?? "unknown"} · expires {new Date(t.expires_at).toLocaleString()} ·{" "}
                         {t.view_count} view{t.view_count === 1 ? "" : "s"}
                         {t.last_viewed_at ? ` · last ${new Date(t.last_viewed_at).toLocaleString()}` : ""}
