@@ -276,7 +276,7 @@ function AdminDownloadsPage() {
         <DownloadEditor
           row={editing}
           onClose={() => setEditing(null)}
-          onSaved={() => { setEditing(null); void load(); }}
+          onSaved={() => { setEditing(null); invalidate(); void load(); }}
         />
       )}
 
