@@ -203,7 +203,7 @@ function ApplyDialog({ open, onOpenChange, job, ar, T }: { open: boolean; onOpen
           website: String(fd.get("website") || ""),
         },
       });
-      toast.success(ar ? "تم إرسال طلبك، سنتواصل معك قريباً." : "Application received. We'll be in touch.");
+      toast.success(T.pages.careers.submitted);
       onOpenChange(false);
       form.reset();
       setFile(null);
