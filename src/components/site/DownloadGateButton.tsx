@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/hooks/use-toast";
+import { n as toastFn } from "sonner";
 import { submitLead } from "@/lib/leads.functions";
 import { useLang } from "@/i18n/LanguageProvider";
 
