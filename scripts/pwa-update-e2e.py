@@ -140,8 +140,13 @@ async def run() -> int:
 
             await context.route("**/sw.js", handle_sw)
 
-            # ---- reload → new SW installs → parks in waiting ----
+            # ---- reload + explicit update() → new SW installs → parks in waiting ----
+            # Browsers skip re-fetching sw.js if HTTP cache says it's fresh; reg.update()
+            # forces a bypass-cache fetch that our route interceptor mutates.
             await page.reload(wait_until="load")
+            await page.evaluate(
+                "async () => { const r = await navigator.serviceWorker.getRegistration(); await r.update(); }"
+            )
             try:
                 await page.wait_for_function(
                     "() => document.getElementById('status')?.textContent === 'waiting'",
