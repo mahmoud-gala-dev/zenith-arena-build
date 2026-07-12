@@ -30,7 +30,18 @@ type Token = {
   last_viewed_at: string | null;
   view_count: number;
   created_at: string;
+  version_id: string | null;
 };
+
+type Version = {
+  id: string;
+  version_number: number;
+  created_at: string;
+  action: string;
+  actor_email: string | null;
+};
+
+const CURRENT_DRAFT = "__current__";
 
 function randomToken(len = 40) {
   const bytes = new Uint8Array(len);
