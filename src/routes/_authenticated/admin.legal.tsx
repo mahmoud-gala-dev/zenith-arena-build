@@ -151,9 +151,10 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
     }
   }, [data, isLoading, label]);
 
+  // Per-language validation runs independently — EN errors never block AR saves and vice versa.
   const validation = useMemo(() => {
     const errors: { en: string[]; ar: string[] } = { en: [], ar: [] };
-    if (!form) return { errors, valid: false };
+    if (!form) return { errors, valid: { en: false, ar: false } };
     (["en", "ar"] as const).forEach((lang) => {
       const c = form[lang];
       const label = lang === "en" ? "English" : "Arabic";
@@ -167,15 +168,16 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
           if (!s.body.trim()) errors[lang].push(`${label}: section ${i + 1} is missing body content`);
         });
       }
-      if (form.en.sections.length !== form.ar.sections.length && lang === "ar") {
-        errors.ar.push("Arabic must have the same number of sections as English");
-      }
     });
-    const valid = errors.en.length === 0 && errors.ar.length === 0;
-    return { errors, valid };
+    return {
+      errors,
+      valid: { en: errors.en.length === 0, ar: errors.ar.length === 0 },
+    };
   }, [form]);
 
-  const canSave = useMemo(() => !!form && !saving && validation.valid, [form, saving, validation.valid]);
+  const [activeLang, setActiveLang] = useState<"en" | "ar">("en");
+  const [savingLang, setSavingLang] = useState<"en" | "ar" | null>(null);
+  const [savingPublishing, setSavingPublishing] = useState(false);
 
   const isLive = useMemo(() => {
     if (!form) return false;
@@ -184,43 +186,133 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
     return new Date(form.effectiveAt).getTime() <= Date.now();
   }, [form]);
 
-  async function save() {
+  // Writes ONLY the given language's columns. The other language is never
+  // read or modified — no risk of stale AR overwriting fresh EN (or vice versa).
+  async function saveLang(lang: "en" | "ar") {
     if (!form) return;
-    if (!validation.valid) {
-      toast.error("Please complete all required fields in EN and AR before saving");
+    if (!validation.valid[lang]) {
+      toast.error(`Complete required ${lang === "en" ? "English" : "Arabic"} fields before saving`);
       return;
     }
-    setSaving(true);
+    setSavingLang(lang);
     try {
-      const payload = {
-        slug_en: slug,
-        slug_ar: slug,
-        title_en: form.en.title,
-        title_ar: form.ar.title,
-        content_en: serialize(form.en.intro, form.en.sections),
-        content_ar: serialize(form.ar.intro, form.ar.sections),
-        template: "legal",
-        status: form.status,
-        effective_at: form.effectiveAt ? new Date(form.effectiveAt).toISOString() : null,
-        seo_title_en: form.en.seoTitle || null,
-        seo_title_ar: form.ar.seoTitle || null,
-        seo_description_en: form.en.seoDescription || null,
-        seo_description_ar: form.ar.seoDescription || null,
-        seo_keywords_en: form.en.seoKeywords || null,
-        seo_keywords_ar: form.ar.seoKeywords || null,
-      };
-      const q = form.id
-        ? supabase.from("pages").update(payload).eq("id", form.id)
-        : supabase.from("pages").insert(payload);
-      const { error } = await q;
-      if (error) throw error;
-      toast.success("Saved");
+      const c = form[lang];
+      const content = serialize(c.intro, c.sections);
+      const langPayload = lang === "en"
+        ? {
+            slug_en: slug,
+            title_en: c.title,
+            content_en: content,
+            seo_title_en: c.seoTitle || null,
+            seo_description_en: c.seoDescription || null,
+            seo_keywords_en: c.seoKeywords || null,
+          }
+        : {
+            slug_ar: slug,
+            title_ar: c.title,
+            content_ar: content,
+            seo_title_ar: c.seoTitle || null,
+            seo_description_ar: c.seoDescription || null,
+            seo_keywords_ar: c.seoKeywords || null,
+          };
+
+      let newId = form.id;
+      if (form.id) {
+        // Re-fetch the row's current updated_at to detect concurrent edits from the other tab/language.
+        const { data: current, error: readErr } = await supabase
+          .from("pages")
+          .select("updated_at")
+          .eq("id", form.id)
+          .maybeSingle();
+        if (readErr) throw readErr;
+
+        const { error } = await supabase
+          .from("pages")
+          .update(langPayload)
+          .eq("id", form.id);
+        if (error) throw error;
+
+        // If someone saved the OTHER language between our load and now, warn but don't clobber:
+        // our update only touched this language's columns, so their work is preserved.
+        if (current?.updated_at && data?.updated_at && current.updated_at !== data.updated_at) {
+          toast.info("Note: the other language was updated by someone else since you loaded this page. Refresh to see the latest.");
+        }
+      } else {
+        // First save — create the row. Fill the OTHER language's NOT NULL title
+        // with the page label as a placeholder so the row satisfies constraints,
+        // but leave its content/seo empty for the other language's editor to fill.
+        const insertRow: {
+          slug_en: string; slug_ar: string;
+          title_en: string; title_ar: string;
+          content_en?: string; content_ar?: string;
+          seo_title_en?: string | null; seo_title_ar?: string | null;
+          seo_description_en?: string | null; seo_description_ar?: string | null;
+          seo_keywords_en?: string | null; seo_keywords_ar?: string | null;
+          template: string; status: "draft";
+        } = lang === "en"
+          ? {
+              slug_en: slug, slug_ar: slug,
+              title_en: form.en.title, title_ar: label,
+              content_en: serialize(form.en.intro, form.en.sections),
+              seo_title_en: form.en.seoTitle || null,
+              seo_description_en: form.en.seoDescription || null,
+              seo_keywords_en: form.en.seoKeywords || null,
+              template: "legal", status: "draft",
+            }
+          : {
+              slug_en: slug, slug_ar: slug,
+              title_en: label, title_ar: form.ar.title,
+              content_ar: serialize(form.ar.intro, form.ar.sections),
+              seo_title_ar: form.ar.seoTitle || null,
+              seo_description_ar: form.ar.seoDescription || null,
+              seo_keywords_ar: form.ar.seoKeywords || null,
+              template: "legal", status: "draft",
+            };
+        const { data: inserted, error } = await supabase
+          .from("pages")
+          .insert(insertRow)
+          .select("id")
+          .single();
+        if (error) throw error;
+        newId = inserted.id;
+        setForm((f) => (f ? { ...f, id: newId } : f));
+      }
+
+      toast.success(`${lang === "en" ? "English" : "Arabic"} content saved`);
       qc.invalidateQueries({ queryKey: ["admin", "legal", slug] });
       qc.invalidateQueries({ queryKey: ["pages", "by-slug", slug] });
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : "Failed to save");
     } finally {
-      setSaving(false);
+      setSavingLang(null);
+    }
+  }
+
+  // Publishing (status + effective date) is shared across languages by design.
+  // Kept as its own save action so it never carries language content along.
+  async function savePublishing() {
+    if (!form) return;
+    if (!form.id) {
+      toast.error("Save English or Arabic content first, then publish.");
+      return;
+    }
+    setSavingPublishing(true);
+    try {
+      const { error } = await supabase
+        .from("pages")
+        .update({
+          status: form.status,
+          effective_at: form.effectiveAt ? new Date(form.effectiveAt).toISOString() : null,
+        })
+        .eq("id", form.id);
+      if (error) throw error;
+      toast.success("Publishing updated");
+      qc.invalidateQueries({ queryKey: ["admin", "legal", slug] });
+      qc.invalidateQueries({ queryKey: ["pages", "by-slug", slug] });
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Failed to update publishing");
+    } finally {
+      setSavingPublishing(false);
     }
   }
 
@@ -228,13 +320,13 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="en">
+      <Tabs value={activeLang} onValueChange={(v) => setActiveLang(v as "en" | "ar")}>
         <TabsList>
           <TabsTrigger value="en">English</TabsTrigger>
           <TabsTrigger value="ar">العربية</TabsTrigger>
         </TabsList>
         {(["en", "ar"] as const).map((lang) => (
-          <TabsContent key={lang} value={lang} className="mt-4">
+          <TabsContent key={lang} value={lang} className="mt-4 space-y-4">
             <div className="grid gap-6 lg:grid-cols-2">
               <LangEditor
                 rtl={lang === "ar"}
@@ -242,6 +334,32 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
                 onChange={(next) => setForm({ ...form, [lang]: next })}
               />
               <LivePreview rtl={lang === "ar"} value={form[lang]} />
+            </div>
+
+            {validation.errors[lang].length > 0 && (
+              <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-xs">
+                <p className="mb-2 font-medium text-destructive">
+                  Complete these {lang === "en" ? "English" : "Arabic"} items to enable saving:
+                </p>
+                <ul className="list-disc space-y-0.5 pl-4 text-destructive/90">
+                  {validation.errors[lang].map((msg, i) => (
+                    <li key={i}>{msg}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between rounded-md border bg-muted/30 p-3">
+              <p className="text-xs text-muted-foreground">
+                Saves only the {lang === "en" ? "English" : "Arabic"} columns. The other language is untouched.
+              </p>
+              <Button
+                onClick={() => saveLang(lang)}
+                disabled={savingLang !== null || !validation.valid[lang]}
+                title={!validation.valid[lang] ? `Fill required ${lang === "en" ? "English" : "Arabic"} content` : undefined}
+              >
+                {savingLang === lang ? "Saving…" : `Save ${lang === "en" ? "English" : "Arabic"}`}
+              </Button>
             </div>
           </TabsContent>
         ))}
@@ -293,29 +411,6 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
               </p>
             </div>
           </div>
-          {!validation.valid && (
-            <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-xs">
-              <p className="mb-2 font-medium text-destructive">
-                Complete these items to enable saving:
-              </p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {(["en", "ar"] as const).map((lang) => (
-                  <div key={lang}>
-                    <p className="mb-1 font-medium">{lang === "en" ? "English" : "العربية"}</p>
-                    {validation.errors[lang].length === 0 ? (
-                      <p className="text-emerald-600">✓ All required fields filled</p>
-                    ) : (
-                      <ul className="list-disc space-y-0.5 pl-4 text-destructive/90">
-                        {validation.errors[lang].map((msg, i) => (
-                          <li key={i}>{msg}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
           <div className="flex items-center justify-between border-t pt-3">
             <span
               className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${
@@ -329,8 +424,8 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
                   ? "Unpublished — hidden from visitors"
                   : "Scheduled — not live yet"}
             </span>
-            <Button onClick={save} disabled={!canSave} title={!validation.valid ? "Fill required EN & AR content" : undefined}>
-              {saving ? "Saving…" : "Save"}
+            <Button onClick={savePublishing} disabled={savingPublishing || !form.id}>
+              {savingPublishing ? "Saving…" : "Save publishing"}
             </Button>
           </div>
         </CardContent>
