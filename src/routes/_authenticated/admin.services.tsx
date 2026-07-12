@@ -236,6 +236,7 @@ function AdminServicesPage() {
     IMAGE_FIELDS.forEach((f) => editing[f.variantsKey] && invalidateManifestCache(editing[f.variantsKey]));
     toast.success("Service saved");
     setEditing(null);
+    invalidate();
     load();
   }
 
@@ -247,7 +248,9 @@ function AdminServicesPage() {
     toast.success("Service deleted");
     setDeleteId(null);
     setRows((p) => p.filter((r) => r.id !== deleteId));
+    invalidate();
   }
+
 
   return (
     <AdminShell title="Services CMS">
