@@ -18,8 +18,7 @@ interface Props {
 }
 
 export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
-  const { lang, t: T } = useLang();
-  const ar = lang === "ar";
+  const { t: T } = useLang();
   const contact = useContactInfo();
 
   const [submitting, setSubmitting] = useState(false);
