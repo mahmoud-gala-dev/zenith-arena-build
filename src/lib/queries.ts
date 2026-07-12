@@ -409,11 +409,15 @@ export const pageBySlugQueryOptions = (slug: string) =>
     staleTime: FIFTEEN_MIN,
     gcTime: TWO_HOUR,
     queryFn: async () => {
+      const nowIso = new Date().toISOString();
       const { data, error } = await supabase
         .from("pages")
         .select("*")
         .eq("status", "published")
+        .or(`effective_at.is.null,effective_at.lte.${nowIso}`)
         .or(`slug_en.eq.${slug},slug_ar.eq.${slug}`)
+        .order("effective_at", { ascending: false, nullsFirst: false })
+        .limit(1)
         .maybeSingle();
       if (error) throw error;
       return (data ?? null) as PageRow | null;
