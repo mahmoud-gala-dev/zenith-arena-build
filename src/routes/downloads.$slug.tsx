@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { trackDownloadEvent } from "@/lib/downloadTracking";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeft, Download, FileText, Tag } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
