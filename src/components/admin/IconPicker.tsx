@@ -5,15 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-const ICON_NAMES: string[] = Object.keys(Icons).filter(
-  (k) =>
-    /^[A-Z]/.test(k) &&
-    !k.endsWith("Icon") &&
-    k !== "createLucideIcon" &&
-    k !== "default" &&
-    typeof (Icons as unknown as Record<string, unknown>)[k] === "object" === false &&
-    typeof (Icons as unknown as Record<string, unknown>)[k] === "function",
-);
+const ICON_NAMES: string[] = Object.keys(Icons).filter((k) => {
+  if (!/^[A-Z]/.test(k)) return false;
+  if (k.endsWith("Icon") || k === "createLucideIcon" || k === "default" || k === "LucideIcon") return false;
+  const val = (Icons as unknown as Record<string, unknown>)[k];
+  return val != null && (typeof val === "function" || typeof val === "object");
+});
 
 interface IconPickerProps {
   value: string | null | undefined;
