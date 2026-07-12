@@ -240,36 +240,14 @@ function ArticleDetail() {
 
         <section className="py-14">
           <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-[240px_1fr] lg:px-8">
-            {/* Table of Contents */}
+            {/* Table of Contents (desktop) */}
             {toc.length > 0 && (
-              <aside className="lg:sticky lg:top-24 lg:h-fit">
+              <aside className="hidden lg:sticky lg:top-24 lg:block lg:h-fit">
                 <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
                   <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     {ar ? "قائمة المحتوى" : "Table of Contents"}
                   </p>
-                  <nav aria-label={ar ? "قائمة المحتوى" : "Table of contents"}>
-                    <ol className="space-y-2 text-sm">
-                      {toc.map((h, i) => {
-                        const active = activeId === h.id;
-                        return (
-                          <li key={h.id}>
-                            <a
-                              href={`#${h.id}`}
-                              aria-current={active ? "location" : undefined}
-                              className={`flex gap-2 border-s-2 ps-3 transition ${
-                                active
-                                  ? "border-primary font-medium text-primary"
-                                  : "border-transparent text-muted-foreground hover:text-primary"
-                              }`}
-                            >
-                              <span className={active ? "text-primary" : "text-primary/60"}>{i + 1}.</span>
-                              <span className="line-clamp-2">{h.text}</span>
-                            </a>
-                          </li>
-                        );
-                      })}
-                    </ol>
-                  </nav>
+                  <TocList toc={toc} activeId={activeId} onNavigate={handleTocClick} />
                 </div>
               </aside>
             )}
