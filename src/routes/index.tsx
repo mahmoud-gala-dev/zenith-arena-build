@@ -16,13 +16,14 @@ import {
   projectsPublishedListQueryOptions,
   blogPostsPublishedQueryOptions,
   testimonialsPublishedQueryOptions,
+  homeHeroSettingsQueryOptions,
   type HomeClient,
 } from "@/lib/queries";
 import { servicesPublishedQueryOptions } from "@/hooks/useServiceContent";
 import ogImage from "@/assets/apex-og.jpg.asset.json";
 import ctaLandmark from "@/assets/cta-landmark.jpg.asset.json";
+import fallbackHeroImg from "@/assets/hero.jpg";
 
-import { heroStats, heroImg } from "@/lib/site-data";
 
 
 type TrustClient = { name: { en: string; ar: string }; sector: { en: string; ar: string }; monogram: string; accent: string; logo_url?: string | null; description?: { en: string; ar: string } };
