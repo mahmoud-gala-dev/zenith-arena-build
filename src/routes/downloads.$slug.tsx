@@ -191,6 +191,7 @@ function DownloadDetailPage() {
                 fileUrl={item.file_url}
                 title={title}
                 slug={item.slug_en}
+                downloadId={item.id}
                 requiresLead={item.requires_lead_capture}
                 label={downloadLabel}
                 className="mt-4 w-full"
