@@ -328,7 +328,7 @@ function LeadsPage() {
                 <DialogTitle className="flex items-center gap-2">
                   {selected.name}
                   <Badge variant="outline" className="text-xs">{selected.intent ?? selected.type}</Badge>
-                  <Button size="sm" variant="outline" className="ml-auto" onClick={() => { setEditing(selected); setFormOpen(true); }}>
+                  <Button size="sm" variant="outline" className="ml-auto" disabled={!canManage} onClick={() => { setEditing(selected); setFormOpen(true); }}>
                     <Pencil className="mr-1 h-3 w-3" /> Edit
                   </Button>
                 </DialogTitle>
