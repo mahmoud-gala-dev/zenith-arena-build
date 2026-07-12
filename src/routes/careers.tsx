@@ -54,7 +54,7 @@ function fileToBase64(file: File): Promise<string> {
 }
 
 function CareersPage() {
-  const { lang } = useLang();
+  const { lang, t: T } = useLang();
   const ar = lang === "ar";
   const { data: jobs } = useSuspenseQuery(jobOpeningsOpenQueryOptions);
   const { data: cfg } = useSuspenseQuery(careersPageSettingsQueryOptions);
@@ -69,7 +69,7 @@ function CareersPage() {
     sub: ar ? L.sub_ar : L.sub_en,
     whyTitle: ar ? L.why_title_ar : L.why_title_en,
     openTitle: ar ? L.open_title_ar : L.open_title_en,
-    apply: ar ? "قدّم الآن" : "Apply now",
+    apply: T.pages.careers.applyNow,
     noJobsTitle: ar ? L.no_jobs_title_ar : L.no_jobs_title_en,
     noJobsSub: ar ? L.no_jobs_sub_ar : L.no_jobs_sub_en,
     sendCv: ar ? L.send_cv_ar : L.send_cv_en,
@@ -113,7 +113,7 @@ function CareersPage() {
           <Reveal><h2 className="text-2xl font-bold text-foreground">{tx.openTitle}</h2></Reveal>
           <div className="mt-8 space-y-3">
             {jobs.length === 0 && (
-              <p className="text-muted-foreground">{ar ? "لا توجد وظائف متاحة حالياً." : "No open positions right now."}</p>
+              <p className="text-muted-foreground">{T.pages.careers.noJobs}</p>
             )}
             {jobs.map((j) => (
               <Reveal key={j.id}>
@@ -164,12 +164,12 @@ function CareersPage() {
         </div>
       </section>
 
-      <ApplyDialog open={open} onOpenChange={setOpen} job={selected} ar={ar} />
+      <ApplyDialog open={open} onOpenChange={setOpen} job={selected} ar={ar} T={T} />
     </SiteLayout>
   );
 }
 
-function ApplyDialog({ open, onOpenChange, job, ar }: { open: boolean; onOpenChange: (v: boolean) => void; job: JobOpening | null; ar: boolean }) {
+function ApplyDialog({ open, onOpenChange, job, ar, T }: { open: boolean; onOpenChange: (v: boolean) => void; job: JobOpening | null; ar: boolean; T: ReturnType<typeof useLang>["t"] }) {
   const submit = useServerFn(submitApplication);
   const [busy, setBusy] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -179,11 +179,11 @@ function ApplyDialog({ open, onOpenChange, job, ar }: { open: boolean; onOpenCha
     const form = e.currentTarget;
     const fd = new FormData(form);
     if (!file) {
-      toast.error(ar ? "يرجى إرفاق السيرة الذاتية (PDF/Word)." : "Please attach your CV (PDF/Word).");
+      toast.error(T.pages.careers.cvRequired);
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error(ar ? "الحجم الأقصى 5 ميجابايت." : "Max file size is 5 MB.");
+      toast.error(T.pages.careers.maxFileSize);
       return;
     }
     setBusy(true);
@@ -203,7 +203,7 @@ function ApplyDialog({ open, onOpenChange, job, ar }: { open: boolean; onOpenCha
           website: String(fd.get("website") || ""),
         },
       });
-      toast.success(ar ? "تم إرسال طلبك، سنتواصل معك قريباً." : "Application received. We'll be in touch.");
+      toast.success(T.pages.careers.submitted);
       onOpenChange(false);
       form.reset();
       setFile(null);
@@ -221,37 +221,37 @@ function ApplyDialog({ open, onOpenChange, job, ar }: { open: boolean; onOpenCha
         <DialogHeader>
           <DialogTitle>
             {job
-              ? (ar ? `التقديم لوظيفة: ${job.title_ar || job.title_en}` : `Apply — ${job.title_en}`)
-              : (ar ? "أرسل سيرتك الذاتية" : "Send your CV")}
+              ? `${T.pages.careers.applyFor} ${ar ? (job.title_ar || job.title_en) : job.title_en}`
+              : T.pages.careers.sendYourCv}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
           <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
           <div>
-            <Label htmlFor="applicant_name">{ar ? "الاسم الكامل" : "Full name"}</Label>
+            <Label htmlFor="applicant_name">{T.pages.careers.fullName}</Label>
             <Input id="applicant_name" name="applicant_name" required maxLength={120} />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <Label htmlFor="email">{ar ? "البريد الإلكتروني" : "Email"}</Label>
+              <Label htmlFor="email">{T.pages.careers.email}</Label>
               <Input id="email" name="email" type="email" required maxLength={255} />
             </div>
             <div>
-              <Label htmlFor="phone">{ar ? "الهاتف" : "Phone"}</Label>
+              <Label htmlFor="phone">{T.pages.careers.phone}</Label>
               <Input id="phone" name="phone" type="tel" maxLength={40} />
             </div>
           </div>
           <div>
-            <Label htmlFor="cv">{ar ? "السيرة الذاتية (PDF / Word، حتى 5MB)" : "CV (PDF / Word, up to 5MB)"}</Label>
+            <Label htmlFor="cv">{T.pages.careers.cvLabel}</Label>
             <Input id="cv" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
           </div>
           <div>
-            <Label htmlFor="cover_letter">{ar ? "رسالة تعريفية (اختياري)" : "Cover letter (optional)"}</Label>
+            <Label htmlFor="cover_letter">{T.pages.careers.coverLetter}</Label>
             <Textarea id="cover_letter" name="cover_letter" maxLength={3000} rows={4} />
           </div>
           <DialogFooter>
             <Button type="submit" variant="hero" disabled={busy}>
-              {busy ? (ar ? "جارٍ الإرسال..." : "Sending...") : (ar ? "إرسال الطلب" : "Submit application")}
+              {busy ? T.pages.careers.sending : T.pages.careers.submit}
             </Button>
           </DialogFooter>
         </form>

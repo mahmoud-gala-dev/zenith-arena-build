@@ -68,7 +68,7 @@ interface GalleryItem {
 }
 
 function GalleryPage() {
-  const { lang } = useLang();
+  const { lang, t: T } = useLang();
   const ar = lang === "ar";
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
@@ -333,7 +333,7 @@ function GalleryPage() {
                 </button>
                 {current.href && (
                   <Link to={current.href.to} params={current.href.params} className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground">
-                    {ar ? "عرض" : "View"}
+                    {T.pages.gallery.view}
                   </Link>
                 )}
               </div>

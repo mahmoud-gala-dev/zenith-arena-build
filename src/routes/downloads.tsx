@@ -50,7 +50,7 @@ export const Route = createFileRoute("/downloads")({
 
 function DownloadsPage() {
   useEffect(() => { trackDownloadEvent("view_index"); }, []);
-  const { lang } = useLang();
+  const { lang, t: T } = useLang();
   const ar = lang === "ar";
   const { q, cat } = Route.useSearch();
   const navigate = useNavigate({ from: "/downloads" });
@@ -126,16 +126,16 @@ function DownloadsPage() {
               <Input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder={ar ? "ابحث في التحميلات..." : "Search downloads..."}
+                placeholder={T.pages.downloads.searchPlaceholder}
                 className="ps-9"
-                aria-label={ar ? "بحث" : "Search"}
+                aria-label={T.pages.downloads.search}
               />
               {q && (
                 <button
                   type="button"
                   onClick={() => setQ("")}
                   className="absolute inset-y-0 end-2 my-auto rounded-md p-1 text-muted-foreground hover:text-foreground"
-                  aria-label={ar ? "مسح" : "Clear"}
+                  aria-label={T.pages.downloads.clear}
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -143,14 +143,14 @@ function DownloadsPage() {
             </div>
             {hasFilters && (
               <Button variant="outline" size="sm" onClick={clearAll}>
-                {ar ? "إعادة ضبط" : "Reset"}
+                {T.pages.downloads.reset}
               </Button>
             )}
           </div>
 
           <div className="mt-4 flex flex-wrap gap-2">
             <CategoryChip active={cat === "all"} onClick={() => setCat("all")}>
-              {ar ? "الكل" : "All"} ({items.length})
+              {T.pages.downloads.all} ({items.length})
             </CategoryChip>
             {availableCategories.map((key) => {
               const count = items.filter((i) => (i.category || "other") === key).length;
@@ -163,9 +163,7 @@ function DownloadsPage() {
           </div>
 
           <p className="mt-4 text-sm text-muted-foreground" aria-live="polite">
-            {ar
-              ? `${filtered.length} من ${items.length} نتيجة`
-              : `${filtered.length} of ${items.length} results`}
+            {T.pages.downloads.resultsOf(filtered.length, items.length)}
           </p>
         </div>
       </section>
@@ -175,15 +173,11 @@ function DownloadsPage() {
           {filtered.length === 0 ? (
             <div className="py-16 text-center">
               <p className="text-muted-foreground">
-                {items.length === 0
-                  ? tx.empty
-                  : ar
-                  ? "لا توجد نتائج مطابقة."
-                  : "No matching results."}
+                {items.length === 0 ? tx.empty : T.pages.downloads.noMatching}
               </p>
               {hasFilters && (
                 <Button variant="outline" className="mt-4" onClick={clearAll}>
-                  {ar ? "إعادة ضبط الفلاتر" : "Reset filters"}
+                  {T.pages.downloads.resetFilters}
                 </Button>
               )}
             </div>
@@ -224,7 +218,7 @@ function DownloadsPage() {
                         <div className="mt-4 flex flex-wrap items-center gap-2">
                           <Button asChild size="sm" variant="outline">
                             <Link to="/downloads/$slug" params={{ slug: r.slug_en }}>
-                              {ar ? "التفاصيل" : "Details"}
+                              {T.pages.downloads.details}
                             </Link>
                           </Button>
                           <DownloadGateButton

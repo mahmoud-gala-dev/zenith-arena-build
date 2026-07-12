@@ -35,7 +35,7 @@ export const Route = createFileRoute("/clients")({
 });
 
 function ClientsPage() {
-  const { lang } = useLang();
+  const { lang, t: T } = useLang();
   const ar = lang === "ar";
   const { data: clients } = useSuspenseQuery(clientsPublishedQueryOptions);
   const { data: testimonials } = useSuspenseQuery(testimonialsPublishedQueryOptions);
@@ -59,7 +59,7 @@ function ClientsPage() {
       <PageHero eyebrow={tx.eyebrow} title={tx.title} subtitle={tx.sub} />
 
       <section aria-labelledby="clients-groups-heading" className="py-12 sm:py-16">
-        <h2 id="clients-groups-heading" className="sr-only">{ar ? "قوائم العملاء" : "Client groups"}</h2>
+        <h2 id="clients-groups-heading" className="sr-only">{T.pages.clients.groupsHeading}</h2>
         <div className="mx-auto max-w-7xl space-y-10 px-4 sm:space-y-14 sm:px-6 lg:px-8">
           {clients.length === 0 ? (
             <p className="py-8 text-center text-muted-foreground">{tx.emptyClients}</p>

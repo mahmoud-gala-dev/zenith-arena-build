@@ -32,7 +32,7 @@ export const Route = createFileRoute("/faq")({
 });
 
 function FaqPage() {
-  const { lang } = useLang();
+  const { lang, t: T } = useLang();
   const ar = lang === "ar";
   const { data: items } = useSuspenseQuery(faqItemsPublishedQueryOptions);
 
@@ -89,7 +89,7 @@ function FaqPage() {
           })}
 
           {items.length === 0 && (
-            <p className="text-center text-muted-foreground">{ar ? "لا توجد أسئلة منشورة بعد." : "No published questions yet."}</p>
+            <p className="text-center text-muted-foreground">{T.pages.faq.emptyPublished}</p>
           )}
 
           <Reveal className="rounded-3xl bg-gradient-primary p-8 text-center text-primary-foreground shadow-elegant">
