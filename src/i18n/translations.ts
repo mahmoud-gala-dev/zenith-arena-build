@@ -151,6 +151,36 @@ export const translations = {
     productsList: {
       empty: "No products yet.",
     },
+    serviceDetail: {
+      imagesLabel: "images",
+      expand: "Expand",
+      openImage: "Open image",
+      overviewFallback: "Get the core specifications and requirements for this service.",
+      seoTitleFallback: "Service — Egytic Sports",
+      seoDescFallback: "Turnkey sports construction services by Egytic Sports.",
+      home: "Home",
+      services: "Services",
+      country: "Egypt",
+    },
+    knowledgeList: {
+      empty: "No articles yet.",
+    },
+    knowledgeArticle: {
+      toc: "Table of Contents",
+      tocMobile: "Contents",
+    },
+    downloadDetail: {
+      featured: "Featured",
+      allDownloads: "All downloads",
+      overview: "Overview",
+      morePreviews: "More previews",
+      download: "Download",
+      additionalFiles: "Additional files",
+      downloadFallback: "Download",
+      share: "Share",
+      related: "Related downloads",
+      breadcrumb: "Downloads",
+    },
     home: {
       watchReel: "Watch reel",
       chipCertified: "FIFA & World Athletics certified",
