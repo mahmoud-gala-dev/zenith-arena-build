@@ -212,11 +212,15 @@ function DownloadsPage() {
                           params={{ slug: r.slug_en }}
                           className="font-semibold text-foreground hover:text-primary"
                         >
-                          {ar ? r.title_ar : r.title_en}
+                          <HighlightText text={ar ? r.title_ar : r.title_en} query={q} />
                         </Link>
                         {(ar ? r.description_ar : r.description_en) && (
-                          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{ar ? r.description_ar : r.description_en}</p>
+                          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                            <HighlightText text={(ar ? r.description_ar : r.description_en) as string} query={q} />
+                          </p>
+
                         )}
+
                         <div className="mt-4 flex flex-wrap items-center gap-2">
                           <Button asChild size="sm" variant="outline">
                             <Link to="/downloads/$slug" params={{ slug: r.slug_en }}>
@@ -272,3 +276,22 @@ function CategoryChip({
     </button>
   );
 }
+
+function HighlightText({ text, query }: { text: string; query: string }) {
+  const q = query.trim();
+  if (!q) return <>{text}</>;
+  const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const parts = text.split(new RegExp(`(${escaped})`, "gi"));
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.toLowerCase() === q.toLowerCase() ? (
+          <mark key={i} className="rounded bg-primary/20 px-0.5 text-foreground">{part}</mark>
+        ) : (
+          <span key={i}>{part}</span>
+        ),
+      )}
+    </>
+  );
+}
+
