@@ -127,45 +127,42 @@ async def run() -> int:
             print(f"✓ v1 controlling: {v1['controller']}")
             await page.screenshot(path=str(OUT / "01-v1-controlling.png"))
 
-            # ---- intercept sw.js → return original + marker ----
+            # ---- mutate sw.js on disk → next update() fetch sees new bytes ----
+            # Chromium's SW update pipeline compares byte-for-byte against the
+            # installed script; route.fulfill can be short-circuited by the HTTP
+            # cache, so mutate the served file directly for a reliable diff.
+            sw_path = FIXTURE / "sw.js"
+            original = sw_path.read_bytes()
             marker = f"/* pwa-e2e v2 {os.urandom(4).hex()} */"
-
-            async def handle_sw(route):
-                resp = await route.fetch()
-                body = await resp.body()
-                new_body = body + b"\n" + marker.encode()
-                headers = {k: v for k, v in resp.headers.items()}
-                headers["content-length"] = str(len(new_body))
-                await route.fulfill(status=200, headers=headers, body=new_body)
-
-            await context.route("**/sw.js", handle_sw)
-
-            # ---- reload + explicit update() → new SW installs → parks in waiting ----
-            # Browsers skip re-fetching sw.js if HTTP cache says it's fresh; reg.update()
-            # forces a bypass-cache fetch that our route interceptor mutates.
-            await page.reload(wait_until="load")
-            await page.evaluate(
-                "async () => { const r = await navigator.serviceWorker.getRegistration(); await r.update(); }"
-            )
             try:
-                await page.wait_for_function(
-                    "() => document.getElementById('status')?.textContent === 'waiting'",
-                    timeout=15_000,
+                sw_path.write_bytes(original + b"\n" + marker.encode())
+
+                await page.evaluate(
+                    "async () => { const r = await navigator.serviceWorker.getRegistration();"
+                    " await r.update(); }"
                 )
-            except PWTimeout:
-                await page.screenshot(path=str(OUT / "02-no-waiting.png"))
-                state = await page.evaluate(
-                    """async () => {
-                        const regs = await navigator.serviceWorker.getRegistrations();
-                        return regs.map(r => ({
-                            active: r.active?.scriptURL || null,
-                            waiting: r.waiting?.scriptURL || null,
-                            installing: r.installing?.scriptURL || null,
-                        }));
-                    }"""
-                )
-                print(f"✗ new SW never entered `waiting`. regs={state}")
-                return 1
+                try:
+                    await page.wait_for_function(
+                        "() => document.getElementById('status')?.textContent === 'waiting'",
+                        timeout=15_000,
+                    )
+                except PWTimeout:
+                    await page.screenshot(path=str(OUT / "02-no-waiting.png"))
+                    state = await page.evaluate(
+                        """async () => {
+                            const regs = await navigator.serviceWorker.getRegistrations();
+                            return regs.map(r => ({
+                                active: r.active?.scriptURL || null,
+                                waiting: r.waiting?.scriptURL || null,
+                                installing: r.installing?.scriptURL || null,
+                            }));
+                        }"""
+                    )
+                    print(f"✗ new SW never entered `waiting`. regs={state}")
+                    return 1
+            finally:
+                # Restore so the fixture file stays clean between runs.
+                sw_path.write_bytes(original)
 
             print("✓ new SW is waiting; Reload button enabled")
             await page.screenshot(path=str(OUT / "02-waiting.png"))
