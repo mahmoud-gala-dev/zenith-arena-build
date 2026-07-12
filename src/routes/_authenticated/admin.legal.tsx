@@ -529,6 +529,7 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
         </CardContent>
       </Card>
 
+      <PreviewLinksCard pageId={form.id} slug={slug} />
       <AuditHistory recordId={form.id} />
       <VersionHistory pageId={form.id} slug={slug} />
     </div>
