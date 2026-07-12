@@ -1,13 +1,23 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
-import { Copy, Link2, Trash2, Ban } from "lucide-react";
+import { Copy, Link2, Trash2, Ban, Search } from "lucide-react";
 import { useMyRoles } from "@/hooks/useMyRoles";
+
+type StatusFilter = "all" | "active" | "expired" | "revoked";
+type SortKey = "created_desc" | "expires_asc" | "expires_desc" | "last_viewed_desc" | "views_desc";
 
 type Token = {
   id: string;
