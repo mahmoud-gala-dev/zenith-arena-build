@@ -187,6 +187,7 @@ function AdminBlogPage() {
               <SelectItem value="ar-only">AR only</SelectItem>
             </SelectContent>
           </Select>
+          <BlogCategoriesManager onChanged={load} />
           <Button onClick={() => setEditing({ ...EMPTY })}><Plus className="h-4 w-4" /> New article</Button>
         </div>
 
