@@ -352,6 +352,50 @@ export type Database = {
         }
         Relationships: []
       }
+      download_events: {
+        Row: {
+          created_at: string
+          download_id: string | null
+          event_type: string
+          id: string
+          language: string | null
+          path: string | null
+          referrer: string | null
+          referrer_host: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          download_id?: string | null
+          event_type: string
+          id?: string
+          language?: string | null
+          path?: string | null
+          referrer?: string | null
+          referrer_host?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          download_id?: string | null
+          event_type?: string
+          id?: string
+          language?: string | null
+          path?: string | null
+          referrer?: string | null
+          referrer_host?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "download_events_download_id_fkey"
+            columns: ["download_id"]
+            isOneToOne: false
+            referencedRelation: "downloads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       downloads: {
         Row: {
           category: string
