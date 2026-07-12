@@ -8,6 +8,9 @@ export type WhatsAppMessageContext = {
   service?: string | null;
   pageUrl?: string | null;
   phone?: string | null;
+  name?: string | null;
+  email?: string | null;
+  message?: string | null;
   ar?: boolean;
   extra?: string | null;
 };
@@ -15,18 +18,28 @@ export type WhatsAppMessageContext = {
 export function buildWhatsAppMessage(ctx: WhatsAppMessageContext): string {
   const ar = !!ctx.ar;
   const lines: string[] = [];
+  const push = (v?: string | null) => {
+    const s = (v ?? "").toString().trim();
+    if (s) lines.push(s);
+  };
   if (ar) {
     lines.push(`مرحبًا${ctx.brand ? ` ${ctx.brand}` : ""}،`);
-    if (ctx.service) lines.push(`مهتم بـ: ${ctx.service}`);
-    if (ctx.pageUrl) lines.push(`الصفحة: ${ctx.pageUrl}`);
-    if (ctx.phone) lines.push(`رقم للتواصل: ${ctx.phone}`);
-    if (ctx.extra) lines.push(ctx.extra);
+    if (ctx.name) push(`الاسم: ${ctx.name}`);
+    if (ctx.service) push(`مهتم بـ: ${ctx.service}`);
+    if (ctx.message) push(`تفاصيل: ${ctx.message}`);
+    if (ctx.phone) push(`رقم للتواصل: ${ctx.phone}`);
+    if (ctx.email) push(`البريد: ${ctx.email}`);
+    if (ctx.pageUrl) push(`الصفحة: ${ctx.pageUrl}`);
+    if (ctx.extra) push(ctx.extra);
   } else {
     lines.push(`Hi${ctx.brand ? ` ${ctx.brand}` : ""},`);
-    if (ctx.service) lines.push(`I'm interested in: ${ctx.service}`);
-    if (ctx.pageUrl) lines.push(`Page: ${ctx.pageUrl}`);
-    if (ctx.phone) lines.push(`My phone: ${ctx.phone}`);
-    if (ctx.extra) lines.push(ctx.extra);
+    if (ctx.name) push(`Name: ${ctx.name}`);
+    if (ctx.service) push(`I'm interested in: ${ctx.service}`);
+    if (ctx.message) push(`Details: ${ctx.message}`);
+    if (ctx.phone) push(`My phone: ${ctx.phone}`);
+    if (ctx.email) push(`Email: ${ctx.email}`);
+    if (ctx.pageUrl) push(`Page: ${ctx.pageUrl}`);
+    if (ctx.extra) push(ctx.extra);
   }
   return lines.join("\n");
 }
