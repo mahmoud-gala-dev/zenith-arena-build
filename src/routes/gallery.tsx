@@ -141,12 +141,13 @@ function GalleryPage() {
     setActiveType(t);
     if (t !== "projects") setActiveCategory("all");
     navigate({ search: { type: t === "all" ? undefined : t, category: undefined }, replace: true });
-    trackEvent({ name: "gallery_filter", filter_type: "type", value: t });
+    trackEvent({ name: "gallery_filter", filter_type: "type", value: t, results: filtered.length });
   };
   const setCategory = (c: string) => {
     setActiveCategory(c);
     navigate({ search: { type: activeType === "all" ? undefined : activeType, category: c === "all" ? undefined : c }, replace: true });
-    trackEvent({ name: "gallery_filter", filter_type: "category", value: c });
+    trackEvent({ name: "gallery_filter", filter_type: "category", value: c, results: filtered.length });
+
   };
 
   useEffect(() => { setZoomed(false); }, [lightbox]);
