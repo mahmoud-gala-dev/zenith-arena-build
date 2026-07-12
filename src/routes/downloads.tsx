@@ -7,6 +7,7 @@ import { Download, FileText, Search, X } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
+import { DownloadGateButton } from "@/components/site/DownloadGateButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLang } from "@/i18n/LanguageProvider";
@@ -220,19 +221,15 @@ function DownloadsPage() {
                               {ar ? "التفاصيل" : "Details"}
                             </Link>
                           </Button>
-                          {r.file_url ? (
-                            <Button asChild size="sm">
-                              <a href={r.file_url} target="_blank" rel="noreferrer">
-                                <Download className="h-4 w-4" />
-                                {tx.download}
-                              </a>
-                            </Button>
-                          ) : (
-                            <Button size="sm" disabled>
-                              <Download className="h-4 w-4" />
-                              {tx.download}
-                            </Button>
-                          )}
+                          <DownloadGateButton
+                            fileUrl={r.file_url}
+                            title={ar ? r.title_ar : r.title_en}
+                            slug={r.slug_en}
+                            requiresLead={r.requires_lead_capture}
+                            label={tx.download}
+                            size="sm"
+                          />
+
                         </div>
                       </div>
                     </div>

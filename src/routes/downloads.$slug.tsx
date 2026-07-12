@@ -5,6 +5,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { Reveal } from "@/components/site/Reveal";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ShareButtons } from "@/components/site/ShareButtons";
+import { DownloadGateButton } from "@/components/site/DownloadGateButton";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import {
@@ -124,18 +125,15 @@ function DownloadDetailPage() {
             <p className="mt-4 max-w-3xl text-base text-white/85 md:text-lg">{description}</p>
           )}
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            {item.file_url ? (
-              <Button asChild size="lg" variant="secondary">
-                <a href={item.file_url} target="_blank" rel="noreferrer">
-                  <Download className="h-5 w-5" />
-                  {downloadLabel}
-                </a>
-              </Button>
-            ) : (
-              <Button size="lg" variant="secondary" disabled>
-                <Download className="h-5 w-5" /> {downloadLabel}
-              </Button>
-            )}
+            <DownloadGateButton
+              fileUrl={item.file_url}
+              title={title}
+              slug={item.slug_en}
+              requiresLead={item.requires_lead_capture}
+              label={downloadLabel}
+              size="lg"
+              variant="secondary"
+            />
             <Button asChild size="lg" variant="outline" className="border-white/30 bg-transparent text-white hover:bg-white/10">
               <Link to="/downloads">
                 <ArrowLeft className="h-4 w-4" /> {ar ? "كل التحميلات" : "All downloads"}
@@ -184,17 +182,15 @@ function DownloadDetailPage() {
               {categoryLabel && (
                 <p className="mt-1 text-sm text-muted-foreground">{categoryLabel}</p>
               )}
-              {item.file_url ? (
-                <Button asChild className="mt-4 w-full">
-                  <a href={item.file_url} target="_blank" rel="noreferrer">
-                    <Download className="h-4 w-4" /> {downloadLabel}
-                  </a>
-                </Button>
-              ) : (
-                <Button className="mt-4 w-full" disabled>
-                  <Download className="h-4 w-4" /> {downloadLabel}
-                </Button>
-              )}
+              <DownloadGateButton
+                fileUrl={item.file_url}
+                title={title}
+                slug={item.slug_en}
+                requiresLead={item.requires_lead_capture}
+                label={downloadLabel}
+                className="mt-4 w-full"
+              />
+
             </div>
 
             <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
