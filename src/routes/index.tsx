@@ -1,33 +1,32 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Award, ShieldCheck, Cpu, Wrench } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Award, ShieldCheck, Cpu, Wrench } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { SectionHeader } from "@/components/site/SectionHeader";
 import { Reveal } from "@/components/site/Reveal";
-import { ProjectCard, ArticleCard } from "@/components/site/Cards";
 import { HeroSlider } from "@/components/site/HeroSlider";
 import { Icon } from "@/components/site/Icon";
 import { ResponsiveImage } from "@/components/site/ResponsiveImage";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { LangToggle } from "@/components/site/LangToggle";
-import { heroSlidesActiveQueryOptions, homeClientsQueryOptions, type HomeClient } from "@/lib/queries";
+import {
+  heroSlidesActiveQueryOptions,
+  homeClientsQueryOptions,
+  projectsPublishedListQueryOptions,
+  blogPostsPublishedQueryOptions,
+  testimonialsPublishedQueryOptions,
+  type HomeClient,
+} from "@/lib/queries";
 import { servicesPublishedQueryOptions } from "@/hooks/useServiceContent";
 import ogImage from "@/assets/apex-og.jpg.asset.json";
 import ctaLandmark from "@/assets/cta-landmark.jpg.asset.json";
 
-import {
-  projects,
-  articles,
-  testimonials,
-  clients as fallbackClients,
-  heroStats,
-  heroImg,
-  type ClientLogo,
-} from "@/lib/site-data";
+import { heroStats, heroImg } from "@/lib/site-data";
 
 
-type TrustClient = ClientLogo & { logo_url?: string | null; description?: { en: string; ar: string } };
+type TrustClient = { name: { en: string; ar: string }; sector: { en: string; ar: string }; monogram: string; accent: string; logo_url?: string | null; description?: { en: string; ar: string } };
+
 
 function monogramFor(name: string): string {
   return name
