@@ -177,6 +177,7 @@ export type Database = {
           tags: string[]
           title_ar: string
           title_en: string
+          translation_group_id: string
           updated_at: string
         }
         Insert: {
@@ -206,6 +207,7 @@ export type Database = {
           tags?: string[]
           title_ar: string
           title_en: string
+          translation_group_id?: string
           updated_at?: string
         }
         Update: {
@@ -235,6 +237,7 @@ export type Database = {
           tags?: string[]
           title_ar?: string
           title_en?: string
+          translation_group_id?: string
           updated_at?: string
         }
         Relationships: [

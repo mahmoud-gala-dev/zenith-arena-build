@@ -17,9 +17,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
-  Plus, Pencil, Trash2, Loader2, Search, ExternalLink, Upload, X, Languages, Star, ImageIcon,
+  Plus, Pencil, Trash2, Loader2, Search, ExternalLink, Upload, X, Languages, Star, ImageIcon, Link2 as Link2Icon,
 } from "lucide-react";
 import { BlogCategoriesManager } from "@/components/admin/BlogCategoriesManager";
+import { TranslationLinkPanel } from "@/components/admin/TranslationLinkPanel";
 
 export const Route = createFileRoute("/_authenticated/admin/blog")({
   component: AdminBlogPage,
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/_authenticated/admin/blog")({
 
 type Article = {
   id?: string;
+  translation_group_id?: string;
   category_id?: string | null;
   slug_en?: string; slug_ar?: string;
   title_en?: string; title_ar?: string;
@@ -228,9 +230,17 @@ function AdminBlogPage() {
                     </td>
                     <td className="p-3">{cat ? <Badge variant="secondary">{cat.title_en}</Badge> : <span className="text-muted-foreground">—</span>}</td>
                     <td className="p-3">
-                      <div className="flex gap-1">
+                      <div className="flex gap-1 items-center">
                         <Badge variant={enOk ? "default" : "outline"} className="text-[10px]">EN</Badge>
                         <Badge variant={arOk ? "default" : "outline"} className="text-[10px]">AR</Badge>
+                        {(() => {
+                          const linked = rows.filter((x) => x.id !== r.id && x.translation_group_id === r.translation_group_id).length;
+                          return linked > 0 ? (
+                            <Badge variant="secondary" className="text-[10px] gap-1" title="Linked translations">
+                              <Link2Icon className="h-3 w-3" />{linked}
+                            </Badge>
+                          ) : null;
+                        })()}
                       </div>
                     </td>
                     <td className="p-3">
@@ -353,6 +363,24 @@ function ArticleEditor({
           <Input type="number" min={1} value={value.reading_time ?? 5} onChange={(e) => set({ reading_time: Number(e.target.value) })} />
         </div>
       </div>
+
+      {value.id && value.translation_group_id && (
+        <TranslationLinkPanel
+          post={{
+            id: value.id,
+            translation_group_id: value.translation_group_id,
+            title_en: value.title_en,
+            title_ar: value.title_ar,
+            slug_en: value.slug_en,
+          }}
+        />
+      )}
+      {!value.id && (
+        <div className="rounded-lg border border-dashed border-border/60 p-3 text-xs text-muted-foreground">
+          Save the article first to link it to an existing translation.
+        </div>
+      )}
+
 
       <Tabs defaultValue="en" className="w-full">
         <TabsList>
