@@ -109,8 +109,8 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
   useEffect(() => {
     if (!data && !isLoading) {
       setForm({
-        en: { title: label, intro: "", sections: [] },
-        ar: { title: label, intro: "", sections: [] },
+        en: { title: label, intro: "", sections: [], seoTitle: "", seoDescription: "", seoKeywords: "" },
+        ar: { title: label, intro: "", sections: [], seoTitle: "", seoDescription: "", seoKeywords: "" },
         status: "draft",
         effectiveAt: "",
       });
@@ -119,10 +119,32 @@ function LegalEditor({ slug, label }: { slug: string; label: string }) {
     if (data) {
       const en = parse(data.content_en ?? "");
       const ar = parse(data.content_ar ?? "");
+      const d = data as typeof data & {
+        seo_title_en?: string | null;
+        seo_title_ar?: string | null;
+        seo_description_en?: string | null;
+        seo_description_ar?: string | null;
+        seo_keywords_en?: string | null;
+        seo_keywords_ar?: string | null;
+      };
       setForm({
         id: data.id,
-        en: { title: data.title_en ?? label, intro: en.intro, sections: en.sections },
-        ar: { title: data.title_ar ?? label, intro: ar.intro, sections: ar.sections },
+        en: {
+          title: data.title_en ?? label,
+          intro: en.intro,
+          sections: en.sections,
+          seoTitle: d.seo_title_en ?? "",
+          seoDescription: d.seo_description_en ?? "",
+          seoKeywords: d.seo_keywords_en ?? "",
+        },
+        ar: {
+          title: data.title_ar ?? label,
+          intro: ar.intro,
+          sections: ar.sections,
+          seoTitle: d.seo_title_ar ?? "",
+          seoDescription: d.seo_description_ar ?? "",
+          seoKeywords: d.seo_keywords_ar ?? "",
+        },
         status: (data.status as "published" | "draft") ?? "draft",
         effectiveAt: toLocalInput((data as { effective_at?: string | null }).effective_at ?? null),
       });
