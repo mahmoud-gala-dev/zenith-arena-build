@@ -24,14 +24,13 @@ export interface AdminAuditPayload {
  */
 export async function logAdminAudit(payload: AdminAuditPayload): Promise<void> {
   try {
-    const changes = payload.details
-      ? { details: payload.details }
-      : null;
     await supabase.rpc("log_admin_event", {
       _action: payload.action,
       _table_name: payload.resource,
-      _record_id: payload.recordId ?? null,
-      _changes: changes,
+      _record_id: payload.recordId ?? undefined,
+      _changes: payload.details
+        ? (JSON.parse(JSON.stringify({ details: payload.details })) as never)
+        : undefined,
     });
   } catch {
     // best-effort — never surface logging failures to the user
