@@ -182,8 +182,10 @@ function AdminHeroSlides() {
     if (error) return toast.error(error.message);
     toast.success("Deleted");
     setDeleteId(null);
+    invalidate();
     load();
   }
+
 
   async function reorder(id: string, dir: -1 | 1) {
     const idx = slides.findIndex((s) => s.id === id);
