@@ -289,8 +289,10 @@ function AdminBlogPage() {
               value={editing}
               onChange={setEditing}
               cats={cats}
-              suggestedTags={suggestedTags}
+              tags={tags}
+              onTagsChanged={load}
             />
+
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
