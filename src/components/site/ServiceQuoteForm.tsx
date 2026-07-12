@@ -110,7 +110,18 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
         },
       });
       setFormData({ name, phone, email });
+      setSummary({
+        name,
+        email,
+        phone: phone || null,
+        service: serviceSlug,
+        serviceLabel: serviceTitle,
+        message: message || null,
+        intent: "quote",
+        source: `service:${serviceSlug}`,
+      });
       setSent(true);
+      setSuccessOpen(true);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t.error);
     } finally {
