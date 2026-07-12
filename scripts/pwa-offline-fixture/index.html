@@ -9,9 +9,11 @@
   </nav>
   <script type="module">
     // Mirror of src/lib/pwa/register.ts — controlled registration.
-    const wb = new (await import("/workbox-window.prod.mjs")).Workbox("/sw.js", { scope: "/" });
-    await wb.register();
-    document.body.dataset.registered = "1";
+    import { Workbox } from "/workbox-window.prod.mjs";
+    const wb = new Workbox("/sw.js", { scope: "/" });
+    wb.register()
+      .then(() => { document.body.dataset.registered = "1"; })
+      .catch((e) => { document.body.dataset.registered = "err:" + e.message; });
   </script>
 </body>
 </html>
