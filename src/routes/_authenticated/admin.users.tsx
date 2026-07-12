@@ -63,6 +63,8 @@ function AdminUsersPage() {
   const [query, setQuery] = useState("");
   const [permQuery, setPermQuery] = useState("");
   const [savingId, setSavingId] = useState<string | null>(null);
+  const { can: canManage, guard } = useGuard("users.manage");
+
 
   async function load() {
     setLoading(true);
