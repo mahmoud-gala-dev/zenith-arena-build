@@ -61,14 +61,7 @@ export const Route = createFileRoute("/governorates/$slug")({
     };
   },
   errorComponent: ({ error }) => <SiteLayout><div className="mx-auto max-w-3xl px-4 py-24 text-center text-muted-foreground">{error.message}</div></SiteLayout>,
-  notFoundComponent: () => (
-    <SiteLayout>
-      <div className="mx-auto max-w-3xl px-4 py-24 text-center">
-        <h1 className="text-2xl font-semibold text-foreground">Governorate not found</h1>
-        <Link to="/projects" className="mt-4 inline-block text-primary hover:underline">← Back to projects</Link>
-      </div>
-    </SiteLayout>
-  ),
+  notFoundComponent: () => <NotFound backTo="/projects" backKey="backToProjects" />,
   component: GovernoratePage,
 });
 
