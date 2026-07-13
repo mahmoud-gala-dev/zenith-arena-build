@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
+import { NotFound } from "@/components/site/NotFound";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/faq")({
     ],
   }),
   errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">{error.message}</div>,
-  notFoundComponent: () => <div className="p-8 text-center">Not found</div>,
+  notFoundComponent: () => <NotFound />,
   component: FaqPage,
 });
 

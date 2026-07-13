@@ -108,7 +108,7 @@ function QuotePage() {
       setSuccessOpen(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Submission failed");
+      toast.error(err instanceof Error ? err.message : T.common.submitError);
     } finally {
       setSubmitting(false);
     }

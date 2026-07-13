@@ -3,6 +3,7 @@ import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, BadgeCheck, BookOpen, CheckCircle2, Download } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { NotFound } from "@/components/site/NotFound";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -65,14 +66,7 @@ export const Route = createFileRoute("/products/$slug")({
       </div>
     </SiteLayout>
   ),
-  notFoundComponent: () => (
-    <SiteLayout>
-      <div className="mx-auto max-w-3xl px-4 py-24 text-center">
-        <h1 className="text-2xl font-bold">Product not found</h1>
-        <Link to="/products" className="mt-4 inline-block text-primary">Back to products</Link>
-      </div>
-    </SiteLayout>
-  ),
+  notFoundComponent: () => <NotFound backTo="/products" backKey="backToProducts" />,
   component: ProductDetailPage,
 });
 

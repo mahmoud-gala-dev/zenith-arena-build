@@ -7,6 +7,7 @@ import { MapPin, Briefcase, ArrowRight, HelpCircle, type LucideIcon } from "luci
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
+import { NotFound } from "@/components/site/NotFound";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,7 +32,7 @@ export const Route = createFileRoute("/careers")({
     ],
   }),
   errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">{error.message}</div>,
-  notFoundComponent: () => <div className="p-8 text-center">Not found</div>,
+  notFoundComponent: () => <NotFound />,
   component: CareersPage,
 });
 

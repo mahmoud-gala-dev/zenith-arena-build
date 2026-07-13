@@ -5,6 +5,7 @@ import { ShieldCheck, ArrowRight } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
+import { NotFound } from "@/components/site/NotFound";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import { aboutContentQueryOptions, aboutPageSettingsQueryOptions } from "@/lib/queries";
@@ -16,7 +17,7 @@ export const Route = createFileRoute("/about")({
   ]),
   component: AboutPage,
   errorComponent: ({ error }) => <div role="alert" className="p-8">{error.message}</div>,
-  notFoundComponent: () => <div className="p-8">Not found</div>,
+  notFoundComponent: () => <NotFound />,
 });
 
 function AboutPage() {

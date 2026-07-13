@@ -6,6 +6,7 @@ import { ArrowLeft, Download, FileText, Tag } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Reveal } from "@/components/site/Reveal";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { NotFound } from "@/components/site/NotFound";
 import { ShareButtons } from "@/components/site/ShareButtons";
 import { DownloadGateButton } from "@/components/site/DownloadGateButton";
 import { Button } from "@/components/ui/button";
@@ -115,16 +116,7 @@ export const Route = createFileRoute("/downloads/$slug")({
       </div>
     </SiteLayout>
   ),
-  notFoundComponent: () => (
-    <SiteLayout>
-      <div className="mx-auto max-w-3xl px-4 py-24 text-center">
-        <h1 className="text-2xl font-bold">Download not found</h1>
-        <Button asChild variant="outline" className="mt-6">
-          <Link to="/downloads"><ArrowLeft className="h-4 w-4" /> Back to downloads</Link>
-        </Button>
-      </div>
-    </SiteLayout>
-  ),
+  notFoundComponent: () => <NotFound backTo="/downloads" backKey="backToDownloads" />,
   component: DownloadDetailPage,
 });
 

@@ -147,7 +147,7 @@ function ContactPage() {
       setSent(true);
       setSuccessOpen(true);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Submission failed");
+      toast.error(err instanceof Error ? err.message : t.common.submitError);
     } finally {
       setSubmitting(false);
     }
