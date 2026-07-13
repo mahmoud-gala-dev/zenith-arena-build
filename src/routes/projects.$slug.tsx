@@ -91,14 +91,7 @@ export const Route = createFileRoute("/projects/$slug")({
       </div>
     </SiteLayout>
   ),
-  notFoundComponent: () => (
-    <SiteLayout>
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 pt-24 text-center">
-        <p className="text-2xl font-semibold">Project not found</p>
-        <Button asChild variant="hero"><Link to="/projects">Back to projects</Link></Button>
-      </div>
-    </SiteLayout>
-  ),
+  notFoundComponent: () => <NotFound backTo="/projects" backKey="backToProjects" />,
 });
 
 function ProjectDetail() {
