@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeft, MapPin, Calendar, Layers } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { NotFound } from "@/components/site/NotFound";
 import { Reveal } from "@/components/site/Reveal";
 import { ProjectCard } from "@/components/site/Cards";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
