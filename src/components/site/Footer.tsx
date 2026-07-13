@@ -224,7 +224,7 @@ export function Footer() {
                     toast.success(t.components.footer.subscribeSuccess);
                     setSubEmail("");
                   } catch (err) {
-                    toast.error(err instanceof Error ? err.message : "Could not subscribe.");
+                    toast.error(err instanceof Error ? err.message : t.common.newsletterError);
                   } finally {
                     setSubBusy(false);
                   }
