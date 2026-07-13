@@ -6,6 +6,7 @@ import { ArrowLeft, Download, FileText, Tag } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Reveal } from "@/components/site/Reveal";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { NotFound } from "@/components/site/NotFound";
 import { ShareButtons } from "@/components/site/ShareButtons";
 import { DownloadGateButton } from "@/components/site/DownloadGateButton";
 import { Button } from "@/components/ui/button";
