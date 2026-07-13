@@ -501,6 +501,18 @@ export const translations = {
       viewProject: "عرض المشروع",
       readArticle: "قراءة المقال",
     },
+    common: {
+      notFoundTitle: "الصفحة غير موجودة",
+      notFoundBody: "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
+      backHome: "العودة إلى الرئيسية",
+      backToProjects: "العودة إلى المشاريع",
+      backToProducts: "العودة إلى المنتجات",
+      backToKnowledge: "العودة إلى مركز المعرفة",
+      backToDownloads: "العودة إلى التحميلات",
+      backToServices: "العودة إلى الخدمات",
+      submitError: "فشل الإرسال. حاول مرة أخرى.",
+      newsletterError: "تعذّر الاشتراك.",
+    },
     hero: {
       eyebrow: "الإنشاءات والبنية التحتية الرياضية",
       title1: "نهندس",
