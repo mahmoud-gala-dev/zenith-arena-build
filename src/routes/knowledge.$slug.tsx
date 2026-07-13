@@ -148,16 +148,7 @@ export const Route = createFileRoute("/knowledge/$slug")({
   component: ArticleDetail,
   pendingComponent: () => (<SiteLayout><DetailPageSkeleton /></SiteLayout>),
   pendingMs: 200,
-  notFoundComponent: () => (
-    <SiteLayout>
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 pt-24 text-center">
-        <p className="text-2xl font-semibold">Article not found</p>
-        <Button asChild variant="hero">
-          <Link to="/knowledge">Back to Knowledge Center</Link>
-        </Button>
-      </div>
-    </SiteLayout>
-  ),
+  notFoundComponent: () => <NotFound backTo="/knowledge" backKey="backToKnowledge" />,
 });
 
 function ArticleDetail() {
