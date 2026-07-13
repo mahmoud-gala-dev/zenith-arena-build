@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Reveal } from "@/components/site/Reveal";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { NotFound } from "@/components/site/NotFound";
 import { ShareButtons } from "@/components/site/ShareButtons";
 import { GallerySection } from "@/components/site/GallerySection";
 import { DetailPageSkeleton } from "@/components/site/Skeletons";
