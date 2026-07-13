@@ -187,7 +187,7 @@ export function LeadSuccessDialog({ open, onOpenChange, summary }: Props) {
                 <Download className="h-5 w-5" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-foreground">{t.dlTitle(catalogTitle)}</p>
+                <p className="font-semibold text-foreground">{dlTitle}</p>
                 <p className="text-xs text-muted-foreground">{t.dlDesc}</p>
               </div>
               <Arrow className="mt-2 h-4 w-4 text-primary" />
