@@ -66,14 +66,7 @@ export const Route = createFileRoute("/products/$slug")({
       </div>
     </SiteLayout>
   ),
-  notFoundComponent: () => (
-    <SiteLayout>
-      <div className="mx-auto max-w-3xl px-4 py-24 text-center">
-        <h1 className="text-2xl font-bold">Product not found</h1>
-        <Link to="/products" className="mt-4 inline-block text-primary">Back to products</Link>
-      </div>
-    </SiteLayout>
-  ),
+  notFoundComponent: () => <NotFound backTo="/products" backKey="backToProducts" />,
   component: ProductDetailPage,
 });
 
