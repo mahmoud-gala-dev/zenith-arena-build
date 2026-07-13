@@ -16,7 +16,7 @@ export const Route = createFileRoute("/about")({
   ]),
   component: AboutPage,
   errorComponent: ({ error }) => <div role="alert" className="p-8">{error.message}</div>,
-  notFoundComponent: () => <div className="p-8">Not found</div>,
+  notFoundComponent: () => <NotFound />,
 });
 
 function AboutPage() {
