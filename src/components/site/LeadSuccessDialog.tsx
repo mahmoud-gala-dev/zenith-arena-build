@@ -60,7 +60,7 @@ function pickCatalog(
 }
 
 export function LeadSuccessDialog({ open, onOpenChange, summary }: Props) {
-  const { lang } = useLang();
+  const { lang, t: T } = useLang();
   const ar = lang === "ar";
   const Arrow = ar ? ArrowLeft : ArrowRight;
   const contact = useContactInfo();
@@ -74,43 +74,7 @@ export function LeadSuccessDialog({ open, onOpenChange, summary }: Props) {
     [downloads, summary?.service],
   );
 
-  const t = ar
-    ? {
-        title: "تم استلام طلبك بنجاح",
-        subtitle: "سيتواصل معك أحد مهندسينا خلال يوم عمل واحد.",
-        summary: "ملخص طلبك",
-        name: "الاسم",
-        email: "البريد",
-        phone: "الهاتف",
-        service: "الخدمة / الاهتمام",
-        message: "الرسالة",
-        next: "الخطوات التالية",
-        waTitle: "تحدث معنا الآن على واتساب",
-        waDesc: "استمرار الحوار مع فريق المبيعات مباشرة.",
-        waCta: "افتح واتساب",
-        dlTitle: (name: string) => `حمّل الكتالوج: ${name}`,
-        dlDesc: "المواصفات التقنية والمشاريع السابقة في ملف واحد.",
-        dlCta: "افتح صفحة الكتالوج",
-        close: "إغلاق",
-      }
-    : {
-        title: "Request received",
-        subtitle: "One of our engineers will reach out within one business day.",
-        summary: "Your submission",
-        name: "Name",
-        email: "Email",
-        phone: "Phone",
-        service: "Service / interest",
-        message: "Message",
-        next: "Next steps",
-        waTitle: "Chat with us on WhatsApp",
-        waDesc: "Continue the conversation with sales directly.",
-        waCta: "Open WhatsApp",
-        dlTitle: (name: string) => `Download the ${name} catalog`,
-        dlDesc: "Technical specs and past projects in a single file.",
-        dlCta: "Open catalog page",
-        close: "Close",
-      };
+  const t = T.components.leadSuccess;
 
   const waHref =
     wa && summary
@@ -119,14 +83,13 @@ export function LeadSuccessDialog({ open, onOpenChange, summary }: Props) {
           service: summary.serviceLabel || summary.service || null,
           phone: summary.phone || null,
           ar,
-          extra: ar
-            ? `الاسم: ${summary.name}\nالبريد: ${summary.email}`
-            : `Name: ${summary.name}\nEmail: ${summary.email}`,
+          extra: `${t.name}: ${summary.name}\n${t.email}: ${summary.email}`,
         })
       : null;
 
   const catalogSlug = catalog?.slug_en || catalog?.slug_ar || null;
   const catalogTitle = catalog ? (ar ? catalog.title_ar || catalog.title_en : catalog.title_en) : "";
+  const dlTitle = [t.dlTitlePrefix, catalogTitle, t.dlTitleSuffix].filter(Boolean).join(" ");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -224,7 +187,7 @@ export function LeadSuccessDialog({ open, onOpenChange, summary }: Props) {
                 <Download className="h-5 w-5" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-foreground">{t.dlTitle(catalogTitle)}</p>
+                <p className="font-semibold text-foreground">{dlTitle}</p>
                 <p className="text-xs text-muted-foreground">{t.dlDesc}</p>
               </div>
               <Arrow className="mt-2 h-4 w-4 text-primary" />
