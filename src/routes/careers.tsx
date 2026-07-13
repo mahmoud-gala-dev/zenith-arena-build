@@ -32,7 +32,7 @@ export const Route = createFileRoute("/careers")({
     ],
   }),
   errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">{error.message}</div>,
-  notFoundComponent: () => <div className="p-8 text-center">Not found</div>,
+  notFoundComponent: () => <NotFound />,
   component: CareersPage,
 });
 
