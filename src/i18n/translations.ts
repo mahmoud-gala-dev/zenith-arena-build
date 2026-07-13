@@ -27,6 +27,18 @@ export const translations = {
       viewProject: "View project",
       readArticle: "Read article",
     },
+    common: {
+      notFoundTitle: "Page not found",
+      notFoundBody: "The page you're looking for doesn't exist or has been moved.",
+      backHome: "Go home",
+      backToProjects: "Back to projects",
+      backToProducts: "Back to products",
+      backToKnowledge: "Back to Knowledge Center",
+      backToDownloads: "Back to downloads",
+      backToServices: "Back to services",
+      submitError: "Submission failed. Please try again.",
+      newsletterError: "Could not subscribe.",
+    },
     hero: {
       eyebrow: "Sports Construction & Infrastructure",
       title1: "Engineering the",
