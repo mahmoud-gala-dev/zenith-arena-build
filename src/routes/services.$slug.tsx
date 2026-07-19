@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import { serviceBySlugQueryOptions, servicesPublishedQueryOptions, type ServiceRow } from "@/hooks/useServiceContent";
 import { projectsPublishedListQueryOptions, dbProjectToView, type DbProject } from "@/lib/queries";
-import { NotFound } from "@/components/site/NotFound";
+import { ServiceNotFound } from "@/components/site/ServiceNotFound";
 
 const SITE_URL = "https://zenith-arena-build.lovable.app";
 
@@ -157,7 +157,7 @@ export const Route = createFileRoute("/services/$slug")({
   },
 
   component: ServiceDetailPage,
-  notFoundComponent: () => <NotFound backTo="/services" backKey="backToServices" />,
+  notFoundComponent: ServiceNotFound,
 });
 
 
