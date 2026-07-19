@@ -26,7 +26,7 @@ const schema = z.object({
 });
 
 export const subscribeNewsletter = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => schema.parse(input))
+  .validator((input: unknown) => schema.parse(input))
   .handler(async ({ data }) => {
     const req = getRequest();
     const ip =

@@ -37,11 +37,10 @@ export const Route = createFileRoute("/services/")({
     return { q, category, page, lang, sort };
   },
   loaderDeps: ({ search }) => ({ q: search.q, category: search.category, page: search.page, sort: search.sort, lang: search.lang }),
-  loader: ({ context: { queryClient }, deps }) => {
-    void queryClient.ensureQueryData(
+  loader: async ({ context: { queryClient }, deps }) => {
+    await Promise.all([queryClient.ensureQueryData(
       servicesPageQueryOptions({ q: deps.q, category: deps.category, page: deps.page ?? 1, pageSize: DEFAULT_PAGE_SIZE, sort: deps.sort, lang: deps.lang }),
-    );
-    void queryClient.ensureQueryData(servicesCategoriesQueryOptions);
+    ), queryClient.ensureQueryData(servicesCategoriesQueryOptions)]);
   },
   component: ServicesPage,
 
@@ -77,7 +76,7 @@ export const Route = createFileRoute("/services/")({
       { rel: "alternate", hrefLang: "en", href: `${SITE_URL}/services` },
       { rel: "alternate", hrefLang: "ar", href: `${SITE_URL}/services?lang=ar` },
       { rel: "alternate", hrefLang: "x-default", href: `${SITE_URL}/services` },
-      { rel: "preload", as: "image", href: heroServices.url, fetchpriority: "high" },
+      { rel: "preload", as: "image", href: heroServices.url, fetchPriority: "high" as const },
     ],
   }),
 });
