@@ -165,11 +165,11 @@ export const Route = createFileRoute("/services/$slug")({
 function ServiceDetailPage() {
   const { slug, service, services: allServices, projects: allProjectsDb } = Route.useLoaderData() as {
     slug: string;
-    service: ServiceRow | null;
+    service: ServiceRow;
     services: ServiceRow[];
     projects: DbProject[];
   };
-  const { lang, t, dir } = useLang();
+  const { lang, t } = useLang();
   const ar = lang === "ar";
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
