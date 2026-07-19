@@ -157,7 +157,7 @@ export const Route = createFileRoute("/services/$slug")({
   },
 
   component: ServiceDetailPage,
-  notFoundComponent: () => <NotFound backTo="/services" backKey="backToServices" />,
+  notFoundComponent: ServiceNotFound,
 });
 
 
