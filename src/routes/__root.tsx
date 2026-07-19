@@ -1,22 +1,21 @@
 import { QueryClient } from "@tanstack/react-query";
 import {
   Outlet,
-  Link,
   createRootRouteWithContext,
-  useRouter,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { SmoothScroll } from "../components/site/SmoothScroll";
 import { PerfOverlay } from "../components/site/PerfOverlay";
 import { initPerf } from "../lib/perf";
 import { PwaController } from "../components/site/PwaController";
 import { seoDefaultsQueryOptions, DEFAULT_SEO_DEFAULTS } from "../lib/settings";
+import { GlobalErrorFallback } from "../components/site/GlobalErrorFallback";
+import { AppErrorBoundary } from "../components/site/AppErrorBoundary";
 
 
 
