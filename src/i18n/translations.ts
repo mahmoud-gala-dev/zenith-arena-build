@@ -208,6 +208,16 @@ export const translations = {
     },
     knowledgeList: {
       empty: "No articles yet.",
+      searchPlaceholder: "Search articles...",
+      allCategories: "All categories",
+      allTags: "All tags",
+      sortNewest: "Newest",
+      sortOldest: "Oldest",
+      sortReadingTime: "Reading time",
+      sortTitle: "Title (A→Z)",
+      resultsCount: "{count} article(s)",
+      clearFilters: "Clear filters",
+      noResults: "No articles match your filters.",
     },
     knowledgeArticle: {
       toc: "Table of Contents",
