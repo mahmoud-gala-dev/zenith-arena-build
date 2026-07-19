@@ -549,6 +549,13 @@ export const translations = {
       backToServices: "العودة إلى الخدمات",
       submitError: "فشل الإرسال. حاول مرة أخرى.",
       newsletterError: "تعذّر الاشتراك.",
+      validation: {
+        required: "هذا الحقل مطلوب.",
+        nameMax: "يجب أن يكون الاسم أقل من 100 حرف.",
+        emailInvalid: "أدخل بريدًا إلكترونيًا صحيحًا.",
+        phoneInvalid: "أدخل رقم هاتف صحيحًا.",
+        messageMax: "يجب أن تكون الرسالة أقل من 2000 حرف.",
+      },
     },
     hero: {
       eyebrow: "الإنشاءات والبنية التحتية الرياضية",
