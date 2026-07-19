@@ -776,6 +776,11 @@ export const translations = {
         sub: "لم تجد إجابتك؟ تحدث مع فريقنا مباشرة.",
         ctaTitle: "لا يزال لديك سؤال؟",
         ctaBtn: "تواصل معنا",
+        searchPh: "ابحث في الأسئلة والإجابات…",
+        all: "الكل",
+        noResults: "لا توجد أسئلة تطابق بحثك.",
+        clear: "مسح الفلاتر",
+        resultsCount: "{count} من {total} سؤالًا",
         categories: {
           projects: "المشاريع والجداول الزمنية",
           costs: "التكاليف والميزانية",
