@@ -326,7 +326,7 @@ function GalleryPage() {
                 {currentCaption && <p className="text-sm text-white/70">{currentCaption}</p>}
               </div>
               <div className="flex items-center gap-2">
-                <button aria-label={zoomed ? tx.zoomOut : tx.zoomIn} onClick={() => setZoomed((z) => !z)} className="rounded-full bg-white/10 p-2 hover:bg-white/20">
+                <button type="button" aria-label={zoomed ? tx.zoomOut : tx.zoomIn} onClick={() => setZoomed((z) => !z)} className="rounded-full bg-white/10 p-2 hover:bg-white/20">
                   {zoomed ? <ZoomOut className="h-4 w-4" /> : <ZoomIn className="h-4 w-4" />}
                 </button>
                 {current.href && (

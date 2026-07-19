@@ -285,7 +285,7 @@ function ProjectsPage() {
                   <Link to="/projects/$slug" params={{ slug: p.slug_en }} className="group block overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">
                     {p.cover_image && (
                       <div className="aspect-[16/10] overflow-hidden bg-secondary">
-                        <img src={p.cover_image} alt={lang === "ar" ? p.title_ar ?? p.title_en : p.title_en} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                        <img src={p.cover_image} width={400} height={250} alt={lang === "ar" ? p.title_ar ?? p.title_en : p.title_en} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
                       </div>
                     )}
                     <div className="p-5">

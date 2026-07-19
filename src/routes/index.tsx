@@ -510,7 +510,7 @@ function Index() {
                   <Link to="/projects/$slug" params={{ slug }} className="group relative block overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant motion-reduce:transition-none motion-reduce:hover:translate-y-0">
                     <div className="relative aspect-[4/3] overflow-hidden">
                       {p.cover_image && (
-                        <img src={p.cover_image} alt={title} loading="lazy" decoding="async" sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                        <img src={p.cover_image} alt={title} width={400} height={300} loading="lazy" decoding="async" sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/10 to-transparent" />
                       {p.year && (
