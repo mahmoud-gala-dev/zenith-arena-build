@@ -14,33 +14,32 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { useQuery } from "@tanstack/react-query";
 import { servicesPublishedQueryOptions } from "@/hooks/useServiceContent";
-import { quotePageSettingsQueryOptions } from "@/lib/queries";
+import { quotePageSettingsQueryOptions, seoSettingsByRouteQueryOptions } from "@/lib/queries";
 import { submitLead } from "@/lib/leads.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { LeadSuccessDialog, type LeadSummary } from "@/components/site/LeadSuccessDialog";
 import { WhatsAppSendButton } from "@/components/site/WhatsAppSendButton";
+import { buildSeoHead } from "@/lib/seo-head";
 
 
 
 export const Route = createFileRoute("/quote")({
-  head: () => ({
-    meta: [
-      { title: "Request a Quote — Egytic Sports" },
-      {
-        name: "description",
-        content:
-          "Request a detailed quote for football pitches, running tracks, courts, pools and sports flooring. Our engineers respond within 48 hours.",
-      },
-      { property: "og:title", content: "Request a Quote — Egytic" },
-      {
-        property: "og:description",
-        content: "Detailed proposals from FIFA & World Athletics-certified engineers within 48 hours.",
-      },
-    ],
+  loader: async ({ context }) => ({
+    seo: await context.queryClient.ensureQueryData(seoSettingsByRouteQueryOptions("/quote")),
   }),
+  head: ({ loaderData }) =>
+    buildSeoHead({
+      routePath: "/quote",
+      seo: loaderData?.seo ?? null,
+      fallbackTitleEn: "Request a Quote — Egytic Sports",
+      fallbackTitleAr: "طلب عرض سعر — إيجيتك سبورتس",
+      fallbackDescEn: "Detailed proposals from FIFA & World Athletics-certified engineers within 48 hours.",
+      fallbackDescAr: "عروض تفصيلية من مهندسين معتمدين من الفيفا والاتحاد الدولي خلال 48 ساعة.",
+    }),
   component: QuotePage,
 });
+
 
 function QuotePage() {
   const { lang, t: T } = useLang();
