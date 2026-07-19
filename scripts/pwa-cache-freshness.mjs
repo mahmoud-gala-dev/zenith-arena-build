@@ -9,7 +9,7 @@
  * Two layers of assertion:
  *
  *   1. Static analysis of the built SW:
- *      - Every icon file (icon.svg, icon-maskable.svg, apple-touch-icon.png)
+ *      - Every icon file (icon.png, icon-maskable.png, apple-touch-icon.png)
  *        AND offline.html appears in the Workbox precache with a non-empty
  *        `revision` (content hash). Workbox uses that revision to bust the
  *        precache on the next activation.
@@ -20,7 +20,7 @@
  *        must resolve through the precache (icons) or straight to network
  *        (manifest) so a redeploy is picked up immediately.
  *      - The navigateFallback denylist excludes dotted-extension paths, so
- *        /manifest.webmanifest and /icon.svg never fall back to /offline.html.
+ *        /manifest.webmanifest and /icon.png never fall back to /offline.html.
  *
  *   2. Rebuild diff:
  *      - Byte-mutate one of the icon files, re-run `bun run build`, and
@@ -39,15 +39,15 @@ import { join } from "node:path";
 // Nitro copies public/ + generated SW into dist/ (client bundle sits alongside).
 const DIST_SW = existsSync("dist/sw.js") ? "dist/sw.js" : "dist/client/sw.js";
 const REQUIRED_PRECACHE = [
-  "icon.svg",
-  "icon-maskable.svg",
+  "icon.png",
+  "icon-maskable.png",
   "apple-touch-icon.png",
   "offline.html",
 ];
 const FORBIDDEN_RUNTIME_MATCHES = [
   "manifest.webmanifest",
-  "icon.svg",
-  "icon-maskable.svg",
+  "icon.png",
+  "icon-maskable.png",
   "apple-touch-icon.png",
 ];
 const MUTATE_TARGET = "public/apple-touch-icon.png";
@@ -65,7 +65,7 @@ function readSW(where) {
 
 /**
  * Parse precache entries emitted by Workbox as
- *   {url:"client/icon.svg",revision:"abc123..."}
+ *   {url:"client/icon.png",revision:"abc123..."}
  * The literal is compact and unquoted-key, so a targeted regex is more
  * reliable than trying to eval the whole bundled SW.
  */

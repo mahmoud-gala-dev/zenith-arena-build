@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
-  <!-- Full-bleed safe background: maskable icons are cropped to a circle/squircle,
-       so the outer ~10% may be trimmed. The logo lives inside the 80% safe area. -->
-  <rect width="1024" height="1024" fill="#0b0f19"/>
-  <image href="/icon.svg" x="102" y="102" width="820" height="820" preserveAspectRatio="xMidYMid meet"/>
-</svg>

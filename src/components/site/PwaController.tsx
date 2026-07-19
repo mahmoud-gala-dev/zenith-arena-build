@@ -81,7 +81,7 @@ export function PwaController() {
       )}
       {showInstall && (
         <div className="pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-xl border border-border/50 bg-background/95 px-4 py-3 shadow-lg backdrop-blur">
-          <img src="/icon.svg" alt="" className="h-8 w-8 rounded-md" />
+          <img src="/icon.png" alt="" className="h-8 w-8 rounded-md" />
           <div className="flex-1 text-sm leading-tight">
             <div className="font-semibold">Install Egytic</div>
             <div className="text-xs text-muted-foreground">
