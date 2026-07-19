@@ -145,7 +145,7 @@ export const Route = createFileRoute("/services/$slug")({
         { rel: "alternate", hrefLang: "ar", href: arUrl },
         { rel: "alternate", hrefLang: "x-default", href: enUrl },
         ...((s.header_image || s.cover_image)
-          ? [{ rel: "preload", as: "image", href: (s.header_image || s.cover_image) as string, fetchPriority: "high" as const }]
+          ? [{ rel: "preload", as: "image", href: (s.header_image || s.cover_image) as string }]
           : []),
       ],
       scripts: [

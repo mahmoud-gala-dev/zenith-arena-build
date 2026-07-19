@@ -128,7 +128,6 @@ export const Route = createFileRoute("/")({
           rel: "preload",
           as: "image",
           href: lcpHref,
-          fetchPriority: "high" as const,
         },
       ],
       scripts: [

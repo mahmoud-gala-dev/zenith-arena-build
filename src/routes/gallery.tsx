@@ -41,7 +41,7 @@ export const Route = createFileRoute("/gallery")({
     ],
     links: [
       { rel: "canonical", href: "/gallery" },
-      { rel: "preload", as: "image", href: heroGallery.url, fetchPriority: "high" as const },
+      { rel: "preload", as: "image", href: heroGallery.url },
     ],
   }),
   errorComponent: ({ error }) => (

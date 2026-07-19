@@ -58,7 +58,7 @@ export const Route = createFileRoute("/contact")({
       { rel: "alternate", hrefLang: "en", href: "/contact" },
       { rel: "alternate", hrefLang: "ar", href: "/contact" },
       { rel: "alternate", hrefLang: "x-default", href: "/contact" },
-      { rel: "preload", as: "image", href: heroContact.url, fetchPriority: "high" as const },
+      { rel: "preload", as: "image", href: heroContact.url },
     ],
     scripts: [
       {
