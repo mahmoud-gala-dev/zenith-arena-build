@@ -2,8 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo, useEffect } from "react";
 import { ArrowLeft, ArrowRight, Download, MessageCircle, Expand, CheckCircle2, ShieldCheck, Award, Clock, Wrench, Users, Sparkles } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { DetailPageSkeleton } from "@/components/site/Skeletons";
-
 import { Icon } from "@/components/site/Icon";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ShareButtons } from "@/components/site/ShareButtons";
@@ -11,8 +9,8 @@ import { ImageLightbox } from "@/components/site/ImageLightbox";
 import { ServiceQuoteForm } from "@/components/site/ServiceQuoteForm";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
-import { serviceBySlugQueryOptions, servicesPublishedQueryOptions } from "@/hooks/useServiceContent";
-import { projectsPublishedListQueryOptions, dbProjectToView } from "@/lib/queries";
+import { serviceBySlugQueryOptions, servicesPublishedQueryOptions, type ServiceRow } from "@/hooks/useServiceContent";
+import { projectsPublishedListQueryOptions, dbProjectToView, type DbProject } from "@/lib/queries";
 
 const SITE_URL = "https://zenith-arena-build.lovable.app";
 
@@ -162,7 +160,12 @@ export const Route = createFileRoute("/services/$slug")({
 
 
 function ServiceDetailPage() {
-  const { slug, service, services: allServices, projects: allProjectsDb } = Route.useLoaderData();
+  const { slug, service, services: allServices, projects: allProjectsDb } = Route.useLoaderData() as {
+    slug: string;
+    service: ServiceRow | null;
+    services: ServiceRow[];
+    projects: DbProject[];
+  };
   const { lang, t, dir } = useLang();
   const ar = lang === "ar";
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
