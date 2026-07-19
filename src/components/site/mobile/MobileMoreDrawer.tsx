@@ -133,7 +133,7 @@ export function MobileMoreDrawer({
               <a
                 href={`https://wa.me/${wa}`}
                 target="_blank"
-                rel="noopener"
+                rel="noopener noreferrer"
                 className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl border border-border/70 bg-card text-xs font-medium text-foreground transition-colors hover:bg-accent active:scale-[0.97]"
               >
                 <MessageCircle className="h-4 w-4 text-primary" />
