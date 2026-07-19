@@ -226,9 +226,10 @@ function ServiceDetailPage() {
   const copy = t.serviceDetail;
 
 
-  if (loading) {
+  if (loading && !service) {
     return <SiteLayout><DetailPageSkeleton /></SiteLayout>;
   }
+
 
   if (!service) {
     return (
