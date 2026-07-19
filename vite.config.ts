@@ -25,9 +25,8 @@ export default defineConfig({
         devOptions: { enabled: false },
         strategies: "generateSW",
         includeAssets: [
-          "favicon.ico",
-          "icon.svg",
-          "icon-maskable.svg",
+          "icon.png",
+          "icon-maskable.png",
           "apple-touch-icon.png",
           "manifest.webmanifest",
           "robots.txt",

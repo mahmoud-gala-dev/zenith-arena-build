@@ -87,9 +87,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         { rel: "stylesheet", href: appCss },
         { rel: "preconnect", href: "https://phimnzbiqssakrepavik.supabase.co", crossOrigin: "anonymous" },
         { rel: "dns-prefetch", href: "https://phimnzbiqssakrepavik.supabase.co" },
-        { rel: "icon", href: "/icon.png", type: "image/png" },
+        { rel: "icon", href: "/icon.png?v=2", type: "image/png" },
         { rel: "manifest", href: "/manifest.webmanifest" },
-        { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+        { rel: "apple-touch-icon", href: "/apple-touch-icon.png?v=2" },
       ],
     };
   },
