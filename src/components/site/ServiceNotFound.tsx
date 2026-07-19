@@ -63,7 +63,7 @@ export function ServiceNotFound() {
     }
     // Fallback: related-by-slug tokens, otherwise first six
     const ranked = [...services]
-      .map((s) => ({ s, score: slugSimilarity(s.slug, missingSlug) }))
+      .map((s) => ({ s, score: slugSimilarity(serviceSlug(s), missingSlug) }))
       .sort((a, b) => b.score - a.score);
     return ranked.slice(0, 6).map((x) => x.s);
   }, [services, q, ar, missingSlug]);
