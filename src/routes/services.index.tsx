@@ -76,7 +76,7 @@ export const Route = createFileRoute("/services/")({
       { rel: "alternate", hrefLang: "en", href: `${SITE_URL}/services` },
       { rel: "alternate", hrefLang: "ar", href: `${SITE_URL}/services?lang=ar` },
       { rel: "alternate", hrefLang: "x-default", href: `${SITE_URL}/services` },
-      { rel: "preload", as: "image", href: heroServices.url, fetchPriority: "high" as const },
+      { rel: "preload", as: "image", href: heroServices.url },
     ],
   }),
 });
