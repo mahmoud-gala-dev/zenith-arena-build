@@ -311,10 +311,10 @@ function AdminHeroSlides() {
                 </div>
                 <div className="flex items-center gap-1">
                   <Switch checked={s.is_active} onCheckedChange={() => toggleActive(s)} />
-                  <Button size="icon" variant="ghost" disabled={i === 0} onClick={() => reorder(s.id, -1)}><ArrowUp className="h-4 w-4" /></Button>
-                  <Button size="icon" variant="ghost" disabled={i === slides.length - 1} onClick={() => reorder(s.id, 1)}><ArrowDown className="h-4 w-4" /></Button>
-                  <Button size="icon" variant="ghost" onClick={() => startEdit(s)}><Pencil className="h-4 w-4" /></Button>
-                  <Button size="icon" variant="ghost" onClick={() => setDeleteId(s.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                  <Button size="icon" variant="ghost" disabled={i === 0} onClick={() => reorder(s.id, -1)} aria-label="Move slide up"><ArrowUp className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" disabled={i === slides.length - 1} onClick={() => reorder(s.id, 1)} aria-label="Move slide down"><ArrowDown className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" onClick={() => startEdit(s)} aria-label="Edit slide"><Pencil className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" onClick={() => setDeleteId(s.id)} aria-label="Delete slide"><Trash2 className="h-4 w-4 text-destructive" /></Button>
                 </div>
               </div>
             );
