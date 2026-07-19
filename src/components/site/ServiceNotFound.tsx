@@ -8,7 +8,11 @@ import { Input } from "@/components/ui/input";
 import { useLang } from "@/i18n/LanguageProvider";
 import { servicesPublishedQueryOptions, type ServiceRow } from "@/hooks/useServiceContent";
 
-function scoreService(s: ServiceRow, q: string, ar: boolean): number {
+function serviceSlug(s: ServiceRow): string {
+  return s.slug_en || s.slug_ar || "";
+}
+
+function scoreService(s: ServiceRow, q: string, _ar: boolean): number {
   if (!q) return 0;
   const hay = [
     s.title_en,
@@ -16,7 +20,8 @@ function scoreService(s: ServiceRow, q: string, ar: boolean): number {
     s.description_en,
     s.description_ar,
     s.category,
-    s.slug,
+    s.slug_en,
+    s.slug_ar,
   ]
     .filter(Boolean)
     .join(" ")
