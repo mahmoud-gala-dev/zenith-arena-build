@@ -72,6 +72,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: siteName },
+      { name: "application-name", content: siteName },
+      { name: "msapplication-TileColor", content: seo.theme_color },
+      { name: "msapplication-TileImage", content: "/icon.png?v=2" },
+      { name: "msapplication-config", content: "/browserconfig.xml" },
     ];
     if (seo.twitter_handle) {
       meta.push({ name: "twitter:site", content: seo.twitter_handle });
