@@ -57,28 +57,40 @@ export const Route = createFileRoute("/")({
       queryClient.ensureQueryData(servicesPublishedQueryOptions),
       queryClient.ensureQueryData(homeHeroSettingsQueryOptions),
       queryClient.ensureQueryData(homepageSectionsQueryOptions),
+      queryClient.ensureQueryData(seoSettingsByRouteQueryOptions("/")),
     ]);
     const enSlides = results[0];
     const heroSettings = results[4];
+    const seo = results[6];
     const lcpImage =
       (Array.isArray(enSlides) && enSlides[0]?.image_url) ||
       heroSettings?.hero_image_url ||
       null;
-    return { lcpImage };
+    return { lcpImage, seo };
   },
 
 
   head: ({ loaderData }) => {
     const SITE_URL = "https://zenith-arena-build.lovable.app";
-    const titleEn = "Egytic Sports — Sports Construction & Infrastructure";
-    const titleAr = "إيجيتك سبورتس — إنشاءات وبنية تحتية رياضية";
+    const seo = loaderData?.seo ?? null;
+    const titleEn =
+      seo?.meta_title_en || "Egytic Sports — Sports Construction & Infrastructure";
+    const titleAr =
+      seo?.meta_title_ar || "إيجيتك سبورتس — إنشاءات وبنية تحتية رياضية";
     const descEn =
+      seo?.meta_description_en ||
       "Egytic Sports designs and builds world-class sports facilities across Egypt — turf, tracks, courts and stadium infrastructure.";
     const descAr =
+      seo?.meta_description_ar ||
       "إيجيتك سبورتس تصمم وتنفذ منشآت رياضية عالمية المستوى في مصر — أعشاب صناعية، مضامير، ملاعب وبنية تحتية للاستادات.";
+    const ogTitleEn = seo?.og_title_en || titleEn;
+    const ogDescEn = seo?.og_description_en || descEn;
+    const ogImageUrl = seo?.og_image || ogImage.url;
+    const twitterImageUrl = seo?.twitter_image || ogImageUrl;
+    const canonical = seo?.canonical_url || `${SITE_URL}/`;
     const orgLd = {
       "@context": "https://schema.org",
-      "@type": "Organization",
+      "@type": seo?.schema_type || "Organization",
       name: "Egytic Sports",
       alternateName: "إيجيتك سبورتس",
       url: SITE_URL,
@@ -99,30 +111,35 @@ export const Route = createFileRoute("/")({
         "query-input": "required name=search_term_string",
       },
     };
+    const robotsIndex = seo?.robots_index ?? true;
+    const robotsFollow = seo?.robots_follow ?? true;
+    const robotsContent = `${robotsIndex ? "index" : "noindex"},${robotsFollow ? "follow" : "nofollow"}`;
     const lcpHref = loaderData?.lcpImage || fallbackHeroImg;
     return {
       meta: [
         { title: `${titleEn} | ${titleAr}` },
         { name: "description", content: `${descEn} — ${descAr}` },
+        { name: "robots", content: robotsContent },
+        ...(seo?.keywords ? [{ name: "keywords", content: seo.keywords }] : []),
         { property: "og:type", content: "website" },
         { property: "og:site_name", content: "Egytic Sports" },
-        { property: "og:url", content: `${SITE_URL}/` },
-        { property: "og:title", content: titleEn },
-        { property: "og:description", content: descEn },
+        { property: "og:url", content: canonical },
+        { property: "og:title", content: ogTitleEn },
+        { property: "og:description", content: ogDescEn },
         { property: "og:locale", content: "en_US" },
         { property: "og:locale:alternate", content: "ar_EG" },
-        { property: "og:image", content: ogImage.url },
+        { property: "og:image", content: ogImageUrl },
         { property: "og:image:width", content: "1200" },
         { property: "og:image:height", content: "630" },
-        { property: "og:image:alt", content: titleEn },
+        { property: "og:image:alt", content: ogTitleEn },
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:title", content: titleEn },
-        { name: "twitter:description", content: descEn },
-        { name: "twitter:image", content: ogImage.url },
+        { name: "twitter:title", content: ogTitleEn },
+        { name: "twitter:description", content: ogDescEn },
+        { name: "twitter:image", content: twitterImageUrl },
         { name: "twitter:image:alt", content: "Egytic Sports" },
       ],
       links: [
-        { rel: "canonical", href: `${SITE_URL}/` },
+        { rel: "canonical", href: canonical },
         { rel: "alternate", hrefLang: "en", href: `${SITE_URL}/` },
         { rel: "alternate", hrefLang: "ar", href: `${SITE_URL}/?lang=ar` },
         { rel: "alternate", hrefLang: "x-default", href: `${SITE_URL}/` },
@@ -139,6 +156,7 @@ export const Route = createFileRoute("/")({
     };
   },
 });
+
 
 
 const whyIcons = [ShieldCheck, Cpu, Wrench, Award];
