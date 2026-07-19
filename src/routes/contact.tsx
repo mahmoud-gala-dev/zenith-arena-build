@@ -25,66 +25,26 @@ import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import { useQuery } from "@tanstack/react-query";
 import { servicesPublishedQueryOptions } from "@/hooks/useServiceContent";
 import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
+import { seoSettingsByRouteQueryOptions } from "@/lib/queries";
+import { buildSeoHead } from "@/lib/seo-head";
 
 
 export const Route = createFileRoute("/contact")({
   component: ContactPage,
-  head: () => ({
-    meta: [
-      { title: "Contact Egytic Sports — Get a Project Consultation" },
-      {
-        name: "description",
-        content:
-          "Talk to Egytic Sports engineers about your football pitch, athletics track, indoor arena, or aquatic centre. Detailed proposals delivered within 48 hours.",
-      },
-      { property: "og:title", content: "Contact Egytic Sports" },
-      {
-        property: "og:description",
-        content: "Reach our engineering team for a tailored sports construction consultation.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "/contact" },
-      { property: "og:image", content: heroContact.url },
-      { property: "og:image:width", content: "1920" },
-      { property: "og:image:height", content: "1080" },
-      { property: "og:image:alt", content: "Egytic Sports headquarters at dusk" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Contact Egytic Sports" },
-      { name: "twitter:description", content: "Get a tailored sports construction consultation." },
-      { name: "twitter:image", content: heroContact.url },
-    ],
-    links: [
-      { rel: "canonical", href: "/contact" },
-      { rel: "alternate", hrefLang: "en", href: "/contact" },
-      { rel: "alternate", hrefLang: "ar", href: "/contact" },
-      { rel: "alternate", hrefLang: "x-default", href: "/contact" },
-      { rel: "preload", as: "image", href: heroContact.url },
-    ],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "ContactPage",
-          name: "Contact Egytic Sports",
-          mainEntity: {
-            "@type": "Organization",
-            name: "Egytic Sports",
-            email: "hello@egyticsports.com",
-            areaServed: ["EG", "SA", "AE", "QA"],
-            contactPoint: [
-              {
-                "@type": "ContactPoint",
-                contactType: "sales",
-                email: "hello@egyticsports.com",
-                availableLanguage: ["en", "ar"],
-              },
-            ],
-          },
-        }),
-      },
-    ],
-  }),
+  loader: async ({ context }) => {
+    const seo = await context.queryClient.ensureQueryData(seoSettingsByRouteQueryOptions("/contact"));
+    return { seo };
+  },
+  head: ({ loaderData }) =>
+    buildSeoHead({
+      routePath: "/contact",
+      seo: loaderData?.seo ?? null,
+      fallbackTitleEn: "Contact Egytic Sports — Get a Project Consultation",
+      fallbackTitleAr: "تواصل مع إيجيتك سبورتس — احصل على استشارة مشروع",
+      fallbackDescEn: "Reach our engineering team for a tailored sports construction consultation.",
+      fallbackDescAr: "تواصل مع فريقنا الهندسي للحصول على استشارة إنشاءات رياضية مخصّصة.",
+      extraLinks: [{ rel: "preload", as: "image", href: heroContact.url }],
+    }),
 });
 
 
