@@ -142,11 +142,11 @@ export const Route = createFileRoute("/services/$slug")({
       ],
       links: [
         { rel: "canonical", href: canonical },
-        { rel: "alternate", hreflang: "en", href: enUrl },
-        { rel: "alternate", hreflang: "ar", href: arUrl },
-        { rel: "alternate", hreflang: "x-default", href: enUrl },
+        { rel: "alternate", hrefLang: "en", href: enUrl },
+        { rel: "alternate", hrefLang: "ar", href: arUrl },
+        { rel: "alternate", hrefLang: "x-default", href: enUrl },
         ...((s.header_image || s.cover_image)
-          ? [{ rel: "preload", as: "image", href: (s.header_image || s.cover_image) as string, fetchpriority: "high" }]
+          ? [{ rel: "preload", as: "image", href: (s.header_image || s.cover_image) as string, fetchPriority: "high" as const }]
           : []),
       ],
       scripts: [

@@ -121,14 +121,14 @@ export const Route = createFileRoute("/")({
       ],
       links: [
         { rel: "canonical", href: `${SITE_URL}/` },
-        { rel: "alternate", hreflang: "en", href: `${SITE_URL}/` },
-        { rel: "alternate", hreflang: "ar", href: `${SITE_URL}/?lang=ar` },
-        { rel: "alternate", hreflang: "x-default", href: `${SITE_URL}/` },
+        { rel: "alternate", hrefLang: "en", href: `${SITE_URL}/` },
+        { rel: "alternate", hrefLang: "ar", href: `${SITE_URL}/?lang=ar` },
+        { rel: "alternate", hrefLang: "x-default", href: `${SITE_URL}/` },
         {
           rel: "preload",
           as: "image",
           href: lcpHref,
-          fetchpriority: "high",
+          fetchPriority: "high" as const,
         },
       ],
       scripts: [

@@ -11,7 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { LanguageProvider } from "../i18n/LanguageProvider";
+import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { SmoothScroll } from "../components/site/SmoothScroll";
 import { PerfOverlay } from "../components/site/PerfOverlay";
 import { initPerf } from "../lib/perf";
