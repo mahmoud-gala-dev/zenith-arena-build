@@ -72,7 +72,7 @@ export async function buildSitemapEntries(): Promise<SitemapEntry[]> {
     : null;
   if (!sb) return entries;
 
-  const [services, posts, projects, products] = await Promise.all([
+  const [services, posts, projects, products, governorates] = await Promise.all([
     sb.from("services").select("slug_en,updated_at").eq("status", "published"),
     sb
       .from("blog_posts")
@@ -80,11 +80,13 @@ export async function buildSitemapEntries(): Promise<SitemapEntry[]> {
       .eq("status", "published"),
     sb.from("projects").select("slug_en,updated_at").eq("status", "published"),
     sb.from("products").select("slug_en,updated_at").eq("status", "published"),
+    sb.from("governorates").select("slug,updated_at").eq("active", true),
   ]);
 
   for (const r of services.data ?? []) if (r.slug_en) entries.push({ path: `/services/${r.slug_en}`, lastmod: r.updated_at ?? undefined });
   for (const r of projects.data ?? []) if (r.slug_en) entries.push({ path: `/projects/${r.slug_en}`, lastmod: r.updated_at ?? undefined });
   for (const r of products.data ?? []) if (r.slug_en) entries.push({ path: `/products/${r.slug_en}`, lastmod: r.updated_at ?? undefined });
+  for (const r of governorates.data ?? []) if (r.slug) entries.push({ path: `/governorates/${r.slug}`, lastmod: r.updated_at ?? undefined });
 
   // Group blog posts by translation_group_id and emit one URL per language,
   // with hreflang alternates pointing at the actual sibling URLs.
