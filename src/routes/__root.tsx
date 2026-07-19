@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
@@ -153,7 +153,6 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function RootComponent() {
-  const { queryClient } = Route.useRouteContext();
   const { lang } = Route.useLoaderData();
 
   useEffect(() => {
@@ -161,16 +160,14 @@ function RootComponent() {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <LanguageProvider initialLang={lang}>
-        <SmoothScroll />
-        <PerfOverlay />
-        <PwaController />
+    <LanguageProvider initialLang={lang}>
+      <SmoothScroll />
+      <PerfOverlay />
+      <PwaController />
 
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-      </LanguageProvider>
-    </QueryClientProvider>
+      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+      <Outlet />
+    </LanguageProvider>
   );
 }
 

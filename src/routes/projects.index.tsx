@@ -30,12 +30,10 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/projects/")({
   validateSearch: zodValidator(searchSchema),
-  loader: ({ context: { queryClient } }) => {
-    // Warm the cache in parallel while the route matches — the component
-    // subscribes below and will hit the cache instantly.
-    void queryClient.ensureQueryData(governoratesActiveQueryOptions);
-    void queryClient.ensureQueryData(projectsPublishedListQueryOptions);
-  },
+  loader: ({ context: { queryClient } }) => Promise.all([
+    queryClient.ensureQueryData(governoratesActiveQueryOptions),
+    queryClient.ensureQueryData(projectsPublishedListQueryOptions),
+  ]),
   component: ProjectsPage,
 });
 

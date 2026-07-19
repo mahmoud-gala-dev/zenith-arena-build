@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useMemo, useEffect } from "react";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useState, useMemo } from "react";
 import { ArrowLeft, ArrowRight, Download, MessageCircle, Expand, CheckCircle2, ShieldCheck, Award, Clock, Wrench, Users, Sparkles } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Icon } from "@/components/site/Icon";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
 import { serviceBySlugQueryOptions, servicesPublishedQueryOptions, type ServiceRow } from "@/hooks/useServiceContent";
 import { projectsPublishedListQueryOptions, dbProjectToView, type DbProject } from "@/lib/queries";
+import { NotFound } from "@/components/site/NotFound";
 
 const SITE_URL = "https://zenith-arena-build.lovable.app";
 
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/services/$slug")({
       queryClient.ensureQueryData(servicesPublishedQueryOptions),
       queryClient.ensureQueryData(projectsPublishedListQueryOptions),
     ]);
+    if (!service) throw notFound();
     return { slug: params.slug, service, services, projects };
   },
 
@@ -155,6 +157,7 @@ export const Route = createFileRoute("/services/$slug")({
   },
 
   component: ServiceDetailPage,
+  notFoundComponent: () => <NotFound backTo="/services" backKey="backToServices" />,
 });
 
 
@@ -169,31 +172,6 @@ function ServiceDetailPage() {
   const { lang, t, dir } = useLang();
   const ar = lang === "ar";
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-
-  // Live-sync <html lang/dir>, document title, meta description, canonical & og:locale on client-side language toggle.
-  useEffect(() => {
-    if (typeof document === "undefined") return;
-    document.documentElement.setAttribute("lang", lang);
-    document.documentElement.setAttribute("dir", dir);
-    if (!service) return;
-    const title = ar
-      ? `${service.title_ar || service.title_en} — إيجيتك سبورتس`
-      : `${service.title_en} — Egytic Sports`;
-    document.title = title;
-    const desc = (ar ? service.description_ar : service.description_en) || service.description_en || "";
-    const setMeta = (selector: string, attr: "content" | "href", value: string) => {
-      const el = document.head.querySelector(selector) as HTMLMetaElement | HTMLLinkElement | null;
-      if (el) el.setAttribute(attr, value);
-    };
-    setMeta('meta[name="description"]', "content", desc);
-    setMeta('meta[property="og:title"]', "content", title);
-    setMeta('meta[property="og:description"]', "content", desc);
-    setMeta('meta[property="og:locale"]', "content", ar ? "ar_EG" : "en_US");
-    setMeta('meta[name="twitter:title"]', "content", title);
-    setMeta('meta[name="twitter:description"]', "content", desc);
-    const canonical = `${SITE_URL}/services/${slug}${ar ? "?lang=ar" : ""}`;
-    setMeta('link[rel="canonical"]', "href", canonical);
-  }, [lang, dir, ar, service, slug]);
 
   const relatedServices = useMemo(() => {
     const list = allServices;
@@ -222,17 +200,6 @@ function ServiceDetailPage() {
 
   const copy = t.serviceDetail;
 
-
-  if (!service) {
-    return (
-      <SiteLayout>
-        <div className="mx-auto max-w-3xl px-4 py-24 text-center">
-          <h1 className="text-3xl font-bold">{copy.notFound}</h1>
-          <Button asChild className="mt-6"><Link to="/services">{copy.back}</Link></Button>
-        </div>
-      </SiteLayout>
-    );
-  }
 
   const title = (ar ? service.title_ar : service.title_en) || service.title_en;
   const desc = (ar ? service.description_ar : service.description_en) || service.description_en || "";
