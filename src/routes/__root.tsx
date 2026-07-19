@@ -131,7 +131,9 @@ function RootComponent() {
       <PwaController />
 
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <AppErrorBoundary boundary="root_outlet">
+        <Outlet />
+      </AppErrorBoundary>
     </LanguageProvider>
   );
 }
