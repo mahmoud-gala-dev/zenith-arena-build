@@ -21,18 +21,12 @@ import { seoDefaultsQueryOptions, DEFAULT_SEO_DEFAULTS } from "../lib/settings";
 
 
 import "@fontsource/sora/400.css";
-import "@fontsource/sora/600.css";
 import "@fontsource/sora/700.css";
-import "@fontsource/sora/800.css";
 import "@fontsource/manrope/400.css";
-import "@fontsource/manrope/500.css";
 import "@fontsource/manrope/600.css";
-import "@fontsource/manrope/700.css";
 import "@fontsource/cairo/400.css";
-import "@fontsource/cairo/600.css";
 import "@fontsource/cairo/700.css";
 import "@fontsource/tajawal/400.css";
-import "@fontsource/tajawal/500.css";
 import "@fontsource/tajawal/700.css";
 
 import { NotFound } from "../components/site/NotFound";
@@ -80,12 +74,14 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  loader: async ({ context }) => {
+  loader: async ({ context, location }) => {
+    const langParam = (location.search as { lang?: string })?.lang;
+    const lang = langParam === "ar" ? "ar" : "en";
     try {
       const seo = await context.queryClient.ensureQueryData(seoDefaultsQueryOptions);
-      return { seo };
+      return { seo, lang };
     } catch {
-      return { seo: DEFAULT_SEO_DEFAULTS };
+      return { seo: DEFAULT_SEO_DEFAULTS, lang };
     }
   },
   head: ({ loaderData }) => {
@@ -140,8 +136,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const loaderData = Route.useLoaderData();
+  const lang = loaderData?.lang ?? "en";
+  const dir = lang === "ar" ? "rtl" : "ltr";
   return (
-    <html lang="en">
+    <html lang={lang} dir={dir}>
       <head>
         <HeadContent />
       </head>
