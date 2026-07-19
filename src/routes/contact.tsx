@@ -67,10 +67,20 @@ function ContactPage() {
   const { data: dbServices } = useQuery(servicesPublishedQueryOptions);
 
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const V = t.common.validation;
   const schema = z.object({
-    name: z.string().trim().min(1).max(100),
-    email: z.string().trim().email().max(255),
-    message: z.string().trim().min(1).max(2000),
+    name: z.string().trim().min(1, V.required).max(100, V.nameMax),
+    email: z.string().trim().min(1, V.required).email(V.emailInvalid).max(255),
+    phone: z
+      .string()
+      .trim()
+      .max(30, V.phoneInvalid)
+      .regex(/^[+\d\s()\-]{6,30}$/, V.phoneInvalid)
+      .optional()
+      .or(z.literal("")),
+    message: z.string().trim().min(1, V.required).max(2000, V.messageMax),
   });
 
   const submit = useServerFn(submitLead);
@@ -78,18 +88,34 @@ function ContactPage() {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const payload = {
-      type: "contact" as const,
+    const raw = {
       name: String(fd.get("name") ?? ""),
       email: String(fd.get("email") ?? ""),
-      phone: String(fd.get("phone") ?? "") || null,
+      phone: String(fd.get("phone") ?? ""),
+      message: String(fd.get("message") ?? ""),
+    };
+    const check = schema.safeParse(raw);
+    if (!check.success) {
+      const map: Record<string, string> = {};
+      for (const issue of check.error.issues) {
+        const k = issue.path[0];
+        if (typeof k === "string" && !map[k]) map[k] = issue.message;
+      }
+      setErrors(map);
+      toast.error(check.error.issues[0].message);
+      return;
+    }
+    setErrors({});
+    const payload = {
+      type: "contact" as const,
+      name: raw.name,
+      email: raw.email,
+      phone: raw.phone || null,
       service: projectType || null,
       budget_range: String(fd.get("budget") ?? "") || null,
-      message: String(fd.get("message") ?? ""),
+      message: raw.message,
       website: String(fd.get("website") ?? ""),
     };
-    const check = schema.safeParse(payload);
-    if (!check.success) return toast.error(check.error.issues[0].message);
     setSubmitting(true);
     try {
       await submit({ data: payload });
