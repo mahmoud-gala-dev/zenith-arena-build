@@ -456,10 +456,10 @@ function QaReportsPage() {
                                     <Button size="sm" variant="outline" className="border-destructive/40 text-destructive" onClick={() => changeStatus(r, "rejected")}>Reject</Button>
                                   </>
                                 )}
-                                <Button size="icon" variant="ghost" onClick={() => startEdit(r)}>
+                                <Button size="icon" variant="ghost" onClick={() => startEdit(r)} aria-label="Edit report">
                                   <Pencil className="h-4 w-4" />
                                 </Button>
-                                <Button size="icon" variant="ghost" onClick={() => setDeleteId(r.id)}>
+                                <Button size="icon" variant="ghost" onClick={() => setDeleteId(r.id)} aria-label="Delete report">
                                   <Trash2 className="h-4 w-4 text-destructive" />
                                 </Button>
                               </div>

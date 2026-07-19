@@ -47,17 +47,26 @@ const ACCENTS = ["#c9a84c", "#0f766e", "#1e40af", "#b91c1c", "#7c3aed", "#0369a1
 
 export const Route = createFileRoute("/")({
   component: Index,
-  loader: ({ context: { queryClient } }) => {
-    void queryClient.ensureQueryData(heroSlidesActiveQueryOptions("en"));
-    void queryClient.ensureQueryData(heroSlidesActiveQueryOptions("ar"));
-    void queryClient.ensureQueryData(homeClientsQueryOptions);
-    void queryClient.ensureQueryData(servicesPublishedQueryOptions);
-    void queryClient.ensureQueryData(homeHeroSettingsQueryOptions);
-    void queryClient.ensureQueryData(homepageSectionsQueryOptions);
+  loader: async ({ context: { queryClient } }) => {
+    const results = await Promise.all([
+      queryClient.ensureQueryData(heroSlidesActiveQueryOptions("en")),
+      queryClient.ensureQueryData(heroSlidesActiveQueryOptions("ar")),
+      queryClient.ensureQueryData(homeClientsQueryOptions),
+      queryClient.ensureQueryData(servicesPublishedQueryOptions),
+      queryClient.ensureQueryData(homeHeroSettingsQueryOptions),
+      queryClient.ensureQueryData(homepageSectionsQueryOptions),
+    ]);
+    const enSlides = results[0];
+    const heroSettings = results[4];
+    const lcpImage =
+      (Array.isArray(enSlides) && enSlides[0]?.image_url) ||
+      heroSettings?.hero_image_url ||
+      null;
+    return { lcpImage };
   },
 
 
-  head: () => {
+  head: ({ loaderData }) => {
     const SITE_URL = "https://zenith-arena-build.lovable.app";
     const titleEn = "Egytic Sports — Sports Construction & Infrastructure";
     const titleAr = "إيجيتك سبورتس — إنشاءات وبنية تحتية رياضية";
@@ -88,6 +97,7 @@ export const Route = createFileRoute("/")({
         "query-input": "required name=search_term_string",
       },
     };
+    const lcpHref = loaderData?.lcpImage || fallbackHeroImg;
     return {
       meta: [
         { title: `${titleEn} | ${titleAr}` },
@@ -117,7 +127,7 @@ export const Route = createFileRoute("/")({
         {
           rel: "preload",
           as: "image",
-          href: ctaLandmark.url,
+          href: lcpHref,
           fetchpriority: "high",
         },
       ],
