@@ -38,6 +38,13 @@ export const translations = {
       backToServices: "Back to services",
       submitError: "Submission failed. Please try again.",
       newsletterError: "Could not subscribe.",
+      validation: {
+        required: "This field is required.",
+        nameMax: "Name must be under 100 characters.",
+        emailInvalid: "Please enter a valid email address.",
+        phoneInvalid: "Please enter a valid phone number.",
+        messageMax: "Message must be under 2000 characters.",
+      },
     },
     hero: {
       eyebrow: "Sports Construction & Infrastructure",
@@ -542,6 +549,13 @@ export const translations = {
       backToServices: "العودة إلى الخدمات",
       submitError: "فشل الإرسال. حاول مرة أخرى.",
       newsletterError: "تعذّر الاشتراك.",
+      validation: {
+        required: "هذا الحقل مطلوب.",
+        nameMax: "يجب أن يكون الاسم أقل من 100 حرف.",
+        emailInvalid: "أدخل بريدًا إلكترونيًا صحيحًا.",
+        phoneInvalid: "أدخل رقم هاتف صحيحًا.",
+        messageMax: "يجب أن تكون الرسالة أقل من 2000 حرف.",
+      },
     },
     hero: {
       eyebrow: "الإنشاءات والبنية التحتية الرياضية",
