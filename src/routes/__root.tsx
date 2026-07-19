@@ -21,18 +21,12 @@ import { seoDefaultsQueryOptions, DEFAULT_SEO_DEFAULTS } from "../lib/settings";
 
 
 import "@fontsource/sora/400.css";
-import "@fontsource/sora/600.css";
 import "@fontsource/sora/700.css";
-import "@fontsource/sora/800.css";
 import "@fontsource/manrope/400.css";
-import "@fontsource/manrope/500.css";
 import "@fontsource/manrope/600.css";
-import "@fontsource/manrope/700.css";
 import "@fontsource/cairo/400.css";
-import "@fontsource/cairo/600.css";
 import "@fontsource/cairo/700.css";
 import "@fontsource/tajawal/400.css";
-import "@fontsource/tajawal/500.css";
 import "@fontsource/tajawal/700.css";
 
 import { NotFound } from "../components/site/NotFound";
