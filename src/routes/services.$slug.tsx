@@ -163,9 +163,10 @@ export const Route = createFileRoute("/services/$slug")({
 
 
 function ServiceDetailPage() {
-  const { slug } = Route.useLoaderData();
+  const { slug, service: initialService } = Route.useLoaderData();
   const { lang, t, dir } = useLang();
-  const { data: service, loading } = useServiceBySlug(slug);
+  const { data: fetchedService, loading } = useServiceBySlug(slug);
+  const service = fetchedService ?? initialService;
   const ar = lang === "ar";
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
