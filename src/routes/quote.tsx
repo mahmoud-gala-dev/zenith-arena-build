@@ -24,19 +24,70 @@ import { buildSeoHead } from "@/lib/seo-head";
 
 
 
+const SITE_URL = "https://zenith-arena-build.lovable.app";
+
 export const Route = createFileRoute("/quote")({
   loader: async ({ context }) => ({
     seo: await context.queryClient.ensureQueryData(seoSettingsByRouteQueryOptions("/quote")),
   }),
-  head: ({ loaderData }) =>
-    buildSeoHead({
+  head: ({ loaderData }) => {
+    const canonical = `${SITE_URL}/quote`;
+    const titleEn = "Request a Quote — Egytic Sports";
+    const titleAr = "طلب عرض سعر — إيجيتك سبورتس";
+    const descEn = "Detailed proposals from FIFA & World Athletics-certified engineers within 48 hours.";
+    const descAr = "عروض تفصيلية من مهندسين معتمدين من الفيفا والاتحاد الدولي خلال 48 ساعة.";
+    return buildSeoHead({
       routePath: "/quote",
       seo: loaderData?.seo ?? null,
-      fallbackTitleEn: "Request a Quote — Egytic Sports",
-      fallbackTitleAr: "طلب عرض سعر — إيجيتك سبورتس",
-      fallbackDescEn: "Detailed proposals from FIFA & World Athletics-certified engineers within 48 hours.",
-      fallbackDescAr: "عروض تفصيلية من مهندسين معتمدين من الفيفا والاتحاد الدولي خلال 48 ساعة.",
-    }),
+      fallbackTitleEn: titleEn,
+      fallbackTitleAr: titleAr,
+      fallbackDescEn: descEn,
+      fallbackDescAr: descAr,
+      extraJsonLd: [
+        {
+          "@context": "https://schema.org",
+          "@type": "ContactPage",
+          "@id": `${canonical}#contactpage`,
+          name: `${titleEn} | ${titleAr}`,
+          description: descEn,
+          url: canonical,
+          inLanguage: ["en", "ar"],
+          isPartOf: { "@type": "WebSite", name: "Egytic Sports", url: SITE_URL },
+          about: {
+            "@type": "Service",
+            name: "Sports facility construction quote",
+            provider: {
+              "@type": "Organization",
+              name: "Egytic Sports",
+              url: SITE_URL,
+              areaServed: "EG",
+            },
+          },
+          potentialAction: {
+            "@type": "RequestQuoteAction",
+            name: "Request a Quote",
+            target: {
+              "@type": "EntryPoint",
+              urlTemplate: canonical,
+              inLanguage: ["en", "ar"],
+              actionPlatform: [
+                "https://schema.org/DesktopWebPlatform",
+                "https://schema.org/MobileWebPlatform",
+              ],
+            },
+          },
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+            { "@type": "ListItem", position: 2, name: "Request a Quote", item: canonical },
+          ],
+        },
+      ],
+    });
+  },
   component: QuotePage,
 });
 
