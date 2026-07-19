@@ -208,6 +208,16 @@ export const translations = {
     },
     knowledgeList: {
       empty: "No articles yet.",
+      searchPlaceholder: "Search articles...",
+      allCategories: "All categories",
+      allTags: "All tags",
+      sortNewest: "Newest",
+      sortOldest: "Oldest",
+      sortReadingTime: "Reading time",
+      sortTitle: "Title (A→Z)",
+      resultsCount: "{count} article(s)",
+      clearFilters: "Clear filters",
+      noResults: "No articles match your filters.",
     },
     knowledgeArticle: {
       toc: "Table of Contents",
@@ -699,6 +709,16 @@ export const translations = {
     },
     knowledgeList: {
       empty: "لا توجد مقالات بعد.",
+      searchPlaceholder: "ابحث في المقالات...",
+      allCategories: "كل الفئات",
+      allTags: "كل الوسوم",
+      sortNewest: "الأحدث",
+      sortOldest: "الأقدم",
+      sortReadingTime: "زمن القراءة",
+      sortTitle: "العنوان (أ→ي)",
+      resultsCount: "{count} مقالة",
+      clearFilters: "مسح الفلاتر",
+      noResults: "لا توجد مقالات مطابقة.",
     },
     knowledgeArticle: {
       toc: "قائمة المحتوى",
