@@ -154,6 +154,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const { lang } = Route.useLoaderData();
 
   useEffect(() => {
     initPerf();
@@ -161,7 +162,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
+      <LanguageProvider initialLang={lang}>
         <SmoothScroll />
         <PerfOverlay />
         <PwaController />

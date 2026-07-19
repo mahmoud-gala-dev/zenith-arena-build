@@ -37,8 +37,8 @@ function mergeOverrides(base: Dict, overrides: Record<string, string> | undefine
   return clone as unknown as Dict;
 }
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("en");
+export function LanguageProvider({ children, initialLang = "en" }: { children: ReactNode; initialLang?: Lang }) {
+  const [lang, setLangState] = useState<Lang>(initialLang);
   const { data: overrides } = useQuery(translationsQueryOptions);
 
   useEffect(() => {

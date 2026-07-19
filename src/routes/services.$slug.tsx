@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, Download, MessageCircle, Expand, CheckCircle2, ShieldCheck, Award, Clock, Wrench, Users, Sparkles } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { DetailPageSkeleton } from "@/components/site/Skeletons";
@@ -12,7 +11,7 @@ import { ImageLightbox } from "@/components/site/ImageLightbox";
 import { ServiceQuoteForm } from "@/components/site/ServiceQuoteForm";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
-import { serviceBySlugQueryOptions, servicesPublishedQueryOptions, useServiceBySlug } from "@/hooks/useServiceContent";
+import { serviceBySlugQueryOptions, servicesPublishedQueryOptions } from "@/hooks/useServiceContent";
 import { projectsPublishedListQueryOptions, dbProjectToView } from "@/lib/queries";
 
 const SITE_URL = "https://zenith-arena-build.lovable.app";
@@ -27,12 +26,12 @@ export const Route = createFileRoute("/services/$slug")({
   },
   loaderDeps: ({ search }) => ({ lang: search.lang ?? "en" }),
   loader: async ({ params, context: { queryClient } }) => {
-    const [service] = await Promise.all([
+    const [service, services, projects] = await Promise.all([
       queryClient.ensureQueryData(serviceBySlugQueryOptions(params.slug)),
       queryClient.ensureQueryData(servicesPublishedQueryOptions),
       queryClient.ensureQueryData(projectsPublishedListQueryOptions),
     ]);
-    return { slug: params.slug, service };
+    return { slug: params.slug, service, services, projects };
   },
 
   head: ({ params, loaderData, match }) => {
@@ -163,10 +162,8 @@ export const Route = createFileRoute("/services/$slug")({
 
 
 function ServiceDetailPage() {
-  const { slug, service: initialService } = Route.useLoaderData();
+  const { slug, service, services: allServices, projects: allProjectsDb } = Route.useLoaderData();
   const { lang, t, dir } = useLang();
-  const { data: fetchedService, loading } = useServiceBySlug(slug);
-  const service = (fetchedService ?? initialService) as typeof fetchedService;
   const ar = lang === "ar";
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -195,11 +192,8 @@ function ServiceDetailPage() {
     setMeta('link[rel="canonical"]', "href", canonical);
   }, [lang, dir, ar, service, slug]);
 
-  const { data: allServices } = useQuery(servicesPublishedQueryOptions);
-  const { data: allProjectsDb } = useQuery(projectsPublishedListQueryOptions);
-
   const relatedServices = useMemo(() => {
-    const list = allServices ?? [];
+    const list = allServices;
     if (!service) return [];
     return list
       .filter((s) => s.slug_en !== service.slug_en && (service.category ? s.category === service.category : true))
@@ -207,7 +201,7 @@ function ServiceDetailPage() {
   }, [allServices, service]);
 
   const relatedProjects = useMemo(() => {
-    const list = (allProjectsDb ?? []).map(dbProjectToView);
+    const list = allProjectsDb.map(dbProjectToView);
     if (!service) return list.slice(0, 3);
     const cat = (service.category ?? "").toLowerCase();
     const matches = cat
@@ -224,11 +218,6 @@ function ServiceDetailPage() {
   }));
 
   const copy = t.serviceDetail;
-
-
-  if (loading && !service) {
-    return <SiteLayout><DetailPageSkeleton /></SiteLayout>;
-  }
 
 
   if (!service) {
