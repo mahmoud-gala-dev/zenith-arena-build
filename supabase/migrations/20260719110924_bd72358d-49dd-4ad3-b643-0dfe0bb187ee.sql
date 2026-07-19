@@ -1,0 +1,1 @@
+DELETE FROM seo_settings WHERE id='1b0119f1-5b6a-4569-91c8-666174df5cab';

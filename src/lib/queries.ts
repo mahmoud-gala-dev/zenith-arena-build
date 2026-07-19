@@ -808,13 +808,14 @@ export const seoSettingsByRouteQueryOptions = (routePath: string) =>
       const { data, error } = await supabase
         .from("seo_settings")
         .select(
-          "route_path,meta_title_en,meta_title_ar,meta_description_en,meta_description_ar,og_title_en,og_title_ar,og_description_en,og_description_ar,og_image,twitter_image,canonical_url,keywords,robots_index,robots_follow,schema_type",
+          "route_path,meta_title_en,meta_title_ar,meta_description_en,meta_description_ar,og_title_en,og_title_ar,og_description_en,og_description_ar,og_image,twitter_image,canonical_url,keywords,robots_index,robots_follow,schema_type,updated_at",
         )
         .eq("route_path", routePath)
         .eq("status", "published")
-        .maybeSingle();
+        .order("updated_at", { ascending: false })
+        .limit(1);
       if (error) throw error;
-      return (data as SeoSettingsRow | null) ?? null;
+      return ((data?.[0] as SeoSettingsRow | undefined) ?? null);
     },
   });
 
