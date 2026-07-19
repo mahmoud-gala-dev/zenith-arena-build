@@ -12,7 +12,8 @@ import { DownloadGateButton } from "@/components/site/DownloadGateButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLang } from "@/i18n/LanguageProvider";
-import { downloadsPublishedQueryOptions, downloadsPageSettingsQueryOptions } from "@/lib/queries";
+import { downloadsPublishedQueryOptions, downloadsPageSettingsQueryOptions, seoSettingsByRouteQueryOptions } from "@/lib/queries";
+import { buildSeoHead } from "@/lib/seo-head";
 
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
@@ -21,22 +22,24 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/downloads")({
   validateSearch: zodValidator(searchSchema),
-  loader: ({ context }) => Promise.all([
-    context.queryClient.ensureQueryData(downloadsPublishedQueryOptions),
-    context.queryClient.ensureQueryData(downloadsPageSettingsQueryOptions),
-  ]),
-  head: () => ({
-    meta: [
-      { title: "Catalogs & Technical Downloads — Egytic Sports" },
-      {
-        name: "description",
-        content:
-          "Download the Egytic company profile, product catalogs, technical datasheets, certificates and maintenance guides for sports construction projects.",
-      },
-      { property: "og:title", content: "Catalogs & Technical Downloads — Egytic" },
-      { property: "og:description", content: "Company profile, product catalogs, datasheets and maintenance guides." },
-    ],
-  }),
+  loader: async ({ context }) => {
+    const [, , seo] = await Promise.all([
+      context.queryClient.ensureQueryData(downloadsPublishedQueryOptions),
+      context.queryClient.ensureQueryData(downloadsPageSettingsQueryOptions),
+      context.queryClient.ensureQueryData(seoSettingsByRouteQueryOptions("/downloads")),
+    ]);
+    return { seo };
+  },
+  head: ({ loaderData }) =>
+    buildSeoHead({
+      routePath: "/downloads",
+      seo: loaderData?.seo ?? null,
+      fallbackTitleEn: "Catalogs & Technical Downloads — Egytic Sports",
+      fallbackTitleAr: "التنزيلات والكتالوجات الفنية — إيجيتك سبورتس",
+      fallbackDescEn: "Company profile, product catalogs, datasheets and maintenance guides.",
+      fallbackDescAr: "ملف تعريف الشركة وكتالوجات المنتجات وبيانات فنية وأدلة الصيانة.",
+    }),
+
   errorComponent: ({ error }) => (
     <SiteLayout>
       <div className="mx-auto max-w-7xl px-4 py-24 text-center">
