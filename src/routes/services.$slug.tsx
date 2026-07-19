@@ -163,9 +163,10 @@ export const Route = createFileRoute("/services/$slug")({
 
 
 function ServiceDetailPage() {
-  const { slug } = Route.useLoaderData();
+  const { slug, service: initialService } = Route.useLoaderData();
   const { lang, t, dir } = useLang();
-  const { data: service, loading } = useServiceBySlug(slug);
+  const { data: fetchedService, loading } = useServiceBySlug(slug);
+  const service = (fetchedService ?? initialService) as typeof fetchedService;
   const ar = lang === "ar";
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -225,9 +226,10 @@ function ServiceDetailPage() {
   const copy = t.serviceDetail;
 
 
-  if (loading) {
+  if (loading && !service) {
     return <SiteLayout><DetailPageSkeleton /></SiteLayout>;
   }
+
 
   if (!service) {
     return (
