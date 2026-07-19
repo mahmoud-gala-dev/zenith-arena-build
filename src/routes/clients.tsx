@@ -7,22 +7,28 @@ import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
-import { clientsPublishedQueryOptions, testimonialsPublishedQueryOptions } from "@/lib/queries";
+import { clientsPublishedQueryOptions, testimonialsPublishedQueryOptions, seoSettingsByRouteQueryOptions } from "@/lib/queries";
+import { buildSeoHead } from "@/lib/seo-head";
 
 export const Route = createFileRoute("/clients")({
-  loader: ({ context }) =>
-    Promise.all([
+  loader: async ({ context }) => {
+    const [, , seo] = await Promise.all([
       context.queryClient.ensureQueryData(clientsPublishedQueryOptions),
       context.queryClient.ensureQueryData(testimonialsPublishedQueryOptions),
-    ]),
-  head: () => ({
-    meta: [
-      { title: "Our Clients — Egytic Sports" },
-      { name: "description", content: "Federations, ministries, universities and clubs across the Middle East and North Africa trust Egytic to deliver world-class sports infrastructure." },
-      { property: "og:title", content: "Our Clients — Egytic" },
-      { property: "og:description", content: "Federations, ministries, universities and clubs trust Egytic." },
-    ],
-  }),
+      context.queryClient.ensureQueryData(seoSettingsByRouteQueryOptions("/clients")),
+    ]);
+    return { seo };
+  },
+  head: ({ loaderData }) =>
+    buildSeoHead({
+      routePath: "/clients",
+      seo: loaderData?.seo ?? null,
+      fallbackTitleEn: "Our Clients — Egytic Sports",
+      fallbackTitleAr: "عملاؤنا — إيجيتك سبورتس",
+      fallbackDescEn: "Federations, ministries, universities and clubs trust Egytic.",
+      fallbackDescAr: "اتحادات ووزارات وجامعات وأندية تثق بإيجيتك.",
+    }),
+
   errorComponent: ({ error }) => (
     <SiteLayout>
       <div className="mx-auto max-w-7xl px-4 py-24 text-center">

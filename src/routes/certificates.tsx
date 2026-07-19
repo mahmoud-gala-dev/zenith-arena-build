@@ -5,22 +5,27 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { useLang } from "@/i18n/LanguageProvider";
-import { certificatesPublishedQueryOptions } from "@/lib/queries";
+import { certificatesPublishedQueryOptions, seoSettingsByRouteQueryOptions } from "@/lib/queries";
+import { buildSeoHead } from "@/lib/seo-head";
 
 export const Route = createFileRoute("/certificates")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(certificatesPublishedQueryOptions),
-  head: () => ({
-    meta: [
-      { title: "Certifications & Standards — Egytic Sports" },
-      {
-        name: "description",
-        content:
-          "Egytic holds FIFA Quality, World Athletics, ITF, FINA and ISO 9001/14001/45001 certifications for sports construction and infrastructure.",
-      },
-      { property: "og:title", content: "Certifications & Standards — Egytic" },
-      { property: "og:description", content: "FIFA, World Athletics, ITF, FINA and ISO certifications." },
-    ],
-  }),
+  loader: async ({ context }) => {
+    const [, seo] = await Promise.all([
+      context.queryClient.ensureQueryData(certificatesPublishedQueryOptions),
+      context.queryClient.ensureQueryData(seoSettingsByRouteQueryOptions("/certificates")),
+    ]);
+    return { seo };
+  },
+  head: ({ loaderData }) =>
+    buildSeoHead({
+      routePath: "/certificates",
+      seo: loaderData?.seo ?? null,
+      fallbackTitleEn: "Certifications & Standards — Egytic Sports",
+      fallbackTitleAr: "الشهادات والمعايير — إيجيتك سبورتس",
+      fallbackDescEn: "FIFA, World Athletics, ITF, FINA and ISO certifications.",
+      fallbackDescAr: "شهادات الفيفا والاتحاد الدولي وITF وFINA وISO.",
+    }),
+
   errorComponent: ({ error }) => (
     <SiteLayout>
       <div className="mx-auto max-w-7xl px-4 py-24 text-center">

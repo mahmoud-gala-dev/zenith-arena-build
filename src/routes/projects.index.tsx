@@ -16,9 +16,11 @@ import { useLang, useLocalized } from "@/i18n/LanguageProvider";
 import {
   governoratesActiveQueryOptions,
   projectsPublishedListQueryOptions,
+  seoSettingsByRouteQueryOptions,
   type Gov,
   type DbProject,
 } from "@/lib/queries";
+import { buildSeoHead } from "@/lib/seo-head";
 
 
 
@@ -30,12 +32,26 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/projects/")({
   validateSearch: zodValidator(searchSchema),
-  loader: ({ context: { queryClient } }) => Promise.all([
-    queryClient.ensureQueryData(governoratesActiveQueryOptions),
-    queryClient.ensureQueryData(projectsPublishedListQueryOptions),
-  ]),
+  loader: async ({ context: { queryClient } }) => {
+    const [, , seo] = await Promise.all([
+      queryClient.ensureQueryData(governoratesActiveQueryOptions),
+      queryClient.ensureQueryData(projectsPublishedListQueryOptions),
+      queryClient.ensureQueryData(seoSettingsByRouteQueryOptions("/projects")),
+    ]);
+    return { seo };
+  },
+  head: ({ loaderData }) =>
+    buildSeoHead({
+      routePath: "/projects",
+      seo: loaderData?.seo ?? null,
+      fallbackTitleEn: "Projects — Egytic Sports",
+      fallbackTitleAr: "المشاريع — إيجيتك سبورتس",
+      fallbackDescEn: "Football pitches, running tracks, courts and pools delivered nationwide.",
+      fallbackDescAr: "ملاعب ومضامير وملاعب مضرب ومسابح تُنفَّذ على مستوى الجمهورية.",
+    }),
   component: ProjectsPage,
 });
+
 
 function ProjectsPage() {
   const { t, lang } = useLang();

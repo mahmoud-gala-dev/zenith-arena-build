@@ -7,14 +7,27 @@ import heroImg from "@/assets/hero-products.jpg";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
-import { productsPublishedQueryOptions, productCategoriesQueryOptions } from "@/lib/queries";
+import { productsPublishedQueryOptions, productCategoriesQueryOptions, seoSettingsByRouteQueryOptions } from "@/lib/queries";
+import { buildSeoHead } from "@/lib/seo-head";
 
 export const Route = createFileRoute("/products/")({
-  loader: ({ context }) =>
-    Promise.all([
+  loader: async ({ context }) => {
+    const [, , seo] = await Promise.all([
       context.queryClient.ensureQueryData(productsPublishedQueryOptions),
       context.queryClient.ensureQueryData(productCategoriesQueryOptions),
-    ]),
+      context.queryClient.ensureQueryData(seoSettingsByRouteQueryOptions("/products")),
+    ]);
+    return { seo };
+  },
+  head: ({ loaderData }) =>
+    buildSeoHead({
+      routePath: "/products",
+      seo: loaderData?.seo ?? null,
+      fallbackTitleEn: "Products — Egytic Sports",
+      fallbackTitleAr: "المنتجات — إيجيتك سبورتس",
+      fallbackDescEn: "Turf, tracks, flooring, seating and equipment for world-class venues.",
+      fallbackDescAr: "عشب ومضامير وأرضيات ومقاعد وتجهيزات لمنشآت رياضية عالمية.",
+    }),
   errorComponent: ({ error }) => (
     <SiteLayout>
       <div className="mx-auto max-w-7xl px-4 py-24 text-center">
@@ -25,6 +38,7 @@ export const Route = createFileRoute("/products/")({
   notFoundComponent: () => null,
   component: ProductsPage,
 });
+
 
 function ProductsPage() {
   const { t, lang } = useLang();

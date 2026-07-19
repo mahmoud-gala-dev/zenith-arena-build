@@ -10,7 +10,8 @@ import { Reveal } from "@/components/site/Reveal";
 import { useLang } from "@/i18n/LanguageProvider";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
-import { galleryPublishedQueryOptions, blogPostsPublishedQueryOptions } from "@/lib/queries";
+import { galleryPublishedQueryOptions, blogPostsPublishedQueryOptions, seoSettingsByRouteQueryOptions } from "@/lib/queries";
+import { buildSeoHead } from "@/lib/seo-head";
 
 type SourceType = "all" | "projects" | "knowledge";
 
@@ -21,29 +22,25 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/gallery")({
   validateSearch: searchSchema,
-  loader: ({ context }) =>
-    Promise.all([
+  loader: async ({ context }) => {
+    const [, , seo] = await Promise.all([
       context.queryClient.ensureQueryData(galleryPublishedQueryOptions),
       context.queryClient.ensureQueryData(blogPostsPublishedQueryOptions),
-    ]),
-  head: () => ({
-    meta: [
-      { title: "Project Gallery — Egytic Sports" },
-      { name: "description", content: "Visual gallery of football pitches, athletics tracks, indoor arenas, tennis and padel courts, and aquatic centres delivered by Egytic Sports." },
-      { property: "og:title", content: "Project Gallery — Egytic Sports" },
-      { property: "og:description", content: "A visual gallery of world-class sports facilities delivered by Egytic Sports." },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "/gallery" },
-      { property: "og:image", content: heroGallery.url },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Project Gallery — Egytic Sports" },
-      { name: "twitter:image", content: heroGallery.url },
-    ],
-    links: [
-      { rel: "canonical", href: "/gallery" },
-      { rel: "preload", as: "image", href: heroGallery.url },
-    ],
-  }),
+      context.queryClient.ensureQueryData(seoSettingsByRouteQueryOptions("/gallery")),
+    ]);
+    return { seo };
+  },
+  head: ({ loaderData }) =>
+    buildSeoHead({
+      routePath: "/gallery",
+      seo: loaderData?.seo ?? null,
+      fallbackTitleEn: "Project Gallery — Egytic Sports",
+      fallbackTitleAr: "معرض المشاريع — إيجيتك سبورتس",
+      fallbackDescEn: "Visual gallery of world-class sports facilities delivered by Egytic Sports.",
+      fallbackDescAr: "معرض بصري لمنشآت رياضية عالمية نُفّذت بواسطة إيجيتك سبورتس.",
+      extraLinks: [{ rel: "preload", as: "image", href: heroGallery.url }],
+    }),
+
   errorComponent: ({ error }) => (
     <SiteLayout>
       <div className="mx-auto max-w-7xl px-4 py-24 text-center">
