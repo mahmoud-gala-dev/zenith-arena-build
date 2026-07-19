@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { reportLovableError } from "@/lib/lovable-error-reporting";
-import { useLang } from "@/i18n/LanguageProvider";
 
 interface Props {
   error: Error;
@@ -9,10 +8,17 @@ interface Props {
   boundary?: string;
 }
 
+function detectLang(): "ar" | "en" {
+  if (typeof document !== "undefined") {
+    const l = document.documentElement.getAttribute("lang");
+    if (l === "ar") return "ar";
+  }
+  return "en";
+}
+
 export function GlobalErrorFallback({ error, reset, boundary = "global" }: Props) {
   const router = useRouter();
-  const { lang } = useLang();
-  const ar = lang === "ar";
+  const ar = detectLang() === "ar";
 
   useEffect(() => {
     console.error(`[${boundary}]`, error);
