@@ -52,7 +52,7 @@ export const Route = createFileRoute("/projects/$slug")({
         { rel: "alternate", hrefLang: "en", href: url },
         { rel: "alternate", hrefLang: "ar", href: p.slug_ar ? `/projects/${p.slug_ar}` : url },
         { rel: "alternate", hrefLang: "x-default", href: url },
-        ...(image ? [{ rel: "preload", as: "image", href: image, fetchpriority: "high" }] : []),
+        ...(image ? [{ rel: "preload", as: "image", href: image, fetchPriority: "high" as const }] : []),
       ],
       scripts: [{
         type: "application/ld+json",
