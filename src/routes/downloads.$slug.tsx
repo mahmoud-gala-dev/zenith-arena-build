@@ -253,7 +253,7 @@ function DownloadDetailPage() {
                       key={i}
                       href={src}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                       className="group block overflow-hidden rounded-xl border border-border bg-card"
                     >
                       <div className="aspect-[4/3] overflow-hidden">
@@ -304,7 +304,7 @@ function DownloadDetailPage() {
                           <a
                             href={f.url}
                             target="_blank"
-                            rel="noreferrer"
+                            rel="noopener noreferrer"
                             className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2 text-sm transition hover:border-primary hover:bg-accent"
                           >
                             <span className="flex min-w-0 items-center gap-2">

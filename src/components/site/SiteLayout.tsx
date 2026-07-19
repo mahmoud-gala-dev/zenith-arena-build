@@ -21,7 +21,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       <main
         id="main-content"
         tabIndex={-1}
-        className="min-h-screen pt-16 pb-[calc(env(safe-area-inset-bottom)+4.75rem)] md:pt-0 md:pb-0 focus:outline-none"
+        className="min-h-dvh pt-16 pb-[calc(env(safe-area-inset-bottom)+4.75rem)] md:pt-0 md:pb-0 focus:outline-none"
       >
         <PageTransition>{children}</PageTransition>
       </main>
