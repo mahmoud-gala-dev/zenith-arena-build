@@ -20,6 +20,14 @@ declare global {
 
 export function reportLovableError(error: unknown, context: Record<string, unknown> = {}) {
   if (typeof window === "undefined") return;
+
+  // The development sandbox already captures uncaught browser errors. Calling
+  // the collector manually here duplicates that report and can make a handled
+  // React boundary look like a second server failure when its dev log target is
+  // unavailable. Keep the boundary's console.error signal in development and
+  // send explicit reports only from deployed builds.
+  if (import.meta.env.DEV) return;
+
   window.__lovableEvents?.captureException?.(
     error,
     {
