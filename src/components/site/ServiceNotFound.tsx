@@ -119,7 +119,7 @@ export function ServiceNotFound() {
                   <li key={s.id}>
                     <Link
                       to="/services/$slug"
-                      params={{ slug: s.slug }}
+                      params={{ slug: serviceSlug(s) }}
                       search={ar ? { lang: "ar" as const } : {}}
                       className="group flex h-full items-start justify-between gap-3 rounded-lg border border-border bg-card p-4 transition hover:border-primary/60 hover:bg-accent/40"
                     >
