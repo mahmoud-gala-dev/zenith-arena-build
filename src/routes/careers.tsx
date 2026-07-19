@@ -15,22 +15,28 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useLang } from "@/i18n/LanguageProvider";
-import { jobOpeningsOpenQueryOptions, careersPageSettingsQueryOptions, type JobOpening } from "@/lib/queries";
+import { jobOpeningsOpenQueryOptions, careersPageSettingsQueryOptions, seoSettingsByRouteQueryOptions, type JobOpening } from "@/lib/queries";
 import { submitApplication } from "@/lib/applications.functions";
+import { buildSeoHead } from "@/lib/seo-head";
 
 export const Route = createFileRoute("/careers")({
-  loader: ({ context }) => {
-    context.queryClient.ensureQueryData(jobOpeningsOpenQueryOptions);
-    context.queryClient.ensureQueryData(careersPageSettingsQueryOptions);
+  loader: async ({ context }) => {
+    const [, , seo] = await Promise.all([
+      context.queryClient.ensureQueryData(jobOpeningsOpenQueryOptions),
+      context.queryClient.ensureQueryData(careersPageSettingsQueryOptions),
+      context.queryClient.ensureQueryData(seoSettingsByRouteQueryOptions("/careers")),
+    ]);
+    return { seo };
   },
-  head: () => ({
-    meta: [
-      { title: "Careers at Egytic — Build the World's Best Sports Facilities" },
-      { name: "description", content: "Join Egytic and help build FIFA-grade pitches, Olympic tracks and world-class arenas across the Middle East and North Africa." },
-      { property: "og:title", content: "Careers at Egytic Sports" },
-      { property: "og:description", content: "Open roles in engineering, project management and operations." },
-    ],
-  }),
+  head: ({ loaderData }) =>
+    buildSeoHead({
+      routePath: "/careers",
+      seo: loaderData?.seo ?? null,
+      fallbackTitleEn: "Careers at Egytic — Build World-Class Sports Facilities",
+      fallbackTitleAr: "وظائف إيجيتك — ابنِ منشآت رياضية عالمية",
+      fallbackDescEn: "Join Egytic and help build FIFA-grade pitches, Olympic tracks and world-class arenas.",
+      fallbackDescAr: "انضم إلى إيجيتك وساهم في بناء ملاعب معتمدة ومضامير أولمبية ومنشآت رياضية عالمية.",
+    }),
   errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">{error.message}</div>,
   notFoundComponent: () => <NotFound />,
   component: CareersPage,

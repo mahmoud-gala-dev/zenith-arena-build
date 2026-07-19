@@ -8,13 +8,27 @@ import { Reveal } from "@/components/site/Reveal";
 import { NotFound } from "@/components/site/NotFound";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
-import { aboutContentQueryOptions, aboutPageSettingsQueryOptions } from "@/lib/queries";
+import { aboutContentQueryOptions, aboutPageSettingsQueryOptions, seoSettingsByRouteQueryOptions } from "@/lib/queries";
+import { buildSeoHead } from "@/lib/seo-head";
 
 export const Route = createFileRoute("/about")({
-  loader: ({ context }) => Promise.all([
-    context.queryClient.ensureQueryData(aboutContentQueryOptions),
-    context.queryClient.ensureQueryData(aboutPageSettingsQueryOptions),
-  ]),
+  loader: async ({ context }) => {
+    const [, , seo] = await Promise.all([
+      context.queryClient.ensureQueryData(aboutContentQueryOptions),
+      context.queryClient.ensureQueryData(aboutPageSettingsQueryOptions),
+      context.queryClient.ensureQueryData(seoSettingsByRouteQueryOptions("/about")),
+    ]);
+    return { seo };
+  },
+  head: ({ loaderData }) =>
+    buildSeoHead({
+      routePath: "/about",
+      seo: loaderData?.seo ?? null,
+      fallbackTitleEn: "About Egytic Sports",
+      fallbackTitleAr: "عن إيجيتك سبورتس",
+      fallbackDescEn: "Meet the Egytic Sports team building world-class facilities.",
+      fallbackDescAr: "تعرّف على فريق إيجيتك سبورتس الذي يبني منشآت رياضية عالمية.",
+    }),
   component: AboutPage,
   errorComponent: ({ error }) => <div role="alert" className="p-8">{error.message}</div>,
   notFoundComponent: () => <NotFound />,

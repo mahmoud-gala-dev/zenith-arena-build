@@ -7,19 +7,39 @@ import { NotFound } from "@/components/site/NotFound";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/i18n/LanguageProvider";
-import { faqItemsPublishedQueryOptions, type FaqItem } from "@/lib/queries";
+import { faqItemsPublishedQueryOptions, seoSettingsByRouteQueryOptions, type FaqItem } from "@/lib/queries";
+import { buildSeoHead } from "@/lib/seo-head";
 
 
 export const Route = createFileRoute("/faq")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(faqItemsPublishedQueryOptions),
-  head: () => ({
-    meta: [
-      { title: "Frequently Asked Questions — Egytic Sports" },
-      { name: "description", content: "Answers to common questions about football pitch construction, running tracks, court surfaces, timelines, budgets, certifications and maintenance." },
-      { property: "og:title", content: "Frequently Asked Questions — Egytic" },
-      { property: "og:description", content: "Timelines, budgets, certifications, maintenance and more." },
-    ],
-  }),
+  loader: async ({ context }) => {
+    const [items, seo] = await Promise.all([
+      context.queryClient.ensureQueryData(faqItemsPublishedQueryOptions),
+      context.queryClient.ensureQueryData(seoSettingsByRouteQueryOptions("/faq")),
+    ]);
+    return { seo, items };
+  },
+  head: ({ loaderData }) => {
+    const items = loaderData?.items ?? [];
+    const faqLd = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: items.map((it) => ({
+        "@type": "Question",
+        name: it.question_en,
+        acceptedAnswer: { "@type": "Answer", text: it.answer_en },
+      })),
+    };
+    return buildSeoHead({
+      routePath: "/faq",
+      seo: loaderData?.seo ?? null,
+      fallbackTitleEn: "Frequently Asked Questions — Egytic Sports",
+      fallbackTitleAr: "الأسئلة الشائعة — إيجيتك سبورتس",
+      fallbackDescEn: "Answers to common questions about sports construction.",
+      fallbackDescAr: "إجابات حول الأسئلة الشائعة في الإنشاءات الرياضية.",
+      extraJsonLd: items.length ? [faqLd] : [],
+    });
+  },
   errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">{error.message}</div>,
   notFoundComponent: () => <NotFound />,
   component: FaqPage,
@@ -40,22 +60,8 @@ function FaqPage() {
   const tx = T.pages.faq;
   const CATEGORY_LABELS = T.pages.faq.categories as Record<string, string>;
 
-  const faqJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: items.map((it) => ({
-      "@type": "Question",
-      name: ar ? it.question_ar || it.question_en : it.question_en,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: ar ? it.answer_ar || it.answer_en : it.answer_en,
-      },
-    })),
-  };
-
   return (
     <SiteLayout>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       <PageHero eyebrow={tx.eyebrow} title={tx.title} subtitle={tx.sub} />
 
       <section className="py-16">
