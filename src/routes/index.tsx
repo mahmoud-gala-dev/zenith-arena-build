@@ -48,7 +48,7 @@ const ACCENTS = ["#c9a84c", "#0f766e", "#1e40af", "#b91c1c", "#7c3aed", "#0369a1
 export const Route = createFileRoute("/")({
   component: Index,
   loader: async ({ context: { queryClient } }) => {
-    const [enSlides, heroSettings] = await Promise.all([
+    const results = await Promise.all([
       queryClient.ensureQueryData(heroSlidesActiveQueryOptions("en")),
       queryClient.ensureQueryData(heroSlidesActiveQueryOptions("ar")),
       queryClient.ensureQueryData(homeClientsQueryOptions),
@@ -56,6 +56,8 @@ export const Route = createFileRoute("/")({
       queryClient.ensureQueryData(homeHeroSettingsQueryOptions),
       queryClient.ensureQueryData(homepageSectionsQueryOptions),
     ]);
+    const enSlides = results[0];
+    const heroSettings = results[4];
     const lcpImage =
       (Array.isArray(enSlides) && enSlides[0]?.image_url) ||
       heroSettings?.hero_image_url ||
