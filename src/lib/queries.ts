@@ -780,4 +780,43 @@ export const homepageSectionsQueryOptions = queryOptions<HomepageSectionsMap>({
   },
 });
 
+export type SeoSettingsRow = {
+  route_path: string | null;
+  meta_title_en: string | null;
+  meta_title_ar: string | null;
+  meta_description_en: string | null;
+  meta_description_ar: string | null;
+  og_title_en: string | null;
+  og_title_ar: string | null;
+  og_description_en: string | null;
+  og_description_ar: string | null;
+  og_image: string | null;
+  twitter_image: string | null;
+  canonical_url: string | null;
+  keywords: string | null;
+  robots_index: boolean | null;
+  robots_follow: boolean | null;
+  schema_type: string | null;
+};
+
+export const seoSettingsByRouteQueryOptions = (routePath: string) =>
+  queryOptions<SeoSettingsRow | null>({
+    queryKey: ["seo_settings", "route", routePath],
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("seo_settings")
+        .select(
+          "route_path,meta_title_en,meta_title_ar,meta_description_en,meta_description_ar,og_title_en,og_title_ar,og_description_en,og_description_ar,og_image,twitter_image,canonical_url,keywords,robots_index,robots_follow,schema_type",
+        )
+        .eq("route_path", routePath)
+        .eq("status", "published")
+        .maybeSingle();
+      if (error) throw error;
+      return (data as SeoSettingsRow | null) ?? null;
+    },
+  });
+
+
 
