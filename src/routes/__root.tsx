@@ -97,6 +97,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         { rel: "manifest", href: "/manifest-dark.webmanifest", media: "(prefers-color-scheme: dark)" },
         { rel: "apple-touch-icon", href: "/apple-touch-icon.png?v=2", media: "(prefers-color-scheme: light)" },
         { rel: "apple-touch-icon", href: "/apple-touch-icon-dark.png?v=2", media: "(prefers-color-scheme: dark)" },
+        { rel: "mask-icon", href: "/mask-icon.svg", color: seo.theme_color },
+        { rel: "shortcut icon", href: "/icon.png?v=2", type: "image/png" },
       ],
     };
   },
