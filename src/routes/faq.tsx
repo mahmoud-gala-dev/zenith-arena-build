@@ -60,22 +60,8 @@ function FaqPage() {
   const tx = T.pages.faq;
   const CATEGORY_LABELS = T.pages.faq.categories as Record<string, string>;
 
-  const faqJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: items.map((it) => ({
-      "@type": "Question",
-      name: ar ? it.question_ar || it.question_en : it.question_en,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: ar ? it.answer_ar || it.answer_en : it.answer_en,
-      },
-    })),
-  };
-
   return (
     <SiteLayout>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       <PageHero eyebrow={tx.eyebrow} title={tx.title} subtitle={tx.sub} />
 
       <section className="py-16">
