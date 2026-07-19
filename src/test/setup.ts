@@ -27,3 +27,7 @@ vi.mock("@/integrations/supabase/client", () => ({
 vi.mock("@/lib/admin-audit", () => ({
   logAdminAudit: vi.fn().mockResolvedValue(undefined),
 }));
+
+// Enable React act() environment for hydrateRoot/createRoot tests.
+(globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+
