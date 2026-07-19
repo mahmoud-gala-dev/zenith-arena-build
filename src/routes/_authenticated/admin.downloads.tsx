@@ -742,10 +742,10 @@ function DownloadEditor({
                     </div>
                     <div className="absolute inset-x-0 bottom-0 flex justify-between gap-1 bg-background/90 p-1 opacity-0 transition group-hover:opacity-100">
                       <div className="flex gap-1">
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => moveImage(i, -1)} disabled={i === 0}><ArrowUp className="h-3.5 w-3.5" /></Button>
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => moveImage(i, 1)} disabled={i === gallery.length - 1}><ArrowDown className="h-3.5 w-3.5" /></Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => moveImage(i, -1)} disabled={i === 0} aria-label="Move image up"><ArrowUp className="h-3.5 w-3.5" /></Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => moveImage(i, 1)} disabled={i === gallery.length - 1} aria-label="Move image down"><ArrowDown className="h-3.5 w-3.5" /></Button>
                       </div>
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => updateGallery(gallery.filter((_, j) => j !== i))}>
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => updateGallery(gallery.filter((_, j) => j !== i))} aria-label="Remove image">
                         <X className="h-3.5 w-3.5 text-destructive" />
                       </Button>
                     </div>
