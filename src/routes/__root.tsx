@@ -74,12 +74,14 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  loader: async ({ context }) => {
+  loader: async ({ context, location }) => {
+    const langParam = (location.search as { lang?: string })?.lang;
+    const lang = langParam === "ar" ? "ar" : "en";
     try {
       const seo = await context.queryClient.ensureQueryData(seoDefaultsQueryOptions);
-      return { seo };
+      return { seo, lang };
     } catch {
-      return { seo: DEFAULT_SEO_DEFAULTS };
+      return { seo: DEFAULT_SEO_DEFAULTS, lang };
     }
   },
   head: ({ loaderData }) => {
