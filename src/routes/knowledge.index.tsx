@@ -8,21 +8,26 @@ import { CardGridSkeleton } from "@/components/site/Skeletons";
 import { useLang } from "@/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
 import heroImg from "@/assets/hero-knowledge.jpg";
+import { seoSettingsByRouteQueryOptions } from "@/lib/queries";
+import { buildSeoHead } from "@/lib/seo-head";
 
 
 export const Route = createFileRoute("/knowledge/")({
-  component: KnowledgePage,
-  head: () => ({
-    meta: [
-      { title: "Knowledge Center — Egytic Sports" },
-      { name: "description", content: "Technical articles, standards guides and construction insights for sports facilities in Egypt and the Middle East." },
-      { property: "og:title", content: "Knowledge Center — Egytic Sports" },
-      { property: "og:description", content: "Technical articles, standards guides and construction insights for sports facilities." },
-      { property: "og:url", content: "/knowledge" },
-    ],
-    links: [{ rel: "canonical", href: "/knowledge" }],
+  loader: async ({ context }) => ({
+    seo: await context.queryClient.ensureQueryData(seoSettingsByRouteQueryOptions("/knowledge")),
   }),
+  component: KnowledgePage,
+  head: ({ loaderData }) =>
+    buildSeoHead({
+      routePath: "/knowledge",
+      seo: loaderData?.seo ?? null,
+      fallbackTitleEn: "Knowledge Center — Egytic Sports",
+      fallbackTitleAr: "مركز المعرفة — إيجيتك سبورتس",
+      fallbackDescEn: "Technical articles, standards guides and construction insights for sports facilities.",
+      fallbackDescAr: "مقالات فنية وأدلة معايير ورؤى إنشائية للمنشآت الرياضية.",
+    }),
 });
+
 
 interface BlogRow {
   id: string;
