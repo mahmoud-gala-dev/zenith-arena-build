@@ -38,6 +38,13 @@ export const translations = {
       backToServices: "Back to services",
       submitError: "Submission failed. Please try again.",
       newsletterError: "Could not subscribe.",
+      validation: {
+        required: "This field is required.",
+        nameMax: "Name must be under 100 characters.",
+        emailInvalid: "Please enter a valid email address.",
+        phoneInvalid: "Please enter a valid phone number.",
+        messageMax: "Message must be under 2000 characters.",
+      },
     },
     hero: {
       eyebrow: "Sports Construction & Infrastructure",
