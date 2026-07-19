@@ -272,6 +272,11 @@ export const translations = {
         sub: "Can't find what you're looking for? Speak with our team directly.",
         ctaTitle: "Still have a question?",
         ctaBtn: "Contact us",
+        searchPh: "Search questions and answers…",
+        all: "All",
+        noResults: "No questions match your search.",
+        clear: "Clear filters",
+        resultsCount: "{count} of {total} questions",
         categories: {
           projects: "Projects & Timelines",
           costs: "Costs & Budget",
@@ -771,6 +776,11 @@ export const translations = {
         sub: "لم تجد إجابتك؟ تحدث مع فريقنا مباشرة.",
         ctaTitle: "لا يزال لديك سؤال؟",
         ctaBtn: "تواصل معنا",
+        searchPh: "ابحث في الأسئلة والإجابات…",
+        all: "الكل",
+        noResults: "لا توجد أسئلة تطابق بحثك.",
+        clear: "مسح الفلاتر",
+        resultsCount: "{count} من {total} سؤالًا",
         categories: {
           projects: "المشاريع والجداول الزمنية",
           costs: "التكاليف والميزانية",
