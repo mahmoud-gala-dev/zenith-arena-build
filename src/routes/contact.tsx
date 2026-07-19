@@ -192,18 +192,21 @@ function ContactPage() {
                 </Button>
               </div>
             ) : (
-              <form className="grid gap-5 sm:grid-cols-2" onSubmit={onSubmit}>
+              <form className="grid gap-5 sm:grid-cols-2" onSubmit={onSubmit} noValidate>
                 <div className="space-y-2">
                   <Label htmlFor="name">{t.contact.name}</Label>
-                  <Input id="name" name="name" required maxLength={100} />
+                  <Input id="name" name="name" required maxLength={100} aria-invalid={!!errors.name} aria-describedby={errors.name ? "err-name" : undefined} />
+                  {errors.name && <p id="err-name" className="text-xs text-destructive">{errors.name}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">{t.contact.email}</Label>
-                  <Input id="email" name="email" type="email" required maxLength={255} />
+                  <Input id="email" name="email" type="email" required maxLength={255} aria-invalid={!!errors.email} aria-describedby={errors.email ? "err-email" : undefined} />
+                  {errors.email && <p id="err-email" className="text-xs text-destructive">{errors.email}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">{t.contact.phone}</Label>
-                  <Input id="phone" name="phone" type="tel" maxLength={30} />
+                  <Input id="phone" name="phone" type="tel" maxLength={30} aria-invalid={!!errors.phone} aria-describedby={errors.phone ? "err-phone" : undefined} />
+                  {errors.phone && <p id="err-phone" className="text-xs text-destructive">{errors.phone}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>{t.contact.projectType}</Label>
@@ -226,7 +229,8 @@ function ContactPage() {
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="message">{t.contact.message}</Label>
-                  <Textarea id="message" name="message" rows={5} required maxLength={2000} />
+                  <Textarea id="message" name="message" rows={5} required maxLength={2000} aria-invalid={!!errors.message} aria-describedby={errors.message ? "err-message" : undefined} />
+                  {errors.message && <p id="err-message" className="text-xs text-destructive">{errors.message}</p>}
                 </div>
                 {/* Honeypot — hidden from users, bots typically fill any input. */}
                 <input
