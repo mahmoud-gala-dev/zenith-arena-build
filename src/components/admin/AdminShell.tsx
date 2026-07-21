@@ -68,6 +68,7 @@ const nav: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exac
   { to: "/admin/seo", label: "SEO Manager", icon: Search },
   { to: "/admin/translations", label: "Translations (i18n)", icon: Languages },
   { to: "/admin/social-cache", label: "Social cache", icon: RefreshCw },
+  { to: "/admin/integrations", label: "Integrations (n8n)", icon: Webhook },
   { to: "/admin/qa-reports", label: "QA Reports", icon: LayoutDashboard },
   { to: "/admin/audit-logs", label: "Audit Log", icon: ClipboardList },
   { to: "/admin/media", label: "Media Library", icon: ImageIcon },
