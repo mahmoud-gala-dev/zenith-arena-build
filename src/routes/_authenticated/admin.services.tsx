@@ -24,6 +24,7 @@ import { insertImageVersion } from "@/hooks/useImageVersions";
 import { ImageHistoryButton } from "@/components/admin/ImageHistoryButton";
 import { ArrowDown, ArrowUp, GripVertical } from "lucide-react";
 import { useInvalidateTables } from "@/lib/invalidate";
+import { AIAssistButton, AITranslateSync, AISeoSuggest, AIContentDialog } from "@/components/admin/ai";
 
 
 type ServiceFaq = { q_en: string; q_ar?: string; a_en: string; a_ar?: string };
