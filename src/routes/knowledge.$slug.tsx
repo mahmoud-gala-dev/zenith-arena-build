@@ -268,8 +268,59 @@ function ArticleDetail() {
   };
 
 
+  // Reading progress bar based on article scroll extent.
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    const article = document.getElementById("kc-article-body");
+    if (!article) return;
+    const onScroll = () => {
+      const rect = article.getBoundingClientRect();
+      const total = rect.height - window.innerHeight;
+      if (total <= 0) {
+        setProgress(1);
+        return;
+      }
+      const scrolled = Math.min(Math.max(-rect.top, 0), total);
+      setProgress(scrolled / total);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [post.id]);
+
+  const estimatedReading = useMemo(() => {
+    if (post.reading_time && post.reading_time > 0) return post.reading_time;
+    const words = (content || "").trim().split(/\s+/).filter(Boolean).length;
+    return Math.max(1, Math.round(words / 200));
+  }, [content, post.reading_time]);
+
+  const typeMeta: Record<ContentType, { icon: typeof BookOpen; label: string }> = {
+    article: { icon: FileText, label: t.knowledgeArticle.types.article },
+    guide: { icon: Compass, label: t.knowledgeArticle.types.guide },
+    case_study: { icon: BookOpen, label: t.knowledgeArticle.types.case_study },
+  };
+  const TypeIcon = typeMeta[contentType].icon;
+
   return (
     <SiteLayout>
+      {/* Reading progress bar */}
+      <div
+        role="progressbar"
+        aria-label={t.knowledgeArticle.readingProgress}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(progress * 100)}
+        className="fixed inset-x-0 top-0 z-50 h-1 bg-transparent"
+      >
+        <div
+          className="h-full bg-primary transition-[width] duration-100 ease-out"
+          style={{ width: `${Math.round(progress * 100)}%` }}
+        />
+      </div>
       <article>
         <section className="relative overflow-hidden bg-ink pt-32 pb-14 text-white">
           {post.featured_image && (
@@ -282,16 +333,24 @@ function ArticleDetail() {
               <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
               {t.knowledge.backToList}
             </Link>
-            <h1 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl">{title}</h1>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <Badge variant="secondary" className="inline-flex items-center gap-1.5 bg-white/10 text-white hover:bg-white/15">
+                <TypeIcon className="h-3.5 w-3.5" />
+                {typeMeta[contentType].label}
+              </Badge>
+            </div>
+            <h1 className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">{title}</h1>
             <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-white/70">
               <span className="inline-flex items-center gap-1.5"><User className="h-4 w-4" /> {post.author_name}</span>
-              <span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4" /> {post.reading_time} {t.knowledge.readTime}</span>
+              <span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4" /> {estimatedReading} {t.knowledgeArticle.minRead}</span>
               {post.published_at && (
                 <span>{new Date(post.published_at).toLocaleDateString(ar ? "ar" : "en", { year: "numeric", month: "long", day: "numeric" })}</span>
               )}
             </div>
           </div>
         </section>
+
+
 
         <section className="py-14">
           <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-[240px_1fr] lg:px-8">
