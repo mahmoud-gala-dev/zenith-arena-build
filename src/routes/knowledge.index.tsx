@@ -45,6 +45,7 @@ interface BlogRow {
   published_at: string | null;
   category_id: string | null;
   tags: string[] | null;
+  content_type: string | null;
 }
 
 interface CategoryRow {
@@ -54,6 +55,7 @@ interface CategoryRow {
 }
 
 type SortKey = "newest" | "oldest" | "reading" | "title";
+type TypeKey = "all" | "article" | "guide" | "case_study";
 
 function KnowledgePage() {
   const { t, lang } = useLang();
@@ -62,6 +64,7 @@ function KnowledgePage() {
   const [q, setQ] = useState("");
   const [category, setCategory] = useState<string>("all");
   const [tag, setTag] = useState<string>("all");
+  const [type, setType] = useState<TypeKey>("all");
   const [sort, setSort] = useState<SortKey>("newest");
 
   const { data: posts = [], isLoading } = useQuery({
