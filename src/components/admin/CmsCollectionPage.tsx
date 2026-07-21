@@ -252,6 +252,17 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
   }
 
 
+  async function bulkUpdate(patch: Record<string, unknown>) {
+    const ids = Array.from(selectedIds);
+    if (!ids.length) return;
+    const { error: err } = await supabase.from(config.table as never).update(patch as never).in("id", ids);
+    if (err) { toast.error(err.message); return; }
+    toast.success(`Updated ${ids.length} item${ids.length > 1 ? "s" : ""}`);
+    setSelectedIds(new Set());
+    invalidatePublic();
+    load();
+  }
+
   const allVisibleSelected = visibleRows.length > 0 && visibleRows.every((row) => row.id && selectedIds.has(row.id));
 
   return (
