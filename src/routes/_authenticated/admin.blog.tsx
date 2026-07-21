@@ -824,6 +824,43 @@ function ArticleEditor({
             <Label>SEO keywords</Label>
             <Input value={value.seo_keywords ?? ""} onChange={(e) => set({ seo_keywords: e.target.value })} placeholder="football turf, construction, egypt" />
           </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label>Canonical URL (EN)</Label>
+              <Input
+                type="url"
+                placeholder={value.slug_en ? `https://zenith-arena-build.lovable.app/knowledge/${value.slug_en}` : "https://example.com/canonical-path"}
+                value={value.canonical_url_en ?? ""}
+                onChange={(e) => set({ canonical_url_en: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">Leave empty to auto-use the article's public URL.</p>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Canonical URL (AR)</Label>
+              <Input
+                type="url"
+                dir="ltr"
+                placeholder={value.slug_en ? `https://zenith-arena-build.lovable.app/knowledge/${value.slug_en}?lang=ar` : ""}
+                value={value.canonical_url_ar ?? ""}
+                onChange={(e) => set({ canonical_url_ar: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">Optional override for the Arabic version.</p>
+            </div>
+          </div>
+
+          <label className="flex items-start gap-2 rounded-md border p-3 text-sm">
+            <input
+              type="checkbox"
+              className="mt-0.5"
+              checked={!!value.noindex}
+              onChange={(e) => set({ noindex: e.target.checked })}
+            />
+            <span>
+              <span className="font-medium">Hide from search engines (noindex)</span>
+              <span className="block text-xs text-muted-foreground">Adds a robots noindex,nofollow tag on the public article page.</span>
+            </span>
+          </label>
         </TabsContent>
       </Tabs>
     </div>
