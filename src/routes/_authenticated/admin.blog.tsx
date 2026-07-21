@@ -547,10 +547,33 @@ function ArticleEditor({
         </TabsList>
 
         <TabsContent value="en" className="space-y-3 pt-3">
+          <div className="flex items-center justify-between gap-2 flex-wrap rounded-md border bg-muted/30 p-2">
+            <span className="text-xs text-muted-foreground">✨ AI helpers (English)</span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <AIContentDialog
+                triggerLabel="Draft full post"
+                defaultKind="blog_post"
+                defaultLanguage="en"
+                onInsert={(text) => set({ content_en: (value.content_en ? value.content_en + "\n\n" : "") + text })}
+                targetTable="blog_posts"
+                targetId={value.id}
+              />
+              <AITranslateSync
+                enValue={value.content_en ?? ""}
+                arValue={value.content_ar ?? ""}
+                onSetEn={(t) => set({ content_en: t })}
+                onSetAr={(t) => set({ content_ar: t })}
+                label="Sync content"
+              />
+            </div>
+          </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label>Title (EN) *</Label>
-              <Input value={value.title_en ?? ""} onChange={(e) => set({ title_en: e.target.value, slug_en: value.id ? value.slug_en : slugify(e.target.value) })} />
+              <div className="flex gap-2">
+                <Input value={value.title_en ?? ""} onChange={(e) => set({ title_en: e.target.value, slug_en: value.id ? value.slug_en : slugify(e.target.value) })} />
+                <AIAssistButton value={value.title_en ?? ""} onChange={(t) => set({ title_en: t })} language="en" />
+              </div>
             </div>
             <div className="space-y-1.5">
               <Label>Slug (EN) *</Label>
@@ -558,20 +581,49 @@ function ArticleEditor({
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label>Excerpt (EN)</Label>
+            <Label className="flex items-center justify-between">
+              <span>Excerpt (EN)</span>
+              <AIAssistButton value={value.excerpt_en ?? ""} onChange={(t) => set({ excerpt_en: t })} language="en" size="sm" />
+            </Label>
             <Textarea rows={3} maxLength={500} value={value.excerpt_en ?? ""} onChange={(e) => set({ excerpt_en: e.target.value })} />
           </div>
           <div className="space-y-1.5">
-            <Label>Content (EN) — supports "## Heading" for auto-TOC</Label>
+            <Label className="flex items-center justify-between">
+              <span>Content (EN) — supports "## Heading" for auto-TOC</span>
+              <AIAssistButton value={value.content_en ?? ""} onChange={(t) => set({ content_en: t })} language="en" size="sm" />
+            </Label>
             <Textarea rows={12} maxLength={20000} value={value.content_en ?? ""} onChange={(e) => set({ content_en: e.target.value })} />
           </div>
         </TabsContent>
 
         <TabsContent value="ar" className="space-y-3 pt-3">
+          <div className="flex items-center justify-between gap-2 flex-wrap rounded-md border bg-muted/30 p-2">
+            <span className="text-xs text-muted-foreground">✨ مساعد الذكاء الاصطناعي (العربية)</span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <AIContentDialog
+                triggerLabel="صياغة مقال"
+                defaultKind="blog_post"
+                defaultLanguage="ar"
+                onInsert={(text) => set({ content_ar: (value.content_ar ? value.content_ar + "\n\n" : "") + text })}
+                targetTable="blog_posts"
+                targetId={value.id}
+              />
+              <AITranslateSync
+                enValue={value.content_en ?? ""}
+                arValue={value.content_ar ?? ""}
+                onSetEn={(t) => set({ content_en: t })}
+                onSetAr={(t) => set({ content_ar: t })}
+                label="مزامنة"
+              />
+            </div>
+          </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label>العنوان (AR)</Label>
-              <Input dir="rtl" value={value.title_ar ?? ""} onChange={(e) => set({ title_ar: e.target.value, slug_ar: value.id ? value.slug_ar : slugify(e.target.value) })} />
+              <div className="flex gap-2">
+                <Input dir="rtl" value={value.title_ar ?? ""} onChange={(e) => set({ title_ar: e.target.value, slug_ar: value.id ? value.slug_ar : slugify(e.target.value) })} />
+                <AIAssistButton value={value.title_ar ?? ""} onChange={(t) => set({ title_ar: t })} language="ar" />
+              </div>
             </div>
             <div className="space-y-1.5">
               <Label>Slug (AR)</Label>
@@ -579,14 +631,21 @@ function ArticleEditor({
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label>مقتطف (AR)</Label>
+            <Label className="flex items-center justify-between">
+              <span>مقتطف (AR)</span>
+              <AIAssistButton value={value.excerpt_ar ?? ""} onChange={(t) => set({ excerpt_ar: t })} language="ar" size="sm" />
+            </Label>
             <Textarea dir="rtl" rows={3} maxLength={500} value={value.excerpt_ar ?? ""} onChange={(e) => set({ excerpt_ar: e.target.value })} />
           </div>
           <div className="space-y-1.5">
-            <Label>المحتوى (AR)</Label>
+            <Label className="flex items-center justify-between">
+              <span>المحتوى (AR)</span>
+              <AIAssistButton value={value.content_ar ?? ""} onChange={(t) => set({ content_ar: t })} language="ar" size="sm" />
+            </Label>
             <Textarea dir="rtl" rows={12} maxLength={20000} value={value.content_ar ?? ""} onChange={(e) => set({ content_ar: e.target.value })} />
           </div>
         </TabsContent>
+
 
         <TabsContent value="media" className="space-y-4 pt-3">
           <ImageField
