@@ -243,6 +243,13 @@ export function useAdminPageGuard() {
   return useGuard(perm);
 }
 
-
-
+/**
+ * Returns a guard bound to the CRUD permission of the currently-active admin
+ * page, e.g. `useCrudGuard("create")` on `/admin/leads` checks `leads.create`.
+ */
+export function useCrudGuard(action: CrudAction) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const perm = crudPermissionForPath(pathname, action);
+  return useGuard(perm);
+}
 
