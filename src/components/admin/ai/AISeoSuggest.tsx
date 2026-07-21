@@ -47,8 +47,15 @@ export function AISeoSuggest({ content, subject, language = "en", onApply, size 
   }
 
   return (
-    <Button type="button" size={size} variant="outline" onClick={run} disabled={busy}>
-      {busy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
+    <Button
+      type="button"
+      size={size}
+      variant="ghost"
+      onClick={run}
+      disabled={busy}
+      className="h-8 rounded-full border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 px-3 text-xs font-medium text-primary shadow-sm transition-all hover:from-primary/20 hover:to-primary/10 hover:border-primary/40 hover:shadow-md hover:text-primary"
+    >
+      {busy ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 mr-1.5" />}
       AI · Suggest SEO ({language.toUpperCase()})
     </Button>
   );
