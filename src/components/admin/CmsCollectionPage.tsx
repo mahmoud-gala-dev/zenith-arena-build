@@ -512,6 +512,8 @@ function FieldEditor({ field, values, onChange }: { field: CmsField; values: Any
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>{field.options?.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent>
         </Select>
+      ) : field.type === "multi-relation" ? (
+        <MultiRelationEditor field={field} value={Array.isArray(value) ? (value as string[]) : []} onChange={onChange} />
       ) : (
         <Input
           type={field.type === "number" ? "number" : field.type === "date" ? "date" : "text"}
