@@ -26,6 +26,7 @@ import {
   RefreshCw,
   Search,
   Settings,
+  Sparkles,
   Tags,
   Languages,
   Users,
