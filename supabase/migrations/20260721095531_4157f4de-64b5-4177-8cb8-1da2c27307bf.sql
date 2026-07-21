@@ -1,0 +1,4 @@
+ALTER TABLE public.blog_posts
+  ADD COLUMN IF NOT EXISTS canonical_url_en TEXT,
+  ADD COLUMN IF NOT EXISTS canonical_url_ar TEXT,
+  ADD COLUMN IF NOT EXISTS noindex BOOLEAN NOT NULL DEFAULT false;

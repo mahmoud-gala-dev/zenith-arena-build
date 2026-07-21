@@ -37,6 +37,9 @@ interface BlogPost {
   seo_description_ar: string | null;
   seo_keywords: string | null;
   og_image: string | null;
+  canonical_url_en: string | null;
+  canonical_url_ar: string | null;
+  noindex: boolean | null;
   tags: string[];
   translation_group_id: string | null;
   content_type: ContentType | null;
@@ -85,6 +88,8 @@ export const Route = createFileRoute("/knowledge/$slug")({
     const image = p.og_image?.trim() || p.featured_image || undefined;
     const path = `/knowledge/${p.slug_en}`;
     const alt = loaderData?.alternates ?? { en: path, ar: `${path}?lang=ar` };
+    const canonicalEn = p.canonical_url_en?.trim() || path;
+    const canonicalAr = p.canonical_url_ar?.trim() || alt.ar;
 
     const meta: Array<Record<string, string>> = [
       { title },
@@ -93,13 +98,14 @@ export const Route = createFileRoute("/knowledge/$slug")({
       { property: "og:title", content: title },
       { property: "og:description", content: desc },
       { property: "og:type", content: "article" },
-      { property: "og:url", content: path },
+      { property: "og:url", content: canonicalEn },
       { property: "og:locale", content: "en_US" },
       { property: "og:locale:alternate", content: "ar_EG" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: desc },
     ];
+    if (p.noindex) meta.push({ name: "robots", content: "noindex, nofollow" });
     if (p.seo_keywords) meta.push({ name: "keywords", content: p.seo_keywords });
     if (p.published_at) {
       meta.push({ property: "article:published_time", content: p.published_at });
@@ -115,10 +121,10 @@ export const Route = createFileRoute("/knowledge/$slug")({
     return {
       meta,
       links: [
-        { rel: "canonical", href: path },
-        { rel: "alternate", hrefLang: "en", href: alt.en },
-        { rel: "alternate", hrefLang: "ar", href: alt.ar },
-        { rel: "alternate", hrefLang: "x-default", href: alt.en },
+        { rel: "canonical", href: canonicalEn },
+        { rel: "alternate", hrefLang: "en", href: canonicalEn },
+        { rel: "alternate", hrefLang: "ar", href: canonicalAr },
+        { rel: "alternate", hrefLang: "x-default", href: canonicalEn },
       ],
       scripts: [{
         type: "application/ld+json",

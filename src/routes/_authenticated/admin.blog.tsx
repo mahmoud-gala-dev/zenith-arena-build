@@ -45,6 +45,8 @@ type Article = {
   seo_title_en?: string; seo_title_ar?: string;
   seo_description_en?: string; seo_description_ar?: string;
   seo_keywords?: string;
+  canonical_url_en?: string; canonical_url_ar?: string;
+  noindex?: boolean;
   status?: "published" | "draft" | "archived";
   featured?: boolean;
   scheduled_at?: string | null;
@@ -76,6 +78,7 @@ const EMPTY: Article = {
   featured_image: "", og_image: "", author_name: "Egytic Editorial Team",
   reading_time: 5, tags: [], seo_title_en: "", seo_title_ar: "",
   seo_description_en: "", seo_description_ar: "", seo_keywords: "",
+  canonical_url_en: "", canonical_url_ar: "", noindex: false,
   status: "draft", featured: false, category_id: null, scheduled_at: null,
 };
 
@@ -821,6 +824,43 @@ function ArticleEditor({
             <Label>SEO keywords</Label>
             <Input value={value.seo_keywords ?? ""} onChange={(e) => set({ seo_keywords: e.target.value })} placeholder="football turf, construction, egypt" />
           </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label>Canonical URL (EN)</Label>
+              <Input
+                type="url"
+                placeholder={value.slug_en ? `https://zenith-arena-build.lovable.app/knowledge/${value.slug_en}` : "https://example.com/canonical-path"}
+                value={value.canonical_url_en ?? ""}
+                onChange={(e) => set({ canonical_url_en: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">Leave empty to auto-use the article's public URL.</p>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Canonical URL (AR)</Label>
+              <Input
+                type="url"
+                dir="ltr"
+                placeholder={value.slug_en ? `https://zenith-arena-build.lovable.app/knowledge/${value.slug_en}?lang=ar` : ""}
+                value={value.canonical_url_ar ?? ""}
+                onChange={(e) => set({ canonical_url_ar: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">Optional override for the Arabic version.</p>
+            </div>
+          </div>
+
+          <label className="flex items-start gap-2 rounded-md border p-3 text-sm">
+            <input
+              type="checkbox"
+              className="mt-0.5"
+              checked={!!value.noindex}
+              onChange={(e) => set({ noindex: e.target.checked })}
+            />
+            <span>
+              <span className="font-medium">Hide from search engines (noindex)</span>
+              <span className="block text-xs text-muted-foreground">Adds a robots noindex,nofollow tag on the public article page.</span>
+            </span>
+          </label>
         </TabsContent>
       </Tabs>
     </div>
