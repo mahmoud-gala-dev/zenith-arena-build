@@ -201,6 +201,8 @@ function AdminAIPage() {
           </Button>
         </div>
 
+        <GovernanceBanner enabled={settings.enabled} dailyLimit={settings.daily_user_limit} />
+
         {/* KPIs */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard label="Total AI calls" value={stats.totalCalls.toLocaleString()} />
