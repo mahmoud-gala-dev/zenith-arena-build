@@ -18,7 +18,8 @@ export type PermissionKey =
   | "leads.manage"
   | "media.manage"
   | "settings.manage"
-  | "users.manage";
+  | "users.manage"
+  | "content.ai";
 
 /**
  * Maps admin route pathname prefixes to the permission required to view/edit them.
