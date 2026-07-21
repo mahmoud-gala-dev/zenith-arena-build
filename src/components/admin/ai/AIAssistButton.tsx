@@ -184,14 +184,18 @@ export function AIAssistButton({
           <Languages className="h-4 w-4 mr-2" />
           Translate → {(translateTo ?? (language === "en" ? "ar" : "en")).toUpperCase()}
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={regenerate} disabled={!lastRun}>
-          <RotateCw className="h-4 w-4 mr-2" /> Regenerate last
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={undo} disabled={historyDepth === 0}>
-          <Undo2 className="h-4 w-4 mr-2" />
-          Undo AI edit {historyDepth > 0 ? `(${historyDepth})` : ""}
-        </DropdownMenuItem>
+        {canUndo && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={regenerate} disabled={!lastRun}>
+              <RotateCw className="h-4 w-4 mr-2" /> Regenerate last
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={undo} disabled={historyDepth === 0}>
+              <Undo2 className="h-4 w-4 mr-2" />
+              Undo AI edit {historyDepth > 0 ? `(${historyDepth})` : ""}
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
