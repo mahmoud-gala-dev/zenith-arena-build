@@ -23,7 +23,7 @@ type Props = {
 };
 
 export function AISeoSuggest({ content, subject, language = "en", onApply, size = "sm" }: Props) {
-  const { can } = useCan("content.ai");
+  const { can } = useCan("content.ai.run");
   const [busy, setBusy] = useState(false);
   const seoFn = useServerFn(aiGenerateSeo);
 

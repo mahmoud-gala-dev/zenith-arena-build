@@ -19,7 +19,7 @@ type Props = {
  * Drop into any editor with paired EN/AR fields.
  */
 export function AITranslateSync({ enValue, arValue, onSetEn, onSetAr, label }: Props) {
-  const { can } = useCan("content.ai");
+  const { can } = useCan("content.ai.run");
   const [busy, setBusy] = useState<"en2ar" | "ar2en" | null>(null);
   const translateFn = useServerFn(aiTranslate);
 

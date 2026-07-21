@@ -29,7 +29,7 @@ const PRIORITY_TONE: Record<string, string> = {
 };
 
 export function LeadAiSummary({ leadId, phone }: Props) {
-  const { can } = useCan("content.ai");
+  const { can } = useCan("content.ai.run");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const summarize = useServerFn(aiSummarizeLead);

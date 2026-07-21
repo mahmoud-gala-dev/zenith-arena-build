@@ -37,7 +37,7 @@ export function AIContentDialog({
   targetTable,
   targetId,
 }: Props) {
-  const { can } = useCan("content.ai");
+  const { can } = useCan("content.ai.run");
   const [open, setOpen] = useState(false);
   const [brief, setBrief] = useState("");
   const [kind, setKind] = useState<Kind>(defaultKind);
