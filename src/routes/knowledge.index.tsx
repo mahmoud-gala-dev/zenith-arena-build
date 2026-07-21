@@ -193,15 +193,35 @@ function KnowledgePage() {
             </div>
           </div>
 
-          <div className="mb-6 flex flex-wrap items-center gap-3">
-            <Badge variant="secondary">
-              {t.knowledgeList.resultsCount.replace("{count}", String(filtered.length))}
-            </Badge>
-            {hasFilters && (
-              <Button variant="ghost" size="sm" onClick={clearFilters}>
-                <X className="me-1 h-4 w-4" /> {t.knowledgeList.clearFilters}
-              </Button>
-            )}
+          <div className="mb-6 flex flex-wrap items-center gap-2">
+            {(["all", "article", "guide", "case_study"] as TypeKey[]).map((k) => {
+              const label = k === "all" ? t.knowledgeList.allTypes
+                : k === "article" ? t.knowledgeList.typeArticle
+                : k === "guide" ? t.knowledgeList.typeGuide
+                : t.knowledgeList.typeCaseStudy;
+              const active = type === k;
+              return (
+                <Button
+                  key={k}
+                  variant={active ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setType(k)}
+                  className="rounded-full"
+                >
+                  {label}
+                </Button>
+              );
+            })}
+            <div className="ms-auto flex items-center gap-3">
+              <Badge variant="secondary">
+                {t.knowledgeList.resultsCount.replace("{count}", String(filtered.length))}
+              </Badge>
+              {hasFilters && (
+                <Button variant="ghost" size="sm" onClick={clearFilters}>
+                  <X className="me-1 h-4 w-4" /> {t.knowledgeList.clearFilters}
+                </Button>
+              )}
+            </div>
           </div>
 
           {isLoading ? (
