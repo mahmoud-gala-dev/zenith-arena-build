@@ -359,7 +359,7 @@ function AdminUsersPage() {
                         </tr>
                       );
                     })}
-                  </>
+                  </Fragment>
                 ))}
               </tbody>
 
