@@ -53,6 +53,8 @@ type Article = {
   scheduled_at?: string | null;
   published_at?: string | null;
   updated_at?: string;
+  content_type?: "article" | "guide" | "case_study";
+  attachments?: Attachment[];
 };
 
 type Category = { id: string; slug_en: string; title_en: string; title_ar: string };
