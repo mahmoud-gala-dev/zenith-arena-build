@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { CinematicBackdrop } from "@/components/site/CinematicBackdrop";
 import { useInvalidateTables } from "@/lib/invalidate";
+import { AIAssistButton, AITranslateSync } from "@/components/admin/ai";
 
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8 MB
