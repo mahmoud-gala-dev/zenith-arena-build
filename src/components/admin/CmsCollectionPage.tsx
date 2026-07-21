@@ -528,6 +528,76 @@ function FieldEditor({ field, values, onChange }: { field: CmsField; values: Any
   );
 }
 
+function MultiRelationEditor({ field, value, onChange }: { field: CmsField; value: string[]; onChange: (next: string[]) => void }) {
+  const [options, setOptions] = useState<Array<{ id: string; label: string; hint?: string }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
+  const labelField = field.labelField ?? "title_en";
+  const hintField = field.hintField;
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!field.sourceTable) { setLoading(false); return; }
+    const columns = ["id", labelField, ...(hintField ? [hintField] : [])].join(",");
+    supabase
+      .from(field.sourceTable as never)
+      .select(columns)
+      .order(labelField, { ascending: true })
+      .limit(500)
+      .then(({ data }) => {
+        if (cancelled) return;
+        const rows = (data ?? []) as Array<Record<string, unknown>>;
+        setOptions(rows.map((r) => ({
+          id: String(r.id ?? ""),
+          label: String(r[labelField] ?? "(untitled)"),
+          hint: hintField ? String(r[hintField] ?? "") : undefined,
+        })).filter((o) => o.id));
+        setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [field.sourceTable, labelField, hintField]);
+
+  const selected = new Set(value);
+  const q = query.trim().toLowerCase();
+  const filtered = q ? options.filter((o) => o.label.toLowerCase().includes(q) || (o.hint ?? "").toLowerCase().includes(q)) : options;
+
+  function toggle(id: string) {
+    const next = new Set(selected);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    onChange(Array.from(next));
+  }
+
+  return (
+    <div className="rounded-lg border border-border bg-background">
+      <div className="flex items-center justify-between gap-2 border-b border-border p-2">
+        <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search…" className="h-8" />
+        <span className="whitespace-nowrap text-xs text-muted-foreground">{selected.size} selected</span>
+      </div>
+      <div className="max-h-56 overflow-y-auto p-2">
+        {loading ? (
+          <div className="flex items-center gap-2 p-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Loading…</div>
+        ) : filtered.length === 0 ? (
+          <p className="p-2 text-sm text-muted-foreground">No items found.</p>
+        ) : (
+          <ul className="space-y-1">
+            {filtered.map((o) => (
+              <li key={o.id}>
+                <label className="flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 hover:bg-accent">
+                  <Checkbox checked={selected.has(o.id)} onCheckedChange={() => toggle(o.id)} className="mt-0.5" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium text-foreground">{o.label}</span>
+                    {o.hint && <span className="block truncate text-xs text-muted-foreground">{o.hint}</span>}
+                  </span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
 const CONTENT_KIND_BY_TABLE: Record<string, "product_description" | "service_description" | "project_story" | "blog_post" | "faq" | "generic"> = {
   products: "product_description",
   services: "service_description",
