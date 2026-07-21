@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useInvalidateTables } from "@/lib/invalidate";
+import { StrictImageUrlField } from "@/components/admin/StrictImageUrlField";
+import { GalleryOrderEditor } from "@/components/admin/GalleryOrderEditor";
 
 
 export const Route = createFileRoute("/_authenticated/admin/projects")({
