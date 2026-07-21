@@ -313,19 +313,54 @@ function AdminServicesPage() {
             <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
               {/* Form */}
               <div className="space-y-4">
+                <div className="flex items-center justify-between gap-2 flex-wrap rounded-md border bg-muted/30 p-2">
+                  <span className="text-xs text-muted-foreground">✨ AI helpers</span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <AIContentDialog
+                      triggerLabel="Draft service"
+                      defaultKind="service"
+                      defaultLanguage="en"
+                      onInsert={(text) => setEditing({ ...editing, description_en: (editing.description_en ? editing.description_en + "\n\n" : "") + text })}
+                      targetTable="services"
+                      targetId={editing.id}
+                    />
+                    <AITranslateSync
+                      enValue={editing.description_en ?? ""}
+                      arValue={editing.description_ar ?? ""}
+                      onSetEn={(t) => setEditing({ ...editing, description_en: t })}
+                      onSetAr={(t) => setEditing({ ...editing, description_ar: t })}
+                      label="Sync EN↔AR"
+                    />
+                  </div>
+                </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <Field label="English slug *"><Input value={editing.slug_en} onChange={(e) => setEditing({ ...editing, slug_en: e.target.value })} /></Field>
                   <Field label="Arabic slug"><Input dir="rtl" value={editing.slug_ar ?? ""} onChange={(e) => setEditing({ ...editing, slug_ar: e.target.value })} /></Field>
-                  <Field label="English title *"><Input value={editing.title_en} onChange={(e) => setEditing({ ...editing, title_en: e.target.value })} /></Field>
-                  <Field label="Arabic title"><Input dir="rtl" value={editing.title_ar ?? ""} onChange={(e) => setEditing({ ...editing, title_ar: e.target.value })} /></Field>
+                  <Field label="English title *">
+                    <div className="flex gap-2">
+                      <Input value={editing.title_en} onChange={(e) => setEditing({ ...editing, title_en: e.target.value })} />
+                      <AIAssistButton value={editing.title_en} onChange={(t) => setEditing({ ...editing, title_en: t })} language="en" />
+                    </div>
+                  </Field>
+                  <Field label="Arabic title">
+                    <div className="flex gap-2">
+                      <Input dir="rtl" value={editing.title_ar ?? ""} onChange={(e) => setEditing({ ...editing, title_ar: e.target.value })} />
+                      <AIAssistButton value={editing.title_ar ?? ""} onChange={(t) => setEditing({ ...editing, title_ar: t })} language="ar" />
+                    </div>
+                  </Field>
                   <Field label="Category"><Input value={editing.category ?? ""} onChange={(e) => setEditing({ ...editing, category: e.target.value })} /></Field>
                   <Field label="Icon"><IconPicker value={editing.icon} onChange={(name) => setEditing({ ...editing, icon: name })} /></Field>
                   <Field label="English alt text (for images)"><Input value={editing.alt_en ?? ""} onChange={(e) => setEditing({ ...editing, alt_en: e.target.value })} maxLength={180} /></Field>
                   <Field label="Arabic alt text"><Input dir="rtl" value={editing.alt_ar ?? ""} onChange={(e) => setEditing({ ...editing, alt_ar: e.target.value })} maxLength={180} /></Field>
                 </div>
 
-                <Field label="English description"><Textarea rows={3} value={editing.description_en ?? ""} onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} maxLength={2500} /></Field>
-                <Field label="Arabic description"><Textarea dir="rtl" rows={3} value={editing.description_ar ?? ""} onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} maxLength={2500} /></Field>
+                <Field label={<span className="flex items-center justify-between">English description <AIAssistButton value={editing.description_en ?? ""} onChange={(t) => setEditing({ ...editing, description_en: t })} language="en" size="sm" /></span>}>
+                  <Textarea rows={3} value={editing.description_en ?? ""} onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} maxLength={2500} />
+                </Field>
+                <Field label={<span className="flex items-center justify-between">Arabic description <AIAssistButton value={editing.description_ar ?? ""} onChange={(t) => setEditing({ ...editing, description_ar: t })} language="ar" size="sm" /></span>}>
+                  <Textarea dir="rtl" rows={3} value={editing.description_ar ?? ""} onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} maxLength={2500} />
+                </Field>
+
 
                 <div className="rounded-lg border border-border bg-secondary/30 p-3">
                   <p className="mb-3 text-sm font-medium">Images — pick a tab, then Upload &amp; Crop or paste a URL.</p>
