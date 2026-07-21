@@ -389,11 +389,18 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
         <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
           <DialogHeader><DialogTitle>{editing?.id ? `Edit ${config.singular}` : `New ${config.singular}`}</DialogTitle></DialogHeader>
           {editing && (
-            <div className="grid gap-4 sm:grid-cols-2">
-              {config.fields.map((field) => (
-                <FieldEditor key={field.name} field={field} values={editing} onChange={(value) => setEditing({ ...editing, [field.name]: value })} />
-              ))}
-            </div>
+            <>
+              <AiToolbar
+                config={config}
+                editing={editing}
+                onChange={(patch) => setEditing({ ...editing, ...patch })}
+              />
+              <div className="grid gap-4 sm:grid-cols-2">
+                {config.fields.map((field) => (
+                  <FieldEditor key={field.name} field={field} values={editing} onChange={(value) => setEditing({ ...editing, [field.name]: value })} />
+                ))}
+              </div>
+            </>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
