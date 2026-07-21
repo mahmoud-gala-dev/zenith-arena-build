@@ -239,6 +239,8 @@ function AdminAIPage() {
           </Card>
         </div>
 
+        <AutoSeoCard />
+
         {/* Settings */}
         <Card>
           <CardHeader><CardTitle>Settings — إعدادات الذكاء الاصطناعي</CardTitle></CardHeader>
