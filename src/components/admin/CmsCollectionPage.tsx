@@ -172,6 +172,7 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
       else if (field.type === "switch") payload[field.name] = Boolean(value);
       else if (field.type === "json") payload[field.name] = value ? JSON.parse(String(value)) : {};
       else if (field.type === "tags") payload[field.name] = String(value ?? "").split(",").map((item) => item.trim()).filter(Boolean);
+      else if (field.type === "multi-relation") payload[field.name] = Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
       else payload[field.name] = typeof value === "string" && value.trim() === "" ? null : value;
     });
     return config.preparePayload ? config.preparePayload(payload) : payload;
