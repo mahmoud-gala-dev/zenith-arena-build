@@ -45,6 +45,8 @@ type Article = {
   seo_title_en?: string; seo_title_ar?: string;
   seo_description_en?: string; seo_description_ar?: string;
   seo_keywords?: string;
+  canonical_url_en?: string; canonical_url_ar?: string;
+  noindex?: boolean;
   status?: "published" | "draft" | "archived";
   featured?: boolean;
   scheduled_at?: string | null;
