@@ -72,7 +72,7 @@ function KnowledgePage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("id,slug_en,title_en,title_ar,excerpt_en,excerpt_ar,featured_image,author_name,reading_time,published_at,category_id,tags")
+        .select("id,slug_en,title_en,title_ar,excerpt_en,excerpt_ar,featured_image,author_name,reading_time,published_at,category_id,tags,content_type")
         .eq("status", "published")
         .order("published_at", { ascending: false });
       if (error) throw error;
