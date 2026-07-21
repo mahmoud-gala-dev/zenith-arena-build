@@ -75,6 +75,8 @@ const PERMISSION_LABELS: Record<PermissionKey, { en: string; ar: string }> = {
   "settings.manage": { en: "Manage site settings", ar: "إدارة إعدادات الموقع" },
   "users.manage": { en: "Manage users & roles", ar: "إدارة المستخدمين والأدوار" },
   "content.ai": { en: "Use AI assistant", ar: "استخدام المساعد الذكي" },
+  "content.ai.run": { en: "Run AI assistant", ar: "تشغيل المساعد الذكي" },
+  "content.ai.undo": { en: "Undo / regenerate AI edits", ar: "تراجع/إعادة توليد تعديلات الذكاء الاصطناعي" },
 };
 
 const DENY_TITLE_EN = "Access denied";
