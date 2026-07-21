@@ -26,6 +26,7 @@ export type PermissionKey =
  * Order matters: longest/most-specific paths first.
  */
 const ROUTE_PERMISSIONS: Array<{ prefix: string; perm: PermissionKey }> = [
+  { prefix: "/admin/ai", perm: "settings.manage" },
   { prefix: "/admin/users", perm: "users.manage" },
   { prefix: "/admin/settings-keys", perm: "settings.manage" },
   { prefix: "/admin/settings", perm: "settings.manage" },
