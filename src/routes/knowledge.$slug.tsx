@@ -366,7 +366,7 @@ function ArticleDetail() {
               </aside>
             )}
 
-            <div className={toc.length > 0 ? "min-w-0" : "min-w-0 lg:col-span-2"}>
+            <div id="kc-article-body" className={toc.length > 0 ? "min-w-0" : "min-w-0 lg:col-span-2"}>
               {excerpt && <p className="text-lg font-medium leading-relaxed text-foreground">{excerpt}</p>}
               <div className="mt-6 space-y-6">
                 {blocks.map((b) =>
@@ -388,6 +388,45 @@ function ArticleDetail() {
               <div className="mt-10 border-t border-border pt-6">
                 <ShareButtons title={title} path={`/knowledge/${post.slug_en}`} />
               </div>
+
+              {(prev || next) && (
+                <nav
+                  aria-label={`${t.knowledgeArticle.previous} / ${t.knowledgeArticle.next}`}
+                  className="mt-10 grid gap-4 sm:grid-cols-2"
+                >
+                  {prev ? (
+                    <Link
+                      to="/knowledge/$slug"
+                      params={{ slug: prev.slug_en }}
+                      className="group flex flex-col rounded-2xl border border-border bg-card p-5 text-start shadow-soft transition hover:-translate-y-0.5 hover:shadow-elegant"
+                    >
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" />
+                        {t.knowledgeArticle.previous}
+                      </span>
+                      <span className="mt-2 font-semibold text-foreground group-hover:text-primary line-clamp-2">
+                        {ar ? prev.title_ar : prev.title_en}
+                      </span>
+                    </Link>
+                  ) : <span />}
+                  {next ? (
+                    <Link
+                      to="/knowledge/$slug"
+                      params={{ slug: next.slug_en }}
+                      className="group flex flex-col rounded-2xl border border-border bg-card p-5 text-end shadow-soft transition hover:-translate-y-0.5 hover:shadow-elegant sm:items-end"
+                    >
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        {t.knowledgeArticle.next}
+                        <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
+                      </span>
+                      <span className="mt-2 font-semibold text-foreground group-hover:text-primary line-clamp-2">
+                        {ar ? next.title_ar : next.title_en}
+                      </span>
+                    </Link>
+                  ) : <span />}
+                </nav>
+              )}
+
               <div className="mt-12 rounded-2xl bg-hero px-8 py-10 text-center">
                 <h3 className="text-xl font-bold text-white">{t.sections.ctaTitle}</h3>
                 <p className="mx-auto mt-2 max-w-md text-white/70">{t.sections.ctaSub}</p>
@@ -398,6 +437,8 @@ function ArticleDetail() {
             </div>
           </div>
         </section>
+
+
 
         {/* Mobile floating TOC button + drawer */}
         {toc.length > 0 && (
