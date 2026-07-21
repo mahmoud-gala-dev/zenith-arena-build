@@ -56,13 +56,17 @@ export function StrictImageUrlField({
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Propagate status upward for the tab indicators.
+  // Intentionally exclude `onStatusChange` from deps — parents pass an inline
+  // arrow, and including it would loop (effect → setState in parent → new fn → effect).
+  const onStatusChangeRef = useRef(onStatusChange);
+  useEffect(() => { onStatusChangeRef.current = onStatusChange; }, [onStatusChange]);
   useEffect(() => {
     let s: FieldStatus = "empty";
     if (uploading) s = "uploading";
     else if (status === "error") s = "error";
     else if (value && status === "ok") s = "ok";
-    onStatusChange?.(s);
-  }, [uploading, status, value, onStatusChange]);
+    onStatusChangeRef.current?.(s);
+  }, [uploading, status, value]);
 
   // Merge the field's aspect ratio into validation options so URL-paste is guarded too.
   const validationOpts: ImageValidationOptions = {
