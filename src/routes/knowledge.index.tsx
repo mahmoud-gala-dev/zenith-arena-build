@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Clock, User, Search, X } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
@@ -15,6 +15,8 @@ import { supabase } from "@/integrations/supabase/client";
 import heroImg from "@/assets/hero-knowledge.jpg";
 import { seoSettingsByRouteQueryOptions } from "@/lib/queries";
 import { buildSeoHead } from "@/lib/seo-head";
+import { parseQuery, scoreDoc, buildSuggestions, type SearchableDoc } from "@/lib/search/knowledge-search";
+
 
 export const Route = createFileRoute("/knowledge/")({
   loader: async ({ context }) => ({
