@@ -30,7 +30,7 @@ import { AIAssistButton, AITranslateSync, AIContentDialog } from "@/components/a
 
 type TableName = keyof Database["public"]["Tables"];
 type AnyRow = Record<string, unknown> & { id?: string; status?: string; featured?: boolean; updated_at?: string; created_at?: string };
-type FieldType = "text" | "textarea" | "number" | "switch" | "select" | "date" | "url" | "json" | "tags";
+type FieldType = "text" | "textarea" | "number" | "switch" | "select" | "date" | "url" | "json" | "tags" | "multi-relation";
 
 export type CmsField = {
   name: string;
@@ -42,6 +42,12 @@ export type CmsField = {
   dir?: "ltr" | "rtl";
   maxLength?: number;
   fullWidth?: boolean;
+  /** For type "multi-relation": table to source options from. */
+  sourceTable?: TableName;
+  /** For type "multi-relation": column to display as label (defaults to title_en). */
+  labelField?: string;
+  /** For type "multi-relation": optional secondary label (e.g. category). */
+  hintField?: string;
 };
 
 export type CmsColumn = {
