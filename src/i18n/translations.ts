@@ -737,7 +737,13 @@ export const translations = {
     knowledgeArticle: {
       toc: "قائمة المحتوى",
       tocMobile: "المحتوى",
+      previous: "السابق",
+      next: "التالي",
+      readingProgress: "تقدّم القراءة",
+      minRead: "دقيقة قراءة",
+      types: { article: "مقال", guide: "دليل", case_study: "دراسة حالة" },
     },
+
     downloadDetail: {
       featured: "مميز",
       allDownloads: "كل التحميلات",
