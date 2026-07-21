@@ -292,6 +292,7 @@ function QuotePage() {
                     className="sm:w-auto"
                     label={tx.sendViaWhatsapp}
                     source="quote_page"
+                    logToLead
                     fields={{
                       name: nameVal,
                       email: emailVal,
