@@ -104,6 +104,7 @@ function KnowledgePage() {
     let list = posts.filter((p) => {
       if (category !== "all" && p.category_id !== category) return false;
       if (tag !== "all" && !(p.tags ?? []).includes(tag)) return false;
+      if (type !== "all" && (p.content_type ?? "article") !== type) return false;
       if (query) {
         const hay = [p.title_en, p.title_ar, p.excerpt_en, p.excerpt_ar, ...(p.tags ?? [])]
           .filter(Boolean)
@@ -125,10 +126,17 @@ function KnowledgePage() {
       return 0;
     });
     return list;
-  }, [posts, q, category, tag, sort, ar]);
+  }, [posts, q, category, tag, type, sort, ar]);
 
-  const hasFilters = q !== "" || category !== "all" || tag !== "all" || sort !== "newest";
-  const clearFilters = () => { setQ(""); setCategory("all"); setTag("all"); setSort("newest"); };
+  const hasFilters = q !== "" || category !== "all" || tag !== "all" || type !== "all" || sort !== "newest";
+  const clearFilters = () => { setQ(""); setCategory("all"); setTag("all"); setType("all"); setSort("newest"); };
+
+  const typeLabel = (v: string | null): string => {
+    const k = (v ?? "article") as string;
+    if (k === "guide") return t.knowledgeList.typeGuide;
+    if (k === "case_study") return t.knowledgeList.typeCaseStudy;
+    return t.knowledgeList.typeArticle;
+  };
 
   return (
     <SiteLayout>
