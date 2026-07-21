@@ -482,7 +482,7 @@ function Cell({ row, column, onInlineUpdate }: { row: AnyRow; column: CmsColumn;
 
 function FieldEditor({ field, values, onChange }: { field: CmsField; values: AnyRow; onChange: (value: unknown) => void }) {
   const value = values[field.name];
-  const wrapper = field.fullWidth || field.type === "textarea" || field.type === "json" ? "sm:col-span-2" : "";
+  const wrapper = field.fullWidth || field.type === "textarea" || field.type === "json" || field.type === "multi-relation" ? "sm:col-span-2" : "";
   const isTexty = !field.type || field.type === "text" || field.type === "textarea" || field.type === "url";
   const langMatch = /_(en|ar)$/.exec(field.name);
   const language: "en" | "ar" | null = langMatch ? (langMatch[1] as "en" | "ar") : field.dir === "rtl" ? "ar" : null;
