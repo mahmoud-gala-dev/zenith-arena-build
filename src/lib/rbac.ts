@@ -103,6 +103,7 @@ const PERMISSION_LABELS: Record<PermissionKey, { en: string; ar: string }> = {
   "media.manage": { en: "Manage media library", ar: "إدارة مكتبة الوسائط" },
   "settings.manage": { en: "Manage site settings", ar: "إدارة إعدادات الموقع" },
   "users.manage": { en: "Manage users & roles", ar: "إدارة المستخدمين والأدوار" },
+  "content.ai": { en: "Use AI assistant", ar: "استخدام المساعد الذكي" },
 };
 
 const DENY_TITLE_EN = "Access denied";
