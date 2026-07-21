@@ -101,34 +101,63 @@ function KnowledgePage() {
     return Array.from(s).sort();
   }, [posts]);
 
-  const filtered = useMemo(() => {
-    const query = q.trim().toLowerCase();
-    let list = posts.filter((p) => {
+  // Apply structural filters first so search & suggestions operate on the same pool.
+  const filteredByFacets = useMemo(() => {
+    return posts.filter((p) => {
       if (category !== "all" && p.category_id !== category) return false;
       if (tag !== "all" && !(p.tags ?? []).includes(tag)) return false;
       if (type !== "all" && (p.content_type ?? "article") !== type) return false;
-      if (query) {
-        const hay = [p.title_en, p.title_ar, p.excerpt_en, p.excerpt_ar, ...(p.tags ?? [])]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        if (!hay.includes(query)) return false;
-      }
       return true;
     });
-    list = [...list].sort((a, b) => {
-      if (sort === "newest") return (b.published_at ?? "").localeCompare(a.published_at ?? "");
-      if (sort === "oldest") return (a.published_at ?? "").localeCompare(b.published_at ?? "");
-      if (sort === "reading") return (a.reading_time ?? 0) - (b.reading_time ?? 0);
+  }, [posts, category, tag, type]);
+
+  const toDoc = (p: BlogRow): SearchableDoc => ({
+    title: `${p.title_en} ${p.title_ar}`,
+    excerpt: `${p.excerpt_en ?? ""} ${p.excerpt_ar ?? ""}`,
+    tags: p.tags ?? [],
+  });
+
+  const queryTokens = useMemo(() => parseQuery(q), [q]);
+
+  const filtered = useMemo(() => {
+    const scored = filteredByFacets
+      .map((p) => ({ p, s: scoreDoc(toDoc(p), queryTokens) }))
+      .filter((x) => x.s > 0);
+    scored.sort((a, b) => {
+      if (sort === "newest") return (b.p.published_at ?? "").localeCompare(a.p.published_at ?? "");
+      if (sort === "oldest") return (a.p.published_at ?? "").localeCompare(b.p.published_at ?? "");
+      if (sort === "reading") return (a.p.reading_time ?? 0) - (b.p.reading_time ?? 0);
       if (sort === "title") {
-        const at = ar ? a.title_ar : a.title_en;
-        const bt = ar ? b.title_ar : b.title_en;
+        const at = ar ? a.p.title_ar : a.p.title_en;
+        const bt = ar ? b.p.title_ar : b.p.title_en;
         return at.localeCompare(bt);
       }
-      return 0;
+      // relevance-first when no explicit sort change while searching
+      return b.s - a.s;
     });
-    return list;
-  }, [posts, q, category, tag, type, sort, ar]);
+    return scored.map((x) => x.p);
+  }, [filteredByFacets, queryTokens, sort, ar]);
+
+  const suggestions = useMemo(
+    () => buildSuggestions(filteredByFacets.map(toDoc), q, 6),
+    [filteredByFacets, q],
+  );
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [suggestIdx, setSuggestIdx] = useState(-1);
+  const inputWrapRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => { setSuggestIdx(-1); }, [q]);
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      if (!inputWrapRef.current?.contains(e.target as Node)) setSuggestOpen(false);
+    };
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+  const acceptSuggestion = (label: string) => {
+    setQ(label);
+    setSuggestOpen(false);
+  };
+
 
   const hasFilters = q !== "" || category !== "all" || tag !== "all" || type !== "all" || sort !== "newest";
   const clearFilters = () => { setQ(""); setCategory("all"); setTag("all"); setType("all"); setSort("newest"); };
