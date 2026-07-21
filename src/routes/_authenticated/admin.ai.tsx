@@ -443,3 +443,80 @@ function StatCard({ label, value, tone }: { label: string; value: string; tone?:
     </Card>
   );
 }
+
+import { useServerFn } from "@tanstack/react-start";
+import { aiAutoSeoRun } from "@/lib/ai/auto-seo.functions";
+
+function AutoSeoCard() {
+  const run = useServerFn(aiAutoSeoRun);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<{ processed: number; details: any[] } | null>(null);
+  const [table, setTable] = useState<string>("all");
+  const [limit, setLimit] = useState(10);
+
+  async function trigger() {
+    setBusy(true);
+    setResult(null);
+    try {
+      const data: any = { limit };
+      if (table !== "all") data.table = table;
+      const res = await run({ data });
+      setResult(res as any);
+      toast.success(`Auto-SEO filled ${res.processed} item${res.processed === 1 ? "" : "s"}`);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Auto-SEO failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-primary" /> Auto-SEO — تعبئة تلقائية لبيانات SEO الناقصة
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div>
+            <Label>Scope</Label>
+            <select className="mt-1 h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                    value={table} onChange={(e) => setTable(e.target.value)}>
+              <option value="all">All content types</option>
+              <option value="services">Services</option>
+              <option value="products">Products</option>
+              <option value="projects">Projects</option>
+              <option value="blog_posts">Blog posts</option>
+            </select>
+          </div>
+          <div>
+            <Label>Batch size</Label>
+            <Input type="number" min={1} max={50} value={limit} onChange={(e) => setLimit(Number(e.target.value) || 10)} />
+          </div>
+          <div className="flex items-end">
+            <Button onClick={trigger} disabled={busy} className="w-full">
+              {busy ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              {busy ? "Running…" : "Run Auto-SEO now"}
+            </Button>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          يبحث عن السجلات التي تنقصها <code>seo_title_en</code> أو <code>seo_description_en</code> ويولّدها بالذكاء الاصطناعي.
+          يمكن أيضاً استدعاء هذا التلقائيًا عبر cron على <code>/api/public/hooks/auto-seo</code>.
+        </p>
+        {result && (
+          <div className="rounded-md border p-3 text-xs">
+            <div className="mb-2 font-medium">Processed: {result.processed}</div>
+            <div className="max-h-40 overflow-y-auto space-y-1">
+              {result.details.map((d, i) => (
+                <div key={i} className={d.ok ? "text-muted-foreground" : "text-destructive"}>
+                  {d.ok ? "✓" : "✗"} {d.table} · {d.id}{d.error ? ` — ${d.error}` : ""}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
