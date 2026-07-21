@@ -520,3 +520,4 @@ function AutoSeoCard() {
       </CardContent>
     </Card>
   );
+}
