@@ -180,15 +180,73 @@ function KnowledgePage() {
       <section className="py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-6 grid gap-3 md:grid-cols-12">
-            <div className="relative md:col-span-5">
+            <div className="relative md:col-span-5" ref={inputWrapRef}>
               <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={q}
-                onChange={(e) => setQ(e.target.value)}
+                onChange={(e) => { setQ(e.target.value); setSuggestOpen(true); }}
+                onFocus={() => setSuggestOpen(true)}
+                onKeyDown={(e) => {
+                  if (!suggestOpen || suggestions.length === 0) {
+                    if (e.key === "Escape") setSuggestOpen(false);
+                    return;
+                  }
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    setSuggestIdx((i) => (i + 1) % suggestions.length);
+                  } else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    setSuggestIdx((i) => (i <= 0 ? suggestions.length - 1 : i - 1));
+                  } else if (e.key === "Enter" && suggestIdx >= 0) {
+                    e.preventDefault();
+                    acceptSuggestion(suggestions[suggestIdx]);
+                  } else if (e.key === "Escape") {
+                    setSuggestOpen(false);
+                  }
+                }}
                 placeholder={t.knowledgeList.searchPlaceholder}
                 className="ps-9"
+                role="combobox"
+                aria-expanded={suggestOpen && suggestions.length > 0}
+                aria-controls="kc-suggest-list"
+                aria-autocomplete="list"
               />
+              {q && (
+                <button
+                  type="button"
+                  aria-label={t.knowledgeList.clearFilters}
+                  onClick={() => { setQ(""); setSuggestOpen(false); }}
+                  className="absolute end-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+              {suggestOpen && suggestions.length > 0 && (
+                <ul
+                  id="kc-suggest-list"
+                  role="listbox"
+                  className="absolute inset-x-0 top-full z-30 mt-1 max-h-72 overflow-y-auto rounded-lg border border-border bg-popover text-popover-foreground shadow-elegant"
+                >
+                  {suggestions.map((s, i) => (
+                    <li key={s} role="option" aria-selected={i === suggestIdx}>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => acceptSuggestion(s)}
+                        onMouseEnter={() => setSuggestIdx(i)}
+                        className={`flex w-full items-center gap-2 px-3 py-2 text-sm text-start ${
+                          i === suggestIdx ? "bg-accent text-accent-foreground" : "hover:bg-accent/60"
+                        }`}
+                      >
+                        <Search className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span className="truncate">{s}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
+
             <div className="md:col-span-3">
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger><SelectValue placeholder={t.knowledgeList.allCategories} /></SelectTrigger>
