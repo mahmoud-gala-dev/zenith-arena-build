@@ -250,6 +250,9 @@ function KnowledgePage() {
                       </div>
                     )}
                     <div className="flex flex-1 flex-col p-6">
+                      <div className="mb-2">
+                        <Badge variant="outline" className="text-[10px] uppercase tracking-wide">{typeLabel(p.content_type)}</Badge>
+                      </div>
                       <h3 className="text-lg font-semibold text-foreground group-hover:text-primary">
                         {ar ? p.title_ar : p.title_en}
                       </h3>
