@@ -44,28 +44,37 @@ export function AITranslateSync({ enValue, arValue, onSetEn, onSetAr, label }: P
     }
   }
 
+  const btn =
+    "h-7 rounded-full border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 " +
+    "px-3 text-[11px] font-medium text-primary shadow-sm transition-all " +
+    "hover:from-primary/20 hover:to-primary/10 hover:border-primary/40 hover:shadow-md hover:text-primary " +
+    "disabled:opacity-50 disabled:cursor-not-allowed";
+
   return (
-    <div className="flex items-center gap-2 flex-wrap">
-      {label && <span className="text-xs text-muted-foreground">{label}</span>}
+    <div className="inline-flex items-center gap-2 rounded-full border border-dashed border-primary/20 bg-primary/[0.03] px-2 py-1">
+      <Languages className="h-3.5 w-3.5 text-primary/70" />
+      {label && <span className="text-[11px] text-muted-foreground">{label}</span>}
       <Button
         type="button"
         size="sm"
-        variant="outline"
+        variant="ghost"
+        className={btn}
         disabled={busy !== null || !enValue?.trim()}
         onClick={() => run("en2ar")}
       >
-        {busy === "en2ar" ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Languages className="h-3.5 w-3.5 mr-1.5" />}
-        EN <ArrowRight className="h-3.5 w-3.5 mx-1" /> AR
+        {busy === "en2ar" ? <Loader2 className="h-3 w-3 mr-1.5 animate-spin" /> : null}
+        EN <ArrowRight className="h-3 w-3 mx-1" /> AR
       </Button>
       <Button
         type="button"
         size="sm"
-        variant="outline"
+        variant="ghost"
+        className={btn}
         disabled={busy !== null || !arValue?.trim()}
         onClick={() => run("ar2en")}
       >
-        {busy === "ar2en" ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Languages className="h-3.5 w-3.5 mr-1.5" />}
-        AR <ArrowLeft className="h-3.5 w-3.5 mx-1" /> EN
+        {busy === "ar2en" ? <Loader2 className="h-3 w-3 mr-1.5 animate-spin" /> : null}
+        AR <ArrowLeft className="h-3 w-3 mx-1" /> EN
       </Button>
     </div>
   );
