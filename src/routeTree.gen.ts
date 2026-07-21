@@ -73,9 +73,11 @@ import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminCareersRouteImport } from './routes/_authenticated/admin.careers'
 import { Route as AuthenticatedAdminBlogRouteImport } from './routes/_authenticated/admin.blog'
 import { Route as AuthenticatedAdminAuditLogsRouteImport } from './routes/_authenticated/admin.audit-logs'
+import { Route as AuthenticatedAdminAssistantRouteImport } from './routes/_authenticated/admin.assistant'
 import { Route as AuthenticatedAdminApplicationsRouteImport } from './routes/_authenticated/admin.applications'
 import { Route as AuthenticatedAdminAiRouteImport } from './routes/_authenticated/admin.ai'
 import { Route as AuthenticatedAdminAboutRouteImport } from './routes/_authenticated/admin.about'
+import { Route as ApiPublicHooksAutoSeoRouteImport } from './routes/api/public/hooks/auto-seo'
 import { Route as AuthenticatedAdminLegalPreviewSlugRouteImport } from './routes/_authenticated/admin.legal.preview.$slug'
 
 const TermsRoute = TermsRouteImport.update({
@@ -418,6 +420,12 @@ const AuthenticatedAdminAuditLogsRoute =
     path: '/audit-logs',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminAssistantRoute =
+  AuthenticatedAdminAssistantRouteImport.update({
+    id: '/assistant',
+    path: '/assistant',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminApplicationsRoute =
   AuthenticatedAdminApplicationsRouteImport.update({
     id: '/applications',
@@ -433,6 +441,11 @@ const AuthenticatedAdminAboutRoute = AuthenticatedAdminAboutRouteImport.update({
   id: '/about',
   path: '/about',
   getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const ApiPublicHooksAutoSeoRoute = ApiPublicHooksAutoSeoRouteImport.update({
+  id: '/api/public/hooks/auto-seo',
+  path: '/api/public/hooks/auto-seo',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminLegalPreviewSlugRoute =
   AuthenticatedAdminLegalPreviewSlugRouteImport.update({
@@ -476,6 +489,7 @@ export interface FileRoutesByFullPath {
   '/admin/about': typeof AuthenticatedAdminAboutRoute
   '/admin/ai': typeof AuthenticatedAdminAiRoute
   '/admin/applications': typeof AuthenticatedAdminApplicationsRoute
+  '/admin/assistant': typeof AuthenticatedAdminAssistantRoute
   '/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
   '/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/admin/careers': typeof AuthenticatedAdminCareersRoute
@@ -508,6 +522,7 @@ export interface FileRoutesByFullPath {
   '/preview/knowledge/$slug': typeof PreviewKnowledgeSlugRoute
   '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/auto-seo': typeof ApiPublicHooksAutoSeoRoute
   '/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
 export interface FileRoutesByTo {
@@ -540,6 +555,7 @@ export interface FileRoutesByTo {
   '/admin/about': typeof AuthenticatedAdminAboutRoute
   '/admin/ai': typeof AuthenticatedAdminAiRoute
   '/admin/applications': typeof AuthenticatedAdminApplicationsRoute
+  '/admin/assistant': typeof AuthenticatedAdminAssistantRoute
   '/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
   '/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/admin/careers': typeof AuthenticatedAdminCareersRoute
@@ -572,6 +588,7 @@ export interface FileRoutesByTo {
   '/preview/knowledge/$slug': typeof PreviewKnowledgeSlugRoute
   '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/auto-seo': typeof ApiPublicHooksAutoSeoRoute
   '/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
 export interface FileRoutesById {
@@ -611,6 +628,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/about': typeof AuthenticatedAdminAboutRoute
   '/_authenticated/admin/ai': typeof AuthenticatedAdminAiRoute
   '/_authenticated/admin/applications': typeof AuthenticatedAdminApplicationsRoute
+  '/_authenticated/admin/assistant': typeof AuthenticatedAdminAssistantRoute
   '/_authenticated/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
   '/_authenticated/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/_authenticated/admin/careers': typeof AuthenticatedAdminCareersRoute
@@ -643,6 +661,7 @@ export interface FileRoutesById {
   '/preview/knowledge/$slug': typeof PreviewKnowledgeSlugRoute
   '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/auto-seo': typeof ApiPublicHooksAutoSeoRoute
   '/_authenticated/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
 export interface FileRouteTypes {
@@ -682,6 +701,7 @@ export interface FileRouteTypes {
     | '/admin/about'
     | '/admin/ai'
     | '/admin/applications'
+    | '/admin/assistant'
     | '/admin/audit-logs'
     | '/admin/blog'
     | '/admin/careers'
@@ -714,6 +734,7 @@ export interface FileRouteTypes {
     | '/preview/knowledge/$slug'
     | '/preview/pages/$slug'
     | '/admin/'
+    | '/api/public/hooks/auto-seo'
     | '/admin/legal/preview/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -746,6 +767,7 @@ export interface FileRouteTypes {
     | '/admin/about'
     | '/admin/ai'
     | '/admin/applications'
+    | '/admin/assistant'
     | '/admin/audit-logs'
     | '/admin/blog'
     | '/admin/careers'
@@ -778,6 +800,7 @@ export interface FileRouteTypes {
     | '/preview/knowledge/$slug'
     | '/preview/pages/$slug'
     | '/admin'
+    | '/api/public/hooks/auto-seo'
     | '/admin/legal/preview/$slug'
   id:
     | '__root__'
@@ -816,6 +839,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/about'
     | '/_authenticated/admin/ai'
     | '/_authenticated/admin/applications'
+    | '/_authenticated/admin/assistant'
     | '/_authenticated/admin/audit-logs'
     | '/_authenticated/admin/blog'
     | '/_authenticated/admin/careers'
@@ -848,6 +872,7 @@ export interface FileRouteTypes {
     | '/preview/knowledge/$slug'
     | '/preview/pages/$slug'
     | '/_authenticated/admin/'
+    | '/api/public/hooks/auto-seo'
     | '/_authenticated/admin/legal/preview/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -876,6 +901,7 @@ export interface RootRouteChildren {
   GovernoratesSlugRoute: typeof GovernoratesSlugRoute
   PreviewKnowledgeSlugRoute: typeof PreviewKnowledgeSlugRoute
   PreviewPagesSlugRoute: typeof PreviewPagesSlugRoute
+  ApiPublicHooksAutoSeoRoute: typeof ApiPublicHooksAutoSeoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1328,6 +1354,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAuditLogsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/assistant': {
+      id: '/_authenticated/admin/assistant'
+      path: '/assistant'
+      fullPath: '/admin/assistant'
+      preLoaderRoute: typeof AuthenticatedAdminAssistantRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/applications': {
       id: '/_authenticated/admin/applications'
       path: '/applications'
@@ -1348,6 +1381,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/about'
       preLoaderRoute: typeof AuthenticatedAdminAboutRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/api/public/hooks/auto-seo': {
+      id: '/api/public/hooks/auto-seo'
+      path: '/api/public/hooks/auto-seo'
+      fullPath: '/api/public/hooks/auto-seo'
+      preLoaderRoute: typeof ApiPublicHooksAutoSeoRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/legal/preview/$slug': {
       id: '/_authenticated/admin/legal/preview/$slug'
@@ -1378,6 +1418,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAboutRoute: typeof AuthenticatedAdminAboutRoute
   AuthenticatedAdminAiRoute: typeof AuthenticatedAdminAiRoute
   AuthenticatedAdminApplicationsRoute: typeof AuthenticatedAdminApplicationsRoute
+  AuthenticatedAdminAssistantRoute: typeof AuthenticatedAdminAssistantRoute
   AuthenticatedAdminAuditLogsRoute: typeof AuthenticatedAdminAuditLogsRoute
   AuthenticatedAdminBlogRoute: typeof AuthenticatedAdminBlogRoute
   AuthenticatedAdminCareersRoute: typeof AuthenticatedAdminCareersRoute
@@ -1414,6 +1455,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAboutRoute: AuthenticatedAdminAboutRoute,
   AuthenticatedAdminAiRoute: AuthenticatedAdminAiRoute,
   AuthenticatedAdminApplicationsRoute: AuthenticatedAdminApplicationsRoute,
+  AuthenticatedAdminAssistantRoute: AuthenticatedAdminAssistantRoute,
   AuthenticatedAdminAuditLogsRoute: AuthenticatedAdminAuditLogsRoute,
   AuthenticatedAdminBlogRoute: AuthenticatedAdminBlogRoute,
   AuthenticatedAdminCareersRoute: AuthenticatedAdminCareersRoute,
@@ -1554,6 +1596,7 @@ const rootRouteChildren: RootRouteChildren = {
   GovernoratesSlugRoute: GovernoratesSlugRoute,
   PreviewKnowledgeSlugRoute: PreviewKnowledgeSlugRoute,
   PreviewPagesSlugRoute: PreviewPagesSlugRoute,
+  ApiPublicHooksAutoSeoRoute: ApiPublicHooksAutoSeoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

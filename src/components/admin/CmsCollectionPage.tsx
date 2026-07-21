@@ -252,6 +252,17 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
   }
 
 
+  async function bulkUpdate(patch: Record<string, unknown>) {
+    const ids = Array.from(selectedIds);
+    if (!ids.length) return;
+    const { error: err } = await supabase.from(config.table as never).update(patch as never).in("id", ids);
+    if (err) { toast.error(err.message); return; }
+    toast.success(`Updated ${ids.length} item${ids.length > 1 ? "s" : ""}`);
+    setSelectedIds(new Set());
+    invalidatePublic();
+    load();
+  }
+
   const allVisibleSelected = visibleRows.length > 0 && visibleRows.every((row) => row.id && selectedIds.has(row.id));
 
   return (
@@ -266,9 +277,25 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {selectedIds.size > 0 && (
-            <Button variant="destructive" size="sm" onClick={() => setDeleteIds(Array.from(selectedIds))}>
-              <Trash2 className="h-4 w-4" /> Delete {selectedIds.size}
-            </Button>
+            <>
+              <span className="text-xs font-medium text-muted-foreground">
+                {selectedIds.size} selected
+              </span>
+              <Select onValueChange={(v) => bulkUpdate({ status: v })}>
+                <SelectTrigger className="h-9 w-40"><SelectValue placeholder="Set status…" /></SelectTrigger>
+                <SelectContent>{contentStatuses.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+              {config.fields.some((f) => f.name === "featured") && (
+                <>
+                  <Button variant="outline" size="sm" onClick={() => bulkUpdate({ featured: true })}>Feature</Button>
+                  <Button variant="outline" size="sm" onClick={() => bulkUpdate({ featured: false })}>Unfeature</Button>
+                </>
+              )}
+              <Button variant="outline" size="sm" onClick={() => setSelectedIds(new Set())}>Clear</Button>
+              <Button variant="destructive" size="sm" onClick={() => setDeleteIds(Array.from(selectedIds))}>
+                <Trash2 className="h-4 w-4" /> Delete {selectedIds.size}
+              </Button>
+            </>
           )}
           <Button onClick={beginCreate}>
             <Plus className="h-4 w-4" /> New {config.singular}
