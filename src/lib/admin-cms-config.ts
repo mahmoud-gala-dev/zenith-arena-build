@@ -111,6 +111,7 @@ export const productConfig: CmsCollectionConfig = {
     { name: "applications_ar", label: "Arabic applications", type: "tags", dir: "rtl", placeholder: "Comma-separated" },
     { name: "certifications", label: "Certifications", type: "tags", placeholder: "FIFA, ISO 9001" },
     { name: "specifications", label: "Specifications JSON", type: "json" },
+    { name: "catalog_download_ids", label: "Linked catalogs (auto-generates lead-gated download forms on the product page)", type: "multi-relation", sourceTable: "downloads", labelField: "title_en", hintField: "category", fullWidth: true },
     { name: "seo_title_en", label: "SEO title" },
     { name: "seo_description_en", label: "SEO description", type: "textarea", maxLength: 300 },
     { name: "seo_keywords", label: "SEO keywords" },
