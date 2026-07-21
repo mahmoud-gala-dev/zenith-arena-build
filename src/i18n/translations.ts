@@ -226,7 +226,13 @@ export const translations = {
     knowledgeArticle: {
       toc: "Table of Contents",
       tocMobile: "Contents",
+      previous: "Previous",
+      next: "Next",
+      readingProgress: "Reading progress",
+      minRead: "min read",
+      types: { article: "Article", guide: "Guide", case_study: "Case study" },
     },
+
     downloadDetail: {
       featured: "Featured",
       allDownloads: "All downloads",
@@ -731,7 +737,13 @@ export const translations = {
     knowledgeArticle: {
       toc: "قائمة المحتوى",
       tocMobile: "المحتوى",
+      previous: "السابق",
+      next: "التالي",
+      readingProgress: "تقدّم القراءة",
+      minRead: "دقيقة قراءة",
+      types: { article: "مقال", guide: "دليل", case_study: "دراسة حالة" },
     },
+
     downloadDetail: {
       featured: "مميز",
       allDownloads: "كل التحميلات",

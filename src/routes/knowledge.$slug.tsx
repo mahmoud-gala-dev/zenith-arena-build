@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { ArrowLeft, Clock, User, ListOrdered } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, ArrowRight, Clock, User, ListOrdered, BookOpen, Compass, FileText } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Reveal } from "@/components/site/Reveal";
@@ -11,9 +11,12 @@ import { ShareButtons } from "@/components/site/ShareButtons";
 import { GallerySection } from "@/components/site/GallerySection";
 import { DetailPageSkeleton } from "@/components/site/Skeletons";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useLang } from "@/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { alternatesFromGroup } from "@/lib/sitemap";
+
+type ContentType = "article" | "guide" | "case_study";
 
 interface BlogPost {
   id: string;
@@ -36,6 +39,7 @@ interface BlogPost {
   og_image: string | null;
   tags: string[];
   translation_group_id: string | null;
+  content_type: ContentType | null;
 }
 
 async function fetchPost(slug: string): Promise<BlogPost | null> {
@@ -48,6 +52,7 @@ async function fetchPost(slug: string): Promise<BlogPost | null> {
   if (error) throw error;
   return data as BlogPost | null;
 }
+
 
 async function fetchAlternates(post: BlogPost): Promise<{ en: string; ar: string }> {
   if (!post.translation_group_id) {
@@ -155,19 +160,51 @@ function ArticleDetail() {
   const { post } = Route.useLoaderData();
   const { t, lang } = useLang();
   const ar = lang === "ar";
+  const contentType: ContentType = (post.content_type ?? "article") as ContentType;
 
   const { data: related = [] } = useQuery({
-    queryKey: ["blog_related", post.id],
+    queryKey: ["blog_related", post.id, contentType],
+    queryFn: async () => {
+      const { data: sameType } = await supabase
+        .from("blog_posts")
+        .select("id,slug_en,title_en,title_ar,excerpt_en,excerpt_ar,featured_image,content_type")
+        .eq("status", "published")
+        .eq("content_type", contentType)
+        .neq("id", post.id)
+        .limit(3);
+      if ((sameType?.length ?? 0) >= 3) return sameType ?? [];
+      const excludeIds = [post.id, ...(sameType ?? []).map((s) => s.id)];
+      const { data: fallback } = await supabase
+        .from("blog_posts")
+        .select("id,slug_en,title_en,title_ar,excerpt_en,excerpt_ar,featured_image,content_type")
+        .eq("status", "published")
+        .not("id", "in", `(${excludeIds.join(",")})`)
+        .limit(3 - (sameType?.length ?? 0));
+      return [...(sameType ?? []), ...(fallback ?? [])];
+    },
+  });
+
+  const { data: siblings } = useQuery({
+    queryKey: ["blog_siblings", post.id, contentType],
     queryFn: async () => {
       const { data } = await supabase
         .from("blog_posts")
-        .select("id,slug_en,title_en,title_ar,excerpt_en,excerpt_ar,featured_image")
+        .select("id,slug_en,title_en,title_ar,published_at,content_type")
         .eq("status", "published")
-        .neq("id", post.id)
-        .limit(3);
-      return data ?? [];
+        .eq("content_type", contentType)
+        .order("published_at", { ascending: false, nullsFirst: false });
+      const list = data ?? [];
+      const idx = list.findIndex((p) => p.id === post.id);
+      return {
+        prev: idx > 0 ? list[idx - 1] : null,
+        next: idx >= 0 && idx < list.length - 1 ? list[idx + 1] : null,
+      };
     },
   });
+  const prev = siblings?.prev ?? null;
+  const next = siblings?.next ?? null;
+
+
 
   const title = ar ? post.title_ar : post.title_en;
   const excerpt = ar ? post.excerpt_ar : post.excerpt_en;
@@ -231,8 +268,59 @@ function ArticleDetail() {
   };
 
 
+  // Reading progress bar based on article scroll extent.
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    const article = document.getElementById("kc-article-body");
+    if (!article) return;
+    const onScroll = () => {
+      const rect = article.getBoundingClientRect();
+      const total = rect.height - window.innerHeight;
+      if (total <= 0) {
+        setProgress(1);
+        return;
+      }
+      const scrolled = Math.min(Math.max(-rect.top, 0), total);
+      setProgress(scrolled / total);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [post.id]);
+
+  const estimatedReading = useMemo(() => {
+    if (post.reading_time && post.reading_time > 0) return post.reading_time;
+    const words = (content || "").trim().split(/\s+/).filter(Boolean).length;
+    return Math.max(1, Math.round(words / 200));
+  }, [content, post.reading_time]);
+
+  const typeMeta: Record<ContentType, { icon: typeof BookOpen; label: string }> = {
+    article: { icon: FileText, label: t.knowledgeArticle.types.article },
+    guide: { icon: Compass, label: t.knowledgeArticle.types.guide },
+    case_study: { icon: BookOpen, label: t.knowledgeArticle.types.case_study },
+  };
+  const TypeIcon = typeMeta[contentType].icon;
+
   return (
     <SiteLayout>
+      {/* Reading progress bar */}
+      <div
+        role="progressbar"
+        aria-label={t.knowledgeArticle.readingProgress}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(progress * 100)}
+        className="fixed inset-x-0 top-0 z-50 h-1 bg-transparent"
+      >
+        <div
+          className="h-full bg-primary transition-[width] duration-100 ease-out"
+          style={{ width: `${Math.round(progress * 100)}%` }}
+        />
+      </div>
       <article>
         <section className="relative overflow-hidden bg-ink pt-32 pb-14 text-white">
           {post.featured_image && (
@@ -245,16 +333,24 @@ function ArticleDetail() {
               <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
               {t.knowledge.backToList}
             </Link>
-            <h1 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl">{title}</h1>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <Badge variant="secondary" className="inline-flex items-center gap-1.5 bg-white/10 text-white hover:bg-white/15">
+                <TypeIcon className="h-3.5 w-3.5" />
+                {typeMeta[contentType].label}
+              </Badge>
+            </div>
+            <h1 className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">{title}</h1>
             <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-white/70">
               <span className="inline-flex items-center gap-1.5"><User className="h-4 w-4" /> {post.author_name}</span>
-              <span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4" /> {post.reading_time} {t.knowledge.readTime}</span>
+              <span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4" /> {estimatedReading} {t.knowledgeArticle.minRead}</span>
               {post.published_at && (
                 <span>{new Date(post.published_at).toLocaleDateString(ar ? "ar" : "en", { year: "numeric", month: "long", day: "numeric" })}</span>
               )}
             </div>
           </div>
         </section>
+
+
 
         <section className="py-14">
           <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-[240px_1fr] lg:px-8">
@@ -270,7 +366,7 @@ function ArticleDetail() {
               </aside>
             )}
 
-            <div className={toc.length > 0 ? "min-w-0" : "min-w-0 lg:col-span-2"}>
+            <div id="kc-article-body" className={toc.length > 0 ? "min-w-0" : "min-w-0 lg:col-span-2"}>
               {excerpt && <p className="text-lg font-medium leading-relaxed text-foreground">{excerpt}</p>}
               <div className="mt-6 space-y-6">
                 {blocks.map((b) =>
@@ -292,6 +388,45 @@ function ArticleDetail() {
               <div className="mt-10 border-t border-border pt-6">
                 <ShareButtons title={title} path={`/knowledge/${post.slug_en}`} />
               </div>
+
+              {(prev || next) && (
+                <nav
+                  aria-label={`${t.knowledgeArticle.previous} / ${t.knowledgeArticle.next}`}
+                  className="mt-10 grid gap-4 sm:grid-cols-2"
+                >
+                  {prev ? (
+                    <Link
+                      to="/knowledge/$slug"
+                      params={{ slug: prev.slug_en }}
+                      className="group flex flex-col rounded-2xl border border-border bg-card p-5 text-start shadow-soft transition hover:-translate-y-0.5 hover:shadow-elegant"
+                    >
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" />
+                        {t.knowledgeArticle.previous}
+                      </span>
+                      <span className="mt-2 font-semibold text-foreground group-hover:text-primary line-clamp-2">
+                        {ar ? prev.title_ar : prev.title_en}
+                      </span>
+                    </Link>
+                  ) : <span />}
+                  {next ? (
+                    <Link
+                      to="/knowledge/$slug"
+                      params={{ slug: next.slug_en }}
+                      className="group flex flex-col rounded-2xl border border-border bg-card p-5 text-end shadow-soft transition hover:-translate-y-0.5 hover:shadow-elegant sm:items-end"
+                    >
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        {t.knowledgeArticle.next}
+                        <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
+                      </span>
+                      <span className="mt-2 font-semibold text-foreground group-hover:text-primary line-clamp-2">
+                        {ar ? next.title_ar : next.title_en}
+                      </span>
+                    </Link>
+                  ) : <span />}
+                </nav>
+              )}
+
               <div className="mt-12 rounded-2xl bg-hero px-8 py-10 text-center">
                 <h3 className="text-xl font-bold text-white">{t.sections.ctaTitle}</h3>
                 <p className="mx-auto mt-2 max-w-md text-white/70">{t.sections.ctaSub}</p>
@@ -302,6 +437,8 @@ function ArticleDetail() {
             </div>
           </div>
         </section>
+
+
 
         {/* Mobile floating TOC button + drawer */}
         {toc.length > 0 && (
