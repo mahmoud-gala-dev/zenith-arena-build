@@ -99,6 +99,23 @@ function ProductDetailPage() {
   const related = allProducts.filter((x) => x.id !== p.id && x.category_id && x.category_id === p.category_id).slice(0, 3);
   const relatedFallback = related.length ? related : allProducts.filter((x) => x.id !== p.id).slice(0, 3);
 
+  const catalogIds = Array.isArray((p as ProductRow & { catalog_download_ids?: string[] }).catalog_download_ids)
+    ? ((p as ProductRow & { catalog_download_ids?: string[] }).catalog_download_ids as string[])
+    : [];
+
+  const { data: linkedCatalogs = [] } = useQuery({
+    queryKey: ["product_linked_catalogs", p.id, catalogIds.join(",")],
+    enabled: catalogIds.length > 0,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("downloads")
+        .select("id,slug_en,slug_ar,title_en,title_ar,description_en,description_ar,category,preview_image,file_url,requires_lead_capture,status")
+        .in("id", catalogIds)
+        .eq("status", "published");
+      return data ?? [];
+    },
+  });
+
   const { data: relatedKnowledge = [] } = useQuery({
     queryKey: ["product_related_knowledge", p.id],
     queryFn: async () => {
