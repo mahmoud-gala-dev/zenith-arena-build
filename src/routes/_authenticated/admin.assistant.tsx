@@ -7,8 +7,16 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { useLanguage } from "@/components/i18n/LanguageProvider";
 import { aiAdminChat } from "@/lib/ai/chat.functions";
+
+function useAdminLanguage(): "en" | "ar" {
+  const [lang, setLang] = useState<"en" | "ar">("en");
+  useEffect(() => {
+    const stored = (typeof window !== "undefined" && localStorage.getItem("lang")) || document.documentElement.lang || "en";
+    setLang(stored === "ar" ? "ar" : "en");
+  }, []);
+  return lang;
+}
 
 type Msg = { role: "user" | "assistant"; content: string; ts: number };
 
