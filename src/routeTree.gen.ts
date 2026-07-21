@@ -61,6 +61,7 @@ import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminLegalRouteImport } from './routes/_authenticated/admin.legal'
 import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin.leads'
 import { Route as AuthenticatedAdminKpiRouteImport } from './routes/_authenticated/admin.kpi'
+import { Route as AuthenticatedAdminIntegrationsRouteImport } from './routes/_authenticated/admin.integrations'
 import { Route as AuthenticatedAdminHeroSlidesRouteImport } from './routes/_authenticated/admin.hero-slides'
 import { Route as AuthenticatedAdminGovernoratesRouteImport } from './routes/_authenticated/admin.governorates'
 import { Route as AuthenticatedAdminGalleryRouteImport } from './routes/_authenticated/admin.gallery'
@@ -78,6 +79,7 @@ import { Route as AuthenticatedAdminAssistantRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminApplicationsRouteImport } from './routes/_authenticated/admin.applications'
 import { Route as AuthenticatedAdminAiRouteImport } from './routes/_authenticated/admin.ai'
 import { Route as AuthenticatedAdminAboutRouteImport } from './routes/_authenticated/admin.about'
+import { Route as ApiPublicHooksN8nInboundRouteImport } from './routes/api/public/hooks/n8n-inbound'
 import { Route as ApiPublicHooksAutoSeoRouteImport } from './routes/api/public/hooks/auto-seo'
 import { Route as AuthenticatedAdminLegalPreviewSlugRouteImport } from './routes/_authenticated/admin.legal.preview.$slug'
 
@@ -350,6 +352,12 @@ const AuthenticatedAdminKpiRoute = AuthenticatedAdminKpiRouteImport.update({
   path: '/kpi',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminIntegrationsRoute =
+  AuthenticatedAdminIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminHeroSlidesRoute =
   AuthenticatedAdminHeroSlidesRouteImport.update({
     id: '/hero-slides',
@@ -448,6 +456,12 @@ const AuthenticatedAdminAboutRoute = AuthenticatedAdminAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const ApiPublicHooksN8nInboundRoute =
+  ApiPublicHooksN8nInboundRouteImport.update({
+    id: '/api/public/hooks/n8n-inbound',
+    path: '/api/public/hooks/n8n-inbound',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksAutoSeoRoute = ApiPublicHooksAutoSeoRouteImport.update({
   id: '/api/public/hooks/auto-seo',
   path: '/api/public/hooks/auto-seo',
@@ -509,6 +523,7 @@ export interface FileRoutesByFullPath {
   '/admin/gallery': typeof AuthenticatedAdminGalleryRoute
   '/admin/governorates': typeof AuthenticatedAdminGovernoratesRoute
   '/admin/hero-slides': typeof AuthenticatedAdminHeroSlidesRoute
+  '/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
   '/admin/kpi': typeof AuthenticatedAdminKpiRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/legal': typeof AuthenticatedAdminLegalRouteWithChildren
@@ -530,6 +545,7 @@ export interface FileRoutesByFullPath {
   '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/auto-seo': typeof ApiPublicHooksAutoSeoRoute
+  '/api/public/hooks/n8n-inbound': typeof ApiPublicHooksN8nInboundRoute
   '/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
 export interface FileRoutesByTo {
@@ -576,6 +592,7 @@ export interface FileRoutesByTo {
   '/admin/gallery': typeof AuthenticatedAdminGalleryRoute
   '/admin/governorates': typeof AuthenticatedAdminGovernoratesRoute
   '/admin/hero-slides': typeof AuthenticatedAdminHeroSlidesRoute
+  '/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
   '/admin/kpi': typeof AuthenticatedAdminKpiRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/legal': typeof AuthenticatedAdminLegalRouteWithChildren
@@ -597,6 +614,7 @@ export interface FileRoutesByTo {
   '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/auto-seo': typeof ApiPublicHooksAutoSeoRoute
+  '/api/public/hooks/n8n-inbound': typeof ApiPublicHooksN8nInboundRoute
   '/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
 export interface FileRoutesById {
@@ -650,6 +668,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/gallery': typeof AuthenticatedAdminGalleryRoute
   '/_authenticated/admin/governorates': typeof AuthenticatedAdminGovernoratesRoute
   '/_authenticated/admin/hero-slides': typeof AuthenticatedAdminHeroSlidesRoute
+  '/_authenticated/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
   '/_authenticated/admin/kpi': typeof AuthenticatedAdminKpiRoute
   '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/_authenticated/admin/legal': typeof AuthenticatedAdminLegalRouteWithChildren
@@ -671,6 +690,7 @@ export interface FileRoutesById {
   '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/auto-seo': typeof ApiPublicHooksAutoSeoRoute
+  '/api/public/hooks/n8n-inbound': typeof ApiPublicHooksN8nInboundRoute
   '/_authenticated/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
 export interface FileRouteTypes {
@@ -724,6 +744,7 @@ export interface FileRouteTypes {
     | '/admin/gallery'
     | '/admin/governorates'
     | '/admin/hero-slides'
+    | '/admin/integrations'
     | '/admin/kpi'
     | '/admin/leads'
     | '/admin/legal'
@@ -745,6 +766,7 @@ export interface FileRouteTypes {
     | '/preview/pages/$slug'
     | '/admin/'
     | '/api/public/hooks/auto-seo'
+    | '/api/public/hooks/n8n-inbound'
     | '/admin/legal/preview/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -791,6 +813,7 @@ export interface FileRouteTypes {
     | '/admin/gallery'
     | '/admin/governorates'
     | '/admin/hero-slides'
+    | '/admin/integrations'
     | '/admin/kpi'
     | '/admin/leads'
     | '/admin/legal'
@@ -812,6 +835,7 @@ export interface FileRouteTypes {
     | '/preview/pages/$slug'
     | '/admin'
     | '/api/public/hooks/auto-seo'
+    | '/api/public/hooks/n8n-inbound'
     | '/admin/legal/preview/$slug'
   id:
     | '__root__'
@@ -864,6 +888,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/gallery'
     | '/_authenticated/admin/governorates'
     | '/_authenticated/admin/hero-slides'
+    | '/_authenticated/admin/integrations'
     | '/_authenticated/admin/kpi'
     | '/_authenticated/admin/leads'
     | '/_authenticated/admin/legal'
@@ -885,6 +910,7 @@ export interface FileRouteTypes {
     | '/preview/pages/$slug'
     | '/_authenticated/admin/'
     | '/api/public/hooks/auto-seo'
+    | '/api/public/hooks/n8n-inbound'
     | '/_authenticated/admin/legal/preview/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -914,6 +940,7 @@ export interface RootRouteChildren {
   PreviewKnowledgeSlugRoute: typeof PreviewKnowledgeSlugRoute
   PreviewPagesSlugRoute: typeof PreviewPagesSlugRoute
   ApiPublicHooksAutoSeoRoute: typeof ApiPublicHooksAutoSeoRoute
+  ApiPublicHooksN8nInboundRoute: typeof ApiPublicHooksN8nInboundRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1282,6 +1309,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminKpiRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/integrations': {
+      id: '/_authenticated/admin/integrations'
+      path: '/integrations'
+      fullPath: '/admin/integrations'
+      preLoaderRoute: typeof AuthenticatedAdminIntegrationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/hero-slides': {
       id: '/_authenticated/admin/hero-slides'
       path: '/hero-slides'
@@ -1401,6 +1435,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAboutRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/api/public/hooks/n8n-inbound': {
+      id: '/api/public/hooks/n8n-inbound'
+      path: '/api/public/hooks/n8n-inbound'
+      fullPath: '/api/public/hooks/n8n-inbound'
+      preLoaderRoute: typeof ApiPublicHooksN8nInboundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/auto-seo': {
       id: '/api/public/hooks/auto-seo'
       path: '/api/public/hooks/auto-seo'
@@ -1451,6 +1492,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminGalleryRoute: typeof AuthenticatedAdminGalleryRoute
   AuthenticatedAdminGovernoratesRoute: typeof AuthenticatedAdminGovernoratesRoute
   AuthenticatedAdminHeroSlidesRoute: typeof AuthenticatedAdminHeroSlidesRoute
+  AuthenticatedAdminIntegrationsRoute: typeof AuthenticatedAdminIntegrationsRoute
   AuthenticatedAdminKpiRoute: typeof AuthenticatedAdminKpiRoute
   AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
   AuthenticatedAdminLegalRoute: typeof AuthenticatedAdminLegalRouteWithChildren
@@ -1490,6 +1532,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminGalleryRoute: AuthenticatedAdminGalleryRoute,
   AuthenticatedAdminGovernoratesRoute: AuthenticatedAdminGovernoratesRoute,
   AuthenticatedAdminHeroSlidesRoute: AuthenticatedAdminHeroSlidesRoute,
+  AuthenticatedAdminIntegrationsRoute: AuthenticatedAdminIntegrationsRoute,
   AuthenticatedAdminKpiRoute: AuthenticatedAdminKpiRoute,
   AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
   AuthenticatedAdminLegalRoute: AuthenticatedAdminLegalRouteWithChildren,
@@ -1618,6 +1661,7 @@ const rootRouteChildren: RootRouteChildren = {
   PreviewKnowledgeSlugRoute: PreviewKnowledgeSlugRoute,
   PreviewPagesSlugRoute: PreviewPagesSlugRoute,
   ApiPublicHooksAutoSeoRoute: ApiPublicHooksAutoSeoRoute,
+  ApiPublicHooksN8nInboundRoute: ApiPublicHooksN8nInboundRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

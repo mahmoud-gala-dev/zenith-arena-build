@@ -1,0 +1,85 @@
+{
+  "name": "Egytic Sports — Facebook ⇄ Website Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "egytic-blog-published",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook-blog-published",
+      "name": "Site → n8n (blog.published)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 200],
+      "notes": "Copy this webhook URL into Admin → Integrations → n8n → Outbound webhook URL."
+    },
+    {
+      "parameters": {
+        "url": "https://graph.facebook.com/v20.0/{{$env.FB_PAGE_ID}}/photos",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "url", "value": "={{$json.image_url}}" },
+            { "name": "caption", "value": "={{$json.title}}\n\n{{$json.excerpt}}\n\n{{$json.url}}" },
+            { "name": "access_token", "value": "={{$env.FB_PAGE_TOKEN}}" }
+          ]
+        }
+      },
+      "id": "fb-post",
+      "name": "Post to Facebook Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [520, 200]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "facebook-page-events",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook-fb-inbound",
+      "name": "Facebook Page → n8n",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 460],
+      "notes": "Connect Facebook Page webhook here or use a poller node."
+    },
+    {
+      "parameters": {
+        "url": "https://YOUR-SITE.lovable.app/api/public/hooks/n8n-inbound",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-n8n-secret", "value": "={{$env.N8N_INBOUND_SECRET}}" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"title_en\": \"{{$json.message?.split('\\n')[0]}}\",\n  \"title_ar\": \"{{$json.message?.split('\\n')[0]}}\",\n  \"content_en\": \"{{$json.message}}\",\n  \"content_ar\": \"{{$json.message}}\",\n  \"featured_image\": \"{{$json.full_picture}}\",\n  \"source\": \"facebook\",\n  \"source_url\": \"{{$json.permalink_url}}\",\n  \"tags\": [\"facebook\"]\n}"
+      },
+      "id": "site-inbound",
+      "name": "Site ← n8n (create draft)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [520, 460]
+    }
+  ],
+  "connections": {
+    "Site → n8n (blog.published)": {
+      "main": [[{ "node": "Post to Facebook Page", "type": "main", "index": 0 }]]
+    },
+    "Facebook Page → n8n": {
+      "main": [[{ "node": "Site ← n8n (create draft)", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "description": "Two-way sync between Egytic Sports website and Facebook Page. Set env vars FB_PAGE_ID, FB_PAGE_TOKEN, N8N_INBOUND_SECRET in n8n. Replace YOUR-SITE with your published domain."
+  }
+}

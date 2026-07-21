@@ -1,0 +1,1 @@
+INSERT INTO public.settings (key, value, is_public) VALUES ('integrations_n8n', '{"outbound_webhook_url":"","enabled":false,"auto_publish_blog":false}'::jsonb, false) ON CONFLICT (key) DO NOTHING;
