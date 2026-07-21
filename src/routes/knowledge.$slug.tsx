@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { ArrowLeft, Clock, User, ListOrdered } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, ArrowRight, Clock, User, ListOrdered, BookOpen, Compass, FileText } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Reveal } from "@/components/site/Reveal";
@@ -11,9 +11,12 @@ import { ShareButtons } from "@/components/site/ShareButtons";
 import { GallerySection } from "@/components/site/GallerySection";
 import { DetailPageSkeleton } from "@/components/site/Skeletons";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useLang } from "@/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { alternatesFromGroup } from "@/lib/sitemap";
+
+type ContentType = "article" | "guide" | "case_study";
 
 interface BlogPost {
   id: string;
@@ -36,6 +39,7 @@ interface BlogPost {
   og_image: string | null;
   tags: string[];
   translation_group_id: string | null;
+  content_type: ContentType | null;
 }
 
 async function fetchPost(slug: string): Promise<BlogPost | null> {
@@ -48,6 +52,7 @@ async function fetchPost(slug: string): Promise<BlogPost | null> {
   if (error) throw error;
   return data as BlogPost | null;
 }
+
 
 async function fetchAlternates(post: BlogPost): Promise<{ en: string; ar: string }> {
   if (!post.translation_group_id) {
