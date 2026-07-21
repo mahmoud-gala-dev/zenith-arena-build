@@ -315,7 +315,7 @@ function KpiPage() {
               <p className="flex h-full items-center justify-center text-sm text-muted-foreground">No data.</p>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topServices}>
+                <ComposedChart data={topServices}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-15} textAnchor="end" height={60} />
                   <YAxis yAxisId="l" tick={{ fontSize: 11 }} allowDecimals={false} />
@@ -324,7 +324,8 @@ function KpiPage() {
                   <Legend wrapperStyle={{ fontSize: 12 }} />
                   <Bar yAxisId="l" dataKey="total" name="Leads" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
                   <Line yAxisId="r" type="monotone" dataKey="rate" name="Conv. %" stroke="#10b981" strokeWidth={2} />
-                </BarChart>
+                </ComposedChart>
+
               </ResponsiveContainer>
             )}
           </div>
