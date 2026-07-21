@@ -399,6 +399,11 @@ function ArticleDetail() {
                   ),
                 )}
               </div>
+
+              {Array.isArray(post.attachments) && post.attachments.length > 0 && (
+                <AttachmentsList items={post.attachments} ar={ar} />
+              )}
+
               <div className="mt-10 border-t border-border pt-6">
                 <ShareButtons title={title} path={`/knowledge/${post.slug_en}`} />
               </div>
