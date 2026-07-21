@@ -33,6 +33,7 @@ type Project = {
   year: number | null;
   sport_type: string | null;
   cover_image: string | null;
+  gallery: string[] | null;
   status: string;
   featured: boolean;
   governorate_id: string | null;
@@ -44,7 +45,7 @@ type GovOption = { id: string; name_en: string; name_ar: string };
 const emptyProject: Partial<Project> = {
   slug_en: "", title_en: "", title_ar: "", description_en: "", description_ar: "",
   client: "", location: "", country: "", city: "", year: new Date().getFullYear(),
-  sport_type: "", cover_image: "", status: "published", featured: false, governorate_id: null,
+  sport_type: "", cover_image: "", gallery: [], status: "published", featured: false, governorate_id: null,
 };
 
 function ProjectsPage() {
