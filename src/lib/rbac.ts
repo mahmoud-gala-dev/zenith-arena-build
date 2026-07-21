@@ -82,6 +82,14 @@ const DENY_TITLE_AR = "تم رفض الوصول";
 const DENY_FALLBACK_EN = "You don't have permission for this action.";
 const DENY_FALLBACK_AR = "لا تملك الصلاحية لتنفيذ هذا الإجراء.";
 
+const ACTION_LABELS: Record<string, { en: string; ar: string }> = {
+  view: { en: "view", ar: "عرض" },
+  create: { en: "create", ar: "إنشاء" },
+  update: { en: "update", ar: "تعديل" },
+  delete: { en: "delete", ar: "حذف" },
+  manage: { en: "manage", ar: "إدارة" },
+};
+
 function describeMissingPermission(perm?: PermissionKey | null) {
   if (perm && PERMISSION_LABELS[perm]) {
     const { en, ar } = PERMISSION_LABELS[perm];
@@ -90,11 +98,21 @@ function describeMissingPermission(perm?: PermissionKey | null) {
       description: `Requires: ${en} — يتطلب صلاحية: ${ar}`,
     };
   }
+  if (perm && perm.includes(".")) {
+    const [page, action] = perm.split(".");
+    const nicePage = page.replaceAll("-", " ");
+    const actionLabel = ACTION_LABELS[action] ?? { en: action, ar: action };
+    return {
+      title: `${DENY_TITLE_EN} · ${DENY_TITLE_AR}`,
+      description: `Requires: ${actionLabel.en} on ${nicePage} — يتطلب صلاحية: ${actionLabel.ar} على ${nicePage}`,
+    };
+  }
   return {
     title: `${DENY_TITLE_EN} · ${DENY_TITLE_AR}`,
     description: `${DENY_FALLBACK_EN} — ${DENY_FALLBACK_AR}`,
   };
 }
+
 
 export function notifyAccessDenied(
   perm?: PermissionKey | null,
