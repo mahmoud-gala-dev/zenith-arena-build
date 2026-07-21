@@ -1,10 +1,11 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, BadgeCheck, BookOpen, CheckCircle2, Download } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeCheck, BookOpen, CheckCircle2, Download, FileText } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { NotFound } from "@/components/site/NotFound";
 import { Button } from "@/components/ui/button";
+import { DownloadGateButton } from "@/components/site/DownloadGateButton";
 import { useLang } from "@/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
 import {
