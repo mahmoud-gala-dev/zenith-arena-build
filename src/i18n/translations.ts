@@ -226,7 +226,13 @@ export const translations = {
     knowledgeArticle: {
       toc: "Table of Contents",
       tocMobile: "Contents",
+      previous: "Previous",
+      next: "Next",
+      readingProgress: "Reading progress",
+      minRead: "min read",
+      types: { article: "Article", guide: "Guide", case_study: "Case study" },
     },
+
     downloadDetail: {
       featured: "Featured",
       allDownloads: "All downloads",
