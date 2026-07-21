@@ -83,7 +83,14 @@ const EMPTY: Article = {
   seo_description_en: "", seo_description_ar: "", seo_keywords: "",
   canonical_url_en: "", canonical_url_ar: "", noindex: false,
   status: "draft", featured: false, category_id: null, scheduled_at: null,
+  content_type: "article", attachments: [],
 };
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _EMPTY_SENTINEL = null;
+// remove sentinel: keep original trailing brace intact below
+// (this block preserves prior code below)
+;
 
 function slugify(s: string) {
   return s.toLowerCase().trim()
