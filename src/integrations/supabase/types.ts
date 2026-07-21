@@ -1017,6 +1017,8 @@ export type Database = {
           status: Database["public"]["Enums"]["lead_status"]
           type: Database["public"]["Enums"]["lead_type"]
           updated_at: string
+          whatsapp_last_at: string | null
+          whatsapp_thread: Json
         }
         Insert: {
           assigned_to?: string | null
@@ -1043,6 +1045,8 @@ export type Database = {
           status?: Database["public"]["Enums"]["lead_status"]
           type?: Database["public"]["Enums"]["lead_type"]
           updated_at?: string
+          whatsapp_last_at?: string | null
+          whatsapp_thread?: Json
         }
         Update: {
           assigned_to?: string | null
@@ -1069,6 +1073,8 @@ export type Database = {
           status?: Database["public"]["Enums"]["lead_status"]
           type?: Database["public"]["Enums"]["lead_type"]
           updated_at?: string
+          whatsapp_last_at?: string | null
+          whatsapp_thread?: Json
         }
         Relationships: []
       }

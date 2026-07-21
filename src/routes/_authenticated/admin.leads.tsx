@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { LeadTimeline } from "@/components/admin/LeadTimeline";
 import { LeadAiSummary } from "@/components/admin/LeadAiSummary";
+import { WhatsAppThreadPanel } from "@/components/admin/WhatsAppThreadPanel";
 import { useGuard } from "@/lib/rbac";
 
 
@@ -42,6 +43,8 @@ type Lead = {
   preferred_contact: string | null;
   attachment_url: string | null;
   created_at: string;
+  whatsapp_thread?: Array<{ at: string; direction: "incoming" | "outgoing"; body: string; actor_email?: string | null; via?: string; source?: string; channel?: string }> | null;
+  whatsapp_last_at?: string | null;
 };
 
 const STATUSES = ["new", "contacted", "qualified", "proposal_sent", "won", "lost"] as const;
@@ -401,6 +404,18 @@ function LeadsPage() {
                 </div>
                 <div className="sm:col-span-2">
                   <LeadAiSummary leadId={selected.id} phone={selected.phone} />
+                </div>
+                <div className="sm:col-span-2">
+                  <WhatsAppThreadPanel
+                    leadId={selected.id}
+                    phone={selected.phone}
+                    thread={selected.whatsapp_thread ?? []}
+                    canManage={canManage}
+                    onAppended={(entry) => {
+                      setSelected((s) => (s ? { ...s, whatsapp_thread: [...(s.whatsapp_thread ?? []), entry], whatsapp_last_at: entry.at } : s));
+                      setLeads((prev) => prev.map((l) => l.id === selected.id ? { ...l, whatsapp_thread: [...(l.whatsapp_thread ?? []), entry], whatsapp_last_at: entry.at } : l));
+                    }}
+                  />
                 </div>
                 <div className="sm:col-span-2">
                   <label className="text-xs uppercase text-muted-foreground">Activity timeline</label>

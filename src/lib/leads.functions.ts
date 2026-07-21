@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 // In-memory sliding-window rate limiter. Worker instances are short-lived and
 // horizontally scaled, so this is a best-effort first line of defence — the
@@ -9,16 +10,15 @@ const WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 const MAX_PER_WINDOW = 3;
 const buckets = new Map<string, number[]>();
 
-function rateLimitOk(key: string): boolean {
+function rateLimitOk(key: string, max = MAX_PER_WINDOW): boolean {
   const now = Date.now();
   const arr = (buckets.get(key) ?? []).filter((t) => now - t < WINDOW_MS);
-  if (arr.length >= MAX_PER_WINDOW) {
+  if (arr.length >= max) {
     buckets.set(key, arr);
     return false;
   }
   arr.push(now);
   buckets.set(key, arr);
-  // Occasional GC of stale keys to keep the map small.
   if (buckets.size > 5000) {
     for (const [k, v] of buckets) {
       if (v.every((t) => now - t >= WINDOW_MS)) buckets.delete(k);
@@ -41,7 +41,6 @@ const leadSchema = z.object({
   start_date: z.string().trim().max(40).nullable().optional(),
   message: z.string().trim().max(2000).nullable().optional(),
   preferred_contact: z.string().trim().max(40).nullable().optional(),
-  // Simple honeypot — bots fill hidden fields, humans leave them blank.
   website: z.string().max(0).optional().or(z.literal("")),
 });
 
@@ -59,7 +58,6 @@ export const submitLead = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    // Strip honeypot before insert.
     const { website: _honeypot, ...payload } = data;
     void _honeypot;
     const { error } = await supabaseAdmin.from("leads").insert(payload as never);
@@ -68,4 +66,155 @@ export const submitLead = createServerFn({ method: "POST" })
       throw new Error("Could not save your request. Please try again.");
     }
     return { ok: true as const };
+  });
+
+// -------------------- WhatsApp click tracking --------------------
+
+const waClickSchema = z.object({
+  name: z.string().trim().min(1).max(100),
+  email: z.string().trim().email().max(255).nullable().optional(),
+  phone: z.string().trim().min(4).max(30),
+  service: z.string().trim().max(160).nullable().optional(),
+  message: z.string().trim().max(2000).nullable().optional(),
+  source: z.string().trim().max(80).default("quote_page"),
+  page_url: z.string().trim().max(500).nullable().optional(),
+});
+
+export const logWhatsAppSend = createServerFn({ method: "POST" })
+  .validator((input: unknown) => waClickSchema.parse(input))
+  .handler(async ({ data }) => {
+    const req = getRequest();
+    const ip =
+      req?.headers.get("cf-connecting-ip") ||
+      req?.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      "unknown";
+    // Allow more WhatsApp clicks than form submits — user may re-open the chat.
+    if (!rateLimitOk(`wa:${ip}`, 10)) {
+      return { ok: false as const, reason: "rate_limited" };
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const now = new Date().toISOString();
+    const digits = data.phone.replace(/[^0-9]/g, "");
+
+    // Try to attach to a recent lead (same email or phone in last 7 days).
+    let leadId: string | null = null;
+    const sevenDaysAgo = new Date(Date.now() - 7 * 86400_000).toISOString();
+    const orConds: string[] = [];
+    if (data.email) orConds.push(`email.eq.${data.email.toLowerCase()}`);
+    if (digits) orConds.push(`phone.ilike.%${digits.slice(-9)}%`);
+    if (orConds.length) {
+      const { data: found } = await supabaseAdmin
+        .from("leads")
+        .select("id, whatsapp_thread")
+        .or(orConds.join(","))
+        .gte("created_at", sevenDaysAgo)
+        .order("created_at", { ascending: false })
+        .limit(1);
+      if (found && found.length > 0) leadId = found[0].id as string;
+    }
+
+    const entry = {
+      at: now,
+      direction: "outgoing" as const,
+      channel: "whatsapp" as const,
+      body: data.message ?? "",
+      source: data.source,
+      page_url: data.page_url ?? null,
+      via: "web_click" as const,
+    };
+
+    if (leadId) {
+      const { data: row } = await supabaseAdmin
+        .from("leads")
+        .select("whatsapp_thread")
+        .eq("id", leadId)
+        .maybeSingle();
+      const thread = Array.isArray((row as { whatsapp_thread?: unknown } | null)?.whatsapp_thread)
+        ? ((row as { whatsapp_thread: unknown[] }).whatsapp_thread as unknown[])
+        : [];
+      const { error } = await supabaseAdmin
+        .from("leads")
+        .update({
+          whatsapp_thread: [...thread, entry],
+          whatsapp_last_at: now,
+          preferred_contact: "whatsapp",
+        } as never)
+        .eq("id", leadId);
+      if (error) console.error("[logWhatsAppSend] update failed", error);
+      return { ok: true as const, leadId, attached: true };
+    }
+
+    const { data: inserted, error } = await supabaseAdmin
+      .from("leads")
+      .insert({
+        type: "contact",
+        status: "new",
+        name: data.name,
+        email: data.email?.toLowerCase() || `wa-${digits}@no-email.local`,
+        phone: data.phone,
+        service: data.service ?? null,
+        message: data.message ?? null,
+        source: data.source,
+        intent: "whatsapp",
+        preferred_contact: "whatsapp",
+        whatsapp_thread: [entry],
+        whatsapp_last_at: now,
+      } as never)
+      .select("id")
+      .single();
+    if (error) {
+      console.error("[logWhatsAppSend] insert failed", error);
+      return { ok: false as const, reason: "db_error" };
+    }
+    return { ok: true as const, leadId: (inserted as { id: string }).id, attached: false };
+  });
+
+// -------------------- Admin: append WhatsApp reply / note --------------------
+
+const appendSchema = z.object({
+  leadId: z.string().uuid(),
+  direction: z.enum(["incoming", "outgoing"]),
+  body: z.string().trim().min(1).max(4000),
+});
+
+export const appendWhatsAppMessage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => appendSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId, claims } = context;
+    // Only staff may write.
+    const { data: staff } = await supabase.rpc("is_staff", { _user_id: userId });
+    if (!staff) throw new Error("Forbidden");
+
+    const { data: row, error: readErr } = await supabase
+      .from("leads")
+      .select("whatsapp_thread")
+      .eq("id", data.leadId)
+      .maybeSingle();
+    if (readErr || !row) throw new Error("Lead not found");
+
+    const thread = Array.isArray((row as { whatsapp_thread?: unknown }).whatsapp_thread)
+      ? ((row as { whatsapp_thread: unknown[] }).whatsapp_thread as unknown[])
+      : [];
+    const now = new Date().toISOString();
+    const email = (claims as { email?: string } | null)?.email ?? null;
+    const entry = {
+      at: now,
+      direction: data.direction,
+      channel: "whatsapp" as const,
+      body: data.body,
+      actor_id: userId,
+      actor_email: email,
+      via: "admin_manual" as const,
+    };
+    const { error } = await supabase
+      .from("leads")
+      .update({
+        whatsapp_thread: [...thread, entry],
+        whatsapp_last_at: now,
+      } as never)
+      .eq("id", data.leadId);
+    if (error) throw new Error(error.message);
+    return { ok: true as const, entry };
   });
