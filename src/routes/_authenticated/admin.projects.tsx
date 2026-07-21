@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { useInvalidateTables } from "@/lib/invalidate";
 import { StrictImageUrlField } from "@/components/admin/StrictImageUrlField";
 import { GalleryOrderEditor } from "@/components/admin/GalleryOrderEditor";
+import { AIAssistButton, AITranslateSync, AIContentDialog } from "@/components/admin/ai";
 
 
 export const Route = createFileRoute("/_authenticated/admin/projects")({
