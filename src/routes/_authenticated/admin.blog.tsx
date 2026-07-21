@@ -25,6 +25,7 @@ import { TranslationLinkPanel } from "@/components/admin/TranslationLinkPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useInvalidateTables } from "@/lib/invalidate";
 import { AIAssistButton, AITranslateSync, AISeoSuggest, AIContentDialog } from "@/components/admin/ai";
+import { AttachmentsField, type Attachment } from "@/components/admin/AttachmentsField";
 
 
 export const Route = createFileRoute("/_authenticated/admin/blog")({
