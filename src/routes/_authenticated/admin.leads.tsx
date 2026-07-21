@@ -400,6 +400,9 @@ function LeadsPage() {
 
                 </div>
                 <div className="sm:col-span-2">
+                  <LeadAiSummary leadId={selected.id} phone={selected.phone} />
+                </div>
+                <div className="sm:col-span-2">
                   <label className="text-xs uppercase text-muted-foreground">Activity timeline</label>
                   <div className="mt-2"><LeadTimeline leadId={selected.id} /></div>
                 </div>
