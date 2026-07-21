@@ -305,8 +305,9 @@ function AdminUsersPage() {
                 ) : filteredPerms.length === 0 ? (
                   <tr><td colSpan={roles.length + 1} className="px-4 py-10 text-center text-muted-foreground">No permissions match.</td></tr>
                 ) : groupedPerms.map(([page, perms]) => (
-                  <>
-                    <tr key={`grp-${page}`} className="bg-secondary/30">
+                  <Fragment key={`grp-${page}`}>
+                    <tr className="bg-secondary/30">
+
                       <td className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         {page.replaceAll("-", " ")} <span className="ms-1 text-[10px] normal-case text-muted-foreground/70">({perms.length})</span>
                       </td>
