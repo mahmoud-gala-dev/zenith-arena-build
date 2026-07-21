@@ -143,23 +143,38 @@ export function AIAssistButton({
     }
   }
 
+  const isIcon = size === "icon";
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           type="button"
-          size={size}
-          variant="outline"
-          className={className}
+          size={isIcon ? "icon" : "sm"}
+          variant="ghost"
+          className={
+            "group relative shrink-0 border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 text-primary shadow-sm transition-all " +
+            "hover:from-primary/20 hover:to-primary/10 hover:border-primary/40 hover:shadow-md hover:text-primary " +
+            "focus-visible:ring-2 focus-visible:ring-primary/40 " +
+            (isIcon ? "h-8 w-8 rounded-full " : "h-8 rounded-full px-3 text-xs font-medium ") +
+            (className ?? "")
+          }
           disabled={!!loading}
-          title="AI assistant"
+          title="AI assistant · مساعد ذكي"
+          aria-label="AI assistant"
         >
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-          {size !== "icon" && <span className="ms-1">{loading ?? "AI"}</span>}
+          {loading ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Sparkles className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
+          )}
+          {!isIcon && <span className="ms-1.5 tracking-wide">{loading ?? "AI"}</span>}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>AI actions</DropdownMenuLabel>
+      <DropdownMenuContent align="end" className="w-60">
+        <DropdownMenuLabel className="flex items-center gap-1.5 text-primary">
+          <Sparkles className="h-3.5 w-3.5" /> AI actions
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => run("improve", "Improve")}>
           <Wand2 className="h-4 w-4 mr-2" /> Improve writing
