@@ -86,12 +86,6 @@ const EMPTY: Article = {
   content_type: "article", attachments: [],
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const _EMPTY_SENTINEL = null;
-// remove sentinel: keep original trailing brace intact below
-// (this block preserves prior code below)
-;
-
 function slugify(s: string) {
   return s.toLowerCase().trim()
     .replace(/[^\w\u0600-\u06FF\s-]/g, "")
