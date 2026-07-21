@@ -124,8 +124,26 @@ function GovernoratesPage() {
               <F label="Sort order"><Input type="number" value={editing.sort_order ?? 0} onChange={(e) => setEditing({ ...editing, sort_order: Number(e.target.value) })} /></F>
               <F label="Name (EN) *"><Input value={editing.name_en ?? ""} onChange={(e) => setEditing({ ...editing, name_en: e.target.value })} /></F>
               <F label="Name (AR) *"><Input dir="rtl" value={editing.name_ar ?? ""} onChange={(e) => setEditing({ ...editing, name_ar: e.target.value })} /></F>
+              <div className="sm:col-span-2">
+                <AITranslateSync
+                  enValue={editing.name_en ?? ""}
+                  arValue={editing.name_ar ?? ""}
+                  onSetEn={(v) => setEditing({ ...editing, name_en: v })}
+                  onSetAr={(v) => setEditing({ ...editing, name_ar: v })}
+                  label="Name:"
+                />
+              </div>
               <F label="Region (EN)"><Input value={editing.region_en ?? ""} onChange={(e) => setEditing({ ...editing, region_en: e.target.value })} /></F>
               <F label="Region (AR)"><Input dir="rtl" value={editing.region_ar ?? ""} onChange={(e) => setEditing({ ...editing, region_ar: e.target.value })} /></F>
+              <div className="sm:col-span-2">
+                <AITranslateSync
+                  enValue={editing.region_en ?? ""}
+                  arValue={editing.region_ar ?? ""}
+                  onSetEn={(v) => setEditing({ ...editing, region_en: v })}
+                  onSetAr={(v) => setEditing({ ...editing, region_ar: v })}
+                  label="Region:"
+                />
+              </div>
               <div className="sm:col-span-2"><F label="Logo URL (SVG preferred)"><Input value={editing.logo_url ?? ""} onChange={(e) => setEditing({ ...editing, logo_url: e.target.value })} placeholder="/__l5e/assets-v1/…/cairo.svg" /></F></div>
               {editing.logo_url && <div className="sm:col-span-2"><img src={editing.logo_url} alt="preview" className="h-24 rounded bg-secondary object-contain p-2" /></div>}
               <div className="flex items-center gap-3">
