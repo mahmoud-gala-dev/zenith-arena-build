@@ -77,6 +77,7 @@ import { Route as AuthenticatedAdminAssistantRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminApplicationsRouteImport } from './routes/_authenticated/admin.applications'
 import { Route as AuthenticatedAdminAiRouteImport } from './routes/_authenticated/admin.ai'
 import { Route as AuthenticatedAdminAboutRouteImport } from './routes/_authenticated/admin.about'
+import { Route as ApiPublicHooksAutoSeoRouteImport } from './routes/api/public/hooks/auto-seo'
 import { Route as AuthenticatedAdminLegalPreviewSlugRouteImport } from './routes/_authenticated/admin.legal.preview.$slug'
 
 const TermsRoute = TermsRouteImport.update({
@@ -441,6 +442,11 @@ const AuthenticatedAdminAboutRoute = AuthenticatedAdminAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const ApiPublicHooksAutoSeoRoute = ApiPublicHooksAutoSeoRouteImport.update({
+  id: '/api/public/hooks/auto-seo',
+  path: '/api/public/hooks/auto-seo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminLegalPreviewSlugRoute =
   AuthenticatedAdminLegalPreviewSlugRouteImport.update({
     id: '/preview/$slug',
@@ -516,6 +522,7 @@ export interface FileRoutesByFullPath {
   '/preview/knowledge/$slug': typeof PreviewKnowledgeSlugRoute
   '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/auto-seo': typeof ApiPublicHooksAutoSeoRoute
   '/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
 export interface FileRoutesByTo {
@@ -581,6 +588,7 @@ export interface FileRoutesByTo {
   '/preview/knowledge/$slug': typeof PreviewKnowledgeSlugRoute
   '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/auto-seo': typeof ApiPublicHooksAutoSeoRoute
   '/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
 export interface FileRoutesById {
@@ -653,6 +661,7 @@ export interface FileRoutesById {
   '/preview/knowledge/$slug': typeof PreviewKnowledgeSlugRoute
   '/preview/pages/$slug': typeof PreviewPagesSlugRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/auto-seo': typeof ApiPublicHooksAutoSeoRoute
   '/_authenticated/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
 export interface FileRouteTypes {
@@ -725,6 +734,7 @@ export interface FileRouteTypes {
     | '/preview/knowledge/$slug'
     | '/preview/pages/$slug'
     | '/admin/'
+    | '/api/public/hooks/auto-seo'
     | '/admin/legal/preview/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -790,6 +800,7 @@ export interface FileRouteTypes {
     | '/preview/knowledge/$slug'
     | '/preview/pages/$slug'
     | '/admin'
+    | '/api/public/hooks/auto-seo'
     | '/admin/legal/preview/$slug'
   id:
     | '__root__'
@@ -861,6 +872,7 @@ export interface FileRouteTypes {
     | '/preview/knowledge/$slug'
     | '/preview/pages/$slug'
     | '/_authenticated/admin/'
+    | '/api/public/hooks/auto-seo'
     | '/_authenticated/admin/legal/preview/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -889,6 +901,7 @@ export interface RootRouteChildren {
   GovernoratesSlugRoute: typeof GovernoratesSlugRoute
   PreviewKnowledgeSlugRoute: typeof PreviewKnowledgeSlugRoute
   PreviewPagesSlugRoute: typeof PreviewPagesSlugRoute
+  ApiPublicHooksAutoSeoRoute: typeof ApiPublicHooksAutoSeoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1369,6 +1382,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAboutRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/api/public/hooks/auto-seo': {
+      id: '/api/public/hooks/auto-seo'
+      path: '/api/public/hooks/auto-seo'
+      fullPath: '/api/public/hooks/auto-seo'
+      preLoaderRoute: typeof ApiPublicHooksAutoSeoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin/legal/preview/$slug': {
       id: '/_authenticated/admin/legal/preview/$slug'
       path: '/preview/$slug'
@@ -1576,6 +1596,7 @@ const rootRouteChildren: RootRouteChildren = {
   GovernoratesSlugRoute: GovernoratesSlugRoute,
   PreviewKnowledgeSlugRoute: PreviewKnowledgeSlugRoute,
   PreviewPagesSlugRoute: PreviewPagesSlugRoute,
+  ApiPublicHooksAutoSeoRoute: ApiPublicHooksAutoSeoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
