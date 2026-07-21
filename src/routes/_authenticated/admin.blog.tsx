@@ -770,6 +770,31 @@ function ArticleEditor({
 
 
         <TabsContent value="seo" className="space-y-3 pt-3">
+          <div className="flex items-center justify-between gap-2 flex-wrap rounded-md border bg-muted/30 p-2">
+            <span className="text-xs text-muted-foreground">✨ AI SEO helpers</span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <AISeoSuggest
+                content={value.content_en ?? value.excerpt_en ?? value.title_en ?? ""}
+                subject={value.title_en}
+                language="en"
+                onApply={(seo) => set({
+                  seo_title_en: seo.title ?? value.seo_title_en,
+                  seo_description_en: seo.description ?? value.seo_description_en,
+                  seo_keywords: Array.isArray(seo.keywords) ? seo.keywords.join(", ") : (seo.keywords ?? value.seo_keywords),
+                })}
+              />
+              <AISeoSuggest
+                content={value.content_ar ?? value.excerpt_ar ?? value.title_ar ?? ""}
+                subject={value.title_ar}
+                language="ar"
+                onApply={(seo) => set({
+                  seo_title_ar: seo.title ?? value.seo_title_ar,
+                  seo_description_ar: seo.description ?? value.seo_description_ar,
+                })}
+              />
+            </div>
+          </div>
+
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label>SEO title (EN)</Label>
