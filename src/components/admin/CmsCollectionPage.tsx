@@ -449,10 +449,24 @@ function Cell({ row, column, onInlineUpdate }: { row: AnyRow; column: CmsColumn;
 function FieldEditor({ field, values, onChange }: { field: CmsField; values: AnyRow; onChange: (value: unknown) => void }) {
   const value = values[field.name];
   const wrapper = field.fullWidth || field.type === "textarea" || field.type === "json" ? "sm:col-span-2" : "";
+  const isTexty = !field.type || field.type === "text" || field.type === "textarea" || field.type === "url";
+  const langMatch = /_(en|ar)$/.exec(field.name);
+  const language: "en" | "ar" | null = langMatch ? (langMatch[1] as "en" | "ar") : field.dir === "rtl" ? "ar" : null;
+  const showAI = isTexty && !!language;
 
   return (
     <div className={`space-y-1.5 ${wrapper}`}>
-      <Label>{field.label}{field.required ? " *" : ""}</Label>
+      <div className="flex items-center justify-between gap-2">
+        <Label>{field.label}{field.required ? " *" : ""}</Label>
+        {showAI && (
+          <AIAssistButton
+            value={String(value ?? "")}
+            onChange={(next) => onChange(next)}
+            language={language ?? "en"}
+            size="sm"
+          />
+        )}
+      </div>
       {field.type === "textarea" ? (
         <Textarea rows={4} value={String(value ?? "")} onChange={(event) => onChange(event.target.value)} placeholder={field.placeholder} dir={field.dir} maxLength={field.maxLength} />
       ) : field.type === "json" ? (
@@ -474,6 +488,88 @@ function FieldEditor({ field, values, onChange }: { field: CmsField; values: Any
           maxLength={field.maxLength}
         />
       )}
+    </div>
+  );
+}
+
+const CONTENT_KIND_BY_TABLE: Record<string, "product_description" | "service_description" | "project_story" | "blog_post" | "faq" | "generic"> = {
+  products: "product_description",
+  services: "service_description",
+  projects: "project_story",
+  blog_posts: "blog_post",
+  faq_items: "faq",
+};
+
+function AiToolbar({
+  config,
+  editing,
+  onChange,
+}: {
+  config: CmsCollectionConfig;
+  editing: AnyRow;
+  onChange: (patch: AnyRow) => void;
+}) {
+  // Detect EN/AR field pairs (text or textarea) — e.g. title_en/title_ar, description_en/description_ar
+  const pairs = useMemo(() => {
+    const result: Array<{ base: string; enField: string; arField: string; label: string }> = [];
+    const seen = new Set<string>();
+    for (const f of config.fields) {
+      const m = /^(.+)_en$/.exec(f.name);
+      if (!m) continue;
+      const base = m[1];
+      if (seen.has(base)) continue;
+      const arField = `${base}_ar`;
+      if (!config.fields.some((g) => g.name === arField)) continue;
+      const t = f.type ?? "text";
+      if (t !== "text" && t !== "textarea") continue;
+      seen.add(base);
+      result.push({
+        base,
+        enField: f.name,
+        arField,
+        label: f.label.replace(/\s*\(EN\)|English\s*/i, "").trim() || base,
+      });
+    }
+    return result;
+  }, [config.fields]);
+
+  const kind = CONTENT_KIND_BY_TABLE[config.table as string] ?? "generic";
+
+  // Choose a primary target field for AIContentDialog insertion
+  const primaryTargets = [
+    "description_en",
+    "content_en",
+    "excerpt_en",
+    "answer_en",
+    "quote_en",
+  ];
+  const primary = primaryTargets.find((n) => config.fields.some((f) => f.name === n));
+
+  if (pairs.length === 0 && !primary) return null;
+
+  return (
+    <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-primary/30 bg-primary/5 p-2">
+      <span className="text-xs font-medium text-primary">✨ AI helpers</span>
+      {primary && (
+        <AIContentDialog
+          triggerLabel={`Draft ${config.singular}`}
+          defaultKind={kind}
+          defaultLanguage="en"
+          targetTable={config.table as string}
+          targetId={editing.id as string | undefined}
+          onInsert={(text) => onChange({ [primary]: text })}
+        />
+      )}
+      {pairs.map((p) => (
+        <AITranslateSync
+          key={p.base}
+          label={p.label}
+          enValue={String(editing[p.enField] ?? "")}
+          arValue={String(editing[p.arField] ?? "")}
+          onSetEn={(v) => onChange({ [p.enField]: v })}
+          onSetAr={(v) => onChange({ [p.arField]: v })}
+        />
+      ))}
     </div>
   );
 }
