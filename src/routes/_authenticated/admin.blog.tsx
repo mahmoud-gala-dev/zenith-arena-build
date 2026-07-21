@@ -24,6 +24,7 @@ import { TagsManager, slugifyTag, type Tag } from "@/components/admin/TagsManage
 import { TranslationLinkPanel } from "@/components/admin/TranslationLinkPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useInvalidateTables } from "@/lib/invalidate";
+import { AIAssistButton, AITranslateSync, AISeoSuggest, AIContentDialog } from "@/components/admin/ai";
 
 
 export const Route = createFileRoute("/_authenticated/admin/blog")({
