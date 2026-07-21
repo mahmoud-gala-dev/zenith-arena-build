@@ -1,0 +1,2 @@
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS catalog_download_ids uuid[] NOT NULL DEFAULT '{}'::uuid[];
+CREATE INDEX IF NOT EXISTS idx_products_catalog_download_ids ON public.products USING GIN (catalog_download_ids);
