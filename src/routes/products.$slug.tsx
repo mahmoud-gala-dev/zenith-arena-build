@@ -210,6 +210,47 @@ function ProductDetailPage() {
                 </ul>
               </Block>
             )}
+            {linkedCatalogs.length > 0 && (
+              <Block title={ar ? "كتالوجات المنتج" : "Product catalogs"}>
+                <p className="mb-4 text-sm text-muted-foreground">
+                  {ar
+                    ? "املأ نموذجًا قصيرًا لبدء التحميل — سيصلك الرابط فورًا ويتواصل معك فريقنا لاحقًا."
+                    : "Fill in a short form to start the download — you'll get the file instantly and our team will follow up."}
+                </p>
+                <ul className="grid gap-3 sm:grid-cols-2">
+                  {linkedCatalogs.map((c) => {
+                    const cTitle = ar ? (c.title_ar || c.title_en) : c.title_en;
+                    const cDesc = ar ? (c.description_ar || c.description_en) : c.description_en;
+                    const cSlug = c.slug_en || c.slug_ar || c.id;
+                    return (
+                      <li key={c.id} className="flex flex-col justify-between gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft">
+                        <div className="flex items-start gap-3">
+                          {c.preview_image ? (
+                            <img src={c.preview_image} alt={cTitle} className="h-14 w-14 shrink-0 rounded-lg object-cover" loading="lazy" />
+                          ) : (
+                            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><FileText className="h-6 w-6" /></div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-foreground">{cTitle}</p>
+                            {cDesc && <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{cDesc}</p>}
+                          </div>
+                        </div>
+                        <DownloadGateButton
+                          fileUrl={c.file_url}
+                          title={cTitle}
+                          slug={cSlug}
+                          downloadId={c.id}
+                          requiresLead={c.requires_lead_capture}
+                          label={ar ? "تحميل الكتالوج" : "Download catalog"}
+                          size="sm"
+                          className="w-full"
+                        />
+                      </li>
+                    );
+                  })}
+                </ul>
+              </Block>
+            )}
           </div>
           <aside className="h-fit rounded-2xl border border-border bg-card p-6 shadow-soft">
             <h2 className="text-lg font-semibold text-foreground">{tx.variants}</h2>
