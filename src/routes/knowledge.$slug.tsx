@@ -43,6 +43,14 @@ interface BlogPost {
   tags: string[];
   translation_group_id: string | null;
   content_type: ContentType | null;
+  attachments: Array<{
+    path: string;
+    filename: string;
+    size: number;
+    mime: string;
+    label_en?: string;
+    label_ar?: string;
+  }> | null;
 }
 
 async function fetchPost(slug: string): Promise<BlogPost | null> {
