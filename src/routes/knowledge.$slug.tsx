@@ -37,6 +37,9 @@ interface BlogPost {
   seo_description_ar: string | null;
   seo_keywords: string | null;
   og_image: string | null;
+  canonical_url_en: string | null;
+  canonical_url_ar: string | null;
+  noindex: boolean | null;
   tags: string[];
   translation_group_id: string | null;
   content_type: ContentType | null;
