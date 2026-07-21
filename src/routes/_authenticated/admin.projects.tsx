@@ -155,10 +155,40 @@ function ProjectsPage() {
           </DialogHeader>
           {editing && (
             <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2 flex items-center justify-between gap-2 flex-wrap rounded-md border bg-muted/30 p-2">
+                <span className="text-xs text-muted-foreground">✨ AI helpers</span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <AIContentDialog
+                    triggerLabel="Draft project story"
+                    defaultKind="project_story"
+                    defaultLanguage="en"
+                    onInsert={(text) => setEditing({ ...editing, description_en: (editing.description_en ? editing.description_en + "\n\n" : "") + text })}
+                    targetTable="projects"
+                    targetId={editing.id}
+                  />
+                  <AITranslateSync
+                    enValue={editing.description_en ?? ""}
+                    arValue={editing.description_ar ?? ""}
+                    onSetEn={(t) => setEditing({ ...editing, description_en: t })}
+                    onSetAr={(t) => setEditing({ ...editing, description_ar: t })}
+                    label="Sync EN↔AR"
+                  />
+                </div>
+              </div>
               <Field label="Slug (EN) *"><Input value={editing.slug_en ?? ""} onChange={(e) => setEditing({ ...editing, slug_en: e.target.value })} /></Field>
               <Field label="Year"><Input type="number" value={editing.year ?? ""} onChange={(e) => setEditing({ ...editing, year: Number(e.target.value) })} /></Field>
-              <Field label="Title (EN) *"><Input value={editing.title_en ?? ""} onChange={(e) => setEditing({ ...editing, title_en: e.target.value })} /></Field>
-              <Field label="Title (AR)"><Input value={editing.title_ar ?? ""} onChange={(e) => setEditing({ ...editing, title_ar: e.target.value })} dir="rtl" /></Field>
+              <Field label="Title (EN) *">
+                <div className="flex gap-2">
+                  <Input value={editing.title_en ?? ""} onChange={(e) => setEditing({ ...editing, title_en: e.target.value })} />
+                  <AIAssistButton value={editing.title_en ?? ""} onChange={(t) => setEditing({ ...editing, title_en: t })} language="en" />
+                </div>
+              </Field>
+              <Field label="Title (AR)">
+                <div className="flex gap-2">
+                  <Input value={editing.title_ar ?? ""} onChange={(e) => setEditing({ ...editing, title_ar: e.target.value })} dir="rtl" />
+                  <AIAssistButton value={editing.title_ar ?? ""} onChange={(t) => setEditing({ ...editing, title_ar: t })} language="ar" />
+                </div>
+              </Field>
               <Field label="Client"><Input value={editing.client ?? ""} onChange={(e) => setEditing({ ...editing, client: e.target.value })} /></Field>
               <Field label="Sport type"><Input value={editing.sport_type ?? ""} onChange={(e) => setEditing({ ...editing, sport_type: e.target.value })} /></Field>
               <Field label="Country"><Input value={editing.country ?? ""} onChange={(e) => setEditing({ ...editing, country: e.target.value })} /></Field>
@@ -189,8 +219,17 @@ function ProjectsPage() {
                   onChange={(next) => setEditing({ ...editing, gallery: next })}
                 />
               </div>
-              <div className="sm:col-span-2"><Field label="Description (EN)"><Textarea rows={3} value={editing.description_en ?? ""} onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} /></Field></div>
-              <div className="sm:col-span-2"><Field label="Description (AR)"><Textarea rows={3} dir="rtl" value={editing.description_ar ?? ""} onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} /></Field></div>
+              <div className="sm:col-span-2">
+                <Field label={<span className="flex items-center justify-between">Description (EN) <AIAssistButton value={editing.description_en ?? ""} onChange={(t) => setEditing({ ...editing, description_en: t })} language="en" size="sm" /></span>}>
+                  <Textarea rows={3} value={editing.description_en ?? ""} onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} />
+                </Field>
+              </div>
+              <div className="sm:col-span-2">
+                <Field label={<span className="flex items-center justify-between">Description (AR) <AIAssistButton value={editing.description_ar ?? ""} onChange={(t) => setEditing({ ...editing, description_ar: t })} language="ar" size="sm" /></span>}>
+                  <Textarea rows={3} dir="rtl" value={editing.description_ar ?? ""} onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} />
+                </Field>
+              </div>
+
               <div className="flex items-center gap-3">
                 <Switch checked={!!editing.featured} onCheckedChange={(v) => setEditing({ ...editing, featured: v })} />
                 <Label>Featured</Label>
