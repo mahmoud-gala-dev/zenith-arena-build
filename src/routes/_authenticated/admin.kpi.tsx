@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
-  BarChart, Bar, PieChart, Pie, Cell, Legend, LineChart, Line,
+  BarChart, Bar, PieChart, Pie, Cell, Legend, Line, ComposedChart,
 } from "recharts";
 import { TrendingUp, Percent, Inbox, Target, Download as DownloadIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
