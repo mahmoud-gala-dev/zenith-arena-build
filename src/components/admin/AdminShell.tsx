@@ -199,6 +199,7 @@ export function AdminShell({ children, title }: { children: React.ReactNode; tit
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-card/80 px-6 py-4 backdrop-blur">
           <h1 className="text-xl font-bold text-foreground">{title}</h1>
           <div className="flex items-center gap-2">
+            <AiQuotaAlert />
             <NotificationsBell />
             <div className="flex items-center gap-2 lg:hidden">
               <select
