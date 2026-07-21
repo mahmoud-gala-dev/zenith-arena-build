@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Clock, User, Search, X } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { PageHero } from "@/components/site/PageHero";
@@ -15,6 +15,8 @@ import { supabase } from "@/integrations/supabase/client";
 import heroImg from "@/assets/hero-knowledge.jpg";
 import { seoSettingsByRouteQueryOptions } from "@/lib/queries";
 import { buildSeoHead } from "@/lib/seo-head";
+import { parseQuery, scoreDoc, buildSuggestions, type SearchableDoc } from "@/lib/search/knowledge-search";
+
 
 export const Route = createFileRoute("/knowledge/")({
   loader: async ({ context }) => ({
@@ -99,34 +101,63 @@ function KnowledgePage() {
     return Array.from(s).sort();
   }, [posts]);
 
-  const filtered = useMemo(() => {
-    const query = q.trim().toLowerCase();
-    let list = posts.filter((p) => {
+  // Apply structural filters first so search & suggestions operate on the same pool.
+  const filteredByFacets = useMemo(() => {
+    return posts.filter((p) => {
       if (category !== "all" && p.category_id !== category) return false;
       if (tag !== "all" && !(p.tags ?? []).includes(tag)) return false;
       if (type !== "all" && (p.content_type ?? "article") !== type) return false;
-      if (query) {
-        const hay = [p.title_en, p.title_ar, p.excerpt_en, p.excerpt_ar, ...(p.tags ?? [])]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        if (!hay.includes(query)) return false;
-      }
       return true;
     });
-    list = [...list].sort((a, b) => {
-      if (sort === "newest") return (b.published_at ?? "").localeCompare(a.published_at ?? "");
-      if (sort === "oldest") return (a.published_at ?? "").localeCompare(b.published_at ?? "");
-      if (sort === "reading") return (a.reading_time ?? 0) - (b.reading_time ?? 0);
+  }, [posts, category, tag, type]);
+
+  const toDoc = (p: BlogRow): SearchableDoc => ({
+    title: `${p.title_en} ${p.title_ar}`,
+    excerpt: `${p.excerpt_en ?? ""} ${p.excerpt_ar ?? ""}`,
+    tags: p.tags ?? [],
+  });
+
+  const queryTokens = useMemo(() => parseQuery(q), [q]);
+
+  const filtered = useMemo(() => {
+    const scored = filteredByFacets
+      .map((p) => ({ p, s: scoreDoc(toDoc(p), queryTokens) }))
+      .filter((x) => x.s > 0);
+    scored.sort((a, b) => {
+      if (sort === "newest") return (b.p.published_at ?? "").localeCompare(a.p.published_at ?? "");
+      if (sort === "oldest") return (a.p.published_at ?? "").localeCompare(b.p.published_at ?? "");
+      if (sort === "reading") return (a.p.reading_time ?? 0) - (b.p.reading_time ?? 0);
       if (sort === "title") {
-        const at = ar ? a.title_ar : a.title_en;
-        const bt = ar ? b.title_ar : b.title_en;
+        const at = ar ? a.p.title_ar : a.p.title_en;
+        const bt = ar ? b.p.title_ar : b.p.title_en;
         return at.localeCompare(bt);
       }
-      return 0;
+      // relevance-first when no explicit sort change while searching
+      return b.s - a.s;
     });
-    return list;
-  }, [posts, q, category, tag, type, sort, ar]);
+    return scored.map((x) => x.p);
+  }, [filteredByFacets, queryTokens, sort, ar]);
+
+  const suggestions = useMemo(
+    () => buildSuggestions(filteredByFacets.map(toDoc), q, 6),
+    [filteredByFacets, q],
+  );
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [suggestIdx, setSuggestIdx] = useState(-1);
+  const inputWrapRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => { setSuggestIdx(-1); }, [q]);
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      if (!inputWrapRef.current?.contains(e.target as Node)) setSuggestOpen(false);
+    };
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+  const acceptSuggestion = (label: string) => {
+    setQ(label);
+    setSuggestOpen(false);
+  };
+
 
   const hasFilters = q !== "" || category !== "all" || tag !== "all" || type !== "all" || sort !== "newest";
   const clearFilters = () => { setQ(""); setCategory("all"); setTag("all"); setType("all"); setSort("newest"); };
@@ -149,15 +180,73 @@ function KnowledgePage() {
       <section className="py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-6 grid gap-3 md:grid-cols-12">
-            <div className="relative md:col-span-5">
+            <div className="relative md:col-span-5" ref={inputWrapRef}>
               <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={q}
-                onChange={(e) => setQ(e.target.value)}
+                onChange={(e) => { setQ(e.target.value); setSuggestOpen(true); }}
+                onFocus={() => setSuggestOpen(true)}
+                onKeyDown={(e) => {
+                  if (!suggestOpen || suggestions.length === 0) {
+                    if (e.key === "Escape") setSuggestOpen(false);
+                    return;
+                  }
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    setSuggestIdx((i) => (i + 1) % suggestions.length);
+                  } else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    setSuggestIdx((i) => (i <= 0 ? suggestions.length - 1 : i - 1));
+                  } else if (e.key === "Enter" && suggestIdx >= 0) {
+                    e.preventDefault();
+                    acceptSuggestion(suggestions[suggestIdx]);
+                  } else if (e.key === "Escape") {
+                    setSuggestOpen(false);
+                  }
+                }}
                 placeholder={t.knowledgeList.searchPlaceholder}
                 className="ps-9"
+                role="combobox"
+                aria-expanded={suggestOpen && suggestions.length > 0}
+                aria-controls="kc-suggest-list"
+                aria-autocomplete="list"
               />
+              {q && (
+                <button
+                  type="button"
+                  aria-label={t.knowledgeList.clearFilters}
+                  onClick={() => { setQ(""); setSuggestOpen(false); }}
+                  className="absolute end-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+              {suggestOpen && suggestions.length > 0 && (
+                <ul
+                  id="kc-suggest-list"
+                  role="listbox"
+                  className="absolute inset-x-0 top-full z-30 mt-1 max-h-72 overflow-y-auto rounded-lg border border-border bg-popover text-popover-foreground shadow-elegant"
+                >
+                  {suggestions.map((s, i) => (
+                    <li key={s} role="option" aria-selected={i === suggestIdx}>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => acceptSuggestion(s)}
+                        onMouseEnter={() => setSuggestIdx(i)}
+                        className={`flex w-full items-center gap-2 px-3 py-2 text-sm text-start ${
+                          i === suggestIdx ? "bg-accent text-accent-foreground" : "hover:bg-accent/60"
+                        }`}
+                      >
+                        <Search className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span className="truncate">{s}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
+
             <div className="md:col-span-3">
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger><SelectValue placeholder={t.knowledgeList.allCategories} /></SelectTrigger>
