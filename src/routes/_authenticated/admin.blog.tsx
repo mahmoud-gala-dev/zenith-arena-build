@@ -114,7 +114,7 @@ function AdminBlogPage() {
       supabase.from("tags").select("id, slug, name_en, name_ar").order("name_en"),
     ]);
     if (error) toast.error(error.message);
-    setRows((posts as Article[]) ?? []);
+    setRows((posts as unknown as Article[]) ?? []);
     setCats((c as Category[]) ?? []);
     setTags((t as Tag[]) ?? []);
     setLoading(false);
