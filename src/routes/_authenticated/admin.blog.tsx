@@ -667,15 +667,38 @@ function ArticleEditor({
             onChange={(url) => set({ og_image: url })}
             folder="blog/og"
           />
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="space-y-1.5">
+              <Label>Content type</Label>
+              <Select
+                value={value.content_type ?? "article"}
+                onValueChange={(v) => set({ content_type: v as Article["content_type"] })}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="article">Article</SelectItem>
+                  <SelectItem value="guide">Guide</SelectItem>
+                  <SelectItem value="case_study">Case study</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-1.5">
               <Label>Author</Label>
               <Input value={value.author_name ?? ""} onChange={(e) => set({ author_name: e.target.value })} />
             </div>
             <div className="flex items-center gap-3 pt-6">
               <Switch checked={!!value.featured} onCheckedChange={(v) => set({ featured: v })} />
-              <Label className="flex items-center gap-1"><Star className="h-3 w-3" /> Featured on Knowledge Center</Label>
+              <Label className="flex items-center gap-1"><Star className="h-3 w-3" /> Featured</Label>
             </div>
+          </div>
+
+          <div className="rounded-lg border border-border/60 bg-muted/20 p-4">
+            <AttachmentsField
+              value={value.attachments ?? []}
+              onChange={(next) => set({ attachments: next })}
+              permission={`blog.${value.content_type ?? "article"}.attachments`}
+              folder={value.slug_en || "misc"}
+            />
           </div>
         </TabsContent>
 
