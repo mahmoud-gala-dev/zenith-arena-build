@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { AIAssistButton, AITranslateSync, AIContentDialog } from "@/components/admin/ai";
 
 type TableName = keyof Database["public"]["Tables"];
 type AnyRow = Record<string, unknown> & { id?: string; status?: string; featured?: boolean; updated_at?: string; created_at?: string };
