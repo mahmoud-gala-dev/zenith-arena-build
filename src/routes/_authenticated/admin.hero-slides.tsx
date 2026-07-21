@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { CinematicBackdrop } from "@/components/site/CinematicBackdrop";
 import { useInvalidateTables } from "@/lib/invalidate";
+import { AIAssistButton, AITranslateSync } from "@/components/admin/ai";
 
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8 MB
@@ -365,11 +366,53 @@ function AdminHeroSlides() {
               <div className="grid grid-cols-2 gap-3">
                 <div><Label>Eyebrow (EN)</Label><Input value={editing.eyebrow_en ?? ""} onChange={(e) => set("eyebrow_en", e.target.value)} /></div>
                 <div><Label>Eyebrow (AR)</Label><Input dir="rtl" value={editing.eyebrow_ar ?? ""} onChange={(e) => set("eyebrow_ar", e.target.value)} /></div>
-                <div><Label>Title (EN) *</Label><Input value={editing.title_en ?? ""} onChange={(e) => set("title_en", e.target.value)} /></div>
-                <div><Label>Title (AR)</Label><Input dir="rtl" value={editing.title_ar ?? ""} onChange={(e) => set("title_ar", e.target.value)} /></div>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <Label>Title (EN) *</Label>
+                    <AIAssistButton value={editing.title_en ?? ""} onChange={(v) => set("title_en", v)} language="en" size="icon" />
+                  </div>
+                  <Input value={editing.title_en ?? ""} onChange={(e) => set("title_en", e.target.value)} />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <Label>Title (AR)</Label>
+                    <AIAssistButton value={editing.title_ar ?? ""} onChange={(v) => set("title_ar", v)} language="ar" size="icon" />
+                  </div>
+                  <Input dir="rtl" value={editing.title_ar ?? ""} onChange={(e) => set("title_ar", e.target.value)} />
+                </div>
+                <div className="col-span-2 -mt-1">
+                  <AITranslateSync
+                    enValue={editing.title_en ?? ""}
+                    arValue={editing.title_ar ?? ""}
+                    onSetEn={(v) => set("title_en", v)}
+                    onSetAr={(v) => set("title_ar", v)}
+                    label="Title:"
+                  />
+                </div>
                 <div className="col-span-2 grid grid-cols-2 gap-3">
-                  <div><Label>Subtitle (EN)</Label><Textarea rows={3} value={editing.subtitle_en ?? ""} onChange={(e) => set("subtitle_en", e.target.value)} /></div>
-                  <div><Label>Subtitle (AR)</Label><Textarea rows={3} dir="rtl" value={editing.subtitle_ar ?? ""} onChange={(e) => set("subtitle_ar", e.target.value)} /></div>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <Label>Subtitle (EN)</Label>
+                      <AIAssistButton value={editing.subtitle_en ?? ""} onChange={(v) => set("subtitle_en", v)} language="en" size="icon" />
+                    </div>
+                    <Textarea rows={3} value={editing.subtitle_en ?? ""} onChange={(e) => set("subtitle_en", e.target.value)} />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <Label>Subtitle (AR)</Label>
+                      <AIAssistButton value={editing.subtitle_ar ?? ""} onChange={(v) => set("subtitle_ar", v)} language="ar" size="icon" />
+                    </div>
+                    <Textarea rows={3} dir="rtl" value={editing.subtitle_ar ?? ""} onChange={(e) => set("subtitle_ar", e.target.value)} />
+                  </div>
+                  <div className="col-span-2">
+                    <AITranslateSync
+                      enValue={editing.subtitle_en ?? ""}
+                      arValue={editing.subtitle_ar ?? ""}
+                      onSetEn={(v) => set("subtitle_en", v)}
+                      onSetAr={(v) => set("subtitle_ar", v)}
+                      label="Subtitle:"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -380,6 +423,14 @@ function AdminHeroSlides() {
                   <div><Label>Label (AR)</Label><Input dir="rtl" value={editing.primary_label_ar ?? ""} onChange={(e) => set("primary_label_ar", e.target.value)} /></div>
                   <div><Label>Link</Label><Input placeholder="/quote" value={editing.primary_href ?? ""} onChange={(e) => set("primary_href", e.target.value)} /></div>
                 </div>
+                <div className="mt-2">
+                  <AITranslateSync
+                    enValue={editing.primary_label_en ?? ""}
+                    arValue={editing.primary_label_ar ?? ""}
+                    onSetEn={(v) => set("primary_label_en", v)}
+                    onSetAr={(v) => set("primary_label_ar", v)}
+                  />
+                </div>
               </div>
 
               <div className="rounded-lg border bg-secondary/30 p-3">
@@ -388,6 +439,14 @@ function AdminHeroSlides() {
                   <div><Label>Label (EN)</Label><Input value={editing.secondary_label_en ?? ""} onChange={(e) => set("secondary_label_en", e.target.value)} /></div>
                   <div><Label>Label (AR)</Label><Input dir="rtl" value={editing.secondary_label_ar ?? ""} onChange={(e) => set("secondary_label_ar", e.target.value)} /></div>
                   <div><Label>Link</Label><Input placeholder="/projects" value={editing.secondary_href ?? ""} onChange={(e) => set("secondary_href", e.target.value)} /></div>
+                </div>
+                <div className="mt-2">
+                  <AITranslateSync
+                    enValue={editing.secondary_label_en ?? ""}
+                    arValue={editing.secondary_label_ar ?? ""}
+                    onSetEn={(v) => set("secondary_label_en", v)}
+                    onSetAr={(v) => set("secondary_label_ar", v)}
+                  />
                 </div>
               </div>
 
