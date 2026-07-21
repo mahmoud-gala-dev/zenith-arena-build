@@ -74,6 +74,90 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_settings: {
+        Row: {
+          advanced_model: string
+          daily_user_limit: number
+          default_model: string
+          enabled: boolean
+          glossary: Json
+          id: string
+          tone: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          advanced_model?: string
+          daily_user_limit?: number
+          default_model?: string
+          enabled?: boolean
+          glossary?: Json
+          id?: string
+          tone?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          advanced_model?: string
+          daily_user_limit?: number
+          default_model?: string
+          enabled?: boolean
+          glossary?: Json
+          id?: string
+          tone?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      ai_usage_logs: {
+        Row: {
+          action: string
+          completion_tokens: number | null
+          created_at: string
+          duration_ms: number | null
+          error_message: string | null
+          id: string
+          model: string | null
+          prompt_tokens: number | null
+          success: boolean | null
+          target_id: string | null
+          target_table: string | null
+          total_tokens: number | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          completion_tokens?: number | null
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          model?: string | null
+          prompt_tokens?: number | null
+          success?: boolean | null
+          target_id?: string | null
+          target_table?: string | null
+          total_tokens?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          completion_tokens?: number | null
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          model?: string | null
+          prompt_tokens?: number | null
+          success?: boolean | null
+          target_id?: string | null
+          target_table?: string | null
+          total_tokens?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
