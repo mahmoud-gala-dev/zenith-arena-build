@@ -160,19 +160,51 @@ function ArticleDetail() {
   const { post } = Route.useLoaderData();
   const { t, lang } = useLang();
   const ar = lang === "ar";
+  const contentType: ContentType = (post.content_type ?? "article") as ContentType;
 
   const { data: related = [] } = useQuery({
-    queryKey: ["blog_related", post.id],
+    queryKey: ["blog_related", post.id, contentType],
+    queryFn: async () => {
+      const { data: sameType } = await supabase
+        .from("blog_posts")
+        .select("id,slug_en,title_en,title_ar,excerpt_en,excerpt_ar,featured_image,content_type")
+        .eq("status", "published")
+        .eq("content_type", contentType)
+        .neq("id", post.id)
+        .limit(3);
+      if ((sameType?.length ?? 0) >= 3) return sameType ?? [];
+      const excludeIds = [post.id, ...(sameType ?? []).map((s) => s.id)];
+      const { data: fallback } = await supabase
+        .from("blog_posts")
+        .select("id,slug_en,title_en,title_ar,excerpt_en,excerpt_ar,featured_image,content_type")
+        .eq("status", "published")
+        .not("id", "in", `(${excludeIds.join(",")})`)
+        .limit(3 - (sameType?.length ?? 0));
+      return [...(sameType ?? []), ...(fallback ?? [])];
+    },
+  });
+
+  const { data: siblings } = useQuery({
+    queryKey: ["blog_siblings", post.id, contentType],
     queryFn: async () => {
       const { data } = await supabase
         .from("blog_posts")
-        .select("id,slug_en,title_en,title_ar,excerpt_en,excerpt_ar,featured_image")
+        .select("id,slug_en,title_en,title_ar,published_at,content_type")
         .eq("status", "published")
-        .neq("id", post.id)
-        .limit(3);
-      return data ?? [];
+        .eq("content_type", contentType)
+        .order("published_at", { ascending: false, nullsFirst: false });
+      const list = data ?? [];
+      const idx = list.findIndex((p) => p.id === post.id);
+      return {
+        prev: idx > 0 ? list[idx - 1] : null,
+        next: idx >= 0 && idx < list.length - 1 ? list[idx + 1] : null,
+      };
     },
   });
+  const prev = siblings?.prev ?? null;
+  const next = siblings?.next ?? null;
+
+
 
   const title = ar ? post.title_ar : post.title_en;
   const excerpt = ar ? post.excerpt_ar : post.excerpt_en;
