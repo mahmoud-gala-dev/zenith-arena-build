@@ -30,7 +30,7 @@ import { AIAssistButton, AITranslateSync, AIContentDialog } from "@/components/a
 
 type TableName = keyof Database["public"]["Tables"];
 type AnyRow = Record<string, unknown> & { id?: string; status?: string; featured?: boolean; updated_at?: string; created_at?: string };
-type FieldType = "text" | "textarea" | "number" | "switch" | "select" | "date" | "url" | "json" | "tags";
+type FieldType = "text" | "textarea" | "number" | "switch" | "select" | "date" | "url" | "json" | "tags" | "multi-relation";
 
 export type CmsField = {
   name: string;
@@ -42,6 +42,12 @@ export type CmsField = {
   dir?: "ltr" | "rtl";
   maxLength?: number;
   fullWidth?: boolean;
+  /** For type "multi-relation": table to source options from. */
+  sourceTable?: TableName;
+  /** For type "multi-relation": column to display as label (defaults to title_en). */
+  labelField?: string;
+  /** For type "multi-relation": optional secondary label (e.g. category). */
+  hintField?: string;
 };
 
 export type CmsColumn = {
@@ -166,6 +172,7 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
       else if (field.type === "switch") payload[field.name] = Boolean(value);
       else if (field.type === "json") payload[field.name] = value ? JSON.parse(String(value)) : {};
       else if (field.type === "tags") payload[field.name] = String(value ?? "").split(",").map((item) => item.trim()).filter(Boolean);
+      else if (field.type === "multi-relation") payload[field.name] = Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
       else payload[field.name] = typeof value === "string" && value.trim() === "" ? null : value;
     });
     return config.preparePayload ? config.preparePayload(payload) : payload;
@@ -475,7 +482,7 @@ function Cell({ row, column, onInlineUpdate }: { row: AnyRow; column: CmsColumn;
 
 function FieldEditor({ field, values, onChange }: { field: CmsField; values: AnyRow; onChange: (value: unknown) => void }) {
   const value = values[field.name];
-  const wrapper = field.fullWidth || field.type === "textarea" || field.type === "json" ? "sm:col-span-2" : "";
+  const wrapper = field.fullWidth || field.type === "textarea" || field.type === "json" || field.type === "multi-relation" ? "sm:col-span-2" : "";
   const isTexty = !field.type || field.type === "text" || field.type === "textarea" || field.type === "url";
   const langMatch = /_(en|ar)$/.exec(field.name);
   const language: "en" | "ar" | null = langMatch ? (langMatch[1] as "en" | "ar") : field.dir === "rtl" ? "ar" : null;
@@ -505,6 +512,8 @@ function FieldEditor({ field, values, onChange }: { field: CmsField; values: Any
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>{field.options?.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent>
         </Select>
+      ) : field.type === "multi-relation" ? (
+        <MultiRelationEditor field={field} value={Array.isArray(value) ? (value as string[]) : []} onChange={onChange} />
       ) : (
         <Input
           type={field.type === "number" ? "number" : field.type === "date" ? "date" : "text"}
@@ -515,6 +524,76 @@ function FieldEditor({ field, values, onChange }: { field: CmsField; values: Any
           maxLength={field.maxLength}
         />
       )}
+    </div>
+  );
+}
+
+function MultiRelationEditor({ field, value, onChange }: { field: CmsField; value: string[]; onChange: (next: string[]) => void }) {
+  const [options, setOptions] = useState<Array<{ id: string; label: string; hint?: string }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
+  const labelField = field.labelField ?? "title_en";
+  const hintField = field.hintField;
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!field.sourceTable) { setLoading(false); return; }
+    const columns = ["id", labelField, ...(hintField ? [hintField] : [])].join(",");
+    supabase
+      .from(field.sourceTable as never)
+      .select(columns)
+      .order(labelField, { ascending: true })
+      .limit(500)
+      .then(({ data }) => {
+        if (cancelled) return;
+        const rows = (data ?? []) as Array<Record<string, unknown>>;
+        setOptions(rows.map((r) => ({
+          id: String(r.id ?? ""),
+          label: String(r[labelField] ?? "(untitled)"),
+          hint: hintField ? String(r[hintField] ?? "") : undefined,
+        })).filter((o) => o.id));
+        setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [field.sourceTable, labelField, hintField]);
+
+  const selected = new Set(value);
+  const q = query.trim().toLowerCase();
+  const filtered = q ? options.filter((o) => o.label.toLowerCase().includes(q) || (o.hint ?? "").toLowerCase().includes(q)) : options;
+
+  function toggle(id: string) {
+    const next = new Set(selected);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    onChange(Array.from(next));
+  }
+
+  return (
+    <div className="rounded-lg border border-border bg-background">
+      <div className="flex items-center justify-between gap-2 border-b border-border p-2">
+        <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search…" className="h-8" />
+        <span className="whitespace-nowrap text-xs text-muted-foreground">{selected.size} selected</span>
+      </div>
+      <div className="max-h-56 overflow-y-auto p-2">
+        {loading ? (
+          <div className="flex items-center gap-2 p-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Loading…</div>
+        ) : filtered.length === 0 ? (
+          <p className="p-2 text-sm text-muted-foreground">No items found.</p>
+        ) : (
+          <ul className="space-y-1">
+            {filtered.map((o) => (
+              <li key={o.id}>
+                <label className="flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 hover:bg-accent">
+                  <Checkbox checked={selected.has(o.id)} onCheckedChange={() => toggle(o.id)} className="mt-0.5" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium text-foreground">{o.label}</span>
+                    {o.hint && <span className="block truncate text-xs text-muted-foreground">{o.hint}</span>}
+                  </span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

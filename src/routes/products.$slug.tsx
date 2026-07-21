@@ -1,10 +1,11 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, BadgeCheck, BookOpen, CheckCircle2, Download } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeCheck, BookOpen, CheckCircle2, Download, FileText } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { NotFound } from "@/components/site/NotFound";
 import { Button } from "@/components/ui/button";
+import { DownloadGateButton } from "@/components/site/DownloadGateButton";
 import { useLang } from "@/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -98,6 +99,23 @@ function ProductDetailPage() {
   const related = allProducts.filter((x) => x.id !== p.id && x.category_id && x.category_id === p.category_id).slice(0, 3);
   const relatedFallback = related.length ? related : allProducts.filter((x) => x.id !== p.id).slice(0, 3);
 
+  const catalogIds = Array.isArray((p as ProductRow & { catalog_download_ids?: string[] }).catalog_download_ids)
+    ? ((p as ProductRow & { catalog_download_ids?: string[] }).catalog_download_ids as string[])
+    : [];
+
+  const { data: linkedCatalogs = [] } = useQuery({
+    queryKey: ["product_linked_catalogs", p.id, catalogIds.join(",")],
+    enabled: catalogIds.length > 0,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("downloads")
+        .select("id,slug_en,slug_ar,title_en,title_ar,description_en,description_ar,category,preview_image,file_url,requires_lead_capture,status")
+        .in("id", catalogIds)
+        .eq("status", "published");
+      return data ?? [];
+    },
+  });
+
   const { data: relatedKnowledge = [] } = useQuery({
     queryKey: ["product_related_knowledge", p.id],
     queryFn: async () => {
@@ -189,6 +207,47 @@ function ProductDetailPage() {
                       </a>
                     </li>
                   ) : null)}
+                </ul>
+              </Block>
+            )}
+            {linkedCatalogs.length > 0 && (
+              <Block title={ar ? "كتالوجات المنتج" : "Product catalogs"}>
+                <p className="mb-4 text-sm text-muted-foreground">
+                  {ar
+                    ? "املأ نموذجًا قصيرًا لبدء التحميل — سيصلك الرابط فورًا ويتواصل معك فريقنا لاحقًا."
+                    : "Fill in a short form to start the download — you'll get the file instantly and our team will follow up."}
+                </p>
+                <ul className="grid gap-3 sm:grid-cols-2">
+                  {linkedCatalogs.map((c) => {
+                    const cTitle = ar ? (c.title_ar || c.title_en) : c.title_en;
+                    const cDesc = ar ? (c.description_ar || c.description_en) : c.description_en;
+                    const cSlug = c.slug_en || c.slug_ar || c.id;
+                    return (
+                      <li key={c.id} className="flex flex-col justify-between gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft">
+                        <div className="flex items-start gap-3">
+                          {c.preview_image ? (
+                            <img src={c.preview_image} alt={cTitle} className="h-14 w-14 shrink-0 rounded-lg object-cover" loading="lazy" />
+                          ) : (
+                            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><FileText className="h-6 w-6" /></div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-foreground">{cTitle}</p>
+                            {cDesc && <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{cDesc}</p>}
+                          </div>
+                        </div>
+                        <DownloadGateButton
+                          fileUrl={c.file_url}
+                          title={cTitle}
+                          slug={cSlug}
+                          downloadId={c.id}
+                          requiresLead={c.requires_lead_capture}
+                          label={ar ? "تحميل الكتالوج" : "Download catalog"}
+                          size="sm"
+                          className="w-full"
+                        />
+                      </li>
+                    );
+                  })}
                 </ul>
               </Block>
             )}

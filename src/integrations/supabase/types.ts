@@ -1436,6 +1436,7 @@ export type Database = {
         Row: {
           applications_ar: string[]
           applications_en: string[]
+          catalog_download_ids: string[]
           category_id: string | null
           certifications: string[]
           content_ar: string | null
@@ -1469,6 +1470,7 @@ export type Database = {
         Insert: {
           applications_ar?: string[]
           applications_en?: string[]
+          catalog_download_ids?: string[]
           category_id?: string | null
           certifications?: string[]
           content_ar?: string | null
@@ -1502,6 +1504,7 @@ export type Database = {
         Update: {
           applications_ar?: string[]
           applications_en?: string[]
+          catalog_download_ids?: string[]
           category_id?: string | null
           certifications?: string[]
           content_ar?: string | null

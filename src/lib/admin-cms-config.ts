@@ -97,7 +97,7 @@ export const productConfig: CmsCollectionConfig = {
   orderBy: "sort_order",
   orderAscending: true,
   filters: [{ key: "status", label: "Status", values: ["published", "draft", "archived"] }],
-  initialValues: { slug_en: "", slug_ar: "", title_en: "", title_ar: "", description_en: "", description_ar: "", content_en: "", content_ar: "", image_url: "", features_en: "", features_ar: "", applications_en: "", applications_ar: "", certifications: "", specifications: "{}", seo_title_en: "", seo_description_en: "", seo_keywords: "", status: "published", featured: false, sort_order: 0 },
+  initialValues: { slug_en: "", slug_ar: "", title_en: "", title_ar: "", description_en: "", description_ar: "", content_en: "", content_ar: "", image_url: "", features_en: "", features_ar: "", applications_en: "", applications_ar: "", certifications: "", specifications: "{}", catalog_download_ids: [], seo_title_en: "", seo_description_en: "", seo_keywords: "", status: "published", featured: false, sort_order: 0 },
   fields: [
     ...bilingualTitleFields,
     { name: "image_url", label: "Main image URL", type: "url", fullWidth: true },
@@ -111,6 +111,7 @@ export const productConfig: CmsCollectionConfig = {
     { name: "applications_ar", label: "Arabic applications", type: "tags", dir: "rtl", placeholder: "Comma-separated" },
     { name: "certifications", label: "Certifications", type: "tags", placeholder: "FIFA, ISO 9001" },
     { name: "specifications", label: "Specifications JSON", type: "json" },
+    { name: "catalog_download_ids", label: "Linked catalogs (auto-generates lead-gated download forms on the product page)", type: "multi-relation", sourceTable: "downloads", labelField: "title_en", hintField: "category", fullWidth: true },
     { name: "seo_title_en", label: "SEO title" },
     { name: "seo_description_en", label: "SEO description", type: "textarea", maxLength: 300 },
     { name: "seo_keywords", label: "SEO keywords" },
