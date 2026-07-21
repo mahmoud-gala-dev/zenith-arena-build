@@ -448,6 +448,63 @@ function StatCard({ label, value, tone }: { label: string; value: string; tone?:
   );
 }
 
+function GovernanceBanner({ enabled, dailyLimit }: { enabled: boolean; dailyLimit: number }) {
+  const [myUsage, setMyUsage] = useState<number | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const uid = userData.user?.id;
+      if (!uid) return;
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { count } = await supabase
+        .from("ai_usage_logs")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", uid)
+        .gte("created_at", since);
+      setMyUsage(count ?? 0);
+    })();
+  }, []);
+
+  const used = myUsage ?? 0;
+  const pct = dailyLimit > 0 ? Math.min(100, Math.round((used / dailyLimit) * 100)) : 0;
+  const nearLimit = pct >= 80;
+
+  return (
+    <div className="space-y-3">
+      {!enabled && (
+        <Alert variant="destructive">
+          <ShieldAlert className="h-4 w-4" />
+          <AlertTitle>AI assistant is disabled</AlertTitle>
+          <AlertDescription>
+            كل أزرار الذكاء الاصطناعي في لوحة الأدمن معطّلة حالياً. فعّلها من قسم Settings أدناه.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Human review required — كل ناتج AI مسودة</AlertTitle>
+        <AlertDescription className="space-y-2">
+          <p className="text-xs">
+            المخرجات المولّدة بالذكاء الاصطناعي تُعامَل كمسودة تحتاج مراجعة بشرية قبل النشر. استخدم أزرار
+            <em> Undo </em>/<em> Regenerate </em> في مساعد الحقول لتعديل النتائج.
+          </p>
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <Progress value={pct} className={nearLimit ? "[&>div]:bg-destructive" : ""} />
+            </div>
+            <div className="text-xs whitespace-nowrap text-muted-foreground">
+              {myUsage === null ? "…" : `${used} / ${dailyLimit}`} calls today
+            </div>
+          </div>
+        </AlertDescription>
+      </Alert>
+    </div>
+  );
+}
+
+
 import { useServerFn } from "@tanstack/react-start";
 import { aiAutoSeoRun } from "@/lib/ai/auto-seo.functions";
 
