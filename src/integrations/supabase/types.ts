@@ -236,6 +236,8 @@ export type Database = {
       blog_posts: {
         Row: {
           author_name: string
+          canonical_url_ar: string | null
+          canonical_url_en: string | null
           category_id: string | null
           content_ar: string | null
           content_en: string | null
@@ -247,6 +249,7 @@ export type Database = {
           featured: boolean
           featured_image: string | null
           id: string
+          noindex: boolean
           og_image: string | null
           published_at: string | null
           reading_time: number
@@ -268,6 +271,8 @@ export type Database = {
         }
         Insert: {
           author_name?: string
+          canonical_url_ar?: string | null
+          canonical_url_en?: string | null
           category_id?: string | null
           content_ar?: string | null
           content_en?: string | null
@@ -279,6 +284,7 @@ export type Database = {
           featured?: boolean
           featured_image?: string | null
           id?: string
+          noindex?: boolean
           og_image?: string | null
           published_at?: string | null
           reading_time?: number
@@ -300,6 +306,8 @@ export type Database = {
         }
         Update: {
           author_name?: string
+          canonical_url_ar?: string | null
+          canonical_url_en?: string | null
           category_id?: string | null
           content_ar?: string | null
           content_en?: string | null
@@ -311,6 +319,7 @@ export type Database = {
           featured?: boolean
           featured_image?: string | null
           id?: string
+          noindex?: boolean
           og_image?: string | null
           published_at?: string | null
           reading_time?: number
