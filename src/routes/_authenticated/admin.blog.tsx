@@ -78,6 +78,7 @@ const EMPTY: Article = {
   featured_image: "", og_image: "", author_name: "Egytic Editorial Team",
   reading_time: 5, tags: [], seo_title_en: "", seo_title_ar: "",
   seo_description_en: "", seo_description_ar: "", seo_keywords: "",
+  canonical_url_en: "", canonical_url_ar: "", noindex: false,
   status: "draft", featured: false, category_id: null, scheduled_at: null,
 };
 
