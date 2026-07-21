@@ -41,7 +41,7 @@ export const Route = createFileRoute("/_authenticated/admin/assistant")({
 });
 
 function AssistantPage() {
-  const { language } = useLanguage();
+  const language = useAdminLanguage();
   const chat = useServerFn(aiAdminChat);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
