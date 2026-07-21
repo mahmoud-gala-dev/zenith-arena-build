@@ -304,35 +304,64 @@ function AdminUsersPage() {
                   <tr><td colSpan={roles.length + 1} className="px-4 py-10 text-center text-muted-foreground"><Loader2 className="mx-auto h-4 w-4 animate-spin" /></td></tr>
                 ) : filteredPerms.length === 0 ? (
                   <tr><td colSpan={roles.length + 1} className="px-4 py-10 text-center text-muted-foreground">No permissions match.</td></tr>
-                ) : filteredPerms.map((p) => (
-                  <tr key={p.id}>
-                    <td className="px-4 py-2">
-                      <p className="font-medium text-foreground">{p.label}</p>
-                      <p className="text-xs text-muted-foreground">
-                        <code className="rounded bg-secondary/60 px-1 py-0.5 text-[10px]">{p.key}</code>
-                        {p.description ? <span className="ml-2">{p.description}</span> : null}
-                      </p>
-                    </td>
-                    {roles.map((r) => {
-                      const checked = draft[p.id]?.has(r) ?? false;
-                      const wasChecked = baseline[p.id]?.has(r) ?? false;
-                      const changed = checked !== wasChecked;
-                      const disabled = r === "super_admin";
+                ) : groupedPerms.map(([page, perms]) => (
+                  <>
+                    <tr key={`grp-${page}`} className="bg-secondary/30">
+                      <td className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        {page.replaceAll("-", " ")} <span className="ms-1 text-[10px] normal-case text-muted-foreground/70">({perms.length})</span>
+                      </td>
+                      {roles.map((r) => {
+                        const all = perms.every((p) => draft[p.id]?.has(r));
+                        const some = perms.some((p) => draft[p.id]?.has(r));
+                        const disabled = r === "super_admin";
+                        return (
+                          <td key={r} className="px-3 py-2 text-center">
+                            <Checkbox
+                              checked={disabled ? true : all ? true : some ? "indeterminate" : false}
+                              disabled={disabled || saving || !canManage}
+                              onCheckedChange={guard((v: boolean | "indeterminate") => toggleGroup(r, perms, Boolean(v) && v !== "indeterminate"))}
+                              aria-label={`Toggle all ${page} for ${r}`}
+                            />
+                          </td>
+                        );
+                      })}
+                    </tr>
+                    {perms.map((p) => {
+                      const action = p.key.includes(".") ? p.key.split(".")[1] : "";
                       return (
-                        <td key={r} className={`px-3 py-2 text-center ${changed ? "bg-primary/5" : ""}`}>
-                          <Checkbox
-                            checked={disabled ? true : checked}
-                            disabled={disabled || saving || !canManage}
-                            onCheckedChange={guard((v: boolean | "indeterminate") => toggle(p.id, r, Boolean(v)))}
-                            aria-label={`${p.key} for ${r}`}
-                          />
-
-                        </td>
+                        <tr key={p.id}>
+                          <td className="px-4 py-2 ps-8">
+                            <p className="font-medium text-foreground">
+                              {action ? <span className="capitalize">{action}</span> : p.label}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              <code className="rounded bg-secondary/60 px-1 py-0.5 text-[10px]">{p.key}</code>
+                              {p.description ? <span className="ml-2">{p.description}</span> : null}
+                            </p>
+                          </td>
+                          {roles.map((r) => {
+                            const checked = draft[p.id]?.has(r) ?? false;
+                            const wasChecked = baseline[p.id]?.has(r) ?? false;
+                            const changed = checked !== wasChecked;
+                            const disabled = r === "super_admin";
+                            return (
+                              <td key={r} className={`px-3 py-2 text-center ${changed ? "bg-primary/5" : ""}`}>
+                                <Checkbox
+                                  checked={disabled ? true : checked}
+                                  disabled={disabled || saving || !canManage}
+                                  onCheckedChange={guard((v: boolean | "indeterminate") => toggle(p.id, r, Boolean(v)))}
+                                  aria-label={`${p.key} for ${r}`}
+                                />
+                              </td>
+                            );
+                          })}
+                        </tr>
                       );
                     })}
-                  </tr>
+                  </>
                 ))}
               </tbody>
+
             </table>
           </div>
         </div>
