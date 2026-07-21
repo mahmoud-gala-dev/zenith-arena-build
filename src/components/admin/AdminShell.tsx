@@ -39,6 +39,7 @@ import { useMyPermissions, permissionForPath, notifyAccessDenied } from "@/lib/r
 
 const nav: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
+  { to: "/admin/kpi", label: "KPI Dashboard", icon: BarChart3 },
   { to: "/admin/ai", label: "AI Command Center", icon: Sparkles },
   { to: "/admin/assistant", label: "AI Assistant", icon: Sparkles },
   { to: "/admin/hero-slides", label: "Hero Slider", icon: GalleryHorizontalEnd },
