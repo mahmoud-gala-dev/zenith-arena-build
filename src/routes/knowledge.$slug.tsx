@@ -43,6 +43,14 @@ interface BlogPost {
   tags: string[];
   translation_group_id: string | null;
   content_type: ContentType | null;
+  attachments: Array<{
+    path: string;
+    filename: string;
+    size: number;
+    mime: string;
+    label_en?: string;
+    label_ar?: string;
+  }> | null;
 }
 
 async function fetchPost(slug: string): Promise<BlogPost | null> {
@@ -391,6 +399,11 @@ function ArticleDetail() {
                   ),
                 )}
               </div>
+
+              {Array.isArray(post.attachments) && post.attachments.length > 0 && (
+                <AttachmentsList items={post.attachments} ar={ar} />
+              )}
+
               <div className="mt-10 border-t border-border pt-6">
                 <ShareButtons title={title} path={`/knowledge/${post.slug_en}`} />
               </div>
@@ -545,4 +558,77 @@ function TocList({
     </nav>
   );
 }
+
+function formatFileSize(bytes: number) {
+  if (!bytes) return "";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+}
+
+function AttachmentsList({
+  items,
+  ar,
+}: {
+  items: NonNullable<BlogPost["attachments"]>;
+  ar: boolean;
+}) {
+  const [busy, setBusy] = useState<string | null>(null);
+
+  async function download(path: string, filename: string) {
+    setBusy(path);
+    try {
+      const { data, error } = await supabase.storage
+        .from("article-attachments")
+        .createSignedUrl(path, 300, { download: filename });
+      if (error || !data?.signedUrl) throw error ?? new Error("Failed to create link");
+      const a = document.createElement("a");
+      a.href = data.signedUrl;
+      a.rel = "noopener";
+      a.target = "_blank";
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <section aria-label={ar ? "الملفات المرفقة" : "Attachments"} className="mt-10 rounded-2xl border border-border bg-card p-5 shadow-soft">
+      <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
+        <FileText className="h-5 w-5 text-primary" />
+        {ar ? "الملفات المرفقة" : "Attachments"}
+      </h2>
+      <ul className="divide-y divide-border">
+        {items.map((f) => {
+          const label = (ar ? f.label_ar : f.label_en) || f.filename;
+          const ext = (f.filename.split(".").pop() ?? "").toUpperCase();
+          return (
+            <li key={f.path} className="flex items-center justify-between gap-3 py-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-foreground">{label}</p>
+                <p className="text-xs text-muted-foreground">
+                  {ext} · {formatFileSize(f.size)}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busy === f.path}
+                onClick={() => download(f.path, f.filename)}
+              >
+                {busy === f.path ? (ar ? "جارٍ التحضير…" : "Preparing…") : ar ? "تنزيل" : "Download"}
+              </Button>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
 

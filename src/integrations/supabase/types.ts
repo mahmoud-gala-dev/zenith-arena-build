@@ -235,6 +235,7 @@ export type Database = {
       }
       blog_posts: {
         Row: {
+          attachments: Json
           author_name: string
           canonical_url_ar: string | null
           canonical_url_en: string | null
@@ -270,6 +271,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          attachments?: Json
           author_name?: string
           canonical_url_ar?: string | null
           canonical_url_en?: string | null
@@ -305,6 +307,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          attachments?: Json
           author_name?: string
           canonical_url_ar?: string | null
           canonical_url_en?: string | null

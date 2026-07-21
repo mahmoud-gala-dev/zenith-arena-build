@@ -25,6 +25,7 @@ import { TranslationLinkPanel } from "@/components/admin/TranslationLinkPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useInvalidateTables } from "@/lib/invalidate";
 import { AIAssistButton, AITranslateSync, AISeoSuggest, AIContentDialog } from "@/components/admin/ai";
+import { AttachmentsField, type Attachment } from "@/components/admin/AttachmentsField";
 
 
 export const Route = createFileRoute("/_authenticated/admin/blog")({
@@ -52,6 +53,8 @@ type Article = {
   scheduled_at?: string | null;
   published_at?: string | null;
   updated_at?: string;
+  content_type?: "article" | "guide" | "case_study";
+  attachments?: Attachment[];
 };
 
 type Category = { id: string; slug_en: string; title_en: string; title_ar: string };
@@ -80,6 +83,7 @@ const EMPTY: Article = {
   seo_description_en: "", seo_description_ar: "", seo_keywords: "",
   canonical_url_en: "", canonical_url_ar: "", noindex: false,
   status: "draft", featured: false, category_id: null, scheduled_at: null,
+  content_type: "article", attachments: [],
 };
 
 function slugify(s: string) {
@@ -111,7 +115,7 @@ function AdminBlogPage() {
       supabase.from("tags").select("id, slug, name_en, name_ar").order("name_en"),
     ]);
     if (error) toast.error(error.message);
-    setRows((posts as Article[]) ?? []);
+    setRows((posts as unknown as Article[]) ?? []);
     setCats((c as Category[]) ?? []);
     setTags((t as Tag[]) ?? []);
     setLoading(false);
@@ -663,15 +667,38 @@ function ArticleEditor({
             onChange={(url) => set({ og_image: url })}
             folder="blog/og"
           />
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="space-y-1.5">
+              <Label>Content type</Label>
+              <Select
+                value={value.content_type ?? "article"}
+                onValueChange={(v) => set({ content_type: v as Article["content_type"] })}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="article">Article</SelectItem>
+                  <SelectItem value="guide">Guide</SelectItem>
+                  <SelectItem value="case_study">Case study</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-1.5">
               <Label>Author</Label>
               <Input value={value.author_name ?? ""} onChange={(e) => set({ author_name: e.target.value })} />
             </div>
             <div className="flex items-center gap-3 pt-6">
               <Switch checked={!!value.featured} onCheckedChange={(v) => set({ featured: v })} />
-              <Label className="flex items-center gap-1"><Star className="h-3 w-3" /> Featured on Knowledge Center</Label>
+              <Label className="flex items-center gap-1"><Star className="h-3 w-3" /> Featured</Label>
             </div>
+          </div>
+
+          <div className="rounded-lg border border-border/60 bg-muted/20 p-4">
+            <AttachmentsField
+              value={value.attachments ?? []}
+              onChange={(next) => set({ attachments: next })}
+              permission={`blog.${value.content_type ?? "article"}.attachments`}
+              folder={value.slug_en || "misc"}
+            />
           </div>
         </TabsContent>
 
