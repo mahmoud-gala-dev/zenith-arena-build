@@ -8,65 +8,35 @@ import { logAdminAudit } from "@/lib/admin-audit";
 
 
 
-export type PermissionKey =
-  | "dashboard.view"
-  | "pages.manage"
-  | "services.manage"
-  | "products.manage"
-  | "projects.manage"
-  | "blog.manage"
-  | "leads.manage"
-  | "media.manage"
-  | "settings.manage"
-  | "users.manage"
-  | "content.ai";
-
 /**
- * Maps admin route pathname prefixes to the permission required to view/edit them.
- * Order matters: longest/most-specific paths first.
+ * Permission keys follow the convention `<page>.<action>` where `<action>` is
+ * one of `view` / `create` / `update` / `delete`. Legacy coarse keys such as
+ * `settings.manage` and `content.ai` remain valid and are still granted to
+ * super_admin.
  */
-const ROUTE_PERMISSIONS: Array<{ prefix: string; perm: PermissionKey }> = [
-  { prefix: "/admin/ai", perm: "settings.manage" },
-  { prefix: "/admin/users", perm: "users.manage" },
-  { prefix: "/admin/settings-keys", perm: "settings.manage" },
-  { prefix: "/admin/settings", perm: "settings.manage" },
-  { prefix: "/admin/seo", perm: "settings.manage" },
-  { prefix: "/admin/translations", perm: "settings.manage" },
-  { prefix: "/admin/social-cache", perm: "settings.manage" },
-  { prefix: "/admin/qa-reports", perm: "settings.manage" },
-  { prefix: "/admin/audit-logs", perm: "settings.manage" },
-  { prefix: "/admin/media", perm: "media.manage" },
-  { prefix: "/admin/gallery", perm: "media.manage" },
-  { prefix: "/admin/hero-slides", perm: "pages.manage" },
-  { prefix: "/admin/pages", perm: "pages.manage" },
-  { prefix: "/admin/about", perm: "pages.manage" },
-  { prefix: "/admin/legal", perm: "pages.manage" },
-  { prefix: "/admin/services", perm: "services.manage" },
-  { prefix: "/admin/products", perm: "products.manage" },
-  { prefix: "/admin/downloads-analytics", perm: "products.manage" },
-  { prefix: "/admin/downloads", perm: "products.manage" },
-  { prefix: "/admin/download-leads", perm: "leads.manage" },
-  { prefix: "/admin/leads", perm: "leads.manage" },
-  { prefix: "/admin/newsletter", perm: "leads.manage" },
-  { prefix: "/admin/applications", perm: "leads.manage" },
-  { prefix: "/admin/projects", perm: "projects.manage" },
-  { prefix: "/admin/governorates", perm: "projects.manage" },
-  { prefix: "/admin/clients", perm: "projects.manage" },
-  { prefix: "/admin/certificates", perm: "projects.manage" },
-  { prefix: "/admin/testimonials", perm: "projects.manage" },
-  { prefix: "/admin/faqs", perm: "projects.manage" },
-  { prefix: "/admin/careers", perm: "projects.manage" },
-  { prefix: "/admin/blog", perm: "blog.manage" },
-  { prefix: "/admin/categories", perm: "blog.manage" },
-  { prefix: "/admin", perm: "dashboard.view" },
-];
+export type PermissionKey = string;
+export type CrudAction = "view" | "create" | "update" | "delete";
 
-export function permissionForPath(pathname: string): PermissionKey | null {
-  for (const { prefix, perm } of ROUTE_PERMISSIONS) {
-    if (pathname === prefix || pathname.startsWith(prefix + "/")) return perm;
-  }
-  return null;
+/** Extract the admin page slug from a router pathname. Returns null for non-admin routes. */
+export function adminPageFromPath(pathname: string): string | null {
+  if (!pathname.startsWith("/admin")) return null;
+  const rest = pathname.slice("/admin".length).replace(/^\//, "");
+  if (!rest) return "dashboard";
+  return rest.split("/")[0];
 }
+
+/** Returns the `<page>.view` permission required to open an admin route. */
+export function permissionForPath(pathname: string): PermissionKey | null {
+  const page = adminPageFromPath(pathname);
+  return page ? `${page}.view` : null;
+}
+
+/** Returns the granular CRUD permission required for an admin route action. */
+export function crudPermissionForPath(pathname: string, action: CrudAction): PermissionKey | null {
+  const page = adminPageFromPath(pathname);
+  return page ? `${page}.${action}` : null;
+}
+
 
 async function fetchMyPermissions(): Promise<PermissionKey[]> {
   const { data, error } = await supabase.rpc("get_my_permissions");
@@ -112,6 +82,14 @@ const DENY_TITLE_AR = "تم رفض الوصول";
 const DENY_FALLBACK_EN = "You don't have permission for this action.";
 const DENY_FALLBACK_AR = "لا تملك الصلاحية لتنفيذ هذا الإجراء.";
 
+const ACTION_LABELS: Record<string, { en: string; ar: string }> = {
+  view: { en: "view", ar: "عرض" },
+  create: { en: "create", ar: "إنشاء" },
+  update: { en: "update", ar: "تعديل" },
+  delete: { en: "delete", ar: "حذف" },
+  manage: { en: "manage", ar: "إدارة" },
+};
+
 function describeMissingPermission(perm?: PermissionKey | null) {
   if (perm && PERMISSION_LABELS[perm]) {
     const { en, ar } = PERMISSION_LABELS[perm];
@@ -120,11 +98,21 @@ function describeMissingPermission(perm?: PermissionKey | null) {
       description: `Requires: ${en} — يتطلب صلاحية: ${ar}`,
     };
   }
+  if (perm && perm.includes(".")) {
+    const [page, action] = perm.split(".");
+    const nicePage = page.replaceAll("-", " ");
+    const actionLabel = ACTION_LABELS[action] ?? { en: action, ar: action };
+    return {
+      title: `${DENY_TITLE_EN} · ${DENY_TITLE_AR}`,
+      description: `Requires: ${actionLabel.en} on ${nicePage} — يتطلب صلاحية: ${actionLabel.ar} على ${nicePage}`,
+    };
+  }
   return {
     title: `${DENY_TITLE_EN} · ${DENY_TITLE_AR}`,
     description: `${DENY_FALLBACK_EN} — ${DENY_FALLBACK_AR}`,
   };
 }
+
 
 export function notifyAccessDenied(
   perm?: PermissionKey | null,
@@ -255,6 +243,13 @@ export function useAdminPageGuard() {
   return useGuard(perm);
 }
 
-
-
+/**
+ * Returns a guard bound to the CRUD permission of the currently-active admin
+ * page, e.g. `useCrudGuard("create")` on `/admin/leads` checks `leads.create`.
+ */
+export function useCrudGuard(action: CrudAction) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const perm = crudPermissionForPath(pathname, action);
+  return useGuard(perm);
+}
 
