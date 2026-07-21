@@ -79,6 +79,7 @@ function ProjectsPage() {
       country: editing.country || null, city: editing.city || null,
       year: editing.year ? Number(editing.year) : null, sport_type: editing.sport_type || null,
       cover_image: editing.cover_image || null, status: editing.status || "published",
+      gallery: Array.isArray(editing.gallery) ? editing.gallery : [],
       featured: !!editing.featured,
       governorate_id: editing.governorate_id || null,
     };
