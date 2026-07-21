@@ -41,7 +41,8 @@ export function AIAssistButton({
   size = "icon",
   className,
 }: Props) {
-  const { can } = useCan("content.ai");
+  const { can } = useCan("content.ai.run");
+  const { can: canUndo } = useCan("content.ai.undo");
   const [loading, setLoading] = useState<string | null>(null);
   const improveFn = useServerFn(aiImproveText);
   const translateFn = useServerFn(aiTranslate);
