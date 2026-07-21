@@ -239,6 +239,7 @@ export type Database = {
           category_id: string | null
           content_ar: string | null
           content_en: string | null
+          content_type: string
           created_at: string
           excerpt_ar: string | null
           excerpt_en: string | null
@@ -270,6 +271,7 @@ export type Database = {
           category_id?: string | null
           content_ar?: string | null
           content_en?: string | null
+          content_type?: string
           created_at?: string
           excerpt_ar?: string | null
           excerpt_en?: string | null
@@ -301,6 +303,7 @@ export type Database = {
           category_id?: string | null
           content_ar?: string | null
           content_en?: string | null
+          content_type?: string
           created_at?: string
           excerpt_ar?: string | null
           excerpt_en?: string | null

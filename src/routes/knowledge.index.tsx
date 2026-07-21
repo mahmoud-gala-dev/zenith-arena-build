@@ -45,6 +45,7 @@ interface BlogRow {
   published_at: string | null;
   category_id: string | null;
   tags: string[] | null;
+  content_type: string | null;
 }
 
 interface CategoryRow {
@@ -54,6 +55,7 @@ interface CategoryRow {
 }
 
 type SortKey = "newest" | "oldest" | "reading" | "title";
+type TypeKey = "all" | "article" | "guide" | "case_study";
 
 function KnowledgePage() {
   const { t, lang } = useLang();
@@ -62,6 +64,7 @@ function KnowledgePage() {
   const [q, setQ] = useState("");
   const [category, setCategory] = useState<string>("all");
   const [tag, setTag] = useState<string>("all");
+  const [type, setType] = useState<TypeKey>("all");
   const [sort, setSort] = useState<SortKey>("newest");
 
   const { data: posts = [], isLoading } = useQuery({
@@ -69,7 +72,7 @@ function KnowledgePage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("id,slug_en,title_en,title_ar,excerpt_en,excerpt_ar,featured_image,author_name,reading_time,published_at,category_id,tags")
+        .select("id,slug_en,title_en,title_ar,excerpt_en,excerpt_ar,featured_image,author_name,reading_time,published_at,category_id,tags,content_type")
         .eq("status", "published")
         .order("published_at", { ascending: false });
       if (error) throw error;
@@ -101,6 +104,7 @@ function KnowledgePage() {
     let list = posts.filter((p) => {
       if (category !== "all" && p.category_id !== category) return false;
       if (tag !== "all" && !(p.tags ?? []).includes(tag)) return false;
+      if (type !== "all" && (p.content_type ?? "article") !== type) return false;
       if (query) {
         const hay = [p.title_en, p.title_ar, p.excerpt_en, p.excerpt_ar, ...(p.tags ?? [])]
           .filter(Boolean)
@@ -122,10 +126,17 @@ function KnowledgePage() {
       return 0;
     });
     return list;
-  }, [posts, q, category, tag, sort, ar]);
+  }, [posts, q, category, tag, type, sort, ar]);
 
-  const hasFilters = q !== "" || category !== "all" || tag !== "all" || sort !== "newest";
-  const clearFilters = () => { setQ(""); setCategory("all"); setTag("all"); setSort("newest"); };
+  const hasFilters = q !== "" || category !== "all" || tag !== "all" || type !== "all" || sort !== "newest";
+  const clearFilters = () => { setQ(""); setCategory("all"); setTag("all"); setType("all"); setSort("newest"); };
+
+  const typeLabel = (v: string | null): string => {
+    const k = (v ?? "article") as string;
+    if (k === "guide") return t.knowledgeList.typeGuide;
+    if (k === "case_study") return t.knowledgeList.typeCaseStudy;
+    return t.knowledgeList.typeArticle;
+  };
 
   return (
     <SiteLayout>
@@ -182,15 +193,35 @@ function KnowledgePage() {
             </div>
           </div>
 
-          <div className="mb-6 flex flex-wrap items-center gap-3">
-            <Badge variant="secondary">
-              {t.knowledgeList.resultsCount.replace("{count}", String(filtered.length))}
-            </Badge>
-            {hasFilters && (
-              <Button variant="ghost" size="sm" onClick={clearFilters}>
-                <X className="me-1 h-4 w-4" /> {t.knowledgeList.clearFilters}
-              </Button>
-            )}
+          <div className="mb-6 flex flex-wrap items-center gap-2">
+            {(["all", "article", "guide", "case_study"] as TypeKey[]).map((k) => {
+              const label = k === "all" ? t.knowledgeList.allTypes
+                : k === "article" ? t.knowledgeList.typeArticle
+                : k === "guide" ? t.knowledgeList.typeGuide
+                : t.knowledgeList.typeCaseStudy;
+              const active = type === k;
+              return (
+                <Button
+                  key={k}
+                  variant={active ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setType(k)}
+                  className="rounded-full"
+                >
+                  {label}
+                </Button>
+              );
+            })}
+            <div className="ms-auto flex items-center gap-3">
+              <Badge variant="secondary">
+                {t.knowledgeList.resultsCount.replace("{count}", String(filtered.length))}
+              </Badge>
+              {hasFilters && (
+                <Button variant="ghost" size="sm" onClick={clearFilters}>
+                  <X className="me-1 h-4 w-4" /> {t.knowledgeList.clearFilters}
+                </Button>
+              )}
+            </div>
           </div>
 
           {isLoading ? (
@@ -219,6 +250,9 @@ function KnowledgePage() {
                       </div>
                     )}
                     <div className="flex flex-1 flex-col p-6">
+                      <div className="mb-2">
+                        <Badge variant="outline" className="text-[10px] uppercase tracking-wide">{typeLabel(p.content_type)}</Badge>
+                      </div>
                       <h3 className="text-lg font-semibold text-foreground group-hover:text-primary">
                         {ar ? p.title_ar : p.title_en}
                       </h3>
