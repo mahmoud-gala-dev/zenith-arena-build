@@ -169,7 +169,25 @@ function ProjectsPage() {
                   {govs.map((g) => (<option key={g.id} value={g.id}>{g.name_en} — {g.name_ar}</option>))}
                 </select>
               </Field>
-              <Field label="Cover image URL"><Input value={editing.cover_image ?? ""} onChange={(e) => setEditing({ ...editing, cover_image: e.target.value })} /></Field>
+              <div className="sm:col-span-2">
+                <StrictImageUrlField
+                  label="Cover image"
+                  value={editing.cover_image ?? ""}
+                  onChange={(v) => setEditing({ ...editing, cover_image: v })}
+                  bucket="media"
+                  folder="projects/covers"
+                  aspect="aspect-[16/9]"
+                  aspectRatio={16 / 9}
+                  help="Upload & crop, or paste a URL. Recommended 1600×900."
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <GalleryOrderEditor
+                  label="Project gallery"
+                  value={Array.isArray(editing.gallery) ? editing.gallery : []}
+                  onChange={(next) => setEditing({ ...editing, gallery: next })}
+                />
+              </div>
               <div className="sm:col-span-2"><Field label="Description (EN)"><Textarea rows={3} value={editing.description_en ?? ""} onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} /></Field></div>
               <div className="sm:col-span-2"><Field label="Description (AR)"><Textarea rows={3} dir="rtl" value={editing.description_ar ?? ""} onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} /></Field></div>
               <div className="flex items-center gap-3">
