@@ -173,6 +173,39 @@ function AdminUsersPage() {
     return permissions.filter((p) => [p.key, p.label, p.description].some((v) => String(v ?? "").toLowerCase().includes(q)));
   }, [permissions, permQuery]);
 
+  const groupedPerms = useMemo(() => {
+    const groups = new Map<string, Permission[]>();
+    for (const p of filteredPerms) {
+      const page = p.key.includes(".") ? p.key.split(".")[0] : "other";
+      const list = groups.get(page) ?? [];
+      list.push(p);
+      groups.set(page, list);
+    }
+    // Sort perms within a group by action (view→create→update→delete→other)
+    const rank: Record<string, number> = { view: 0, create: 1, update: 2, delete: 3, manage: 4 };
+    for (const [, list] of groups) {
+      list.sort((a, b) => {
+        const aa = a.key.split(".")[1] ?? "";
+        const bb = b.key.split(".")[1] ?? "";
+        return (rank[aa] ?? 9) - (rank[bb] ?? 9);
+      });
+    }
+    return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
+  }, [filteredPerms]);
+
+  function toggleGroup(role: Role, perms: Permission[], checked: boolean) {
+    setDraft((prev) => {
+      const next = cloneMatrix(prev);
+      for (const p of perms) {
+        const set = next[p.id] ?? new Set<Role>();
+        if (checked) set.add(role); else set.delete(role);
+        next[p.id] = set;
+      }
+      return next;
+    });
+  }
+
+
   function roleFor(userId: string) {
     return userRoles.find((item) => item.user_id === userId)?.role ?? "sales_viewer";
   }
