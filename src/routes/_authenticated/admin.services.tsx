@@ -318,7 +318,7 @@ function AdminServicesPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <AIContentDialog
                       triggerLabel="Draft service"
-                      defaultKind="service"
+                      defaultKind="service_description"
                       defaultLanguage="en"
                       onInsert={(text) => setEditing({ ...editing, description_en: (editing.description_en ? editing.description_en + "\n\n" : "") + text })}
                       targetTable="services"
