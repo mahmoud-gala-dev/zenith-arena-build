@@ -43,11 +43,11 @@ export function Header() {
   const brand = useBrandName();
   const ar = lang === "ar";
 
-  const lowPower = useMemo(() => {
-    if (typeof navigator === "undefined") return false;
+  const [lowPower, setLowPower] = useState(false);
+  useEffect(() => {
     const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
     const cores = navigator.hardwareConcurrency ?? 8;
-    return (mem !== undefined && mem <= 4) || cores <= 4;
+    if ((mem !== undefined && mem <= 4) || cores <= 4) setLowPower(true);
   }, []);
 
   const motionCfg = branding?.logo_motion?.[lang] ?? DEFAULT_LOGO_MOTION;
