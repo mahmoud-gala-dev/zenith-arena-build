@@ -91,7 +91,9 @@ const waClickSchema = z.object({
   message: z.string().trim().max(2000).nullable().optional(),
   source: z.string().trim().max(80).default("quote_page"),
   page_url: z.string().trim().max(500).nullable().optional(),
+  ...attributionSchema,
 });
+
 
 export const logWhatsAppSend = createServerFn({ method: "POST" })
   .validator((input: unknown) => waClickSchema.parse(input))
