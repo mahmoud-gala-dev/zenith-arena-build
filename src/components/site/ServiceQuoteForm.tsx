@@ -64,9 +64,11 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
           service: serviceSlug,
           message: trimmedMessage || `Inline request from /services/${serviceSlug}`,
           preferred_contact: "email",
+          ...getAttribution(),
           website,
         },
       });
+
       setSummary({
         name: trimmedName,
         email: trimmedEmail,
