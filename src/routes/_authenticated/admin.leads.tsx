@@ -636,7 +636,15 @@ const leadSchema = z.object({
   internal_notes: z.string().max(4000, "Max 4000 characters"),
   attachment_url: z.string().trim().max(500, "Max 500 characters")
     .refine((v) => !v || URL_RE.test(v), "Must be a valid http(s) URL"),
+  deal_value_expected: z.string().trim()
+    .refine((v) => !v || (Number.isFinite(Number(v)) && Number(v) >= 0), "Enter a positive number"),
+  deal_value_actual: z.string().trim()
+    .refine((v) => !v || (Number.isFinite(Number(v)) && Number(v) >= 0), "Enter a positive number"),
+  deal_currency: z.string().trim().max(8, "Max 8 characters"),
+  expected_close_date: z.string().refine((v) => !v || ISO_DATE_RE.test(v), "Use YYYY-MM-DD format"),
+  lost_reason: z.string().trim().max(300, "Max 300 characters"),
 });
+
 
 function LeadFormDialog({
   open, lead, onOpenChange, onSaved,
