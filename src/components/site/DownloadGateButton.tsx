@@ -227,10 +227,16 @@ export function DownloadGateButton({
           email,
           phone,
           service: `Download: ${title}`,
-          message: `Download requested: ${title} (/downloads/${slug})`,
+          budget_range: form.budget || null,
+          message: [
+            `Download requested: ${title} (/downloads/${slug})`,
+            form.timeline ? `Expected start: ${form.timeline}` : null,
+          ].filter(Boolean).join("\n"),
+          ...getAttribution(),
           website: form.website,
         },
       });
+
       try { window.localStorage.setItem(dedupeKey, String(Date.now())); } catch { /* ignore */ }
       toast.success(T.success);
       setSubmitted(true);
