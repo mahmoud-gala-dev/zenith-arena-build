@@ -343,6 +343,7 @@ function LeadsPage() {
             <tr>
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Contact</th>
+              <th className="px-4 py-3">Score</th>
               <th className="px-4 py-3">Intent</th>
               <th className="px-4 py-3">Source</th>
               <th className="px-4 py-3">Service</th>
@@ -353,9 +354,9 @@ function LeadsPage() {
           </thead>
           <tbody className="divide-y divide-border">
             {loading ? (
-              <tr><td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">Loading…</td></tr>
+              <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">Loading…</td></tr>
             ) : filtered.length === 0 ? (
-              <tr><td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">No leads found.</td></tr>
+              <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">No leads found.</td></tr>
             ) : filtered.map((l) => (
               <tr key={l.id} className="cursor-pointer hover:bg-secondary/40" onClick={() => setSelected(l)}>
                 <td className="px-4 py-3">
@@ -367,12 +368,16 @@ function LeadsPage() {
                   {l.phone && <div className="text-xs text-muted-foreground">{l.phone}</div>}
                 </td>
                 <td className="px-4 py-3">
+                  <LeadScoreBadge lead={l} />
+                </td>
+                <td className="px-4 py-3">
                   <Badge variant="outline" className="text-xs">{l.intent ?? l.type}</Badge>
                 </td>
                 <td className="px-4 py-3 text-xs text-muted-foreground max-w-[180px] truncate" title={l.source ?? ""}>
                   {l.source ?? "—"}
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">{l.service ?? "—"}</td>
+
                 <td className="px-4 py-3">
                   <span className={`rounded-full px-2 py-0.5 text-xs uppercase ${STATUS_TONE[l.status] ?? "bg-secondary"}`}>
                     {l.status.replace("_", " ")}
