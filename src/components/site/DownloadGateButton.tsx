@@ -18,6 +18,8 @@ import { submitLead } from "@/lib/leads.functions";
 import { getDownloadSignedUrl } from "@/lib/downloads.functions";
 import { trackDownloadEvent } from "@/lib/downloadTracking";
 import { useLang } from "@/i18n/LanguageProvider";
+import { getAttribution } from "@/lib/attribution";
+
 
 type Size = "default" | "sm" | "lg";
 type Variant = "default" | "secondary" | "outline";
