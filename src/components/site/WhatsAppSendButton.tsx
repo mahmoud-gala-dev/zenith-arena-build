@@ -71,8 +71,10 @@ export function WhatsAppSendButton({
               message: fields?.message ?? null,
               source: source ?? "quote_page",
               page_url: pageUrl,
+              ...getAttribution(),
             },
           }).catch((err) => console.warn("[WhatsAppSendButton] log failed", err));
+
         }
       }}
       className={cn(
