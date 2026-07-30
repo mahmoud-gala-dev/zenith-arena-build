@@ -27,6 +27,17 @@ function rateLimitOk(key: string, max = MAX_PER_WINDOW): boolean {
   return true;
 }
 
+const attributionSchema = {
+  utm_source: z.string().trim().max(200).nullable().optional(),
+  utm_medium: z.string().trim().max(200).nullable().optional(),
+  utm_campaign: z.string().trim().max(200).nullable().optional(),
+  utm_term: z.string().trim().max(200).nullable().optional(),
+  utm_content: z.string().trim().max(200).nullable().optional(),
+  landing_page: z.string().trim().max(400).nullable().optional(),
+  referrer: z.string().trim().max(400).nullable().optional(),
+  referrer_host: z.string().trim().max(200).nullable().optional(),
+};
+
 const leadSchema = z.object({
   type: z.enum(["contact", "quote"]),
   name: z.string().trim().min(1).max(100),
@@ -41,8 +52,10 @@ const leadSchema = z.object({
   start_date: z.string().trim().max(40).nullable().optional(),
   message: z.string().trim().max(2000).nullable().optional(),
   preferred_contact: z.string().trim().max(40).nullable().optional(),
+  ...attributionSchema,
   website: z.string().max(0).optional().or(z.literal("")),
 });
+
 
 export const submitLead = createServerFn({ method: "POST" })
   .validator((input: unknown) => leadSchema.parse(input))
@@ -78,7 +91,9 @@ const waClickSchema = z.object({
   message: z.string().trim().max(2000).nullable().optional(),
   source: z.string().trim().max(80).default("quote_page"),
   page_url: z.string().trim().max(500).nullable().optional(),
+  ...attributionSchema,
 });
+
 
 export const logWhatsAppSend = createServerFn({ method: "POST" })
   .validator((input: unknown) => waClickSchema.parse(input))
@@ -158,9 +173,18 @@ export const logWhatsAppSend = createServerFn({ method: "POST" })
         source: data.source,
         intent: "whatsapp",
         preferred_contact: "whatsapp",
+        utm_source: data.utm_source ?? null,
+        utm_medium: data.utm_medium ?? null,
+        utm_campaign: data.utm_campaign ?? null,
+        utm_term: data.utm_term ?? null,
+        utm_content: data.utm_content ?? null,
+        landing_page: data.landing_page ?? null,
+        referrer: data.referrer ?? null,
+        referrer_host: data.referrer_host ?? null,
         whatsapp_thread: [entry],
         whatsapp_last_at: now,
       } as never)
+
       .select("id")
       .single();
     if (error) {

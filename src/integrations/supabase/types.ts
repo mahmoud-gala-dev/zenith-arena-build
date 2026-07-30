@@ -1015,16 +1015,25 @@ export type Database = {
           company: string | null
           country: string | null
           created_at: string
+          deal_currency: string
+          deal_value_actual: number | null
+          deal_value_expected: number | null
           email: string
+          expected_close_date: string | null
           id: string
           intent: string | null
           internal_notes: string | null
+          landing_page: string | null
+          lost_at: string | null
+          lost_reason: string | null
           message: string | null
           name: string
           phone: string | null
           preferred_contact: string | null
           project_area: string | null
           project_type: string | null
+          referrer: string | null
+          referrer_host: string | null
           service: string | null
           source: string | null
           sport_type: string | null
@@ -1032,8 +1041,14 @@ export type Database = {
           status: Database["public"]["Enums"]["lead_status"]
           type: Database["public"]["Enums"]["lead_type"]
           updated_at: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
           whatsapp_last_at: string | null
           whatsapp_thread: Json
+          won_at: string | null
         }
         Insert: {
           assigned_to?: string | null
@@ -1043,16 +1058,25 @@ export type Database = {
           company?: string | null
           country?: string | null
           created_at?: string
+          deal_currency?: string
+          deal_value_actual?: number | null
+          deal_value_expected?: number | null
           email: string
+          expected_close_date?: string | null
           id?: string
           intent?: string | null
           internal_notes?: string | null
+          landing_page?: string | null
+          lost_at?: string | null
+          lost_reason?: string | null
           message?: string | null
           name: string
           phone?: string | null
           preferred_contact?: string | null
           project_area?: string | null
           project_type?: string | null
+          referrer?: string | null
+          referrer_host?: string | null
           service?: string | null
           source?: string | null
           sport_type?: string | null
@@ -1060,8 +1084,14 @@ export type Database = {
           status?: Database["public"]["Enums"]["lead_status"]
           type?: Database["public"]["Enums"]["lead_type"]
           updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
           whatsapp_last_at?: string | null
           whatsapp_thread?: Json
+          won_at?: string | null
         }
         Update: {
           assigned_to?: string | null
@@ -1071,16 +1101,25 @@ export type Database = {
           company?: string | null
           country?: string | null
           created_at?: string
+          deal_currency?: string
+          deal_value_actual?: number | null
+          deal_value_expected?: number | null
           email?: string
+          expected_close_date?: string | null
           id?: string
           intent?: string | null
           internal_notes?: string | null
+          landing_page?: string | null
+          lost_at?: string | null
+          lost_reason?: string | null
           message?: string | null
           name?: string
           phone?: string | null
           preferred_contact?: string | null
           project_area?: string | null
           project_type?: string | null
+          referrer?: string | null
+          referrer_host?: string | null
           service?: string | null
           source?: string | null
           sport_type?: string | null
@@ -1088,8 +1127,14 @@ export type Database = {
           status?: Database["public"]["Enums"]["lead_status"]
           type?: Database["public"]["Enums"]["lead_type"]
           updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
           whatsapp_last_at?: string | null
           whatsapp_thread?: Json
+          won_at?: string | null
         }
         Relationships: []
       }
@@ -2288,6 +2333,16 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      lead_pipeline_summary: {
+        Args: { _from?: string; _to?: string }
+        Returns: {
+          channel: string
+          expected_value: number
+          lead_count: number
+          status: Database["public"]["Enums"]["lead_status"]
+          won_value: number
+        }[]
+      }
       log_admin_event: {
         Args: {
           _action: string

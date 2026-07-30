@@ -6,7 +6,9 @@ import { useLang } from "@/i18n/LanguageProvider";
 import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import { logWhatsAppSend } from "@/lib/leads.functions";
+import { getAttribution } from "@/lib/attribution";
 import { useServerFn } from "@tanstack/react-start";
+
 
 type Props = {
   fields?: Omit<WhatsAppMessageContext, "ar" | "brand" | "pageUrl">;
@@ -69,8 +71,10 @@ export function WhatsAppSendButton({
               message: fields?.message ?? null,
               source: source ?? "quote_page",
               page_url: pageUrl,
+              ...getAttribution(),
             },
           }).catch((err) => console.warn("[WhatsAppSendButton] log failed", err));
+
         }
       }}
       className={cn(

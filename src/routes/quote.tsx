@@ -16,6 +16,8 @@ import { useQuery } from "@tanstack/react-query";
 import { servicesPublishedQueryOptions } from "@/hooks/useServiceContent";
 import { quotePageSettingsQueryOptions, seoSettingsByRouteQueryOptions } from "@/lib/queries";
 import { submitLead } from "@/lib/leads.functions";
+import { getAttribution } from "@/lib/attribution";
+
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { LeadSuccessDialog, type LeadSummary } from "@/components/site/LeadSuccessDialog";
@@ -136,10 +138,12 @@ function QuotePage() {
       start_date: String(fd.get("start") ?? "") || null,
       message: String(fd.get("message") ?? "") || null,
       preferred_contact: contactMethod,
+      ...getAttribution(),
       website: String(fd.get("website") ?? ""),
     };
     const check = submitSchema.safeParse(payload);
     if (!check.success) return toast.error(check.error.issues[0].message);
+
     setSubmitting(true);
     try {
       await submit({ data: payload });

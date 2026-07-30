@@ -43,9 +43,39 @@ type Lead = {
   preferred_contact: string | null;
   attachment_url: string | null;
   created_at: string;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_term?: string | null;
+  utm_content?: string | null;
+  landing_page?: string | null;
+  referrer?: string | null;
+  referrer_host?: string | null;
+  deal_value_expected?: number | string | null;
+  deal_value_actual?: number | string | null;
+  deal_currency?: string | null;
+  expected_close_date?: string | null;
+  won_at?: string | null;
+  lost_at?: string | null;
+  lost_reason?: string | null;
   whatsapp_thread?: Array<{ at: string; direction: "incoming" | "outgoing"; body: string; actor_email?: string | null; via?: string; source?: string; channel?: string }> | null;
   whatsapp_last_at?: string | null;
 };
+
+/** Best channel label for a lead: campaign source → referrer host → form source. */
+function leadChannel(l: Lead): string {
+  return l.utm_source || l.referrer_host || l.source || "direct";
+}
+
+function num(v: number | string | null | undefined): number {
+  const n = typeof v === "string" ? Number(v) : v ?? 0;
+  return Number.isFinite(n as number) ? (n as number) : 0;
+}
+
+function fmtMoney(v: number, currency = "EGP"): string {
+  return `${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(v)} ${currency}`;
+}
+
 
 const STATUSES = ["new", "contacted", "qualified", "proposal_sent", "won", "lost"] as const;
 
@@ -111,12 +141,40 @@ function LeadsPage() {
     );
   });
 
-  const stats = useMemo(() => ({
-    total: leads.length,
-    new: leads.filter((l) => l.status === "new").length,
-    won: leads.filter((l) => l.status === "won").length,
-    last7: leads.filter((l) => Date.now() - new Date(l.created_at).getTime() < 7 * 86400_000).length,
-  }), [leads]);
+  const stats = useMemo(() => {
+    const open = leads.filter((l) => !["won", "lost"].includes(l.status));
+    const won = leads.filter((l) => l.status === "won");
+    const pipelineValue = open.reduce((s, l) => s + num(l.deal_value_expected), 0);
+    const wonValue = won.reduce((s, l) => s + num(l.deal_value_actual ?? l.deal_value_expected), 0);
+    const closed = won.length + leads.filter((l) => l.status === "lost").length;
+    return {
+      total: leads.length,
+      new: leads.filter((l) => l.status === "new").length,
+      won: won.length,
+      last7: leads.filter((l) => Date.now() - new Date(l.created_at).getTime() < 7 * 86400_000).length,
+      pipelineValue,
+      wonValue,
+      winRate: closed ? Math.round((won.length / closed) * 100) : 0,
+      avgDeal: won.length ? Math.round(wonValue / won.length) : 0,
+    };
+  }, [leads]);
+
+  const channelBreakdown = useMemo(() => {
+    const map = new Map<string, { count: number; pipeline: number; won: number }>();
+    for (const l of leads) {
+      const key = leadChannel(l);
+      const row = map.get(key) ?? { count: 0, pipeline: 0, won: 0 };
+      row.count += 1;
+      if (!["won", "lost"].includes(l.status)) row.pipeline += num(l.deal_value_expected);
+      if (l.status === "won") row.won += num(l.deal_value_actual ?? l.deal_value_expected);
+      map.set(key, row);
+    }
+    return Array.from(map.entries())
+      .map(([channel, v]) => ({ channel, ...v }))
+      .sort((a, b) => b.won - a.won || b.count - a.count)
+      .slice(0, 8);
+  }, [leads]);
+
 
   const updateStatus = guard(async (id: string, status: string) => {
     const { error } = await supabase.from("leads").update({ status: status as Lead["status"] as never }).eq("id", id);
@@ -148,16 +206,24 @@ function LeadsPage() {
         "Name", "Email", "Phone", "Company", "Country", "City",
         "Type", "Intent", "Service", "Project Type", "Sport Type", "Area (m²)",
         "Budget", "Start Date", "Preferred Contact", "Source",
+        "Channel", "UTM Source", "UTM Medium", "UTM Campaign", "UTM Term", "UTM Content",
+        "Landing Page", "Referrer",
+        "Expected Value", "Actual Value", "Currency", "Expected Close", "Won At", "Lost At", "Lost Reason",
         "Status", "Message", "Internal Notes", "Attachment URL", "Created At",
       ],
       ...filtered.map((l) => [
         l.name, l.email, l.phone ?? "", l.company ?? "", l.country ?? "", l.city ?? "",
         l.type, l.intent ?? "", l.service ?? "", l.project_type ?? "", l.sport_type ?? "", l.project_area ?? "",
         l.budget_range ?? "", l.start_date ?? "", l.preferred_contact ?? "", l.source ?? "",
+        leadChannel(l), l.utm_source ?? "", l.utm_medium ?? "", l.utm_campaign ?? "", l.utm_term ?? "", l.utm_content ?? "",
+        l.landing_page ?? "", l.referrer ?? "",
+        num(l.deal_value_expected) || "", num(l.deal_value_actual) || "", l.deal_currency ?? "",
+        l.expected_close_date ?? "", l.won_at ?? "", l.lost_at ?? "", l.lost_reason ?? "",
         l.status, (l.message ?? "").replace(/\r?\n/g, " "), (l.internal_notes ?? "").replace(/\r?\n/g, " "),
         l.attachment_url ?? "", new Date(l.created_at).toISOString(),
       ]),
     ];
+
     const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
     // BOM so Excel opens UTF-8 (Arabic) correctly
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
@@ -184,6 +250,44 @@ function LeadsPage() {
         <StatCard label="Won" value={stats.won} tone="text-emerald-600 dark:text-emerald-400" />
         <StatCard label="Last 7 days" value={stats.last7} />
       </div>
+
+      {/* Pipeline economics */}
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard label="Open pipeline" value={fmtMoney(stats.pipelineValue)} tone="text-primary" />
+        <StatCard label="Won value" value={fmtMoney(stats.wonValue)} tone="text-emerald-600 dark:text-emerald-400" />
+        <StatCard label="Win rate" value={`${stats.winRate}%`} />
+        <StatCard label="Avg won deal" value={fmtMoney(stats.avgDeal)} />
+      </div>
+
+      {/* Channel attribution */}
+      {channelBreakdown.length > 0 && (
+        <div className="mb-4 rounded-xl border border-border bg-card p-4 shadow-soft">
+          <p className="text-xs uppercase text-muted-foreground">Channel attribution</p>
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full min-w-[520px] text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase text-muted-foreground">
+                  <th className="pb-2">Channel</th>
+                  <th className="pb-2">Leads</th>
+                  <th className="pb-2">Open pipeline</th>
+                  <th className="pb-2">Won value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {channelBreakdown.map((c) => (
+                  <tr key={c.channel} className="border-t border-border/60">
+                    <td className="py-2 font-medium text-foreground">{c.channel}</td>
+                    <td className="py-2 text-muted-foreground">{c.count}</td>
+                    <td className="py-2 text-muted-foreground">{fmtMoney(c.pipeline)}</td>
+                    <td className="py-2 font-semibold text-emerald-600 dark:text-emerald-400">{fmtMoney(c.won)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
 
       {/* Filters */}
       <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -356,6 +460,34 @@ function LeadsPage() {
                   <p className="text-xs uppercase text-muted-foreground">Source</p>
                   <p className="mt-1 break-all text-foreground">{selected.source || "—"}</p>
                 </div>
+
+                {/* Deal economics */}
+                <div className="sm:col-span-2 rounded-lg border border-border bg-secondary/30 p-3">
+                  <p className="text-xs uppercase text-muted-foreground">Deal</p>
+                  <div className="mt-2 grid gap-3 sm:grid-cols-2">
+                    <Info label="Expected value" value={num(selected.deal_value_expected) ? fmtMoney(num(selected.deal_value_expected), selected.deal_currency ?? "EGP") : null} />
+                    <Info label="Actual value" value={num(selected.deal_value_actual) ? fmtMoney(num(selected.deal_value_actual), selected.deal_currency ?? "EGP") : null} />
+                    <Info label="Expected close" value={selected.expected_close_date ? selected.expected_close_date.slice(0, 10) : null} />
+                    <Info label="Won / Lost" value={selected.won_at ? `Won ${new Date(selected.won_at).toLocaleDateString()}` : selected.lost_at ? `Lost ${new Date(selected.lost_at).toLocaleDateString()}` : null} />
+                    {selected.lost_reason && <div className="sm:col-span-2"><Info label="Lost reason" value={selected.lost_reason} /></div>}
+                  </div>
+                </div>
+
+                {/* Marketing attribution */}
+                <div className="sm:col-span-2 rounded-lg border border-border bg-secondary/30 p-3">
+                  <p className="text-xs uppercase text-muted-foreground">Attribution — channel: <span className="font-semibold text-foreground">{leadChannel(selected)}</span></p>
+                  <div className="mt-2 grid gap-3 sm:grid-cols-2">
+                    <Info label="UTM source" value={selected.utm_source ?? null} />
+                    <Info label="UTM medium" value={selected.utm_medium ?? null} />
+                    <Info label="UTM campaign" value={selected.utm_campaign ?? null} />
+                    <Info label="UTM term" value={selected.utm_term ?? null} />
+                    <Info label="UTM content" value={selected.utm_content ?? null} />
+                    <Info label="Referrer host" value={selected.referrer_host ?? null} />
+                    <div className="sm:col-span-2"><Info label="Landing page" value={selected.landing_page ?? null} /></div>
+                    <div className="sm:col-span-2"><Info label="Referrer" value={selected.referrer ?? null} /></div>
+                  </div>
+                </div>
+
                 {selected.attachment_url && (
                   <div className="sm:col-span-2">
                     <p className="text-xs uppercase text-muted-foreground">Attachment</p>
@@ -453,7 +585,7 @@ function Info({ label, value }: { label: string; value: string | null }) {
   );
 }
 
-function StatCard({ label, value, tone }: { label: string; value: number; tone?: string }) {
+function StatCard({ label, value, tone }: { label: string; value: number | string; tone?: string }) {
   return (
     <div className="rounded-xl border border-border bg-card p-4 shadow-soft">
       <p className="text-xs uppercase text-muted-foreground">{label}</p>
@@ -472,6 +604,8 @@ type LeadFormState = {
   project_type: string; sport_type: string; project_area: string;
   preferred_contact: string; start_date: string; message: string;
   internal_notes: string; attachment_url: string;
+  deal_value_expected: string; deal_value_actual: string; deal_currency: string;
+  expected_close_date: string; lost_reason: string;
 };
 
 function emptyForm(): LeadFormState {
@@ -480,6 +614,8 @@ function emptyForm(): LeadFormState {
     type: "contact", status: "new", intent: "", source: "manual", service: "",
     budget_range: "", project_type: "", sport_type: "", project_area: "",
     preferred_contact: "", start_date: "", message: "", internal_notes: "", attachment_url: "",
+    deal_value_expected: "", deal_value_actual: "", deal_currency: "EGP",
+    expected_close_date: "", lost_reason: "",
   };
 }
 
@@ -492,8 +628,14 @@ function toForm(l: Lead): LeadFormState {
     sport_type: l.sport_type ?? "", project_area: l.project_area ?? "",
     preferred_contact: l.preferred_contact ?? "", start_date: l.start_date ?? "",
     message: l.message ?? "", internal_notes: l.internal_notes ?? "", attachment_url: l.attachment_url ?? "",
+    deal_value_expected: l.deal_value_expected != null ? String(l.deal_value_expected) : "",
+    deal_value_actual: l.deal_value_actual != null ? String(l.deal_value_actual) : "",
+    deal_currency: l.deal_currency ?? "EGP",
+    expected_close_date: l.expected_close_date ? l.expected_close_date.slice(0, 10) : "",
+    lost_reason: l.lost_reason ?? "",
   };
 }
+
 
 const PHONE_RE = /^\+?[0-9\s\-().]{7,20}$/;
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -522,7 +664,15 @@ const leadSchema = z.object({
   internal_notes: z.string().max(4000, "Max 4000 characters"),
   attachment_url: z.string().trim().max(500, "Max 500 characters")
     .refine((v) => !v || URL_RE.test(v), "Must be a valid http(s) URL"),
+  deal_value_expected: z.string().trim()
+    .refine((v) => !v || (Number.isFinite(Number(v)) && Number(v) >= 0), "Enter a positive number"),
+  deal_value_actual: z.string().trim()
+    .refine((v) => !v || (Number.isFinite(Number(v)) && Number(v) >= 0), "Enter a positive number"),
+  deal_currency: z.string().trim().max(8, "Max 8 characters"),
+  expected_close_date: z.string().refine((v) => !v || ISO_DATE_RE.test(v), "Use YYYY-MM-DD format"),
+  lost_reason: z.string().trim().max(300, "Max 300 characters"),
 });
+
 
 function LeadFormDialog({
   open, lead, onOpenChange, onSaved,
@@ -581,7 +731,13 @@ function LeadFormDialog({
       message: v.message || null,
       internal_notes: v.internal_notes || null,
       attachment_url: v.attachment_url || null,
+      deal_value_expected: v.deal_value_expected ? Number(v.deal_value_expected) : null,
+      deal_value_actual: v.deal_value_actual ? Number(v.deal_value_actual) : null,
+      deal_currency: v.deal_currency || "EGP",
+      expected_close_date: v.expected_close_date || null,
+      lost_reason: v.lost_reason || null,
     };
+
     if (lead) {
       const { data, error } = await supabase.from("leads").update(payload as never).eq("id", lead.id).select().single();
       setSaving(false);
@@ -643,7 +799,13 @@ function LeadFormDialog({
             </Select>
           </Field>
           <Field label="Start date" error={errors.start_date}><Input type="date" value={form.start_date ? form.start_date.slice(0, 10) : ""} onChange={(e) => set("start_date", e.target.value)} aria-invalid={!!errors.start_date} /></Field>
+          <Field label="Expected deal value" error={errors.deal_value_expected}><Input inputMode="decimal" value={form.deal_value_expected} onChange={(e) => set("deal_value_expected", e.target.value)} placeholder="1200000" aria-invalid={!!errors.deal_value_expected} /></Field>
+          <Field label="Actual (won) value" error={errors.deal_value_actual}><Input inputMode="decimal" value={form.deal_value_actual} onChange={(e) => set("deal_value_actual", e.target.value)} placeholder="1150000" aria-invalid={!!errors.deal_value_actual} /></Field>
+          <Field label="Currency" error={errors.deal_currency}><Input value={form.deal_currency} onChange={(e) => set("deal_currency", e.target.value.toUpperCase())} placeholder="EGP" /></Field>
+          <Field label="Expected close date" error={errors.expected_close_date}><Input type="date" value={form.expected_close_date} onChange={(e) => set("expected_close_date", e.target.value)} aria-invalid={!!errors.expected_close_date} /></Field>
+          <Field label="Lost reason" error={errors.lost_reason}><Input value={form.lost_reason} onChange={(e) => set("lost_reason", e.target.value)} placeholder="Price / timeline / no response…" /></Field>
           <div className="sm:col-span-2"><Field label="Attachment URL" error={errors.attachment_url}><Input value={form.attachment_url} onChange={(e) => set("attachment_url", e.target.value)} placeholder="https://…" aria-invalid={!!errors.attachment_url} /></Field></div>
+
           <div className="sm:col-span-2">
             <Field label={`Message (${form.message.length}/4000)`} error={errors.message}>
               <textarea rows={3} maxLength={4000} className="w-full rounded-md border border-border bg-background p-2 text-sm" value={form.message} onChange={(e) => set("message", e.target.value)} />
