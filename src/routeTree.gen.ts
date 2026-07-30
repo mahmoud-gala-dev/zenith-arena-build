@@ -79,7 +79,6 @@ import { Route as AuthenticatedAdminAssistantRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminApplicationsRouteImport } from './routes/_authenticated/admin.applications'
 import { Route as AuthenticatedAdminAiRouteImport } from './routes/_authenticated/admin.ai'
 import { Route as AuthenticatedAdminAboutRouteImport } from './routes/_authenticated/admin.about'
-import { Route as ApiPublicHooksResetAdminPwRouteImport } from './routes/api/public/hooks/reset-admin-pw'
 import { Route as ApiPublicHooksN8nInboundRouteImport } from './routes/api/public/hooks/n8n-inbound'
 import { Route as ApiPublicHooksAutoSeoRouteImport } from './routes/api/public/hooks/auto-seo'
 import { Route as AuthenticatedAdminLegalPreviewSlugRouteImport } from './routes/_authenticated/admin.legal.preview.$slug'
@@ -457,12 +456,6 @@ const AuthenticatedAdminAboutRoute = AuthenticatedAdminAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const ApiPublicHooksResetAdminPwRoute =
-  ApiPublicHooksResetAdminPwRouteImport.update({
-    id: '/api/public/hooks/reset-admin-pw',
-    path: '/api/public/hooks/reset-admin-pw',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicHooksN8nInboundRoute =
   ApiPublicHooksN8nInboundRouteImport.update({
     id: '/api/public/hooks/n8n-inbound',
@@ -553,7 +546,6 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/auto-seo': typeof ApiPublicHooksAutoSeoRoute
   '/api/public/hooks/n8n-inbound': typeof ApiPublicHooksN8nInboundRoute
-  '/api/public/hooks/reset-admin-pw': typeof ApiPublicHooksResetAdminPwRoute
   '/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
 export interface FileRoutesByTo {
@@ -623,7 +615,6 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/auto-seo': typeof ApiPublicHooksAutoSeoRoute
   '/api/public/hooks/n8n-inbound': typeof ApiPublicHooksN8nInboundRoute
-  '/api/public/hooks/reset-admin-pw': typeof ApiPublicHooksResetAdminPwRoute
   '/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
 export interface FileRoutesById {
@@ -700,7 +691,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/auto-seo': typeof ApiPublicHooksAutoSeoRoute
   '/api/public/hooks/n8n-inbound': typeof ApiPublicHooksN8nInboundRoute
-  '/api/public/hooks/reset-admin-pw': typeof ApiPublicHooksResetAdminPwRoute
   '/_authenticated/admin/legal/preview/$slug': typeof AuthenticatedAdminLegalPreviewSlugRoute
 }
 export interface FileRouteTypes {
@@ -777,7 +767,6 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/api/public/hooks/auto-seo'
     | '/api/public/hooks/n8n-inbound'
-    | '/api/public/hooks/reset-admin-pw'
     | '/admin/legal/preview/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -847,7 +836,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/api/public/hooks/auto-seo'
     | '/api/public/hooks/n8n-inbound'
-    | '/api/public/hooks/reset-admin-pw'
     | '/admin/legal/preview/$slug'
   id:
     | '__root__'
@@ -923,7 +911,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/'
     | '/api/public/hooks/auto-seo'
     | '/api/public/hooks/n8n-inbound'
-    | '/api/public/hooks/reset-admin-pw'
     | '/_authenticated/admin/legal/preview/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -954,7 +941,6 @@ export interface RootRouteChildren {
   PreviewPagesSlugRoute: typeof PreviewPagesSlugRoute
   ApiPublicHooksAutoSeoRoute: typeof ApiPublicHooksAutoSeoRoute
   ApiPublicHooksN8nInboundRoute: typeof ApiPublicHooksN8nInboundRoute
-  ApiPublicHooksResetAdminPwRoute: typeof ApiPublicHooksResetAdminPwRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1449,13 +1435,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAboutRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/api/public/hooks/reset-admin-pw': {
-      id: '/api/public/hooks/reset-admin-pw'
-      path: '/api/public/hooks/reset-admin-pw'
-      fullPath: '/api/public/hooks/reset-admin-pw'
-      preLoaderRoute: typeof ApiPublicHooksResetAdminPwRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/hooks/n8n-inbound': {
       id: '/api/public/hooks/n8n-inbound'
       path: '/api/public/hooks/n8n-inbound'
@@ -1683,8 +1662,17 @@ const rootRouteChildren: RootRouteChildren = {
   PreviewPagesSlugRoute: PreviewPagesSlugRoute,
   ApiPublicHooksAutoSeoRoute: ApiPublicHooksAutoSeoRoute,
   ApiPublicHooksN8nInboundRoute: ApiPublicHooksN8nInboundRoute,
-  ApiPublicHooksResetAdminPwRoute: ApiPublicHooksResetAdminPwRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
