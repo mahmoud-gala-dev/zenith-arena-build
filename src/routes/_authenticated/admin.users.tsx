@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { useGuard } from "@/lib/rbac";
 import { logAdminAudit } from "@/lib/admin-audit";
+import { ResetPasswordDialog } from "@/components/admin/ResetPasswordDialog";
 
 
 export const Route = createFileRoute("/_authenticated/admin/users")({
@@ -399,6 +400,7 @@ function AdminUsersPage() {
                         </Select>
 
                         {savingId === profile.id && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                        <ResetPasswordDialog userId={profile.id} email={profile.email} disabled={!canManage} />
                       </div>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{new Date(profile.created_at).toLocaleDateString()}</td>
