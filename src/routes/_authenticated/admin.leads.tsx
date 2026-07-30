@@ -206,16 +206,24 @@ function LeadsPage() {
         "Name", "Email", "Phone", "Company", "Country", "City",
         "Type", "Intent", "Service", "Project Type", "Sport Type", "Area (m²)",
         "Budget", "Start Date", "Preferred Contact", "Source",
+        "Channel", "UTM Source", "UTM Medium", "UTM Campaign", "UTM Term", "UTM Content",
+        "Landing Page", "Referrer",
+        "Expected Value", "Actual Value", "Currency", "Expected Close", "Won At", "Lost At", "Lost Reason",
         "Status", "Message", "Internal Notes", "Attachment URL", "Created At",
       ],
       ...filtered.map((l) => [
         l.name, l.email, l.phone ?? "", l.company ?? "", l.country ?? "", l.city ?? "",
         l.type, l.intent ?? "", l.service ?? "", l.project_type ?? "", l.sport_type ?? "", l.project_area ?? "",
         l.budget_range ?? "", l.start_date ?? "", l.preferred_contact ?? "", l.source ?? "",
+        leadChannel(l), l.utm_source ?? "", l.utm_medium ?? "", l.utm_campaign ?? "", l.utm_term ?? "", l.utm_content ?? "",
+        l.landing_page ?? "", l.referrer ?? "",
+        num(l.deal_value_expected) || "", num(l.deal_value_actual) || "", l.deal_currency ?? "",
+        l.expected_close_date ?? "", l.won_at ?? "", l.lost_at ?? "", l.lost_reason ?? "",
         l.status, (l.message ?? "").replace(/\r?\n/g, " "), (l.internal_notes ?? "").replace(/\r?\n/g, " "),
         l.attachment_url ?? "", new Date(l.created_at).toISOString(),
       ]),
     ];
+
     const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
     // BOM so Excel opens UTF-8 (Arabic) correctly
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
