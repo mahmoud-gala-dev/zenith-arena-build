@@ -27,6 +27,17 @@ function rateLimitOk(key: string, max = MAX_PER_WINDOW): boolean {
   return true;
 }
 
+const attributionSchema = {
+  utm_source: z.string().trim().max(200).nullable().optional(),
+  utm_medium: z.string().trim().max(200).nullable().optional(),
+  utm_campaign: z.string().trim().max(200).nullable().optional(),
+  utm_term: z.string().trim().max(200).nullable().optional(),
+  utm_content: z.string().trim().max(200).nullable().optional(),
+  landing_page: z.string().trim().max(400).nullable().optional(),
+  referrer: z.string().trim().max(400).nullable().optional(),
+  referrer_host: z.string().trim().max(200).nullable().optional(),
+};
+
 const leadSchema = z.object({
   type: z.enum(["contact", "quote"]),
   name: z.string().trim().min(1).max(100),
@@ -41,8 +52,10 @@ const leadSchema = z.object({
   start_date: z.string().trim().max(40).nullable().optional(),
   message: z.string().trim().max(2000).nullable().optional(),
   preferred_contact: z.string().trim().max(40).nullable().optional(),
+  ...attributionSchema,
   website: z.string().max(0).optional().or(z.literal("")),
 });
+
 
 export const submitLead = createServerFn({ method: "POST" })
   .validator((input: unknown) => leadSchema.parse(input))
