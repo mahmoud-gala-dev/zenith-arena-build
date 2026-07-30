@@ -1,13 +1,21 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { WhatsAppButton } from "./WhatsAppButton";
 import { SplashScreen } from "./SplashScreen";
 import { MobileShell } from "./mobile/MobileShell";
 import { PageTransition } from "./PageTransition";
+import { captureAttribution } from "@/lib/attribution";
 
 export function SiteLayout({ children }: { children: ReactNode }) {
+  // Capture campaign / referrer data on the first public page view of the visit
+  // so any lead submitted later carries the channel that produced it.
+  useEffect(() => {
+    captureAttribution();
+  }, []);
+
   return (
+
     <>
       <a
         href="#main-content"
