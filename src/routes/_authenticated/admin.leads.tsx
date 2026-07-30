@@ -119,30 +119,41 @@ function LeadsPage() {
   const uniqueIntents = useMemo(() => Array.from(new Set(leads.map((l) => l.intent).filter(Boolean))) as string[], [leads]);
   const uniqueSources = useMemo(() => Array.from(new Set(leads.map((l) => l.source).filter(Boolean))) as string[], [leads]);
 
-  const filtered = leads.filter((l) => {
-    if (statusFilter !== "all" && l.status !== statusFilter) return false;
-    if (typeFilter !== "all" && l.type !== typeFilter) return false;
-    if (intentFilter !== "all" && (l.intent ?? "") !== intentFilter) return false;
-    if (sourceFilter !== "all" && (l.source ?? "") !== sourceFilter) return false;
-    if (dateFilter !== "all") {
-      const days = dateFilter === "7d" ? 7 : dateFilter === "30d" ? 30 : dateFilter === "90d" ? 90 : 0;
-      if (days > 0) {
-        const cutoff = Date.now() - days * 86400_000;
-        if (new Date(l.created_at).getTime() < cutoff) return false;
+  const [bandFilter, setBandFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"recent" | "score">("recent");
+
+  const filtered = useMemo(() => {
+    const rows = leads.filter((l) => {
+      if (statusFilter !== "all" && l.status !== statusFilter) return false;
+      if (typeFilter !== "all" && l.type !== typeFilter) return false;
+      if (intentFilter !== "all" && (l.intent ?? "") !== intentFilter) return false;
+      if (sourceFilter !== "all" && (l.source ?? "") !== sourceFilter) return false;
+      if (bandFilter !== "all" && scoreLead(l).band !== bandFilter) return false;
+      if (dateFilter !== "all") {
+        const days = dateFilter === "7d" ? 7 : dateFilter === "30d" ? 30 : dateFilter === "90d" ? 90 : 0;
+        if (days > 0) {
+          const cutoff = Date.now() - days * 86400_000;
+          if (new Date(l.created_at).getTime() < cutoff) return false;
+        }
       }
+      if (!q) return true;
+      const s = q.toLowerCase();
+      return (
+        l.name.toLowerCase().includes(s) ||
+        l.email.toLowerCase().includes(s) ||
+        (l.company ?? "").toLowerCase().includes(s) ||
+        (l.service ?? "").toLowerCase().includes(s) ||
+        (l.phone ?? "").toLowerCase().includes(s) ||
+        (l.source ?? "").toLowerCase().includes(s) ||
+        (l.intent ?? "").toLowerCase().includes(s)
+      );
+    });
+    if (sortBy === "score") {
+      return [...rows].sort((a, b) => scoreLead(b).score - scoreLead(a).score);
     }
-    if (!q) return true;
-    const s = q.toLowerCase();
-    return (
-      l.name.toLowerCase().includes(s) ||
-      l.email.toLowerCase().includes(s) ||
-      (l.company ?? "").toLowerCase().includes(s) ||
-      (l.service ?? "").toLowerCase().includes(s) ||
-      (l.phone ?? "").toLowerCase().includes(s) ||
-      (l.source ?? "").toLowerCase().includes(s) ||
-      (l.intent ?? "").toLowerCase().includes(s)
-    );
-  });
+    return rows;
+  }, [leads, statusFilter, typeFilter, intentFilter, sourceFilter, bandFilter, dateFilter, q, sortBy]);
+
 
   const stats = useMemo(() => {
     const open = leads.filter((l) => !["won", "lost"].includes(l.status));
