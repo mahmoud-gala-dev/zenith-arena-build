@@ -703,7 +703,13 @@ function LeadFormDialog({
       message: v.message || null,
       internal_notes: v.internal_notes || null,
       attachment_url: v.attachment_url || null,
+      deal_value_expected: v.deal_value_expected ? Number(v.deal_value_expected) : null,
+      deal_value_actual: v.deal_value_actual ? Number(v.deal_value_actual) : null,
+      deal_currency: v.deal_currency || "EGP",
+      expected_close_date: v.expected_close_date || null,
+      lost_reason: v.lost_reason || null,
     };
+
     if (lead) {
       const { data, error } = await supabase.from("leads").update(payload as never).eq("id", lead.id).select().single();
       setSaving(false);
