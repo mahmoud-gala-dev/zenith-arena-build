@@ -7,6 +7,7 @@ import { NotFound } from "@/components/site/NotFound";
 import { Button } from "@/components/ui/button";
 import { DownloadGateButton } from "@/components/site/DownloadGateButton";
 import { useLang } from "@/i18n/LanguageProvider";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 import { supabase } from "@/integrations/supabase/client";
 import {
   productBySlugQueryOptions,
@@ -86,7 +87,7 @@ function ProductDetailPage() {
 
   const title = ar ? p.title_ar : p.title_en;
   const description = ar ? p.description_ar : p.description_en;
-  const content = ar ? p.content_ar : p.content_en;
+  const content = sanitizeHtml(ar ? p.content_ar : p.content_en);
   const features = (ar ? p.features_ar : p.features_en) ?? [];
   const applications = (ar ? p.applications_ar : p.applications_en) ?? [];
   const cat = p.category_id ? categories.find((c) => c.id === p.category_id) : undefined;
