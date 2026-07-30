@@ -54,7 +54,7 @@ export function DownloadGateButton({
   const [submitted, setSubmitted] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [popupBlocked, setPopupBlocked] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", website: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", budget: "", timeline: "", website: "" });
   const [whatsapp, setWhatsapp] = useState<string | null>(null);
   const submit = useServerFn(submitLead);
   const sign = useServerFn(getDownloadSignedUrl);
