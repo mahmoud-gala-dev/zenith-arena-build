@@ -253,7 +253,9 @@ function LeadsPage() {
   function resetFilters() {
     setQ(""); setStatusFilter("all"); setTypeFilter("all");
     setIntentFilter("all"); setSourceFilter("all"); setDateFilter("all");
+    setBandFilter("all"); setSortBy("recent");
   }
+
 
   return (
     <AdminShell title="Leads">
