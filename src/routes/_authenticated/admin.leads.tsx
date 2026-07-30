@@ -251,6 +251,44 @@ function LeadsPage() {
         <StatCard label="Last 7 days" value={stats.last7} />
       </div>
 
+      {/* Pipeline economics */}
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard label="Open pipeline" value={fmtMoney(stats.pipelineValue)} tone="text-primary" />
+        <StatCard label="Won value" value={fmtMoney(stats.wonValue)} tone="text-emerald-600 dark:text-emerald-400" />
+        <StatCard label="Win rate" value={`${stats.winRate}%`} />
+        <StatCard label="Avg won deal" value={fmtMoney(stats.avgDeal)} />
+      </div>
+
+      {/* Channel attribution */}
+      {channelBreakdown.length > 0 && (
+        <div className="mb-4 rounded-xl border border-border bg-card p-4 shadow-soft">
+          <p className="text-xs uppercase text-muted-foreground">Channel attribution</p>
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full min-w-[520px] text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase text-muted-foreground">
+                  <th className="pb-2">Channel</th>
+                  <th className="pb-2">Leads</th>
+                  <th className="pb-2">Open pipeline</th>
+                  <th className="pb-2">Won value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {channelBreakdown.map((c) => (
+                  <tr key={c.channel} className="border-t border-border/60">
+                    <td className="py-2 font-medium text-foreground">{c.channel}</td>
+                    <td className="py-2 text-muted-foreground">{c.count}</td>
+                    <td className="py-2 text-muted-foreground">{fmtMoney(c.pipeline)}</td>
+                    <td className="py-2 font-semibold text-emerald-600 dark:text-emerald-400">{fmtMoney(c.won)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+
       {/* Filters */}
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <div className="relative flex-1 min-w-[240px]">
