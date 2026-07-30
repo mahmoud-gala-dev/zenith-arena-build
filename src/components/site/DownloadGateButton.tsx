@@ -246,7 +246,7 @@ export function DownloadGateButton({
           setSubmitted(false);
           setDownloadUrl(null);
           setPopupBlocked(false);
-          setForm({ name: "", email: "", phone: "", website: "" });
+          setForm({ name: "", email: "", phone: "", budget: "", timeline: "", website: "" });
         }
       }}>
         <DialogContent className="sm:max-w-md">
