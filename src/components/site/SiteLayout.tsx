@@ -6,6 +6,7 @@ import { SplashScreen } from "./SplashScreen";
 import { MobileShell } from "./mobile/MobileShell";
 import { PageTransition } from "./PageTransition";
 import { captureAttribution } from "@/lib/attribution";
+import { TurnstileProvider } from "./TurnstileProvider";
 
 export function SiteLayout({ children }: { children: ReactNode }) {
   // Capture campaign / referrer data on the first public page view of the visit
@@ -15,8 +16,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-
-    <>
+    <TurnstileProvider>
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 rtl:focus:left-auto rtl:focus:right-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-elegant focus:outline-none focus:ring-2 focus:ring-ring"
@@ -36,6 +36,6 @@ export function SiteLayout({ children }: { children: ReactNode }) {
 
       <Footer />
       <WhatsAppButton />
-    </>
+    </TurnstileProvider>
   );
 }

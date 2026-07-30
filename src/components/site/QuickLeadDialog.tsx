@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useLang } from "@/i18n/LanguageProvider";
 import { useContactInfo, useSocialLinks, toWhatsAppNumber } from "@/lib/settings";
 import { submitLead } from "@/lib/leads.functions";
+import { useTurnstile } from "@/components/site/TurnstileProvider";
 import { getAttribution } from "@/lib/attribution";
 import { trackEvent } from "@/lib/analytics";
 
@@ -33,6 +34,7 @@ export function QuickLeadDialog({ open, onOpenChange, source, intent = "callback
   const social = useSocialLinks();
   const wa = toWhatsAppNumber(social.whatsapp || contact.whatsapp);
   const submit = useServerFn(submitLead);
+  const { getToken } = useTurnstile();
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -64,6 +66,7 @@ export function QuickLeadDialog({ open, onOpenChange, source, intent = "callback
       const contextLine = `\n\n[source: ${source}]`;
       await submit({
         data: {
+          turnstile_token: await getToken(),
           type: intent === "quote" ? "quote" : "contact",
           name: name.trim(),
           email: email.trim(),

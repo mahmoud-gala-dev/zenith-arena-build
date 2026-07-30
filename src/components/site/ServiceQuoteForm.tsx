@@ -3,6 +3,7 @@ import { Loader2, Mail, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { submitLead } from "@/lib/leads.functions";
+import { useTurnstile } from "@/components/site/TurnstileProvider";
 import { getAttribution } from "@/lib/attribution";
 import { useContactInfo } from "@/lib/settings";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
   const [successOpen, setSuccessOpen] = useState(false);
   const [summary, setSummary] = useState<LeadSummary | null>(null);
   const submit = useServerFn(submitLead);
+  const { getToken } = useTurnstile();
 
   const t = T.components.serviceQuote;
   const subtitle = `${t.subtitlePrefix} ${serviceTitle}. ${t.subtitleSuffix}`;
@@ -57,6 +59,7 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
     try {
       await submit({
         data: {
+          turnstile_token: await getToken(),
           type: "quote",
           name: trimmedName,
           email: trimmedEmail,

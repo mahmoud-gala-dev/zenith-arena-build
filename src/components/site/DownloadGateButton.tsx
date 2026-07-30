@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { submitLead } from "@/lib/leads.functions";
+import { useTurnstile } from "@/components/site/TurnstileProvider";
 import { getDownloadSignedUrl } from "@/lib/downloads.functions";
 import { trackDownloadEvent } from "@/lib/downloadTracking";
 import { useLang } from "@/i18n/LanguageProvider";
@@ -59,6 +60,7 @@ export function DownloadGateButton({
   const [form, setForm] = useState({ name: "", email: "", phone: "", budget: "", timeline: "", website: "" });
   const [whatsapp, setWhatsapp] = useState<string | null>(null);
   const submit = useServerFn(submitLead);
+  const { getToken } = useTurnstile();
   const sign = useServerFn(getDownloadSignedUrl);
 
   useEffect(() => {
@@ -224,6 +226,7 @@ export function DownloadGateButton({
     try {
       await submit({
         data: {
+          turnstile_token: await getToken(),
           type: "contact",
           name,
           email,

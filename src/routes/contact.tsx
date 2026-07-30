@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { z } from "zod";
 import { submitLead } from "@/lib/leads.functions";
+import { useTurnstile } from "@/components/site/TurnstileProvider";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { LeadSuccessDialog, type LeadSummary } from "@/components/site/LeadSuccessDialog";
@@ -84,6 +85,7 @@ function ContactPage() {
   });
 
   const submit = useServerFn(submitLead);
+  const { getToken } = useTurnstile();
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -118,7 +120,7 @@ function ContactPage() {
     };
     setSubmitting(true);
     try {
-      await submit({ data: payload });
+      await submit({ data: { ...payload, turnstile_token: await getToken() } });
       const svc = dbServices?.find((s) => s.slug_en === projectType);
       setSummary({
         name: payload.name,

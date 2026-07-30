@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { useLang } from "@/i18n/LanguageProvider";
 import { jobOpeningsOpenQueryOptions, careersPageSettingsQueryOptions, seoSettingsByRouteQueryOptions, type JobOpening } from "@/lib/queries";
 import { submitApplication } from "@/lib/applications.functions";
+import { useTurnstile } from "@/components/site/TurnstileProvider";
 import { buildSeoHead } from "@/lib/seo-head";
 
 export const Route = createFileRoute("/careers")({
@@ -178,6 +179,7 @@ function CareersPage() {
 
 function ApplyDialog({ open, onOpenChange, job, ar, T }: { open: boolean; onOpenChange: (v: boolean) => void; job: JobOpening | null; ar: boolean; T: ReturnType<typeof useLang>["t"] }) {
   const submit = useServerFn(submitApplication);
+  const { getToken } = useTurnstile();
   const [busy, setBusy] = useState(false);
   const [file, setFile] = useState<File | null>(null);
 
@@ -198,6 +200,7 @@ function ApplyDialog({ open, onOpenChange, job, ar, T }: { open: boolean; onOpen
       const b64 = await fileToBase64(file);
       await submit({
         data: {
+          turnstile_token: await getToken(),
           job_id: job?.id ?? null,
           job_title: job ? (ar ? job.title_ar || job.title_en : job.title_en) : undefined,
           applicant_name: String(fd.get("applicant_name") || "").trim(),

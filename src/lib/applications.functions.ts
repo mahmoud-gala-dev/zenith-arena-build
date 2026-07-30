@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
+import { rateLimitOk as dbRateLimitOk, requestIp } from "@/lib/security/rate-limit.server";
+import { verifyTurnstile } from "@/lib/security/turnstile.server";
 
 const WINDOW_MS = 30 * 60 * 1000;
 const MAX_PER_WINDOW = 3;
@@ -33,6 +35,7 @@ const schema = z.object({
   cv_mime: z.string().trim().max(120),
   cv_base64: z.string().min(10),
   website: z.string().max(0).optional().or(z.literal("")),
+  turnstile_token: z.string().max(4096).nullable().optional(),
 });
 
 function b64ToBytes(b64: string): Uint8Array {
@@ -46,12 +49,16 @@ function b64ToBytes(b64: string): Uint8Array {
 export const submitApplication = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => schema.parse(input))
   .handler(async ({ data }) => {
-    const req = getRequest();
-    const ip =
-      req?.headers.get("cf-connecting-ip") ||
-      req?.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      "unknown";
-    if (!rateLimitOk(ip)) throw new Error("Too many submissions. Please try again later.");
+    const ip = requestIp(getRequest());
+    if (!rateLimitOk(ip) || !(await dbRateLimitOk(`application:${ip}`, MAX_PER_WINDOW, WINDOW_MS / 1000))) {
+      throw new Error("Too many submissions. Please try again later.");
+    }
+
+    const captcha = await verifyTurnstile(data.turnstile_token, ip);
+    if (!captcha.ok) {
+      console.warn("[submitApplication] captcha rejected", captcha.reason);
+      throw new Error("Verification failed. Please reload the page and try again.");
+    }
 
     if (!ALLOWED_MIME.has(data.cv_mime)) throw new Error("CV must be a PDF or Word document.");
     const bytes = b64ToBytes(data.cv_base64);

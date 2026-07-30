@@ -8,16 +8,21 @@ export const Route = createFileRoute("/api/public/hooks/auto-seo")({
         // Verify the caller with a dedicated cron secret. The Supabase
         // publishable key must NOT be used here: it ships in the client bundle,
         // so anyone could trigger paid AI work (cost/DoS).
-        const expected = process.env.CRON_TASK_SECRET ?? "";
+        // AUTO_SEO_CRON_TOKEN is the token pg_cron sends; CRON_TASK_SECRET is
+        // accepted too for manual/administrative triggers.
+        const accepted = [process.env.AUTO_SEO_CRON_TOKEN, process.env.CRON_TASK_SECRET].filter(
+          (v): v is string => Boolean(v && v.length >= 16),
+        );
         const provided =
           request.headers.get("x-cron-secret") ??
           (request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
-        if (!expected || provided !== expected) {
+        if (accepted.length === 0 || !accepted.includes(provided)) {
           return new Response(JSON.stringify({ error: "Unauthorized" }), {
             status: 401,
             headers: { "content-type": "application/json" },
           });
         }
+
 
         const key = process.env.LOVABLE_API_KEY;
         if (!key) {

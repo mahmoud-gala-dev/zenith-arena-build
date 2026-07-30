@@ -1885,6 +1885,24 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          bucket_key: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          bucket_key: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          bucket_key?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       role_permissions: {
         Row: {
           created_at: string
@@ -2355,6 +2373,10 @@ export type Database = {
       notify_pages_now_live: { Args: never; Returns: number }
       publish_due_blog_posts: { Args: never; Returns: number }
       publish_due_hero_slides: { Args: never; Returns: number }
+      rate_limit_hit: {
+        Args: { _key: string; _max: number; _window_seconds: number }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role:

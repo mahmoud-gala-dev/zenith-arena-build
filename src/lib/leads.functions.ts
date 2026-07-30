@@ -2,6 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { rateLimitOk as dbRateLimitOk, requestIp } from "@/lib/security/rate-limit.server";
+import { verifyTurnstile } from "@/lib/security/turnstile.server";
 
 // In-memory sliding-window rate limiter. Worker instances are short-lived and
 // horizontally scaled, so this is a best-effort first line of defence — the
@@ -54,24 +56,29 @@ const leadSchema = z.object({
   preferred_contact: z.string().trim().max(40).nullable().optional(),
   ...attributionSchema,
   website: z.string().max(0).optional().or(z.literal("")),
+  turnstile_token: z.string().max(4096).nullable().optional(),
 });
 
 
 export const submitLead = createServerFn({ method: "POST" })
   .validator((input: unknown) => leadSchema.parse(input))
   .handler(async ({ data }) => {
-    const req = getRequest();
-    const ip =
-      req?.headers.get("cf-connecting-ip") ||
-      req?.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      "unknown";
+    const ip = requestIp(getRequest());
 
-    if (!rateLimitOk(ip)) {
+    // Layer 1: in-isolate burst guard (cheap). Layer 2: durable DB window.
+    if (!rateLimitOk(ip) || !(await dbRateLimitOk(`lead:${ip}`, MAX_PER_WINDOW, WINDOW_MS / 1000))) {
       throw new Error("Too many submissions. Please try again in a few minutes.");
     }
 
+    const captcha = await verifyTurnstile(data.turnstile_token, ip);
+    if (!captcha.ok) {
+      console.warn("[submitLead] captcha rejected", captcha.reason);
+      throw new Error("Verification failed. Please reload the page and try again.");
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { website: _honeypot, ...payload } = data;
+    const { website: _honeypot, turnstile_token: _captchaToken, ...payload } = data;
+    void _captchaToken;
     void _honeypot;
     const { error } = await supabaseAdmin.from("leads").insert(payload as never);
     if (error) {
@@ -92,20 +99,22 @@ const waClickSchema = z.object({
   source: z.string().trim().max(80).default("quote_page"),
   page_url: z.string().trim().max(500).nullable().optional(),
   ...attributionSchema,
+  turnstile_token: z.string().max(4096).nullable().optional(),
 });
 
 
 export const logWhatsAppSend = createServerFn({ method: "POST" })
   .validator((input: unknown) => waClickSchema.parse(input))
   .handler(async ({ data }) => {
-    const req = getRequest();
-    const ip =
-      req?.headers.get("cf-connecting-ip") ||
-      req?.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      "unknown";
+    const ip = requestIp(getRequest());
     // Allow more WhatsApp clicks than form submits — user may re-open the chat.
-    if (!rateLimitOk(`wa:${ip}`, 10)) {
+    if (!rateLimitOk(`wa:${ip}`, 10) || !(await dbRateLimitOk(`wa:${ip}`, 10, WINDOW_MS / 1000))) {
       return { ok: false as const, reason: "rate_limited" };
+    }
+
+    const waCaptcha = await verifyTurnstile(data.turnstile_token, ip);
+    if (!waCaptcha.ok) {
+      return { ok: false as const, reason: "captcha_failed" };
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
