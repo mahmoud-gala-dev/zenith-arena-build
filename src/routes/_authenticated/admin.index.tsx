@@ -23,9 +23,34 @@ type Stats = {
 };
 type Lead = { id: string; name: string; email: string; service: string | null; status: string; created_at: string };
 type Article = { id: string; title_en: string | null; title_ar: string | null; status: string; created_at: string; published_at: string | null };
+type DealRow = {
+  status: string;
+  deal_value_expected: number | string | null;
+  deal_value_actual: number | string | null;
+  won_at: string | null;
+  created_at: string;
+};
 
 const STATUS_ORDER = ["new", "contacted", "qualified", "proposal_sent", "won", "lost"];
 const PIE_COLORS = ["hsl(var(--primary))", "hsl(var(--muted-foreground))", "#f59e0b"];
+
+/** Stage-based win probability used to weight the open pipeline. */
+const STAGE_PROBABILITY: Record<string, number> = {
+  new: 0.1,
+  contacted: 0.2,
+  qualified: 0.4,
+  proposal_sent: 0.6,
+};
+
+const num = (v: number | string | null | undefined) => {
+  const n = typeof v === "string" ? Number(v) : (v ?? 0);
+  return Number.isFinite(n) ? n : 0;
+};
+
+const fmtMoney = (v: number) =>
+  new Intl.NumberFormat(undefined, { notation: v >= 1_000_000 ? "compact" : "standard", maximumFractionDigits: 1 })
+    .format(Math.round(v)) + " EGP";
+
 
 function OverviewPage() {
   const [stats, setStats] = useState<Stats>({
