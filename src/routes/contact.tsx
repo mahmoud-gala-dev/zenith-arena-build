@@ -85,6 +85,7 @@ function ContactPage() {
   });
 
   const submit = useServerFn(submitLead);
+  const { getToken } = useTurnstile();
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -119,7 +120,7 @@ function ContactPage() {
     };
     setSubmitting(true);
     try {
-      await submit({ data: payload });
+      await submit({ data: { ...payload, turnstile_token: await getToken() } });
       const svc = dbServices?.find((s) => s.slug_en === projectType);
       setSummary({
         name: payload.name,

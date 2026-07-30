@@ -179,6 +179,7 @@ function CareersPage() {
 
 function ApplyDialog({ open, onOpenChange, job, ar, T }: { open: boolean; onOpenChange: (v: boolean) => void; job: JobOpening | null; ar: boolean; T: ReturnType<typeof useLang>["t"] }) {
   const submit = useServerFn(submitApplication);
+  const { getToken } = useTurnstile();
   const [busy, setBusy] = useState(false);
   const [file, setFile] = useState<File | null>(null);
 
@@ -199,6 +200,7 @@ function ApplyDialog({ open, onOpenChange, job, ar, T }: { open: boolean; onOpen
       const b64 = await fileToBase64(file);
       await submit({
         data: {
+          turnstile_token: await getToken(),
           job_id: job?.id ?? null,
           job_title: job ? (ar ? job.title_ar || job.title_en : job.title_en) : undefined,
           applicant_name: String(fd.get("applicant_name") || "").trim(),

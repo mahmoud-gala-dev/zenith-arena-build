@@ -34,6 +34,7 @@ export function QuickLeadDialog({ open, onOpenChange, source, intent = "callback
   const social = useSocialLinks();
   const wa = toWhatsAppNumber(social.whatsapp || contact.whatsapp);
   const submit = useServerFn(submitLead);
+  const { getToken } = useTurnstile();
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -65,6 +66,7 @@ export function QuickLeadDialog({ open, onOpenChange, source, intent = "callback
       const contextLine = `\n\n[source: ${source}]`;
       await submit({
         data: {
+          turnstile_token: await getToken(),
           type: intent === "quote" ? "quote" : "contact",
           name: name.trim(),
           email: email.trim(),

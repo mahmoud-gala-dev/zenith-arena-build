@@ -121,6 +121,7 @@ function QuotePage() {
   });
 
   const submit = useServerFn(submitLead);
+  const { getToken } = useTurnstile();
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -147,7 +148,7 @@ function QuotePage() {
 
     setSubmitting(true);
     try {
-      await submit({ data: payload });
+      await submit({ data: { ...payload, turnstile_token: await getToken() } });
       const svcLabel = dbServices?.find((s) => s.slug_en === serviceValue);
       setSummary({
         name: payload.name,

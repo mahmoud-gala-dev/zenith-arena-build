@@ -60,6 +60,7 @@ export function DownloadGateButton({
   const [form, setForm] = useState({ name: "", email: "", phone: "", budget: "", timeline: "", website: "" });
   const [whatsapp, setWhatsapp] = useState<string | null>(null);
   const submit = useServerFn(submitLead);
+  const { getToken } = useTurnstile();
   const sign = useServerFn(getDownloadSignedUrl);
 
   useEffect(() => {
@@ -225,6 +226,7 @@ export function DownloadGateButton({
     try {
       await submit({
         data: {
+          turnstile_token: await getToken(),
           type: "contact",
           name,
           email,

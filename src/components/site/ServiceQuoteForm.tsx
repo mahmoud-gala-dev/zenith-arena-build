@@ -33,6 +33,7 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
   const [successOpen, setSuccessOpen] = useState(false);
   const [summary, setSummary] = useState<LeadSummary | null>(null);
   const submit = useServerFn(submitLead);
+  const { getToken } = useTurnstile();
 
   const t = T.components.serviceQuote;
   const subtitle = `${t.subtitlePrefix} ${serviceTitle}. ${t.subtitleSuffix}`;
@@ -58,6 +59,7 @@ export function ServiceQuoteForm({ serviceSlug, serviceTitle }: Props) {
     try {
       await submit({
         data: {
+          turnstile_token: await getToken(),
           type: "quote",
           name: trimmedName,
           email: trimmedEmail,
