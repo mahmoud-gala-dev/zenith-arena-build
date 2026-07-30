@@ -576,6 +576,8 @@ type LeadFormState = {
   project_type: string; sport_type: string; project_area: string;
   preferred_contact: string; start_date: string; message: string;
   internal_notes: string; attachment_url: string;
+  deal_value_expected: string; deal_value_actual: string; deal_currency: string;
+  expected_close_date: string; lost_reason: string;
 };
 
 function emptyForm(): LeadFormState {
@@ -584,6 +586,8 @@ function emptyForm(): LeadFormState {
     type: "contact", status: "new", intent: "", source: "manual", service: "",
     budget_range: "", project_type: "", sport_type: "", project_area: "",
     preferred_contact: "", start_date: "", message: "", internal_notes: "", attachment_url: "",
+    deal_value_expected: "", deal_value_actual: "", deal_currency: "EGP",
+    expected_close_date: "", lost_reason: "",
   };
 }
 
@@ -596,8 +600,14 @@ function toForm(l: Lead): LeadFormState {
     sport_type: l.sport_type ?? "", project_area: l.project_area ?? "",
     preferred_contact: l.preferred_contact ?? "", start_date: l.start_date ?? "",
     message: l.message ?? "", internal_notes: l.internal_notes ?? "", attachment_url: l.attachment_url ?? "",
+    deal_value_expected: l.deal_value_expected != null ? String(l.deal_value_expected) : "",
+    deal_value_actual: l.deal_value_actual != null ? String(l.deal_value_actual) : "",
+    deal_currency: l.deal_currency ?? "EGP",
+    expected_close_date: l.expected_close_date ? l.expected_close_date.slice(0, 10) : "",
+    lost_reason: l.lost_reason ?? "",
   };
 }
+
 
 const PHONE_RE = /^\+?[0-9\s\-().]{7,20}$/;
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
