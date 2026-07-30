@@ -141,12 +141,40 @@ function LeadsPage() {
     );
   });
 
-  const stats = useMemo(() => ({
-    total: leads.length,
-    new: leads.filter((l) => l.status === "new").length,
-    won: leads.filter((l) => l.status === "won").length,
-    last7: leads.filter((l) => Date.now() - new Date(l.created_at).getTime() < 7 * 86400_000).length,
-  }), [leads]);
+  const stats = useMemo(() => {
+    const open = leads.filter((l) => !["won", "lost"].includes(l.status));
+    const won = leads.filter((l) => l.status === "won");
+    const pipelineValue = open.reduce((s, l) => s + num(l.deal_value_expected), 0);
+    const wonValue = won.reduce((s, l) => s + num(l.deal_value_actual ?? l.deal_value_expected), 0);
+    const closed = won.length + leads.filter((l) => l.status === "lost").length;
+    return {
+      total: leads.length,
+      new: leads.filter((l) => l.status === "new").length,
+      won: won.length,
+      last7: leads.filter((l) => Date.now() - new Date(l.created_at).getTime() < 7 * 86400_000).length,
+      pipelineValue,
+      wonValue,
+      winRate: closed ? Math.round((won.length / closed) * 100) : 0,
+      avgDeal: won.length ? Math.round(wonValue / won.length) : 0,
+    };
+  }, [leads]);
+
+  const channelBreakdown = useMemo(() => {
+    const map = new Map<string, { count: number; pipeline: number; won: number }>();
+    for (const l of leads) {
+      const key = leadChannel(l);
+      const row = map.get(key) ?? { count: 0, pipeline: 0, won: 0 };
+      row.count += 1;
+      if (!["won", "lost"].includes(l.status)) row.pipeline += num(l.deal_value_expected);
+      if (l.status === "won") row.won += num(l.deal_value_actual ?? l.deal_value_expected);
+      map.set(key, row);
+    }
+    return Array.from(map.entries())
+      .map(([channel, v]) => ({ channel, ...v }))
+      .sort((a, b) => b.won - a.won || b.count - a.count)
+      .slice(0, 8);
+  }, [leads]);
+
 
   const updateStatus = guard(async (id: string, status: string) => {
     const { error } = await supabase.from("leads").update({ status: status as Lead["status"] as never }).eq("id", id);
