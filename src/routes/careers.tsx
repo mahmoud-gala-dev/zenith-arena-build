@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { useLang } from "@/i18n/LanguageProvider";
 import { jobOpeningsOpenQueryOptions, careersPageSettingsQueryOptions, seoSettingsByRouteQueryOptions, type JobOpening } from "@/lib/queries";
 import { submitApplication } from "@/lib/applications.functions";
+import { useTurnstile } from "@/components/site/TurnstileProvider";
 import { buildSeoHead } from "@/lib/seo-head";
 
 export const Route = createFileRoute("/careers")({

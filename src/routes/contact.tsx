@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { z } from "zod";
 import { submitLead } from "@/lib/leads.functions";
+import { useTurnstile } from "@/components/site/TurnstileProvider";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { LeadSuccessDialog, type LeadSummary } from "@/components/site/LeadSuccessDialog";

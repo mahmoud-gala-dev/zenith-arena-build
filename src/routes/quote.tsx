@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { servicesPublishedQueryOptions } from "@/hooks/useServiceContent";
 import { quotePageSettingsQueryOptions, seoSettingsByRouteQueryOptions } from "@/lib/queries";
 import { submitLead } from "@/lib/leads.functions";
+import { useTurnstile } from "@/components/site/TurnstileProvider";
 import { getAttribution } from "@/lib/attribution";
 
 import { useServerFn } from "@tanstack/react-start";
