@@ -23,9 +23,34 @@ type Stats = {
 };
 type Lead = { id: string; name: string; email: string; service: string | null; status: string; created_at: string };
 type Article = { id: string; title_en: string | null; title_ar: string | null; status: string; created_at: string; published_at: string | null };
+type DealRow = {
+  status: string;
+  deal_value_expected: number | string | null;
+  deal_value_actual: number | string | null;
+  won_at: string | null;
+  created_at: string;
+};
 
 const STATUS_ORDER = ["new", "contacted", "qualified", "proposal_sent", "won", "lost"];
 const PIE_COLORS = ["hsl(var(--primary))", "hsl(var(--muted-foreground))", "#f59e0b"];
+
+/** Stage-based win probability used to weight the open pipeline. */
+const STAGE_PROBABILITY: Record<string, number> = {
+  new: 0.1,
+  contacted: 0.2,
+  qualified: 0.4,
+  proposal_sent: 0.6,
+};
+
+const num = (v: number | string | null | undefined) => {
+  const n = typeof v === "string" ? Number(v) : (v ?? 0);
+  return Number.isFinite(n) ? n : 0;
+};
+
+const fmtMoney = (v: number) =>
+  new Intl.NumberFormat(undefined, { notation: v >= 1_000_000 ? "compact" : "standard", maximumFractionDigits: 1 })
+    .format(Math.round(v)) + " EGP";
+
 
 function OverviewPage() {
   const [stats, setStats] = useState<Stats>({
@@ -36,6 +61,7 @@ function OverviewPage() {
   const [allLeads, setAllLeads] = useState<Lead[]>([]);
   const [allArticles, setAllArticles] = useState<Article[]>([]);
   const [recentArticles, setRecentArticles] = useState<Article[]>([]);
+  const [deals, setDeals] = useState<DealRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,7 +70,7 @@ function OverviewPage() {
       const [
         leadsAll, leadsNew, leadsWon, projects, media,
         articlesAll, articlesPub, articlesDraft, usersAll,
-        recentLeads, everyLead, everyArticle, recentArts,
+        recentLeads, everyLead, everyArticle, recentArts, dealRows,
       ] = await Promise.all([
         supabase.from("leads").select("*", { count: "exact", head: true }),
         supabase.from("leads").select("*", { count: "exact", head: true }).eq("status", "new"),
@@ -59,6 +85,7 @@ function OverviewPage() {
         supabase.from("leads").select("id,status,created_at").gte("created_at", since),
         supabase.from("blog_posts").select("id,status,created_at,published_at").gte("created_at", since),
         supabase.from("blog_posts").select("id,title_en,title_ar,status,created_at,published_at").order("created_at", { ascending: false }).limit(5),
+        supabase.from("leads").select("status,deal_value_expected,deal_value_actual,won_at,created_at"),
       ]);
       setStats({
         leads: leadsAll.count ?? 0,
@@ -75,9 +102,50 @@ function OverviewPage() {
       setAllLeads((everyLead.data ?? []) as Lead[]);
       setAllArticles((everyArticle.data ?? []) as Article[]);
       setRecentArticles((recentArts.data ?? []) as Article[]);
+      setDeals((dealRows.data ?? []) as unknown as DealRow[]);
       setLoading(false);
     })();
   }, []);
+
+  const revenue = (() => {
+    const open = deals.filter((d) => !["won", "lost"].includes(d.status));
+    const won = deals.filter((d) => d.status === "won");
+    const openValue = open.reduce((s, d) => s + num(d.deal_value_expected), 0);
+    const weighted = open.reduce(
+      (s, d) => s + num(d.deal_value_expected) * (STAGE_PROBABILITY[d.status] ?? 0.1),
+      0,
+    );
+    const wonValue = won.reduce((s, d) => s + (num(d.deal_value_actual) || num(d.deal_value_expected)), 0);
+    const closed = deals.filter((d) => ["won", "lost"].includes(d.status)).length;
+    const winRate = closed ? Math.round((won.length / closed) * 100) : 0;
+    const cycles = won
+      .filter((d) => d.won_at)
+      .map((d) => (new Date(d.won_at as string).getTime() - new Date(d.created_at).getTime()) / 86400000)
+      .filter((n) => Number.isFinite(n) && n >= 0);
+    const avgCycle = cycles.length ? Math.round(cycles.reduce((a, b) => a + b, 0) / cycles.length) : 0;
+    return { openValue, weighted, wonValue, winRate, avgCycle };
+  })();
+
+  const funnel = (() => {
+    const total = deals.length || 1;
+    const reached = (from: number) =>
+      deals.filter((d) => {
+        const i = STATUS_ORDER.indexOf(d.status);
+        return d.status === "won" ? true : i >= from && d.status !== "lost";
+      }).length;
+    return [
+      { stage: "Captured", count: deals.length, pct: 100 },
+      { stage: "Contacted", count: reached(1), pct: Math.round((reached(1) / total) * 100) },
+      { stage: "Qualified", count: reached(2), pct: Math.round((reached(2) / total) * 100) },
+      { stage: "Proposal", count: reached(3), pct: Math.round((reached(3) / total) * 100) },
+      {
+        stage: "Won",
+        count: deals.filter((d) => d.status === "won").length,
+        pct: Math.round((deals.filter((d) => d.status === "won").length / total) * 100),
+      },
+    ];
+  })();
+
 
   const cards = [
     { label: "Total leads", value: stats.leads, icon: Inbox, tone: "from-primary to-primary/80" },
@@ -126,6 +194,62 @@ function OverviewPage() {
           </div>
         ))}
       </div>
+
+      {/* Revenue pipeline */}
+      <div className="mt-6 grid gap-6 lg:grid-cols-3">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-soft lg:col-span-1">
+          <h2 className="text-lg font-semibold text-foreground">Revenue pipeline</h2>
+          <p className="mt-1 text-xs text-muted-foreground">Weighted by stage probability</p>
+          <dl className="mt-4 space-y-3 text-sm">
+            <div className="flex items-center justify-between">
+              <dt className="text-muted-foreground">Open pipeline</dt>
+              <dd className="font-semibold text-foreground">{loading ? "…" : fmtMoney(revenue.openValue)}</dd>
+            </div>
+            <div className="flex items-center justify-between">
+              <dt className="text-muted-foreground">Weighted forecast</dt>
+              <dd className="font-semibold text-primary">{loading ? "…" : fmtMoney(revenue.weighted)}</dd>
+            </div>
+            <div className="flex items-center justify-between">
+              <dt className="text-muted-foreground">Won value</dt>
+              <dd className="font-semibold text-emerald-600 dark:text-emerald-400">{loading ? "…" : fmtMoney(revenue.wonValue)}</dd>
+            </div>
+            <div className="flex items-center justify-between">
+              <dt className="text-muted-foreground">Win rate</dt>
+              <dd className="font-semibold text-foreground">{loading ? "…" : `${revenue.winRate}%`}</dd>
+            </div>
+            <div className="flex items-center justify-between">
+              <dt className="text-muted-foreground">Avg sales cycle</dt>
+              <dd className="font-semibold text-foreground">{loading ? "…" : `${revenue.avgCycle} days`}</dd>
+            </div>
+          </dl>
+          <Link to="/admin/leads" className="mt-4 inline-block text-sm font-medium text-primary hover:underline">
+            Manage pipeline →
+          </Link>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-soft lg:col-span-2">
+          <h2 className="text-lg font-semibold text-foreground">Conversion funnel</h2>
+          <p className="mt-1 text-xs text-muted-foreground">Share of all captured leads reaching each stage</p>
+          <div className="mt-5 space-y-4">
+            {funnel.map((f) => (
+              <div key={f.stage}>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium text-foreground">{f.stage}</span>
+                  <span className="text-muted-foreground">{f.count} · {f.pct}%</span>
+                </div>
+                <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-secondary">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60 transition-all"
+                    style={{ width: `${Math.min(100, f.pct)}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">

@@ -14,6 +14,9 @@ import { LeadTimeline } from "@/components/admin/LeadTimeline";
 import { LeadAiSummary } from "@/components/admin/LeadAiSummary";
 import { WhatsAppThreadPanel } from "@/components/admin/WhatsAppThreadPanel";
 import { useGuard } from "@/lib/rbac";
+import { LeadScoreBadge, LeadScorePanel } from "@/components/admin/LeadScoreBadge";
+import { scoreLead } from "@/lib/lead-score";
+
 
 
 export const Route = createFileRoute("/_authenticated/admin/leads")({
@@ -116,30 +119,41 @@ function LeadsPage() {
   const uniqueIntents = useMemo(() => Array.from(new Set(leads.map((l) => l.intent).filter(Boolean))) as string[], [leads]);
   const uniqueSources = useMemo(() => Array.from(new Set(leads.map((l) => l.source).filter(Boolean))) as string[], [leads]);
 
-  const filtered = leads.filter((l) => {
-    if (statusFilter !== "all" && l.status !== statusFilter) return false;
-    if (typeFilter !== "all" && l.type !== typeFilter) return false;
-    if (intentFilter !== "all" && (l.intent ?? "") !== intentFilter) return false;
-    if (sourceFilter !== "all" && (l.source ?? "") !== sourceFilter) return false;
-    if (dateFilter !== "all") {
-      const days = dateFilter === "7d" ? 7 : dateFilter === "30d" ? 30 : dateFilter === "90d" ? 90 : 0;
-      if (days > 0) {
-        const cutoff = Date.now() - days * 86400_000;
-        if (new Date(l.created_at).getTime() < cutoff) return false;
+  const [bandFilter, setBandFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"recent" | "score">("recent");
+
+  const filtered = useMemo(() => {
+    const rows = leads.filter((l) => {
+      if (statusFilter !== "all" && l.status !== statusFilter) return false;
+      if (typeFilter !== "all" && l.type !== typeFilter) return false;
+      if (intentFilter !== "all" && (l.intent ?? "") !== intentFilter) return false;
+      if (sourceFilter !== "all" && (l.source ?? "") !== sourceFilter) return false;
+      if (bandFilter !== "all" && scoreLead(l).band !== bandFilter) return false;
+      if (dateFilter !== "all") {
+        const days = dateFilter === "7d" ? 7 : dateFilter === "30d" ? 30 : dateFilter === "90d" ? 90 : 0;
+        if (days > 0) {
+          const cutoff = Date.now() - days * 86400_000;
+          if (new Date(l.created_at).getTime() < cutoff) return false;
+        }
       }
+      if (!q) return true;
+      const s = q.toLowerCase();
+      return (
+        l.name.toLowerCase().includes(s) ||
+        l.email.toLowerCase().includes(s) ||
+        (l.company ?? "").toLowerCase().includes(s) ||
+        (l.service ?? "").toLowerCase().includes(s) ||
+        (l.phone ?? "").toLowerCase().includes(s) ||
+        (l.source ?? "").toLowerCase().includes(s) ||
+        (l.intent ?? "").toLowerCase().includes(s)
+      );
+    });
+    if (sortBy === "score") {
+      return [...rows].sort((a, b) => scoreLead(b).score - scoreLead(a).score);
     }
-    if (!q) return true;
-    const s = q.toLowerCase();
-    return (
-      l.name.toLowerCase().includes(s) ||
-      l.email.toLowerCase().includes(s) ||
-      (l.company ?? "").toLowerCase().includes(s) ||
-      (l.service ?? "").toLowerCase().includes(s) ||
-      (l.phone ?? "").toLowerCase().includes(s) ||
-      (l.source ?? "").toLowerCase().includes(s) ||
-      (l.intent ?? "").toLowerCase().includes(s)
-    );
-  });
+    return rows;
+  }, [leads, statusFilter, typeFilter, intentFilter, sourceFilter, bandFilter, dateFilter, q, sortBy]);
+
 
   const stats = useMemo(() => {
     const open = leads.filter((l) => !["won", "lost"].includes(l.status));
@@ -209,7 +223,7 @@ function LeadsPage() {
         "Channel", "UTM Source", "UTM Medium", "UTM Campaign", "UTM Term", "UTM Content",
         "Landing Page", "Referrer",
         "Expected Value", "Actual Value", "Currency", "Expected Close", "Won At", "Lost At", "Lost Reason",
-        "Status", "Message", "Internal Notes", "Attachment URL", "Created At",
+        "Status", "Score", "Score Band", "Message", "Internal Notes", "Attachment URL", "Created At",
       ],
       ...filtered.map((l) => [
         l.name, l.email, l.phone ?? "", l.company ?? "", l.country ?? "", l.city ?? "",
@@ -219,9 +233,11 @@ function LeadsPage() {
         l.landing_page ?? "", l.referrer ?? "",
         num(l.deal_value_expected) || "", num(l.deal_value_actual) || "", l.deal_currency ?? "",
         l.expected_close_date ?? "", l.won_at ?? "", l.lost_at ?? "", l.lost_reason ?? "",
-        l.status, (l.message ?? "").replace(/\r?\n/g, " "), (l.internal_notes ?? "").replace(/\r?\n/g, " "),
+        l.status, scoreLead(l).score, scoreLead(l).band,
+        (l.message ?? "").replace(/\r?\n/g, " "), (l.internal_notes ?? "").replace(/\r?\n/g, " "),
         l.attachment_url ?? "", new Date(l.created_at).toISOString(),
       ]),
+
     ];
 
     const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
@@ -239,7 +255,9 @@ function LeadsPage() {
   function resetFilters() {
     setQ(""); setStatusFilter("all"); setTypeFilter("all");
     setIntentFilter("all"); setSourceFilter("all"); setDateFilter("all");
+    setBandFilter("all"); setSortBy("recent");
   }
+
 
   return (
     <AdminShell title="Leads">
@@ -332,7 +350,24 @@ function LeadsPage() {
             <SelectItem value="90d">Last 90 days</SelectItem>
           </SelectContent>
         </Select>
+        <Select value={bandFilter} onValueChange={setBandFilter}>
+          <SelectTrigger className="w-[140px]"><SelectValue placeholder="Score" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All scores</SelectItem>
+            <SelectItem value="hot">Hot (65+)</SelectItem>
+            <SelectItem value="warm">Warm (40–64)</SelectItem>
+            <SelectItem value="cold">Cold (&lt;40)</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={sortBy} onValueChange={(v) => setSortBy(v as "recent" | "score")}>
+          <SelectTrigger className="w-[150px]"><SelectValue placeholder="Sort" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="recent">Newest first</SelectItem>
+            <SelectItem value="score">Highest score</SelectItem>
+          </SelectContent>
+        </Select>
         <Button variant="ghost" onClick={resetFilters}>Reset</Button>
+
         <Button variant="outline" onClick={exportCSV}><Download className="mr-2 h-4 w-4" /> Export CSV ({filtered.length})</Button>
         <Button disabled={!canManage} onClick={() => { setEditing(null); setFormOpen(true); }}><Plus className="mr-2 h-4 w-4" /> New Lead</Button>
       </div>
@@ -343,6 +378,7 @@ function LeadsPage() {
             <tr>
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Contact</th>
+              <th className="px-4 py-3">Score</th>
               <th className="px-4 py-3">Intent</th>
               <th className="px-4 py-3">Source</th>
               <th className="px-4 py-3">Service</th>
@@ -353,9 +389,9 @@ function LeadsPage() {
           </thead>
           <tbody className="divide-y divide-border">
             {loading ? (
-              <tr><td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">Loading…</td></tr>
+              <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">Loading…</td></tr>
             ) : filtered.length === 0 ? (
-              <tr><td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">No leads found.</td></tr>
+              <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">No leads found.</td></tr>
             ) : filtered.map((l) => (
               <tr key={l.id} className="cursor-pointer hover:bg-secondary/40" onClick={() => setSelected(l)}>
                 <td className="px-4 py-3">
@@ -367,12 +403,16 @@ function LeadsPage() {
                   {l.phone && <div className="text-xs text-muted-foreground">{l.phone}</div>}
                 </td>
                 <td className="px-4 py-3">
+                  <LeadScoreBadge lead={l} />
+                </td>
+                <td className="px-4 py-3">
                   <Badge variant="outline" className="text-xs">{l.intent ?? l.type}</Badge>
                 </td>
                 <td className="px-4 py-3 text-xs text-muted-foreground max-w-[180px] truncate" title={l.source ?? ""}>
                   {l.source ?? "—"}
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">{l.service ?? "—"}</td>
+
                 <td className="px-4 py-3">
                   <span className={`rounded-full px-2 py-0.5 text-xs uppercase ${STATUS_TONE[l.status] ?? "bg-secondary"}`}>
                     {l.status.replace("_", " ")}
@@ -487,6 +527,12 @@ function LeadsPage() {
                     <div className="sm:col-span-2"><Info label="Referrer" value={selected.referrer ?? null} /></div>
                   </div>
                 </div>
+
+                <div className="sm:col-span-2">
+                  <LeadScorePanel lead={selected} />
+                </div>
+
+
 
                 {selected.attachment_url && (
                   <div className="sm:col-span-2">
