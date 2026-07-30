@@ -195,6 +195,62 @@ function OverviewPage() {
         ))}
       </div>
 
+      {/* Revenue pipeline */}
+      <div className="mt-6 grid gap-6 lg:grid-cols-3">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-soft lg:col-span-1">
+          <h2 className="text-lg font-semibold text-foreground">Revenue pipeline</h2>
+          <p className="mt-1 text-xs text-muted-foreground">Weighted by stage probability</p>
+          <dl className="mt-4 space-y-3 text-sm">
+            <div className="flex items-center justify-between">
+              <dt className="text-muted-foreground">Open pipeline</dt>
+              <dd className="font-semibold text-foreground">{loading ? "…" : fmtMoney(revenue.openValue)}</dd>
+            </div>
+            <div className="flex items-center justify-between">
+              <dt className="text-muted-foreground">Weighted forecast</dt>
+              <dd className="font-semibold text-primary">{loading ? "…" : fmtMoney(revenue.weighted)}</dd>
+            </div>
+            <div className="flex items-center justify-between">
+              <dt className="text-muted-foreground">Won value</dt>
+              <dd className="font-semibold text-emerald-600 dark:text-emerald-400">{loading ? "…" : fmtMoney(revenue.wonValue)}</dd>
+            </div>
+            <div className="flex items-center justify-between">
+              <dt className="text-muted-foreground">Win rate</dt>
+              <dd className="font-semibold text-foreground">{loading ? "…" : `${revenue.winRate}%`}</dd>
+            </div>
+            <div className="flex items-center justify-between">
+              <dt className="text-muted-foreground">Avg sales cycle</dt>
+              <dd className="font-semibold text-foreground">{loading ? "…" : `${revenue.avgCycle} days`}</dd>
+            </div>
+          </dl>
+          <Link to="/admin/leads" className="mt-4 inline-block text-sm font-medium text-primary hover:underline">
+            Manage pipeline →
+          </Link>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-soft lg:col-span-2">
+          <h2 className="text-lg font-semibold text-foreground">Conversion funnel</h2>
+          <p className="mt-1 text-xs text-muted-foreground">Share of all captured leads reaching each stage</p>
+          <div className="mt-5 space-y-4">
+            {funnel.map((f) => (
+              <div key={f.stage}>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium text-foreground">{f.stage}</span>
+                  <span className="text-muted-foreground">{f.count} · {f.pct}%</span>
+                </div>
+                <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-secondary">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60 transition-all"
+                    style={{ width: `${Math.min(100, f.pct)}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+
+
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
           <h2 className="text-lg font-semibold text-foreground">Leads vs Articles — last 30 days</h2>
