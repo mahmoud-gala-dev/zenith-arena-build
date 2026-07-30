@@ -526,6 +526,12 @@ function LeadsPage() {
                   </div>
                 </div>
 
+                <div className="sm:col-span-2">
+                  <LeadScorePanel lead={selected} />
+                </div>
+
+
+
                 {selected.attachment_url && (
                   <div className="sm:col-span-2">
                     <p className="text-xs uppercase text-muted-foreground">Attachment</p>
