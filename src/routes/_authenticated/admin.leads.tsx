@@ -43,9 +43,39 @@ type Lead = {
   preferred_contact: string | null;
   attachment_url: string | null;
   created_at: string;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_term?: string | null;
+  utm_content?: string | null;
+  landing_page?: string | null;
+  referrer?: string | null;
+  referrer_host?: string | null;
+  deal_value_expected?: number | string | null;
+  deal_value_actual?: number | string | null;
+  deal_currency?: string | null;
+  expected_close_date?: string | null;
+  won_at?: string | null;
+  lost_at?: string | null;
+  lost_reason?: string | null;
   whatsapp_thread?: Array<{ at: string; direction: "incoming" | "outgoing"; body: string; actor_email?: string | null; via?: string; source?: string; channel?: string }> | null;
   whatsapp_last_at?: string | null;
 };
+
+/** Best channel label for a lead: campaign source → referrer host → form source. */
+function leadChannel(l: Lead): string {
+  return l.utm_source || l.referrer_host || l.source || "direct";
+}
+
+function num(v: number | string | null | undefined): number {
+  const n = typeof v === "string" ? Number(v) : v ?? 0;
+  return Number.isFinite(n as number) ? (n as number) : 0;
+}
+
+function fmtMoney(v: number, currency = "EGP"): string {
+  return `${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(v)} ${currency}`;
+}
+
 
 const STATUSES = ["new", "contacted", "qualified", "proposal_sent", "won", "lost"] as const;
 
