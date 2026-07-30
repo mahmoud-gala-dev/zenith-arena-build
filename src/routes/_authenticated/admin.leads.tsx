@@ -223,7 +223,7 @@ function LeadsPage() {
         "Channel", "UTM Source", "UTM Medium", "UTM Campaign", "UTM Term", "UTM Content",
         "Landing Page", "Referrer",
         "Expected Value", "Actual Value", "Currency", "Expected Close", "Won At", "Lost At", "Lost Reason",
-        "Status", "Message", "Internal Notes", "Attachment URL", "Created At",
+        "Status", "Score", "Score Band", "Message", "Internal Notes", "Attachment URL", "Created At",
       ],
       ...filtered.map((l) => [
         l.name, l.email, l.phone ?? "", l.company ?? "", l.country ?? "", l.city ?? "",
@@ -233,9 +233,11 @@ function LeadsPage() {
         l.landing_page ?? "", l.referrer ?? "",
         num(l.deal_value_expected) || "", num(l.deal_value_actual) || "", l.deal_currency ?? "",
         l.expected_close_date ?? "", l.won_at ?? "", l.lost_at ?? "", l.lost_reason ?? "",
-        l.status, (l.message ?? "").replace(/\r?\n/g, " "), (l.internal_notes ?? "").replace(/\r?\n/g, " "),
+        l.status, scoreLead(l).score, scoreLead(l).band,
+        (l.message ?? "").replace(/\r?\n/g, " "), (l.internal_notes ?? "").replace(/\r?\n/g, " "),
         l.attachment_url ?? "", new Date(l.created_at).toISOString(),
       ]),
+
     ];
 
     const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
