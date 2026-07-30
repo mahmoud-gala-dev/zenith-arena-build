@@ -460,6 +460,34 @@ function LeadsPage() {
                   <p className="text-xs uppercase text-muted-foreground">Source</p>
                   <p className="mt-1 break-all text-foreground">{selected.source || "—"}</p>
                 </div>
+
+                {/* Deal economics */}
+                <div className="sm:col-span-2 rounded-lg border border-border bg-secondary/30 p-3">
+                  <p className="text-xs uppercase text-muted-foreground">Deal</p>
+                  <div className="mt-2 grid gap-3 sm:grid-cols-2">
+                    <Info label="Expected value" value={num(selected.deal_value_expected) ? fmtMoney(num(selected.deal_value_expected), selected.deal_currency ?? "EGP") : null} />
+                    <Info label="Actual value" value={num(selected.deal_value_actual) ? fmtMoney(num(selected.deal_value_actual), selected.deal_currency ?? "EGP") : null} />
+                    <Info label="Expected close" value={selected.expected_close_date ? selected.expected_close_date.slice(0, 10) : null} />
+                    <Info label="Won / Lost" value={selected.won_at ? `Won ${new Date(selected.won_at).toLocaleDateString()}` : selected.lost_at ? `Lost ${new Date(selected.lost_at).toLocaleDateString()}` : null} />
+                    {selected.lost_reason && <div className="sm:col-span-2"><Info label="Lost reason" value={selected.lost_reason} /></div>}
+                  </div>
+                </div>
+
+                {/* Marketing attribution */}
+                <div className="sm:col-span-2 rounded-lg border border-border bg-secondary/30 p-3">
+                  <p className="text-xs uppercase text-muted-foreground">Attribution — channel: <span className="font-semibold text-foreground">{leadChannel(selected)}</span></p>
+                  <div className="mt-2 grid gap-3 sm:grid-cols-2">
+                    <Info label="UTM source" value={selected.utm_source ?? null} />
+                    <Info label="UTM medium" value={selected.utm_medium ?? null} />
+                    <Info label="UTM campaign" value={selected.utm_campaign ?? null} />
+                    <Info label="UTM term" value={selected.utm_term ?? null} />
+                    <Info label="UTM content" value={selected.utm_content ?? null} />
+                    <Info label="Referrer host" value={selected.referrer_host ?? null} />
+                    <div className="sm:col-span-2"><Info label="Landing page" value={selected.landing_page ?? null} /></div>
+                    <div className="sm:col-span-2"><Info label="Referrer" value={selected.referrer ?? null} /></div>
+                  </div>
+                </div>
+
                 {selected.attachment_url && (
                   <div className="sm:col-span-2">
                     <p className="text-xs uppercase text-muted-foreground">Attachment</p>
