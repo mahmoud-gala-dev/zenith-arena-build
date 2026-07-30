@@ -771,7 +771,13 @@ function LeadFormDialog({
             </Select>
           </Field>
           <Field label="Start date" error={errors.start_date}><Input type="date" value={form.start_date ? form.start_date.slice(0, 10) : ""} onChange={(e) => set("start_date", e.target.value)} aria-invalid={!!errors.start_date} /></Field>
+          <Field label="Expected deal value" error={errors.deal_value_expected}><Input inputMode="decimal" value={form.deal_value_expected} onChange={(e) => set("deal_value_expected", e.target.value)} placeholder="1200000" aria-invalid={!!errors.deal_value_expected} /></Field>
+          <Field label="Actual (won) value" error={errors.deal_value_actual}><Input inputMode="decimal" value={form.deal_value_actual} onChange={(e) => set("deal_value_actual", e.target.value)} placeholder="1150000" aria-invalid={!!errors.deal_value_actual} /></Field>
+          <Field label="Currency" error={errors.deal_currency}><Input value={form.deal_currency} onChange={(e) => set("deal_currency", e.target.value.toUpperCase())} placeholder="EGP" /></Field>
+          <Field label="Expected close date" error={errors.expected_close_date}><Input type="date" value={form.expected_close_date} onChange={(e) => set("expected_close_date", e.target.value)} aria-invalid={!!errors.expected_close_date} /></Field>
+          <Field label="Lost reason" error={errors.lost_reason}><Input value={form.lost_reason} onChange={(e) => set("lost_reason", e.target.value)} placeholder="Price / timeline / no response…" /></Field>
           <div className="sm:col-span-2"><Field label="Attachment URL" error={errors.attachment_url}><Input value={form.attachment_url} onChange={(e) => set("attachment_url", e.target.value)} placeholder="https://…" aria-invalid={!!errors.attachment_url} /></Field></div>
+
           <div className="sm:col-span-2">
             <Field label={`Message (${form.message.length}/4000)`} error={errors.message}>
               <textarea rows={3} maxLength={4000} className="w-full rounded-md border border-border bg-background p-2 text-sm" value={form.message} onChange={(e) => set("message", e.target.value)} />
