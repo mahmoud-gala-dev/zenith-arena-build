@@ -70,9 +70,11 @@ export function QuickLeadDialog({ open, onOpenChange, source, intent = "callback
           phone: phone.trim() || null,
           message: (message.trim() || (intent === "callback" ? t.components.quickLead.callbackFromHeader : "")) + contextLine,
           preferred_contact: phone.trim() ? "phone" : "email",
+          ...getAttribution(),
           website,
         },
       });
+
       trackEvent({
         name: "quick_lead_submit",
         source,
