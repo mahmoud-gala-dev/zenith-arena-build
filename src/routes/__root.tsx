@@ -133,7 +133,7 @@ function RootComponent() {
   }, []);
 
   return (
-    <LanguageProvider initialLang={lang}>
+    <LanguageProvider initialLang={lang === "ar" ? "ar" : "en"}>
       <SmoothScroll />
       <PerfOverlay />
       <PwaController />
