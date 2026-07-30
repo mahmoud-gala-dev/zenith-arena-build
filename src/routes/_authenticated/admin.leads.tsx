@@ -14,6 +14,9 @@ import { LeadTimeline } from "@/components/admin/LeadTimeline";
 import { LeadAiSummary } from "@/components/admin/LeadAiSummary";
 import { WhatsAppThreadPanel } from "@/components/admin/WhatsAppThreadPanel";
 import { useGuard } from "@/lib/rbac";
+import { LeadScoreBadge, LeadScorePanel } from "@/components/admin/LeadScoreBadge";
+import { scoreLead } from "@/lib/lead-score";
+
 
 
 export const Route = createFileRoute("/_authenticated/admin/leads")({
