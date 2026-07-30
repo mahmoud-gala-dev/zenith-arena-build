@@ -136,10 +136,12 @@ function QuotePage() {
       start_date: String(fd.get("start") ?? "") || null,
       message: String(fd.get("message") ?? "") || null,
       preferred_contact: contactMethod,
+      ...getAttribution(),
       website: String(fd.get("website") ?? ""),
     };
     const check = submitSchema.safeParse(payload);
     if (!check.success) return toast.error(check.error.issues[0].message);
+
     setSubmitting(true);
     try {
       await submit({ data: payload });
