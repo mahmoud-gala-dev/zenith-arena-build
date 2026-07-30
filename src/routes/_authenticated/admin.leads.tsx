@@ -511,7 +511,7 @@ function Info({ label, value }: { label: string; value: string | null }) {
   );
 }
 
-function StatCard({ label, value, tone }: { label: string; value: number; tone?: string }) {
+function StatCard({ label, value, tone }: { label: string; value: number | string; tone?: string }) {
   return (
     <div className="rounded-xl border border-border bg-card p-4 shadow-soft">
       <p className="text-xs uppercase text-muted-foreground">{label}</p>
