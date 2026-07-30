@@ -346,7 +346,24 @@ function LeadsPage() {
             <SelectItem value="90d">Last 90 days</SelectItem>
           </SelectContent>
         </Select>
+        <Select value={bandFilter} onValueChange={setBandFilter}>
+          <SelectTrigger className="w-[140px]"><SelectValue placeholder="Score" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All scores</SelectItem>
+            <SelectItem value="hot">Hot (65+)</SelectItem>
+            <SelectItem value="warm">Warm (40–64)</SelectItem>
+            <SelectItem value="cold">Cold (&lt;40)</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={sortBy} onValueChange={(v) => setSortBy(v as "recent" | "score")}>
+          <SelectTrigger className="w-[150px]"><SelectValue placeholder="Sort" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="recent">Newest first</SelectItem>
+            <SelectItem value="score">Highest score</SelectItem>
+          </SelectContent>
+        </Select>
         <Button variant="ghost" onClick={resetFilters}>Reset</Button>
+
         <Button variant="outline" onClick={exportCSV}><Download className="mr-2 h-4 w-4" /> Export CSV ({filtered.length})</Button>
         <Button disabled={!canManage} onClick={() => { setEditing(null); setFormOpen(true); }}><Plus className="mr-2 h-4 w-4" /> New Lead</Button>
       </div>
