@@ -126,6 +126,9 @@ export function DownloadGateButton({
         name: "الاسم الكامل",
         email: "البريد الإلكتروني",
         phone: "رقم الجوال",
+        budget: "الميزانية التقديرية (اختياري)",
+        timeline: "موعد البدء المتوقع (اختياري)",
+        skip: "أفضل عدم التحديد",
         cancel: "إلغاء",
         cta: "بدء التحميل",
         sending: "جارٍ الإرسال…",
@@ -149,6 +152,9 @@ export function DownloadGateButton({
         name: "Full name",
         email: "Email",
         phone: "Phone",
+        budget: "Estimated budget (optional)",
+        timeline: "Expected start (optional)",
+        skip: "Prefer not to say",
         cancel: "Cancel",
         cta: "Start download",
         sending: "Sending…",
@@ -166,6 +172,14 @@ export function DownloadGateButton({
         close: "Close",
         waMsg: (t: string) => `Hi, I just requested the ${t} catalog. I'd like to talk to sales.`,
       };
+
+  const BUDGETS = ar
+    ? ["أقل من 500 ألف ج.م", "500 ألف – 1 مليون ج.م", "1 – 3 مليون ج.م", "3 – 10 مليون ج.م", "أكثر من 10 مليون ج.م"]
+    : ["Under 500K EGP", "500K – 1M EGP", "1M – 3M EGP", "3M – 10M EGP", "Over 10M EGP"];
+  const TIMELINES = ar
+    ? ["خلال شهر", "1 – 3 أشهر", "3 – 6 أشهر", "بعد 6 أشهر", "مرحلة دراسة فقط"]
+    : ["Within a month", "1 – 3 months", "3 – 6 months", "6+ months", "Just researching"];
+
 
   const dedupeKey = `dl-lead:${slug}`;
 
