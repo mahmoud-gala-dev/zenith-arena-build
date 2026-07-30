@@ -38,7 +38,14 @@ export async function verifyTurnstile(
       "error-codes"?: string[];
     };
     if (json.success) return { ok: true, skipped: false };
-    return { ok: false, reason: (json["error-codes"] ?? ["invalid"]).join(",") };
+    const codes = json["error-codes"] ?? ["invalid"];
+    // Misconfiguration on our side (bad/placeholder secret key) must not block
+    // real customers from submitting — log loudly and let the request through.
+    if (codes.some((c) => c === "invalid-input-secret" || c === "missing-input-secret")) {
+      console.error("[turnstile] TURNSTILE_SECRET_KEY is invalid — captcha bypassed", codes);
+      return { ok: true, skipped: true };
+    }
+    return { ok: false, reason: codes.join(",") };
   } catch (err) {
     console.error("[turnstile] verification request failed", err);
     // Fail closed: a configured captcha that cannot be verified must not pass.
