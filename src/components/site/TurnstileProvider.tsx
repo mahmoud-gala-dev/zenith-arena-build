@@ -61,6 +61,7 @@ export function TurnstileProvider({ children }: { children: React.ReactNode }) {
 
   const holderRef = useRef<HTMLDivElement | null>(null);
   const widgetIdRef = useRef<string | null>(null);
+  const configurationFailedRef = useRef(false);
   const pendingRef = useRef<{ resolve: (t: string | null) => void } | null>(null);
   const [ready, setReady] = useState(false);
 
@@ -70,18 +71,28 @@ export function TurnstileProvider({ children }: { children: React.ReactNode }) {
     loadScript()
       .then(() => {
         if (cancelled || !window.turnstile || !holderRef.current) return;
+        configurationFailedRef.current = false;
         widgetIdRef.current = window.turnstile.render(holderRef.current, {
           sitekey: siteKey,
           execution: "execute",
           appearance: "interaction-only",
+          retry: "never",
           "response-field": false,
           callback: (token: string) => {
             pendingRef.current?.resolve(token);
             pendingRef.current = null;
           },
-          "error-callback": () => {
+          "error-callback": (errorCode: string) => {
+            // 400020 is a non-retryable invalid-sitekey configuration error.
+            // Mark it handled to prevent Turnstile's automatic retries and
+            // repeated console warnings while the key is being corrected.
+            if (errorCode === "400020" || errorCode === "110100" || errorCode === "110110") {
+              configurationFailedRef.current = true;
+              setReady(false);
+            }
             pendingRef.current?.resolve(null);
             pendingRef.current = null;
+            return true;
           },
           "timeout-callback": () => {
             pendingRef.current?.resolve(null);
@@ -101,12 +112,14 @@ export function TurnstileProvider({ children }: { children: React.ReactNode }) {
         }
       }
       widgetIdRef.current = null;
+      configurationFailedRef.current = false;
     };
   }, [siteKey]);
 
   const getToken = useCallback(async (): Promise<string | null> => {
-    if (!siteKey || !ready || !window.turnstile || !widgetIdRef.current) return null;
+    if (!siteKey || !ready || configurationFailedRef.current || !window.turnstile || !widgetIdRef.current) return null;
     const id = widgetIdRef.current;
+    const turnstile = window.turnstile;
     try {
       window.turnstile.reset(id);
     } catch {
@@ -126,7 +139,7 @@ export function TurnstileProvider({ children }: { children: React.ReactNode }) {
         },
       };
       try {
-        window.turnstile!.execute(id);
+        turnstile.execute(id);
       } catch {
         clearTimeout(timer);
         pendingRef.current = null;
