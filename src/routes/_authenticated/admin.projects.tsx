@@ -114,7 +114,9 @@ function ProjectsPage() {
         <table className="w-full text-sm">
           <thead className="bg-secondary/50 text-left text-xs uppercase text-muted-foreground">
             <tr>
+              <th className="px-4 py-3">Image</th>
               <th className="px-4 py-3">Title</th>
+              <th className="px-4 py-3">Photos</th>
               <th className="px-4 py-3">Client</th>
               <th className="px-4 py-3">Location</th>
               <th className="px-4 py-3">Year</th>
@@ -125,12 +127,29 @@ function ProjectsPage() {
           </thead>
           <tbody className="divide-y divide-border">
             {loading ? (
-              <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">Loading…</td></tr>
+              <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">Loading…</td></tr>
             ) : projects.length === 0 ? (
-              <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">No projects yet. Create one to get started.</td></tr>
+              <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">No projects yet. Create one to get started.</td></tr>
             ) : projects.map((p) => (
               <tr key={p.id}>
+                <td className="px-4 py-3">
+                  <button
+                    type="button"
+                    onClick={() => setEditing(p)}
+                    className="block h-12 w-20 overflow-hidden rounded-md border border-border bg-secondary"
+                    aria-label={`Images for ${p.title_en}`}
+                  >
+                    {p.cover_image ? (
+                      <img src={p.cover_image} alt="" loading="lazy" className="h-full w-full object-cover" />
+                    ) : (
+                      <span className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground">No image</span>
+                    )}
+                  </button>
+                </td>
                 <td className="px-4 py-3 font-medium text-foreground">{p.title_en}</td>
+                <td className="px-4 py-3 text-muted-foreground">
+                  {Array.isArray(p.gallery) ? p.gallery.length : 0}
+                </td>
                 <td className="px-4 py-3 text-muted-foreground">{p.client ?? "—"}</td>
                 <td className="px-4 py-3 text-muted-foreground">{p.location ?? "—"}</td>
                 <td className="px-4 py-3 text-muted-foreground">{p.year ?? "—"}</td>

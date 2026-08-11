@@ -105,7 +105,7 @@ export const aiEnhanceImage = createServerFn({ method: "POST" })
     if (!lovableKey) throw new Error("Missing LOVABLE_API_KEY");
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
-      headers: { "Lovable-API-Key": lovableKey, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${lovableKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: LOVABLE_IMAGE_MODEL,
         modalities: ["image", "text"],
