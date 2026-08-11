@@ -2,11 +2,25 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { aiGenerateContent } from "@/lib/ai/ai.functions";
@@ -99,7 +113,9 @@ export function AIContentDialog({
             <div>
               <Label className="text-xs">Type</Label>
               <Select value={kind} onValueChange={(v) => setKind(v as Kind)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="generic">Generic</SelectItem>
                   <SelectItem value="blog_post">Blog post</SelectItem>
@@ -113,7 +129,9 @@ export function AIContentDialog({
             <div>
               <Label className="text-xs">Language</Label>
               <Select value={language} onValueChange={(v) => setLanguage(v as any)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="en">English</SelectItem>
                   <SelectItem value="ar">Arabic</SelectItem>
@@ -145,7 +163,9 @@ export function AIContentDialog({
 
           <div className="flex items-center gap-2">
             <Switch id="ai-adv" checked={advanced} onCheckedChange={setAdvanced} />
-            <Label htmlFor="ai-adv" className="text-xs">Use advanced model (slower, higher quality)</Label>
+            <Label htmlFor="ai-adv" className="text-xs">
+              Use advanced model (slower, higher quality)
+            </Label>
           </div>
 
           {result && (
@@ -164,7 +184,11 @@ export function AIContentDialog({
 
         <DialogFooter className="gap-2">
           <Button type="button" variant="outline" onClick={run} disabled={busy}>
-            {busy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
+            {busy ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4 mr-2" />
+            )}
             {result ? "Regenerate" : "Generate"}
           </Button>
           <Button type="button" onClick={insertAndClose} disabled={!result}>

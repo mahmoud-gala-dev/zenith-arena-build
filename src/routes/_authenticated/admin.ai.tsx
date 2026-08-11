@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { AiProviderPanel } from "@/components/admin/ai/AiProviderPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -246,6 +247,8 @@ function AdminAIPage() {
         <AutoSeoCard />
 
         {/* Settings */}
+        <AiProviderPanel />
+
         <Card>
           <CardHeader><CardTitle>Settings — إعدادات الذكاء الاصطناعي</CardTitle></CardHeader>
           <CardContent className="space-y-4">

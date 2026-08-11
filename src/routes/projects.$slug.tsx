@@ -8,6 +8,7 @@ import { ProjectCard } from "@/components/site/Cards";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ShareButtons } from "@/components/site/ShareButtons";
 import { GallerySection } from "@/components/site/GallerySection";
+import { ProjectGalleryCarousel } from "@/components/site/ProjectGalleryCarousel";
 import { DetailPageSkeleton } from "@/components/site/Skeletons";
 import { Button } from "@/components/ui/button";
 import { useLang, useLocalized } from "@/i18n/LanguageProvider";
@@ -108,7 +109,8 @@ function ProjectDetail() {
     .filter((p) => p.id !== project.id)
     .slice(0, 3)
     .map(dbProjectToView);
-  const galleryArr = Array.isArray(project.gallery) ? (project.gallery as unknown[]) : [];
+  const galleryImages = (Array.isArray(project.gallery) ? (project.gallery as unknown[]) : [])
+    .filter((u): u is string => typeof u === "string" && u.trim().length > 0);
 
   return (
     <SiteLayout>
@@ -199,7 +201,11 @@ function ProjectDetail() {
         </div>
       </section>
 
-      {galleryArr.length > 0 && view.image && (
+      {galleryImages.length > 0 && (
+        <ProjectGalleryCarousel images={galleryImages} title={L(view.title)} />
+      )}
+
+      {view.image && (
         <GallerySection
           image={view.image}
           title={L(view.title)}

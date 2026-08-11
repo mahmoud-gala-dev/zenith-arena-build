@@ -217,7 +217,10 @@ function ProjectsPage() {
                   label="Project gallery"
                   value={Array.isArray(editing.gallery) ? editing.gallery : []}
                   onChange={(next) => setEditing({ ...editing, gallery: next })}
+                  bucket="media"
+                  folder="projects/gallery"
                 />
+
               </div>
               <div className="sm:col-span-2">
                 <Field label={<span className="flex items-center justify-between">Description (EN) <AIAssistButton value={editing.description_en ?? ""} onChange={(t) => setEditing({ ...editing, description_en: t })} language="en" size="sm" /></span>}>
