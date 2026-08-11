@@ -302,7 +302,7 @@ function AdminUsersPage() {
               </thead>
               <tbody className="divide-y divide-border">
                 {loading ? (
-                  <tr><td colSpan={roles.length + 1} className="px-4 py-10 text-center text-muted-foreground"><Loader2 className="mx-auto h-4 w-4 animate-spin" /></td></tr>
+                  <TableRowsSkeleton rows={6} columns={roles.length + 1} />
                 ) : filteredPerms.length === 0 ? (
                   <tr><td colSpan={roles.length + 1} className="px-4 py-10 text-center text-muted-foreground">No permissions match.</td></tr>
                 ) : groupedPerms.map(([page, perms]) => (
@@ -380,10 +380,10 @@ function AdminUsersPage() {
             </thead>
             <tbody className="divide-y divide-border">
               {loading ? (
-                <tr><td colSpan={4} className="px-4 py-16 text-center text-muted-foreground"><Loader2 className="mx-auto mb-3 h-5 w-5 animate-spin" /> Loading users…</td></tr>
+                <TableRowsSkeleton rows={8} columns={4} />
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={4} className="px-4 py-16 text-center text-muted-foreground">No users found.</td></tr>
-              ) : filtered.map((profile) => {
+              ) : pageItems.map((profile) => {
                 const currentRole = roleFor(profile.id);
                 return (
                   <tr key={profile.id}>

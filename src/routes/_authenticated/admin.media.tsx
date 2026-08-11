@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useAdminPageGuard } from "@/lib/rbac";
+import { SkeletonBox } from "@/components/site/Skeletons";
+import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 
 
 export const Route = createFileRoute("/_authenticated/admin/media")({
@@ -83,6 +85,7 @@ function MediaPage() {
   }
 
   const filtered = files.filter((f) => !q || f.file_name.toLowerCase().includes(q.toLowerCase()));
+  const { page, setPage, pageCount, pageItems, total } = usePaged(filtered, 24);
 
   return (
     <AdminShell title="Media Library">
@@ -103,14 +106,21 @@ function MediaPage() {
 
 
       {loading ? (
-        <p className="py-12 text-center text-muted-foreground">Loading…</p>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} className="overflow-hidden rounded-2xl border border-border bg-card">
+              <SkeletonBox className="aspect-square w-full rounded-none" />
+              <div className="space-y-2 p-3"><SkeletonBox className="h-3 w-3/4" /><SkeletonBox className="h-3 w-1/2" /></div>
+            </div>
+          ))}
+        </div>
       ) : filtered.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border p-16 text-center text-muted-foreground">
           No media yet. Upload images or PDFs to use across services, projects and blog.
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {filtered.map((f) => (
+          {pageItems.map((f) => (
             <div key={f.id} className="group overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
               <div className="relative aspect-square bg-secondary">
                 {f.file_type?.startsWith("image/") ? (
