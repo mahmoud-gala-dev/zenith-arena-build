@@ -282,60 +282,112 @@ function GalleryPage() {
       {current && (
         <div
           ref={dialogRef}
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-ink/95 p-3 sm:p-8"
+          className="fixed inset-0 z-[80] flex flex-col bg-ink/95"
           onClick={closeLightbox}
           role="dialog"
           aria-modal="true"
           aria-label={currentTitle}
+          onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+          onTouchEnd={(e) => {
+            if (touchStartX.current === null) return;
+            const dx = e.changedTouches[0].clientX - touchStartX.current;
+            if (Math.abs(dx) > 50) navLightbox(dx < 0 ? 1 : -1);
+            touchStartX.current = null;
+          }}
         >
-          <button
-            ref={closeBtnRef}
-            aria-label={tx.close}
-            onClick={(e) => { e.stopPropagation(); closeLightbox(); }}
-            className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
-          >
-            <X className="h-5 w-5" />
-          </button>
-          <button
-            aria-label={tx.prev}
-            onClick={(e) => { e.stopPropagation(); navLightbox(-1); }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
-          >
-            <ChevronLeft className="h-6 w-6" />
-          </button>
-          <button
-            aria-label={tx.next}
-            onClick={(e) => { e.stopPropagation(); navLightbox(1); }}
-            className="absolute right-16 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
-          >
-            <ChevronRight className="h-6 w-6" />
-          </button>
-          <div className="relative max-h-full max-w-6xl" onClick={(e) => e.stopPropagation()}>
-            <img
-              src={current.image}
-              alt={currentTitle}
-              className={cn("max-h-[80vh] w-auto rounded-xl object-contain transition-transform", zoomed && "scale-150 cursor-zoom-out")}
-              onClick={() => setZoomed((z) => !z)}
-            />
-            <div className="mt-3 flex items-center justify-between text-white">
-              <div>
-                <p className="text-lg font-semibold">{currentTitle}</p>
-                {currentCaption && <p className="text-sm text-white/70">{currentCaption}</p>}
-              </div>
-              <div className="flex items-center gap-2">
-                <button type="button" aria-label={zoomed ? tx.zoomOut : tx.zoomIn} onClick={() => setZoomed((z) => !z)} className="rounded-full bg-white/10 p-2 hover:bg-white/20">
-                  {zoomed ? <ZoomOut className="h-4 w-4" /> : <ZoomIn className="h-4 w-4" />}
-                </button>
-                {current.href && (
-                  <Link to={current.href.to} params={current.href.params} className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground">
-                    {T.pages.gallery.view}
-                  </Link>
-                )}
-              </div>
+          {/* top bar */}
+          <div className="flex shrink-0 items-center justify-between gap-2 p-3 sm:p-4" onClick={(e) => e.stopPropagation()}>
+            <span className="rounded-full bg-white/10 px-3 py-1 text-xs tabular-nums text-white/80 sm:text-sm">
+              {(lightbox ?? 0) + 1} / {filtered.length}
+            </span>
+            <div className="flex items-center gap-2">
+              <button type="button" aria-label={zoomed ? tx.zoomOut : tx.zoomIn} onClick={() => setZoomed((z) => !z)} className="rounded-full bg-white/10 p-2 text-white hover:bg-white/20">
+                {zoomed ? <ZoomOut className="h-4 w-4" /> : <ZoomIn className="h-4 w-4" />}
+              </button>
+              <button
+                ref={closeBtnRef}
+                aria-label={tx.close}
+                onClick={closeLightbox}
+                className="rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+              >
+                <X className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
             </div>
           </div>
+
+          {/* stage */}
+          <div className="relative flex min-h-0 flex-1 items-center justify-center px-2 sm:px-16">
+            {filtered.length > 1 && (
+              <>
+                <button
+                  aria-label={tx.prev}
+                  onClick={(e) => { e.stopPropagation(); navLightbox(-1); }}
+                  className="absolute left-1 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 sm:left-4 sm:p-3"
+                >
+                  <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+                </button>
+                <button
+                  aria-label={tx.next}
+                  onClick={(e) => { e.stopPropagation(); navLightbox(1); }}
+                  className="absolute right-1 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 sm:right-4 sm:p-3"
+                >
+                  <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+                </button>
+              </>
+            )}
+            <div className="flex h-full w-full items-center justify-center overflow-auto" onClick={(e) => e.stopPropagation()}>
+              <img
+                src={current.image}
+                alt={currentTitle}
+                className={cn(
+                  "max-h-full max-w-full rounded-xl object-contain transition-transform duration-300",
+                  zoomed ? "scale-150 cursor-zoom-out" : "scale-100 cursor-zoom-in",
+                )}
+                onClick={() => setZoomed((z) => !z)}
+              />
+            </div>
+          </div>
+
+          {/* caption + actions */}
+          <div className="shrink-0 px-4 pb-1 pt-2 text-white sm:px-6" onClick={(e) => e.stopPropagation()}>
+            <div className="mx-auto grid max-w-5xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+              <div className="min-w-0">
+                <p className="truncate text-base font-semibold sm:text-lg">{currentTitle}</p>
+                {currentCaption && <p className="truncate text-xs text-white/70 sm:text-sm">{currentCaption}</p>}
+              </div>
+              {current.href && (
+                <Link to={current.href.to} params={current.href.params} className="shrink-0 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground">
+                  {T.pages.gallery.view}
+                </Link>
+              )}
+            </div>
+          </div>
+
+          {/* thumbnail carousel */}
+          {filtered.length > 1 && (
+            <div className="shrink-0 overflow-x-auto px-3 pb-4 pt-2 sm:px-6" onClick={(e) => e.stopPropagation()}>
+              <div className="mx-auto flex w-max gap-2">
+                {filtered.map((item, i) => (
+                  <button
+                    key={item.id ?? `${item.image}-${i}`}
+                    type="button"
+                    onClick={() => { setLightbox(i); setZoomed(false); }}
+                    aria-current={i === lightbox}
+                    aria-label={`${i + 1}`}
+                    className={cn(
+                      "h-12 w-16 shrink-0 overflow-hidden rounded-md border transition sm:h-16 sm:w-24",
+                      i === lightbox ? "border-white opacity-100" : "border-white/20 opacity-60 hover:opacity-100",
+                    )}
+                  >
+                    <img src={item.image} alt="" loading="lazy" className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
+
     </SiteLayout>
   );
 }
