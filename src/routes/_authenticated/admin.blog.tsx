@@ -26,6 +26,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useInvalidateTables } from "@/lib/invalidate";
 import { AIAssistButton, AITranslateSync, AISeoSuggest, AIContentDialog } from "@/components/admin/ai";
 import { AttachmentsField, type Attachment } from "@/components/admin/AttachmentsField";
+import { TableRowsSkeleton } from "@/components/site/Skeletons";
+import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 
 
 export const Route = createFileRoute("/_authenticated/admin/blog")({
@@ -135,6 +137,8 @@ function AdminBlogPage() {
         .some((v) => (v ?? "").toString().toLowerCase().includes(q));
     });
   }, [rows, query, statusFilter, categoryFilter, translationFilter]);
+
+  const { page, setPage, pageCount, pageItems, total } = usePaged(filtered, 25);
 
   async function save() {
     if (!editing) return;
@@ -253,11 +257,11 @@ function AdminBlogPage() {
               </tr>
             </thead>
             <tbody>
-              {loading && <tr><td colSpan={8} className="p-6 text-center text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin inline" /> Loading…</td></tr>}
+              {loading && <TableRowsSkeleton rows={8} columns={8} />}
               {!loading && filtered.length === 0 && (
                 <tr><td colSpan={8} className="p-6 text-center text-muted-foreground">No articles found.</td></tr>
               )}
-              {!loading && filtered.map((r) => {
+              {!loading && pageItems.map((r) => {
                 const cat = cats.find((c) => c.id === r.category_id);
                 const enOk = !!r.title_en?.trim();
                 const arOk = !!r.title_ar?.trim();
@@ -341,6 +345,7 @@ function AdminBlogPage() {
               })}
             </tbody>
           </table>
+          <AdminPagination page={page} pageCount={pageCount} total={total} onPageChange={setPage} label="مقال" />
         </div>
       </div>
 

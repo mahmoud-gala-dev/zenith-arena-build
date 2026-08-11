@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus, Pencil, Trash2, Loader2, Search, Upload, X, FileText, ExternalLink, Download as DownloadIcon, GripVertical, Image as ImageIcon, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
+import { TableRowsSkeleton } from "@/components/site/Skeletons";
+import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { StrictImageUrlField } from "@/components/admin/StrictImageUrlField";
 import { Button } from "@/components/ui/button";
@@ -152,6 +154,8 @@ function AdminDownloadsPage() {
     });
   }, [rows, query, statusFilter, categoryFilter]);
 
+  const { page, setPage, pageCount, pageItems, total } = usePaged(filtered, 25);
+
   async function handleDelete() {
     if (!deleteRow) return;
     const { error } = await supabase.from("downloads").delete().eq("id", deleteRow.id);
@@ -219,12 +223,10 @@ function AdminDownloadsPage() {
               </thead>
               <tbody className="divide-y divide-border">
                 {loading ? (
-                  <tr><td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
-                    <Loader2 className="mx-auto h-5 w-5 animate-spin" />
-                  </td></tr>
+                  <TableRowsSkeleton rows={8} columns={7} />
                 ) : filtered.length === 0 ? (
                   <tr><td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">No downloads yet.</td></tr>
-                ) : filtered.map((r) => (
+                ) : pageItems.map((r) => (
                   <tr key={r.id} className="hover:bg-secondary/30">
                     <td className="px-4 py-3">
                       <div className="h-12 w-16 overflow-hidden rounded-md border border-border bg-secondary">
@@ -268,6 +270,7 @@ function AdminDownloadsPage() {
                 ))}
               </tbody>
             </table>
+            <AdminPagination page={page} pageCount={pageCount} total={total} onPageChange={setPage} label="كتالوج" />
           </div>
         </div>
       </div>

@@ -13,6 +13,8 @@ import { z } from "zod";
 import { LeadTimeline } from "@/components/admin/LeadTimeline";
 import { LeadAiSummary } from "@/components/admin/LeadAiSummary";
 import { WhatsAppThreadPanel } from "@/components/admin/WhatsAppThreadPanel";
+import { TableRowsSkeleton } from "@/components/site/Skeletons";
+import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 import { useGuard } from "@/lib/rbac";
 import { LeadScoreBadge, LeadScorePanel } from "@/components/admin/LeadScoreBadge";
 import { scoreLead } from "@/lib/lead-score";
@@ -153,6 +155,8 @@ function LeadsPage() {
     }
     return rows;
   }, [leads, statusFilter, typeFilter, intentFilter, sourceFilter, bandFilter, dateFilter, q, sortBy]);
+
+  const { page, setPage, pageCount, pageItems, total } = usePaged(filtered, 25);
 
 
   const stats = useMemo(() => {
@@ -389,10 +393,10 @@ function LeadsPage() {
           </thead>
           <tbody className="divide-y divide-border">
             {loading ? (
-              <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">Loading…</td></tr>
+              <TableRowsSkeleton rows={8} columns={9} />
             ) : filtered.length === 0 ? (
               <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">No leads found.</td></tr>
-            ) : filtered.map((l) => (
+            ) : pageItems.map((l) => (
               <tr key={l.id} className="cursor-pointer hover:bg-secondary/40" onClick={() => setSelected(l)}>
                 <td className="px-4 py-3">
                   <div className="font-medium text-foreground">{l.name}</div>
@@ -466,6 +470,7 @@ function LeadsPage() {
             ))}
           </tbody>
         </table>
+        <AdminPagination page={page} pageCount={pageCount} total={total} onPageChange={setPage} label="طلب" />
       </div>
 
       <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>

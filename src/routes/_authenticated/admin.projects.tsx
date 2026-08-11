@@ -14,6 +14,8 @@ import { useInvalidateTables } from "@/lib/invalidate";
 import { StrictImageUrlField } from "@/components/admin/StrictImageUrlField";
 import { GalleryOrderEditor } from "@/components/admin/GalleryOrderEditor";
 import { AIAssistButton, AITranslateSync, AIContentDialog } from "@/components/admin/ai";
+import { TableRowsSkeleton } from "@/components/site/Skeletons";
+import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 
 
 export const Route = createFileRoute("/_authenticated/admin/projects")({
@@ -53,6 +55,7 @@ function ProjectsPage() {
   const invalidate = useInvalidateTables(["projects"]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const { page, setPage, pageCount, pageItems, total } = usePaged(projects, 25);
 
   const [editing, setEditing] = useState<Partial<Project> | null>(null);
   const [govs, setGovs] = useState<GovOption[]>([]);
@@ -127,10 +130,10 @@ function ProjectsPage() {
           </thead>
           <tbody className="divide-y divide-border">
             {loading ? (
-              <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">Loading…</td></tr>
+              <TableRowsSkeleton rows={8} columns={9} />
             ) : projects.length === 0 ? (
               <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">No projects yet. Create one to get started.</td></tr>
-            ) : projects.map((p) => (
+            ) : pageItems.map((p) => (
               <tr key={p.id}>
                 <td className="px-4 py-3">
                   <button
@@ -165,6 +168,7 @@ function ProjectsPage() {
             ))}
           </tbody>
         </table>
+        <AdminPagination page={page} pageCount={pageCount} total={total} onPageChange={setPage} label="مشروع" />
       </div>
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>

@@ -11,6 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useInvalidateTables } from "@/lib/invalidate";
 import { AITranslateSync } from "@/components/admin/ai";
+import { TableRowsSkeleton } from "@/components/site/Skeletons";
+import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 
 
 export const Route = createFileRoute("/_authenticated/admin/governorates")({
@@ -35,6 +37,7 @@ function GovernoratesPage() {
   const invalidate = useInvalidateTables(["governorates"]);
   const [rows, setRows] = useState<Gov[]>([]);
   const [loading, setLoading] = useState(true);
+  const { page, setPage, pageCount, pageItems, total } = usePaged(rows, 25);
   const [editing, setEditing] = useState<Partial<Gov> | null>(null);
 
 
@@ -90,10 +93,10 @@ function GovernoratesPage() {
           </thead>
           <tbody className="divide-y divide-border">
             {loading ? (
-              <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">Loading…</td></tr>
+              <TableRowsSkeleton rows={8} columns={7} />
             ) : rows.length === 0 ? (
               <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">No governorates yet.</td></tr>
-            ) : rows.map((g) => (
+            ) : pageItems.map((g) => (
               <tr key={g.id}>
                 <td className="px-4 py-3">
                   {g.logo_url ? <img src={g.logo_url} alt={g.name_en} className="h-10 w-10 rounded bg-secondary object-contain p-1" /> : <div className="h-10 w-10 rounded bg-secondary" />}
@@ -113,6 +116,7 @@ function GovernoratesPage() {
             ))}
           </tbody>
         </table>
+        <AdminPagination page={page} pageCount={pageCount} total={total} onPageChange={setPage} label="محافظة" />
       </div>
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>

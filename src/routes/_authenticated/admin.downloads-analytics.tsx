@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminPageGuard } from "@/lib/rbac";
+import { TableRowsSkeleton } from "@/components/site/Skeletons";
+import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 
 export const Route = createFileRoute("/_authenticated/admin/downloads-analytics")({
   component: DownloadsAnalyticsPage,
@@ -114,6 +116,8 @@ function DownloadsAnalyticsPage() {
       .map(([day, v]) => ({ day, ...v }))
       .sort((a, b) => a.day.localeCompare(b.day));
   }, [events]);
+
+  const { page, setPage, pageCount, pageItems, total } = usePaged(events, 50);
 
   const maxDay = Math.max(1, ...daily.map((d) => d.views + d.downloads));
 
@@ -277,7 +281,8 @@ function DownloadsAnalyticsPage() {
                 </tr>
               </thead>
               <tbody>
-                {events.slice(0, 200).map((e) => (
+                {loading && <TableRowsSkeleton rows={10} columns={5} />}
+                {!loading && pageItems.map((e) => (
                   <tr key={e.id} className="border-b last:border-0">
                     <td className="p-3 whitespace-nowrap text-muted-foreground">{new Date(e.created_at).toLocaleString()}</td>
                     <td className="p-3"><Badge variant={e.event_type === "download" ? "default" : "secondary"}>{e.event_type.replace("_", " ")}</Badge></td>
@@ -286,11 +291,12 @@ function DownloadsAnalyticsPage() {
                     <td className="p-3 truncate max-w-[200px] text-muted-foreground">{e.referrer_host || "Direct"}</td>
                   </tr>
                 ))}
-                {events.length === 0 && (
+                {!loading && events.length === 0 && (
                   <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No events recorded yet.</td></tr>
                 )}
               </tbody>
             </table>
+            <AdminPagination page={page} pageCount={pageCount} total={total} onPageChange={setPage} label="حدث" />
           </div>
         </section>
       </div>

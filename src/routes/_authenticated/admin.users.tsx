@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { useGuard } from "@/lib/rbac";
 import { logAdminAudit } from "@/lib/admin-audit";
 import { ResetPasswordDialog } from "@/components/admin/ResetPasswordDialog";
+import { TableRowsSkeleton } from "@/components/site/Skeletons";
+import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 
 
 export const Route = createFileRoute("/_authenticated/admin/users")({
@@ -168,6 +170,8 @@ function AdminUsersPage() {
     return profiles.filter((profile) => [profile.full_name, profile.email].some((value) => String(value ?? "").toLowerCase().includes(normalized)));
   }, [profiles, query]);
 
+  const { page, setPage, pageCount, pageItems, total } = usePaged(filtered, 25);
+
   const filteredPerms = useMemo(() => {
     const q = permQuery.trim().toLowerCase();
     if (!q) return permissions;
@@ -302,7 +306,7 @@ function AdminUsersPage() {
               </thead>
               <tbody className="divide-y divide-border">
                 {loading ? (
-                  <tr><td colSpan={roles.length + 1} className="px-4 py-10 text-center text-muted-foreground"><Loader2 className="mx-auto h-4 w-4 animate-spin" /></td></tr>
+                  <TableRowsSkeleton rows={6} columns={roles.length + 1} />
                 ) : filteredPerms.length === 0 ? (
                   <tr><td colSpan={roles.length + 1} className="px-4 py-10 text-center text-muted-foreground">No permissions match.</td></tr>
                 ) : groupedPerms.map(([page, perms]) => (
@@ -380,10 +384,10 @@ function AdminUsersPage() {
             </thead>
             <tbody className="divide-y divide-border">
               {loading ? (
-                <tr><td colSpan={4} className="px-4 py-16 text-center text-muted-foreground"><Loader2 className="mx-auto mb-3 h-5 w-5 animate-spin" /> Loading users…</td></tr>
+                <TableRowsSkeleton rows={8} columns={4} />
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={4} className="px-4 py-16 text-center text-muted-foreground">No users found.</td></tr>
-              ) : filtered.map((profile) => {
+              ) : pageItems.map((profile) => {
                 const currentRole = roleFor(profile.id);
                 return (
                   <tr key={profile.id}>
@@ -409,6 +413,7 @@ function AdminUsersPage() {
               })}
             </tbody>
           </table>
+          <AdminPagination page={page} pageCount={pageCount} total={total} onPageChange={setPage} label="مستخدم" />
         </div>
       </div>
     </AdminShell>

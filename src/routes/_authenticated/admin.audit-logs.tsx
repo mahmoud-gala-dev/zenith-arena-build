@@ -11,6 +11,8 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { TableRowsSkeleton } from "@/components/site/Skeletons";
+import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 
 
 
@@ -123,6 +125,8 @@ function AuditLogsPage() {
       return haystack.includes(needle);
     });
   }, [rows, q]);
+
+  const { page, setPage, pageCount, pageItems, total } = usePaged(filtered, 50);
 
   const activeFilterCount =
     (table !== "all" ? 1 : 0) +
@@ -285,10 +289,11 @@ function AuditLogsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
+              {loading && <TableRowsSkeleton rows={10} columns={6} />}
               {filtered.length === 0 && !loading && (
                 <tr><td colSpan={6} className="px-3 py-8 text-center text-sm text-muted-foreground">No audit events match these filters.</td></tr>
               )}
-              {filtered.map((r) => (
+              {!loading && pageItems.map((r) => (
                 <tr
                   key={r.id}
                   className="cursor-pointer hover:bg-muted/30"
@@ -311,6 +316,7 @@ function AuditLogsPage() {
 
             </tbody>
           </table>
+          <AdminPagination page={page} pageCount={pageCount} total={total} onPageChange={setPage} label="حدث" />
         </div>
       </div>
 

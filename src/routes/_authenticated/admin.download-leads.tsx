@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { TableRowsSkeleton } from "@/components/site/Skeletons";
+import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 
 export const Route = createFileRoute("/_authenticated/admin/download-leads")({
   component: DownloadLeadsPage,
@@ -92,6 +94,8 @@ function DownloadLeadsPage() {
       );
     });
   }, [leads, q, statusFilter, catalogFilter, dateFrom, dateTo]);
+
+  const { page, setPage, pageCount, pageItems, total } = usePaged(filtered, 25);
 
   async function updateStatus(id: string, status: string) {
     const { error } = await supabase.from("leads").update({ status: status as never }).eq("id", id);
@@ -228,10 +232,10 @@ function DownloadLeadsPage() {
           </thead>
           <tbody className="divide-y divide-border">
             {loading ? (
-              <tr><td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">Loading…</td></tr>
+              <TableRowsSkeleton rows={8} columns={8} />
             ) : filtered.length === 0 ? (
               <tr><td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">No download leads found.</td></tr>
-            ) : filtered.map((l) => {
+            ) : pageItems.map((l) => {
               const cat = extractCatalog(l.service).title;
               return (
                 <tr key={l.id} className="hover:bg-secondary/40">
@@ -261,6 +265,7 @@ function DownloadLeadsPage() {
             })}
           </tbody>
         </table>
+        <AdminPagination page={page} pageCount={pageCount} total={total} onPageChange={setPage} label="طلب تحميل" />
       </div>
 
       <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
