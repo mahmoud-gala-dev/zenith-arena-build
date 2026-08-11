@@ -37,6 +37,7 @@ function GovernoratesPage() {
   const invalidate = useInvalidateTables(["governorates"]);
   const [rows, setRows] = useState<Gov[]>([]);
   const [loading, setLoading] = useState(true);
+  const { page, setPage, pageCount, pageItems, total } = usePaged(rows, 25);
   const [editing, setEditing] = useState<Partial<Gov> | null>(null);
 
 

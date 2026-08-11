@@ -55,6 +55,7 @@ function ProjectsPage() {
   const invalidate = useInvalidateTables(["projects"]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const { page, setPage, pageCount, pageItems, total } = usePaged(projects, 25);
 
   const [editing, setEditing] = useState<Partial<Project> | null>(null);
   const [govs, setGovs] = useState<GovOption[]>([]);
