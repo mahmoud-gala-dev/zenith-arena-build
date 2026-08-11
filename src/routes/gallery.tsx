@@ -77,6 +77,8 @@ function GalleryPage() {
   const [query, setQuery] = useState("");
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [zoomed, setZoomed] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+
 
   useEffect(() => {
     setActiveType(search.type ?? "all");
