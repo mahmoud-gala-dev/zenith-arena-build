@@ -371,7 +371,7 @@ function GalleryPage() {
               <div className="mx-auto flex w-max gap-2">
                 {filtered.map((item, i) => (
                   <button
-                    key={item.id ?? `${item.image}-${i}`}
+                    key={`${item.image}-${i}`}
                     type="button"
                     onClick={() => { setLightbox(i); setZoomed(false); }}
                     aria-current={i === lightbox}
