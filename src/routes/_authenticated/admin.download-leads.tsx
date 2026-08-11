@@ -95,6 +95,8 @@ function DownloadLeadsPage() {
     });
   }, [leads, q, statusFilter, catalogFilter, dateFrom, dateTo]);
 
+  const { page, setPage, pageCount, pageItems, total } = usePaged(filtered, 25);
+
   async function updateStatus(id: string, status: string) {
     const { error } = await supabase.from("leads").update({ status: status as never }).eq("id", id);
     if (error) return toast.error(error.message);

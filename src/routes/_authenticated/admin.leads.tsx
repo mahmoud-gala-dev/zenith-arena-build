@@ -156,6 +156,8 @@ function LeadsPage() {
     return rows;
   }, [leads, statusFilter, typeFilter, intentFilter, sourceFilter, bandFilter, dateFilter, q, sortBy]);
 
+  const { page, setPage, pageCount, pageItems, total } = usePaged(filtered, 25);
+
 
   const stats = useMemo(() => {
     const open = leads.filter((l) => !["won", "lost"].includes(l.status));
