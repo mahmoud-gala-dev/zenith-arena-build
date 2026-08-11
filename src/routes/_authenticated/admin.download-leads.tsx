@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { TableRowsSkeleton } from "@/components/site/Skeletons";
+import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 
 export const Route = createFileRoute("/_authenticated/admin/download-leads")({
   component: DownloadLeadsPage,
@@ -261,6 +263,7 @@ function DownloadLeadsPage() {
             })}
           </tbody>
         </table>
+        <AdminPagination page={page} pageCount={pageCount} total={total} onPageChange={setPage} label="طلب تحميل" />
       </div>
 
       <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>

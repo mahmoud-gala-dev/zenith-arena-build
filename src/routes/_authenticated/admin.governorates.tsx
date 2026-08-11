@@ -11,6 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useInvalidateTables } from "@/lib/invalidate";
 import { AITranslateSync } from "@/components/admin/ai";
+import { TableRowsSkeleton } from "@/components/site/Skeletons";
+import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 
 
 export const Route = createFileRoute("/_authenticated/admin/governorates")({
@@ -113,6 +115,7 @@ function GovernoratesPage() {
             ))}
           </tbody>
         </table>
+        <AdminPagination page={page} pageCount={pageCount} total={total} onPageChange={setPage} label="محافظة" />
       </div>
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>

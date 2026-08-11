@@ -13,6 +13,8 @@ import { z } from "zod";
 import { LeadTimeline } from "@/components/admin/LeadTimeline";
 import { LeadAiSummary } from "@/components/admin/LeadAiSummary";
 import { WhatsAppThreadPanel } from "@/components/admin/WhatsAppThreadPanel";
+import { TableRowsSkeleton } from "@/components/site/Skeletons";
+import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 import { useGuard } from "@/lib/rbac";
 import { LeadScoreBadge, LeadScorePanel } from "@/components/admin/LeadScoreBadge";
 import { scoreLead } from "@/lib/lead-score";
@@ -466,6 +468,7 @@ function LeadsPage() {
             ))}
           </tbody>
         </table>
+        <AdminPagination page={page} pageCount={pageCount} total={total} onPageChange={setPage} label="طلب" />
       </div>
 
       <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
