@@ -126,6 +126,8 @@ function AuditLogsPage() {
     });
   }, [rows, q]);
 
+  const { page, setPage, pageCount, pageItems, total } = usePaged(filtered, 50);
+
   const activeFilterCount =
     (table !== "all" ? 1 : 0) +
     (action !== "all" ? 1 : 0) +
