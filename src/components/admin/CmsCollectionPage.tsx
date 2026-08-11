@@ -429,17 +429,30 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
                 editing={editing}
                 onChange={(patch) => setEditing({ ...editing, ...patch })}
               />
-              <div className="grid gap-4 sm:grid-cols-2">
-                {config.fields.map((field) => (
-                  <FieldEditor key={field.name} field={field} values={editing} onChange={(value) => setEditing({ ...editing, [field.name]: value })} />
-                ))}
-              </div>
+              <StepForm
+                resetKey={String(editing.id ?? "new")}
+                saving={saving}
+                onSave={save}
+                onCancel={() => setEditing(null)}
+                onStepError={(message) => toast.error(message)}
+                steps={stepGroupOrder
+                  .map((group) => ({ group, fields: config.fields.filter((f) => groupFieldName(f.name) === group) }))
+                  .filter((entry) => entry.fields.length > 0)
+                  .map(({ group, fields }) => ({
+                    key: group,
+                    label: stepGroupLabels[group],
+                    validate: () => validate(editing, fields),
+                    content: (
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        {fields.map((field) => (
+                          <FieldEditor key={field.name} field={field} values={editing} onChange={(value) => setEditing({ ...editing, [field.name]: value })} />
+                        ))}
+                      </div>
+                    ),
+                  }))}
+              />
             </>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
-            <Button onClick={save} disabled={saving}>{saving && <Loader2 className="h-4 w-4 animate-spin" />} Save</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 
