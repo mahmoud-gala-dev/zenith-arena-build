@@ -311,171 +311,201 @@ function AdminServicesPage() {
           <DialogHeader><DialogTitle>{editing?.id ? "Edit service" : "New service"}</DialogTitle></DialogHeader>
           {editing && (
             <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-              {/* Form */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between gap-2 flex-wrap rounded-md border bg-muted/30 p-2">
-                  <span className="text-xs text-muted-foreground">✨ AI helpers</span>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <AIContentDialog
-                      triggerLabel="Draft service"
-                      defaultKind="service_description"
-                      defaultLanguage="en"
-                      onInsert={(text) => setEditing({ ...editing, description_en: (editing.description_en ? editing.description_en + "\n\n" : "") + text })}
-                      targetTable="services"
-                      targetId={editing.id}
-                    />
-                    <AITranslateSync
-                      enValue={editing.description_en ?? ""}
-                      arValue={editing.description_ar ?? ""}
-                      onSetEn={(t) => setEditing({ ...editing, description_en: t })}
-                      onSetAr={(t) => setEditing({ ...editing, description_ar: t })}
-                      label="Sync EN↔AR"
-                    />
-                  </div>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <Field label="English slug *"><Input value={editing.slug_en} onChange={(e) => setEditing({ ...editing, slug_en: e.target.value })} /></Field>
-                  <Field label="Arabic slug"><Input dir="rtl" value={editing.slug_ar ?? ""} onChange={(e) => setEditing({ ...editing, slug_ar: e.target.value })} /></Field>
-                  <Field label="English title *">
-                    <div className="flex gap-2">
-                      <Input value={editing.title_en} onChange={(e) => setEditing({ ...editing, title_en: e.target.value })} />
-                      <AIAssistButton value={editing.title_en} onChange={(t) => setEditing({ ...editing, title_en: t })} language="en" />
-                    </div>
-                  </Field>
-                  <Field label="Arabic title">
-                    <div className="flex gap-2">
-                      <Input dir="rtl" value={editing.title_ar ?? ""} onChange={(e) => setEditing({ ...editing, title_ar: e.target.value })} />
-                      <AIAssistButton value={editing.title_ar ?? ""} onChange={(t) => setEditing({ ...editing, title_ar: t })} language="ar" />
-                    </div>
-                  </Field>
-                  <Field label="Category"><Input value={editing.category ?? ""} onChange={(e) => setEditing({ ...editing, category: e.target.value })} /></Field>
-                  <Field label="Icon"><IconPicker value={editing.icon} onChange={(name) => setEditing({ ...editing, icon: name })} /></Field>
-                  <Field label="English alt text (for images)"><Input value={editing.alt_en ?? ""} onChange={(e) => setEditing({ ...editing, alt_en: e.target.value })} maxLength={180} /></Field>
-                  <Field label="Arabic alt text"><Input dir="rtl" value={editing.alt_ar ?? ""} onChange={(e) => setEditing({ ...editing, alt_ar: e.target.value })} maxLength={180} /></Field>
-                </div>
-
-                <Field label={<span className="flex items-center justify-between">English description <AIAssistButton value={editing.description_en ?? ""} onChange={(t) => setEditing({ ...editing, description_en: t })} language="en" size="sm" /></span>}>
-                  <Textarea rows={3} value={editing.description_en ?? ""} onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} maxLength={2500} />
-                </Field>
-                <Field label={<span className="flex items-center justify-between">Arabic description <AIAssistButton value={editing.description_ar ?? ""} onChange={(t) => setEditing({ ...editing, description_ar: t })} language="ar" size="sm" /></span>}>
-                  <Textarea dir="rtl" rows={3} value={editing.description_ar ?? ""} onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} maxLength={2500} />
-                </Field>
-
-
-                <div className="rounded-lg border border-border bg-secondary/30 p-3">
-                  <p className="mb-3 text-sm font-medium">Images — pick a tab, then Upload &amp; Crop or paste a URL.</p>
-                  <Tabs defaultValue="cover">
-                    <TabsList className="mb-3">
-                      <TabsTrigger value="cover" className="gap-1.5"><StatusDot s={tabStatus.cover} /> Cover (16:10)</TabsTrigger>
-                      <TabsTrigger value="header" className="gap-1.5"><StatusDot s={tabStatus.header} /> Header (21:9)</TabsTrigger>
-                      <TabsTrigger value="og" className="gap-1.5"><StatusDot s={tabStatus.og} /> Social (1.91:1)</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="cover" className="mt-0 space-y-2">
-                      <div className="flex justify-end">
-                        <ImageHistoryButton
-                          entityTable="services" entityId={editing.id} field="cover_image"
-                          onRevert={(v) => setEditing({ ...editing, cover_image: v.url ?? "", cover_image_variants: v.variants })}
-                        />
+              <StepForm
+                resetKey={String(editing.id ?? "new")}
+                saving={saving}
+                onSave={save}
+                onCancel={() => setEditing(null)}
+                onStepError={(m: string) => toast.error(m)}
+                steps={[
+                  {
+                    key: "basic",
+                    label: "الأساسيات",
+                    validate: () => (!editing.slug_en?.trim() ? "English slug مطلوب" : !editing.title_en?.trim() ? "English title مطلوب" : null),
+                    content: (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between gap-2 flex-wrap rounded-md border bg-muted/30 p-2">
+                          <span className="text-xs text-muted-foreground">✨ AI helpers</span>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <AIContentDialog
+                              triggerLabel="Draft service"
+                              defaultKind="service_description"
+                              defaultLanguage="en"
+                              onInsert={(text) => setEditing({ ...editing, description_en: (editing.description_en ? editing.description_en + "\n\n" : "") + text })}
+                              targetTable="services"
+                              targetId={editing.id}
+                            />
+                            <AITranslateSync
+                              enValue={editing.description_en ?? ""}
+                              arValue={editing.description_ar ?? ""}
+                              onSetEn={(t) => setEditing({ ...editing, description_en: t })}
+                              onSetAr={(t) => setEditing({ ...editing, description_ar: t })}
+                              label="Sync EN↔AR"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <Field label="English slug *"><Input value={editing.slug_en} onChange={(e) => setEditing({ ...editing, slug_en: e.target.value })} /></Field>
+                          <Field label="Arabic slug"><Input dir="rtl" value={editing.slug_ar ?? ""} onChange={(e) => setEditing({ ...editing, slug_ar: e.target.value })} /></Field>
+                          <Field label="English title *">
+                            <div className="flex gap-2">
+                              <Input value={editing.title_en} onChange={(e) => setEditing({ ...editing, title_en: e.target.value })} />
+                              <AIAssistButton value={editing.title_en} onChange={(t) => setEditing({ ...editing, title_en: t })} language="en" />
+                            </div>
+                          </Field>
+                          <Field label="Arabic title">
+                            <div className="flex gap-2">
+                              <Input dir="rtl" value={editing.title_ar ?? ""} onChange={(e) => setEditing({ ...editing, title_ar: e.target.value })} />
+                              <AIAssistButton value={editing.title_ar ?? ""} onChange={(t) => setEditing({ ...editing, title_ar: t })} language="ar" />
+                            </div>
+                          </Field>
+                          <Field label="Category"><Input value={editing.category ?? ""} onChange={(e) => setEditing({ ...editing, category: e.target.value })} /></Field>
+                          <Field label="Icon"><IconPicker value={editing.icon} onChange={(name) => setEditing({ ...editing, icon: name })} /></Field>
+                          <Field label="English alt text (for images)"><Input value={editing.alt_en ?? ""} onChange={(e) => setEditing({ ...editing, alt_en: e.target.value })} maxLength={180} /></Field>
+                          <Field label="Arabic alt text"><Input dir="rtl" value={editing.alt_ar ?? ""} onChange={(e) => setEditing({ ...editing, alt_ar: e.target.value })} maxLength={180} /></Field>
+                        </div>
                       </div>
-                      <StrictImageUrlField
-                        label="Cover image (card thumbnail)"
-                        value={editing.cover_image ?? ""}
-                        onChange={(v) => setEditing({ ...editing, cover_image: v })}
-                        variants={editing.cover_image_variants}
-                        onVariantsChange={(m) => setEditing({ ...editing, cover_image_variants: m })}
-                        aspect="aspect-[16/10]"
-                        aspectRatio={16 / 10}
-                        options={{ minWidth: 600, minHeight: 375 }}
-                        help="Recommended 1200×750 · WebP variants auto-generated · ≤ 8MB · aspect enforced ±8%"
-                        folder="services/cover"
-                        onStatusChange={(s) => setTabStatus((p) => ({ ...p, cover: s }))}
-                      />
-                    </TabsContent>
-                    <TabsContent value="header" className="mt-0 space-y-2">
-                      <div className="flex justify-end">
-                        <ImageHistoryButton
-                          entityTable="services" entityId={editing.id} field="header_image"
-                          onRevert={(v) => setEditing({ ...editing, header_image: v.url ?? "", header_image_variants: v.variants })}
-                        />
+                    ),
+                  },
+                  {
+                    key: "content",
+                    label: "الوصف",
+                    content: (
+                      <div className="space-y-4">
+                        <Field label={<span className="flex items-center justify-between">English description <AIAssistButton value={editing.description_en ?? ""} onChange={(t) => setEditing({ ...editing, description_en: t })} language="en" size="sm" /></span>}>
+                          <Textarea rows={4} value={editing.description_en ?? ""} onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} maxLength={2500} />
+                        </Field>
+                        <Field label={<span className="flex items-center justify-between">Arabic description <AIAssistButton value={editing.description_ar ?? ""} onChange={(t) => setEditing({ ...editing, description_ar: t })} language="ar" size="sm" /></span>}>
+                          <Textarea dir="rtl" rows={4} value={editing.description_ar ?? ""} onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} maxLength={2500} />
+                        </Field>
+                        <div className="rounded-lg border border-border bg-secondary/30 p-3">
+                          <FaqEditor value={editing.faqs} onChange={(f) => setEditing({ ...editing, faqs: f })} />
+                        </div>
                       </div>
-                      <StrictImageUrlField
-                        label="Header image (page hero)"
-                        value={editing.header_image ?? ""}
-                        onChange={(v) => setEditing({ ...editing, header_image: v })}
-                        variants={editing.header_image_variants}
-                        onVariantsChange={(m) => setEditing({ ...editing, header_image_variants: m })}
-                        aspect="aspect-[21/9]"
-                        aspectRatio={21 / 9}
-                        options={{ minWidth: 1200, minHeight: 500 }}
-                        help="Recommended 1920×820 · WebP variants auto-generated · ≤ 8MB · aspect enforced ±8%"
-                        folder="services/header"
-                        onStatusChange={(s) => setTabStatus((p) => ({ ...p, header: s }))}
-                      />
-                    </TabsContent>
-                    <TabsContent value="og" className="mt-0 space-y-2">
-                      <div className="flex justify-end">
-                        <ImageHistoryButton
-                          entityTable="services" entityId={editing.id} field="og_image"
-                          onRevert={(v) => setEditing({ ...editing, og_image: v.url ?? "", og_image_variants: v.variants })}
-                        />
+                    ),
+                  },
+                  {
+                    key: "media",
+                    label: "الوسائط",
+                    content: (
+                      <div className="space-y-4">
+                        <div className="rounded-lg border border-border bg-secondary/30 p-3">
+                          <p className="mb-3 text-sm font-medium">Images — pick a tab, then Upload &amp; Crop or paste a URL.</p>
+                          <Tabs defaultValue="cover">
+                            <TabsList className="mb-3">
+                              <TabsTrigger value="cover" className="gap-1.5"><StatusDot s={tabStatus.cover} /> Cover (16:10)</TabsTrigger>
+                              <TabsTrigger value="header" className="gap-1.5"><StatusDot s={tabStatus.header} /> Header (21:9)</TabsTrigger>
+                              <TabsTrigger value="og" className="gap-1.5"><StatusDot s={tabStatus.og} /> Social (1.91:1)</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="cover" className="mt-0 space-y-2">
+                              <div className="flex justify-end">
+                                <ImageHistoryButton
+                                  entityTable="services" entityId={editing.id} field="cover_image"
+                                  onRevert={(v) => setEditing({ ...editing, cover_image: v.url ?? "", cover_image_variants: v.variants })}
+                                />
+                              </div>
+                              <StrictImageUrlField
+                                label="Cover image (card thumbnail)"
+                                value={editing.cover_image ?? ""}
+                                onChange={(v) => setEditing({ ...editing, cover_image: v })}
+                                variants={editing.cover_image_variants}
+                                onVariantsChange={(m) => setEditing({ ...editing, cover_image_variants: m })}
+                                aspect="aspect-[16/10]"
+                                aspectRatio={16 / 10}
+                                options={{ minWidth: 600, minHeight: 375 }}
+                                help="Recommended 1200×750 · WebP variants auto-generated · ≤ 8MB · aspect enforced ±8%"
+                                folder="services/cover"
+                                onStatusChange={(s) => setTabStatus((p) => ({ ...p, cover: s }))}
+                              />
+                            </TabsContent>
+                            <TabsContent value="header" className="mt-0 space-y-2">
+                              <div className="flex justify-end">
+                                <ImageHistoryButton
+                                  entityTable="services" entityId={editing.id} field="header_image"
+                                  onRevert={(v) => setEditing({ ...editing, header_image: v.url ?? "", header_image_variants: v.variants })}
+                                />
+                              </div>
+                              <StrictImageUrlField
+                                label="Header image (page hero)"
+                                value={editing.header_image ?? ""}
+                                onChange={(v) => setEditing({ ...editing, header_image: v })}
+                                variants={editing.header_image_variants}
+                                onVariantsChange={(m) => setEditing({ ...editing, header_image_variants: m })}
+                                aspect="aspect-[21/9]"
+                                aspectRatio={21 / 9}
+                                options={{ minWidth: 1200, minHeight: 500 }}
+                                help="Recommended 1920×820 · WebP variants auto-generated · ≤ 8MB · aspect enforced ±8%"
+                                folder="services/header"
+                                onStatusChange={(s) => setTabStatus((p) => ({ ...p, header: s }))}
+                              />
+                            </TabsContent>
+                            <TabsContent value="og" className="mt-0 space-y-2">
+                              <div className="flex justify-end">
+                                <ImageHistoryButton
+                                  entityTable="services" entityId={editing.id} field="og_image"
+                                  onRevert={(v) => setEditing({ ...editing, og_image: v.url ?? "", og_image_variants: v.variants })}
+                                />
+                              </div>
+                              <StrictImageUrlField
+                                label="Social share image (og:image)"
+                                value={editing.og_image ?? ""}
+                                onChange={(v) => setEditing({ ...editing, og_image: v })}
+                                variants={editing.og_image_variants}
+                                onVariantsChange={(m) => setEditing({ ...editing, og_image_variants: m })}
+                                aspect="aspect-[1200/630]"
+                                aspectRatio={1200 / 630}
+                                options={{ minWidth: 1200, minHeight: 630 }}
+                                help="Facebook/Twitter card — 1200×630 recommended · aspect enforced ±8%"
+                                folder="services/og"
+                                onStatusChange={(s) => setTabStatus((p) => ({ ...p, og: s }))}
+                              />
+                            </TabsContent>
+                          </Tabs>
+                        </div>
+                        <div className="rounded-lg border border-border bg-secondary/30 p-3">
+                          <GalleryOrderEditor
+                            label="Gallery images (drag to reorder)"
+                            value={editing.gallery_images}
+                            onChange={(v) => setEditing({ ...editing, gallery_images: v })}
+                          />
+                        </div>
                       </div>
-                      <StrictImageUrlField
-                        label="Social share image (og:image)"
-                        value={editing.og_image ?? ""}
-                        onChange={(v) => setEditing({ ...editing, og_image: v })}
-                        variants={editing.og_image_variants}
-                        onVariantsChange={(m) => setEditing({ ...editing, og_image_variants: m })}
-                        aspect="aspect-[1200/630]"
-                        aspectRatio={1200 / 630}
-                        options={{ minWidth: 1200, minHeight: 630 }}
-                        help="Facebook/Twitter card — 1200×630 recommended · aspect enforced ±8%"
-                        folder="services/og"
-                        onStatusChange={(s) => setTabStatus((p) => ({ ...p, og: s }))}
-                      />
-
-                    </TabsContent>
-                  </Tabs>
-                </div>
-
-                <div className="rounded-lg border border-border bg-secondary/30 p-3">
-                  <GalleryOrderEditor
-                    label="Gallery images (drag to reorder)"
-                    value={editing.gallery_images}
-                    onChange={(v) => setEditing({ ...editing, gallery_images: v })}
-                  />
-                </div>
-
-                <div className="rounded-lg border border-border bg-secondary/30 p-3">
-                  <FaqEditor
-                    value={editing.faqs}
-                    onChange={(f) => setEditing({ ...editing, faqs: f })}
-                  />
-                </div>
-
-
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <Field label="SEO title (EN)"><Input value={editing.seo_title_en ?? ""} onChange={(e) => setEditing({ ...editing, seo_title_en: e.target.value })} maxLength={70} /></Field>
-                  <Field label="SEO title (AR)"><Input dir="rtl" value={editing.seo_title_ar ?? ""} onChange={(e) => setEditing({ ...editing, seo_title_ar: e.target.value })} maxLength={70} /></Field>
-                  <Field label="SEO description (EN)"><Textarea rows={2} value={editing.seo_description_en ?? ""} onChange={(e) => setEditing({ ...editing, seo_description_en: e.target.value })} maxLength={200} /></Field>
-                  <Field label="SEO description (AR)"><Textarea dir="rtl" rows={2} value={editing.seo_description_ar ?? ""} onChange={(e) => setEditing({ ...editing, seo_description_ar: e.target.value })} maxLength={200} /></Field>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-4">
-                  <label className="flex items-center gap-2 text-sm">
-                    <Switch checked={editing.featured} onCheckedChange={(c) => setEditing({ ...editing, featured: c })} /> Featured
-                  </label>
-                  <label className="flex items-center gap-2 text-sm">
-                    Status
-                    <select className="rounded border border-border bg-background px-2 py-1" value={editing.status} onChange={(e) => setEditing({ ...editing, status: e.target.value })}>
-                      <option value="published">Published</option>
-                      <option value="draft">Draft</option>
-                      <option value="archived">Archived</option>
-                    </select>
-                  </label>
-                  <Field label="Sort order"><Input type="number" value={editing.sort_order} onChange={(e) => setEditing({ ...editing, sort_order: Number(e.target.value) })} /></Field>
-                </div>
-              </div>
+                    ),
+                  },
+                  {
+                    key: "seo",
+                    label: "SEO",
+                    content: (
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <Field label="SEO title (EN)"><Input value={editing.seo_title_en ?? ""} onChange={(e) => setEditing({ ...editing, seo_title_en: e.target.value })} maxLength={70} /></Field>
+                        <Field label="SEO title (AR)"><Input dir="rtl" value={editing.seo_title_ar ?? ""} onChange={(e) => setEditing({ ...editing, seo_title_ar: e.target.value })} maxLength={70} /></Field>
+                        <Field label="SEO description (EN)"><Textarea rows={2} value={editing.seo_description_en ?? ""} onChange={(e) => setEditing({ ...editing, seo_description_en: e.target.value })} maxLength={200} /></Field>
+                        <Field label="SEO description (AR)"><Textarea dir="rtl" rows={2} value={editing.seo_description_ar ?? ""} onChange={(e) => setEditing({ ...editing, seo_description_ar: e.target.value })} maxLength={200} /></Field>
+                      </div>
+                    ),
+                  },
+                  {
+                    key: "settings",
+                    label: "الإعدادات والنشر",
+                    content: (
+                      <div className="flex flex-wrap items-center gap-4">
+                        <label className="flex items-center gap-2 text-sm">
+                          <Switch checked={editing.featured} onCheckedChange={(c) => setEditing({ ...editing, featured: c })} /> Featured
+                        </label>
+                        <label className="flex items-center gap-2 text-sm">
+                          Status
+                          <select className="rounded border border-border bg-background px-2 py-1" value={editing.status} onChange={(e) => setEditing({ ...editing, status: e.target.value })}>
+                            <option value="published">Published</option>
+                            <option value="draft">Draft</option>
+                            <option value="archived">Archived</option>
+                          </select>
+                        </label>
+                        <Field label="Sort order"><Input type="number" value={editing.sort_order} onChange={(e) => setEditing({ ...editing, sort_order: Number(e.target.value) })} /></Field>
+                      </div>
+                    ),
+                  },
+                ]}
+              />
 
               {/* Live preview */}
               <div className="lg:sticky lg:top-4 lg:h-fit">
@@ -483,10 +513,6 @@ function AdminServicesPage() {
               </div>
             </div>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
-            <Button onClick={save} disabled={saving}>{saving && <Loader2 className="h-4 w-4 animate-spin" />} Save</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 
