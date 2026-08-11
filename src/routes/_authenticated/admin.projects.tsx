@@ -16,6 +16,7 @@ import { GalleryOrderEditor } from "@/components/admin/GalleryOrderEditor";
 import { AIAssistButton, AITranslateSync, AIContentDialog } from "@/components/admin/ai";
 import { TableRowsSkeleton } from "@/components/site/Skeletons";
 import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
+import { StepForm } from "@/components/admin/StepForm";
 
 
 export const Route = createFileRoute("/_authenticated/admin/projects")({
