@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { StepForm } from "@/components/admin/StepForm";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -501,7 +502,20 @@ function DownloadEditor({
           <DialogTitle>{values.id ? "Edit download" : "New download"}</DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-4 py-2 md:grid-cols-2">
+        <StepForm
+          resetKey={String(values.id ?? "new")}
+          saving={saving || uploadingFile}
+          saveLabel={values.id ? "Save changes" : "Create"}
+          onSave={handleSave}
+          onCancel={onClose}
+          onStepError={(m: string) => toast.error(m)}
+          steps={[
+            {
+              key: "basic",
+              label: "الأساسيات",
+              validate: () => (!values.title_en?.trim() || !values.title_ar?.trim() ? "العنوان بالعربية والإنجليزية مطلوب" : !values.slug_en?.trim() ? "English slug مطلوب" : null),
+              content: (
+                <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1.5">
             <Label>English title *</Label>
             <Input
@@ -546,7 +560,14 @@ function DownloadEditor({
               </SelectContent>
             </Select>
           </div>
-
+                </div>
+              ),
+            },
+            {
+              key: "content",
+              label: "الوصف",
+              content: (
+                <div className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2 space-y-1.5">
             <Label>English description</Label>
             <Textarea rows={3} value={values.description_en ?? ""} onChange={(e) => set("description_en", e.target.value)} />
@@ -555,7 +576,14 @@ function DownloadEditor({
             <Label>Arabic description</Label>
             <Textarea rows={3} dir="rtl" value={values.description_ar ?? ""} onChange={(e) => set("description_ar", e.target.value)} />
           </div>
-
+                </div>
+              ),
+            },
+            {
+              key: "files",
+              label: "الملفات",
+              content: (
+                <div className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2 rounded-xl border border-border bg-secondary/30 p-4">
             <div className="mb-2 flex items-center justify-between">
               <Label className="text-sm font-semibold">Catalog file (PDF, DOCX, ZIP…)</Label>
@@ -605,20 +633,6 @@ function DownloadEditor({
               <p className="mt-2 text-xs text-muted-foreground">{uploadedFileLabel}</p>
             )}
           </div>
-
-          <div className="md:col-span-2">
-            <StrictImageUrlField
-              label="Thumbnail / cover image"
-              value={values.preview_image ?? ""}
-              onChange={(v) => set("preview_image", v)}
-              aspect="aspect-[4/3]"
-              aspectRatio={4 / 3}
-              bucket={BUCKET}
-              folder="thumbnails"
-              help="Square-ish cover image shown in the catalog list and detail hero. Upload from your device or paste a URL."
-            />
-          </div>
-
           {/* Multiple downloadable files */}
           <div className="md:col-span-2 rounded-xl border border-border bg-secondary/30 p-4 space-y-3">
             <div className="flex items-center justify-between">
@@ -711,8 +725,26 @@ function DownloadEditor({
               <Plus className="mr-1 h-4 w-4" /> Add empty row
             </Button>
           </div>
-
-          {/* Gallery preview images */}
+                </div>
+              ),
+            },
+            {
+              key: "media",
+              label: "الصور",
+              content: (
+                <div className="grid gap-4 md:grid-cols-2">
+          <div className="md:col-span-2">
+            <StrictImageUrlField
+              label="Thumbnail / cover image"
+              value={values.preview_image ?? ""}
+              onChange={(v) => set("preview_image", v)}
+              aspect="aspect-[4/3]"
+              aspectRatio={4 / 3}
+              bucket={BUCKET}
+              folder="thumbnails"
+              help="Square-ish cover image shown in the catalog list and detail hero. Upload from your device or paste a URL."
+            />
+          </div>
           <div className="md:col-span-2 rounded-xl border border-border bg-secondary/30 p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div>
@@ -757,7 +789,14 @@ function DownloadEditor({
               </div>
             )}
           </div>
-
+                </div>
+              ),
+            },
+            {
+              key: "seo",
+              label: "SEO",
+              content: (
+                <div className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2 rounded-xl border border-border bg-secondary/30 p-4 space-y-4">
             <div>
               <Label className="text-sm font-semibold">SEO & social preview</Label>
@@ -836,8 +875,14 @@ function DownloadEditor({
               </div>
             </div>
           </div>
-
-
+                </div>
+              ),
+            },
+            {
+              key: "settings",
+              label: "الإعدادات",
+              content: (
+                <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1.5">
             <Label>Sort order</Label>
             <Input type="number" value={values.sort_order ?? 0} onChange={(e) => set("sort_order", Number(e.target.value))} />
@@ -850,15 +895,11 @@ function DownloadEditor({
               <Switch checked={!!values.requires_lead_capture} onCheckedChange={(v) => set("requires_lead_capture", v)} /> Lead-gate
             </label>
           </div>
-        </div>
-
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose} disabled={saving || uploadingFile}>Cancel</Button>
-          <Button onClick={handleSave} disabled={saving || uploadingFile}>
-            {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            {values.id ? "Save changes" : "Create"}
-          </Button>
-        </DialogFooter>
+                </div>
+              ),
+            },
+          ]}
+        />
       </DialogContent>
     </Dialog>
   );
