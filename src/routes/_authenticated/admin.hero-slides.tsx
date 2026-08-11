@@ -339,7 +339,19 @@ function AdminHeroSlides() {
         <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
           <DialogHeader><DialogTitle>{editingId ? "Edit slide" : "New slide"}</DialogTitle></DialogHeader>
           {editing && (
-            <div className="grid gap-4">
+            <StepForm
+              resetKey={String(editingId ?? "new")}
+              saving={saving}
+              onSave={save}
+              onCancel={() => setEditing(null)}
+              onStepError={(m: string) => toast.error(m)}
+              steps={[
+                {
+                  key: "media",
+                  label: "الصورة",
+                  validate: () => (!editing.image_url ? "الصورة مطلوبة" : null),
+                  content: (
+                    <div className="grid gap-4">
               <div>
                 <Label>Image</Label>
                 {editing.image_url || localPreview ? (
@@ -374,7 +386,15 @@ function AdminHeroSlides() {
                 )}
                 <Input className="mt-2" placeholder="…or paste image URL" value={editing.image_url ?? ""} onChange={(e) => { clearLocalPreview(); set("image_url", e.target.value); }} />
               </div>
-
+                    </div>
+                  ),
+                },
+                {
+                  key: "text",
+                  label: "النصوص",
+                  validate: () => (!editing.title_en?.trim() ? "Title (EN) مطلوب" : null),
+                  content: (
+                    <div className="grid gap-4">
               <div className="grid grid-cols-2 gap-3">
                 <div><Label>Eyebrow (EN)</Label><Input value={editing.eyebrow_en ?? ""} onChange={(e) => set("eyebrow_en", e.target.value)} /></div>
                 <div><Label>Eyebrow (AR)</Label><Input dir="rtl" value={editing.eyebrow_ar ?? ""} onChange={(e) => set("eyebrow_ar", e.target.value)} /></div>
@@ -427,7 +447,14 @@ function AdminHeroSlides() {
                   </div>
                 </div>
               </div>
-
+                    </div>
+                  ),
+                },
+                {
+                  key: "cta",
+                  label: "الأزرار",
+                  content: (
+                    <div className="grid gap-4">
               <div className="rounded-lg border bg-secondary/30 p-3">
                 <p className="mb-2 text-sm font-semibold">Primary button</p>
                 <div className="grid grid-cols-3 gap-3">
@@ -461,7 +488,14 @@ function AdminHeroSlides() {
                   />
                 </div>
               </div>
-
+                    </div>
+                  ),
+                },
+                {
+                  key: "settings",
+                  label: "الإعدادات والنشر",
+                  content: (
+                    <div className="grid gap-4">
               <div className="grid grid-cols-4 gap-3">
                 <div>
                   <Label>Overlay</Label>
@@ -513,9 +547,14 @@ function AdminHeroSlides() {
                   <p className="mt-1 text-xs text-muted-foreground">Leave empty to publish immediately. Slides stay hidden until this time.</p>
                 </div>
               </div>
-
-
-
+                    </div>
+                  ),
+                },
+                {
+                  key: "effects",
+                  label: "التأثيرات السينمائية",
+                  content: (
+                    <div className="grid gap-4">
               <div className="rounded-lg border bg-secondary/30 p-3">
                 <p className="mb-3 text-sm font-semibold">Cinematic backdrop intensity</p>
                 <p className="mb-4 text-xs text-muted-foreground">Fine-tune fog density, volumetric spotlights, and the vignette per slide. Values are clamped to 0–1. Set to 0 to disable an effect.</p>
@@ -573,12 +612,11 @@ function AdminHeroSlides() {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
-            <Button onClick={save} disabled={saving}>{saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Save</Button>
-          </DialogFooter>
+                    </div>
+                  ),
+                },
+              ]}
+            />
         </DialogContent>
       </Dialog>
 
