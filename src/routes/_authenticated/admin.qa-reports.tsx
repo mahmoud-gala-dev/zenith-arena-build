@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { StepForm } from "@/components/admin/StepForm";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -481,7 +482,20 @@ function QaReportsPage() {
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader><DialogTitle>{editingId ? "Edit QA report" : "New QA report"}</DialogTitle></DialogHeader>
           {editing && (
-            <div className="grid gap-4">
+            <StepForm
+              resetKey={String(editingId ?? "new")}
+              saving={saving || uploading}
+              saveLabel={editingId ? "Save" : "Create"}
+              onSave={save}
+              onCancel={() => { setEditing(null); setEditingId(null); setEditingMedia([]); }}
+              onStepError={(m: string) => toast.error(m)}
+              steps={[
+                {
+                  key: "metrics",
+                  label: "القياسات",
+                  validate: () => (!editing.page?.trim() ? "الصفحة مطلوبة" : null),
+                  content: (
+                    <div className="grid gap-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>Viewport *</Label>
@@ -527,7 +541,14 @@ function QaReportsPage() {
                   </div>
                 </div>
               </div>
-
+                    </div>
+                  ),
+                },
+                {
+                  key: "media",
+                  label: "الصور والمرفقات",
+                  content: (
+                    <div className="grid gap-4">
               <div>
                 <Label>Screenshot</Label>
                 <div className="mt-2 flex items-start gap-3">
@@ -601,20 +622,24 @@ function QaReportsPage() {
                   </div>
                 )}
               </div>
-
+                    </div>
+                  ),
+                },
+                {
+                  key: "notes",
+                  label: "الملاحظات",
+                  content: (
+                    <div className="grid gap-4">
               <div>
                 <Label>Notes</Label>
                 <Textarea rows={3} value={editing.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Any context: device, network throttling, reproduction steps…" />
               </div>
-            </div>
+                    </div>
+                  ),
+                },
+              ]}
+            />
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setEditing(null); setEditingId(null); setEditingMedia([]); }}>Cancel</Button>
-            <Button onClick={save} disabled={saving || uploading}>
-              {saving && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
-              {editingId ? "Save" : "Create"}
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 
