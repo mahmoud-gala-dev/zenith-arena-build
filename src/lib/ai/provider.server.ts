@@ -16,8 +16,7 @@ export type AiRuntimeSettings = {
   enabled: boolean;
 };
 
-export const GEMINI_OPENAI_BASE_URL =
-  "https://generativelanguage.googleapis.com/v1beta/openai";
+export const GEMINI_OPENAI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai";
 
 export const DEFAULT_LOVABLE_MODEL = "google/gemini-3-flash-preview";
 export const DEFAULT_GEMINI_MODEL = "gemini-3.5-flash";
@@ -161,7 +160,7 @@ export async function runAiText(opts: {
     );
   }
 
-  const lovableKey = process.env['LOVABLE_API_KEY'];
+  const lovableKey = process.env["LOVABLE_API_KEY"];
   if (!lovableKey) throw new Error("Missing LOVABLE_API_KEY");
   const model = opts.advanced ? settings.advanced_model : settings.default_model;
   const gateway = createLovableAiGatewayProvider(lovableKey);

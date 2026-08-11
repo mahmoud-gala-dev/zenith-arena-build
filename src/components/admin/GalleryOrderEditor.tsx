@@ -1,5 +1,13 @@
 import { useRef, useState } from "react";
-import { GripVertical, Trash2, Plus, AlertCircle, CheckCircle2, Loader2, Upload } from "lucide-react";
+import {
+  GripVertical,
+  Trash2,
+  Plus,
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  Upload,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,7 +81,9 @@ export function GalleryOrderEditor({
           continue;
         }
         if (file.size > MAX_UPLOAD_BYTES) {
-          toast.error(`${file.name} exceeds ${Math.round(MAX_UPLOAD_BYTES / 1024 / 1024)}MB — skipped.`);
+          toast.error(
+            `${file.name} exceeds ${Math.round(MAX_UPLOAD_BYTES / 1024 / 1024)}MB — skipped.`,
+          );
           continue;
         }
         setUploadLabel(`${file.name} (${i + 1}/${list.length})`);
@@ -87,7 +97,9 @@ export function GalleryOrderEditor({
       }
       if (added.length) {
         onChange([...items, ...added]);
-        toast.success(`${added.length} image${added.length === 1 ? "" : "s"} added to the gallery.`);
+        toast.success(
+          `${added.length} image${added.length === 1 ? "" : "s"} added to the gallery.`,
+        );
       }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Upload failed");
@@ -133,7 +145,11 @@ export function GalleryOrderEditor({
               disabled={uploading}
               onClick={() => fileRef.current?.click()}
             >
-              {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+              {uploading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4" />
+              )}
               <span className="ml-1">{uploading ? `Uploading ${pct}%` : "Upload images"}</span>
             </Button>
           </>
@@ -141,7 +157,9 @@ export function GalleryOrderEditor({
       </div>
 
       <div
-        onDragOver={(e) => { if (enableUpload) e.preventDefault(); }}
+        onDragOver={(e) => {
+          if (enableUpload) e.preventDefault();
+        }}
         onDrop={(e) => {
           if (!enableUpload || uploading) return;
           if (e.dataTransfer?.files?.length) {
@@ -156,10 +174,19 @@ export function GalleryOrderEditor({
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder="https://…/photo.jpg  — or drop files here"
-          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(); } }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              add();
+            }
+          }}
         />
         <Button type="button" size="sm" onClick={add} disabled={status === "checking" || uploading}>
-          {status === "checking" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+          {status === "checking" ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Plus className="h-4 w-4" />
+          )}
           Add
         </Button>
       </div>
@@ -175,14 +202,21 @@ export function GalleryOrderEditor({
       )}
 
       {status === "error" && message && (
-        <p className="flex items-start gap-1.5 text-xs text-destructive"><AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {message}</p>
+        <p className="flex items-start gap-1.5 text-xs text-destructive">
+          <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {message}
+        </p>
       )}
       {status === "idle" && items.length > 0 && (
-        <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Drag to reorder — {items.length} image{items.length === 1 ? "" : "s"}</p>
+        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Drag to reorder — {items.length}{" "}
+          image{items.length === 1 ? "" : "s"}
+        </p>
       )}
 
       {items.length === 0 ? (
-        <div className={`${aspect} w-full rounded-md border border-dashed border-border bg-secondary/40 grid place-items-center text-xs text-muted-foreground`}>
+        <div
+          className={`${aspect} w-full rounded-md border border-dashed border-border bg-secondary/40 grid place-items-center text-xs text-muted-foreground`}
+        >
           Gallery is empty — upload files or paste URLs
         </div>
       ) : (

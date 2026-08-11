@@ -93,7 +93,11 @@ export function AIImageEnhanceButton({ imageUrl, onEnhanced, disabled, size = "s
               Cancel
             </Button>
             <Button onClick={run} disabled={busy}>
-              {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+              {busy ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="mr-2 h-4 w-4" />
+              )}
               {busy ? "Enhancing…" : "Enhance"}
             </Button>
           </DialogFooter>

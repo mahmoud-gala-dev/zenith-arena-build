@@ -2,7 +2,15 @@ import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
-  KeyRound, Plus, RefreshCw, Trash2, CheckCircle2, XCircle, Loader2, Save, Cpu,
+  KeyRound,
+  Plus,
+  RefreshCw,
+  Trash2,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  Save,
+  Cpu,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -81,7 +89,10 @@ export function AiProviderPanel() {
     }
   }, [listKeys]);
 
-  useEffect(() => { loadSettings(); loadKeys(); }, [loadSettings, loadKeys]);
+  useEffect(() => {
+    loadSettings();
+    loadKeys();
+  }, [loadSettings, loadKeys]);
 
   async function persistSettings() {
     setSavingSettings(true);
@@ -104,8 +115,16 @@ export function AiProviderPanel() {
     if (!newLabel.trim() || !newKey.trim()) return toast.error("Label and API key are required.");
     setAdding(true);
     try {
-      await saveKey({ data: { label: newLabel.trim(), api_key: newKey.trim(), active: true, priority: keys.length } });
-      setNewLabel(""); setNewKey("");
+      await saveKey({
+        data: {
+          label: newLabel.trim(),
+          api_key: newKey.trim(),
+          active: true,
+          priority: keys.length,
+        },
+      });
+      setNewLabel("");
+      setNewKey("");
       toast.success("Key saved");
       await loadKeys();
     } catch (e) {
@@ -184,16 +203,30 @@ export function AiProviderPanel() {
               disabled={provider !== "gemini"}
             />
             <datalist id="gemini-models">
-              {GEMINI_MODELS.map((m) => <option key={m} value={m} />)}
+              {GEMINI_MODELS.map((m) => (
+                <option key={m} value={m} />
+              ))}
             </datalist>
           </div>
           <div className="flex items-end justify-between gap-3">
             <div className="flex items-center gap-3">
-              <Switch checked={rotate} onCheckedChange={setRotate} disabled={provider !== "gemini"} />
-              <Label className="text-xs leading-tight">Rotate keys<br />on failure</Label>
+              <Switch
+                checked={rotate}
+                onCheckedChange={setRotate}
+                disabled={provider !== "gemini"}
+              />
+              <Label className="text-xs leading-tight">
+                Rotate keys
+                <br />
+                on failure
+              </Label>
             </div>
             <Button onClick={persistSettings} disabled={savingSettings}>
-              {savingSettings ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              {savingSettings ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 h-4 w-4" />
+              )}
               Save
             </Button>
           </div>
@@ -204,16 +237,29 @@ export function AiProviderPanel() {
             <KeyRound className="h-4 w-4" /> Google Gemini API keys
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Add several keys — the highest priority active key is used first and the next one is tried
-            automatically if a request fails or hits a quota. Keys are stored server-side and only ever
-            shown masked. Super admins only.
+            Add several keys — the highest priority active key is used first and the next one is
+            tried automatically if a request fails or hits a quota. Keys are stored server-side and
+            only ever shown masked. Super admins only.
           </p>
 
           <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_2fr_auto]">
-            <Input placeholder="Label (e.g. Primary)" value={newLabel} onChange={(e) => setNewLabel(e.target.value)} />
-            <Input type="password" placeholder="AIza…" value={newKey} onChange={(e) => setNewKey(e.target.value)} />
+            <Input
+              placeholder="Label (e.g. Primary)"
+              value={newLabel}
+              onChange={(e) => setNewLabel(e.target.value)}
+            />
+            <Input
+              type="password"
+              placeholder="AIza…"
+              value={newKey}
+              onChange={(e) => setNewKey(e.target.value)}
+            />
             <Button onClick={addKey} disabled={adding}>
-              {adding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+              {adding ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="mr-2 h-4 w-4" />
+              )}
               Add key
             </Button>
           </div>
@@ -225,35 +271,69 @@ export function AiProviderPanel() {
               <p className="text-xs text-muted-foreground">Loading keys…</p>
             ) : keys.length === 0 ? (
               <p className="text-xs text-muted-foreground">No Gemini keys yet.</p>
-            ) : keys.map((k) => (
-              <div key={k.id} className="flex flex-wrap items-center gap-3 rounded-md border border-border/60 bg-background/60 p-3">
-                <span className="font-medium">{k.label}</span>
-                <code className="rounded bg-secondary px-1.5 py-0.5 text-xs">{k.masked}</code>
-                {k.last_status === "ok" && (
-                  <Badge variant="secondary" className="gap-1 text-[10px]"><CheckCircle2 className="h-3 w-3 text-emerald-600" /> OK</Badge>
-                )}
-                {k.last_status === "error" && (
-                  <Badge variant="destructive" className="gap-1 text-[10px]" title={k.last_error ?? ""}><XCircle className="h-3 w-3" /> Error</Badge>
-                )}
-                <span className="text-xs text-muted-foreground">priority {k.priority}</span>
-                <div className="ms-auto flex items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    <Switch checked={k.active} disabled={busyId === k.id} onCheckedChange={(v) => toggleActive(k, v)} />
-                    <span className="text-xs text-muted-foreground">{k.active ? "Active" : "Off"}</span>
+            ) : (
+              keys.map((k) => (
+                <div
+                  key={k.id}
+                  className="flex flex-wrap items-center gap-3 rounded-md border border-border/60 bg-background/60 p-3"
+                >
+                  <span className="font-medium">{k.label}</span>
+                  <code className="rounded bg-secondary px-1.5 py-0.5 text-xs">{k.masked}</code>
+                  {k.last_status === "ok" && (
+                    <Badge variant="secondary" className="gap-1 text-[10px]">
+                      <CheckCircle2 className="h-3 w-3 text-emerald-600" /> OK
+                    </Badge>
+                  )}
+                  {k.last_status === "error" && (
+                    <Badge
+                      variant="destructive"
+                      className="gap-1 text-[10px]"
+                      title={k.last_error ?? ""}
+                    >
+                      <XCircle className="h-3 w-3" /> Error
+                    </Badge>
+                  )}
+                  <span className="text-xs text-muted-foreground">priority {k.priority}</span>
+                  <div className="ms-auto flex items-center gap-2">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={k.active}
+                        disabled={busyId === k.id}
+                        onCheckedChange={(v) => toggleActive(k, v)}
+                      />
+                      <span className="text-xs text-muted-foreground">
+                        {k.active ? "Active" : "Off"}
+                      </span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={busyId === k.id}
+                      onClick={() => runTest(k)}
+                    >
+                      {busyId === k.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-4 w-4" />
+                      )}
+                      <span className="ml-1">Test</span>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-destructive"
+                      disabled={busyId === k.id}
+                      onClick={() => removeKey(k)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <Button size="sm" variant="outline" disabled={busyId === k.id} onClick={() => runTest(k)}>
-                    {busyId === k.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                    <span className="ml-1">Test</span>
-                  </Button>
-                  <Button size="sm" variant="ghost" className="text-destructive" disabled={busyId === k.id} onClick={() => removeKey(k)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  {k.last_status === "error" && k.last_error && (
+                    <p className="w-full text-xs text-destructive">{k.last_error}</p>
+                  )}
                 </div>
-                {k.last_status === "error" && k.last_error && (
-                  <p className="w-full text-xs text-destructive">{k.last_error}</p>
-                )}
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </CardContent>

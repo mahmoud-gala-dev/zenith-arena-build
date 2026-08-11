@@ -37,14 +37,23 @@ export const aiAdminChat = createServerFn({ method: "POST" })
 
     // ------- gather live site snapshot -------
     const supabase = context.supabase;
-    const [leadsAgg, servicesAgg, projectsAgg, blogAgg, recentLeads, recentBlog] = await Promise.all([
-      supabase.from("leads").select("id, status", { count: "exact" }),
-      supabase.from("services").select("id, status", { count: "exact" }),
-      supabase.from("projects").select("id, status", { count: "exact" }),
-      supabase.from("blog_posts").select("id, status", { count: "exact" }),
-      supabase.from("leads").select("name, phone, service_interest, status, created_at").order("created_at", { ascending: false }).limit(10),
-      supabase.from("blog_posts").select("title_en, status, published_at").order("updated_at", { ascending: false }).limit(10),
-    ]);
+    const [leadsAgg, servicesAgg, projectsAgg, blogAgg, recentLeads, recentBlog] =
+      await Promise.all([
+        supabase.from("leads").select("id, status", { count: "exact" }),
+        supabase.from("services").select("id, status", { count: "exact" }),
+        supabase.from("projects").select("id, status", { count: "exact" }),
+        supabase.from("blog_posts").select("id, status", { count: "exact" }),
+        supabase
+          .from("leads")
+          .select("name, phone, service_interest, status, created_at")
+          .order("created_at", { ascending: false })
+          .limit(10),
+        supabase
+          .from("blog_posts")
+          .select("title_en, status, published_at")
+          .order("updated_at", { ascending: false })
+          .limit(10),
+      ]);
 
     const snapshot = {
       totals: {

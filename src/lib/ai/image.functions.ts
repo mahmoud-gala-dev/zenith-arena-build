@@ -101,7 +101,7 @@ export const aiEnhanceImage = createServerFn({ method: "POST" })
       throw new Error(`Gemini image enhancement failed: ${lastError}`);
     }
 
-    const lovableKey = process.env['LOVABLE_API_KEY'];
+    const lovableKey = process.env["LOVABLE_API_KEY"];
     if (!lovableKey) throw new Error("Missing LOVABLE_API_KEY");
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

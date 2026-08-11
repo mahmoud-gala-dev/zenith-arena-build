@@ -39,10 +39,7 @@ export function ProjectGalleryCarousel({ images, title }: Props) {
           </p>
         </div>
 
-        <Carousel
-          opts={{ loop: true, direction: ar ? "rtl" : "ltr" }}
-          className="mt-8"
-        >
+        <Carousel opts={{ loop: true, direction: ar ? "rtl" : "ltr" }} className="mt-8">
           <CarouselContent>
             {images.map((url, i) => (
               <CarouselItem key={`${url}-${i}`} className="md:basis-4/5 lg:basis-3/4">
@@ -76,7 +73,10 @@ export function ProjectGalleryCarousel({ images, title }: Props) {
             <button
               key={`thumb-${url}-${i}`}
               type="button"
-              onClick={() => { setActive(i); setLightbox(i); }}
+              onClick={() => {
+                setActive(i);
+                setLightbox(i);
+              }}
               className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-lg border-2 transition ${
                 active === i ? "border-primary" : "border-transparent opacity-70 hover:opacity-100"
               }`}

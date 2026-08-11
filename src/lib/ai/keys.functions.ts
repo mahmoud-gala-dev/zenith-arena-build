@@ -64,10 +64,7 @@ export const aiKeySave = createServerFn({ method: "POST" })
     };
 
     if (data.id) {
-      const { error } = await context.supabase
-        .from("ai_api_keys")
-        .update(patch)
-        .eq("id", data.id);
+      const { error } = await context.supabase.from("ai_api_keys").update(patch).eq("id", data.id);
       if (error) throw error;
       return { id: data.id };
     }

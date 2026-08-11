@@ -1,6 +1,17 @@
 import { useState, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Sparkles, Loader2, Wand2, Languages, Scissors, Expand, FileText, CheckCircle2, Undo2, RotateCw } from "lucide-react";
+import {
+  Sparkles,
+  Loader2,
+  Wand2,
+  Languages,
+  Scissors,
+  Expand,
+  FileText,
+  CheckCircle2,
+  Undo2,
+  RotateCw,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

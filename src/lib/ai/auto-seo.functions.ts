@@ -20,7 +20,11 @@ const SEO_DESC_COLS: Record<SeoTable, string> = {
   blog_posts: "seo_description_en",
 };
 
-async function runAutoSeo(supabaseClient: any, apiKey: string, opts: { table?: SeoTable; limit?: number }) {
+async function runAutoSeo(
+  supabaseClient: any,
+  apiKey: string,
+  opts: { table?: SeoTable; limit?: number },
+) {
   const tables: SeoTable[] = opts.table ? [opts.table] : [...TABLES];
   const limit = opts.limit ?? 10;
   const gateway = createLovableAiGatewayProvider(apiKey);
@@ -34,10 +38,18 @@ async function runAutoSeo(supabaseClient: any, apiKey: string, opts: { table?: S
     const descCol = SEO_DESC_COLS[table];
     const { data, error } = await supabaseClient
       .from(table)
-      .select("id, title_en, name_en, description_en, excerpt_en, content_en, " + titleCol + ", " + descCol)
+      .select(
+        "id, title_en, name_en, description_en, excerpt_en, content_en, " +
+          titleCol +
+          ", " +
+          descCol,
+      )
       .or(`${titleCol}.is.null,${descCol}.is.null`)
       .limit(limit);
-    if (error) { details.push({ table, id: "-", ok: false, error: error.message }); continue; }
+    if (error) {
+      details.push({ table, id: "-", ok: false, error: error.message });
+      continue;
+    }
     for (const row of (data as any[]) ?? []) {
       const subject = row.title_en ?? row.name_en ?? "Egytic Sports";
       const body = row.excerpt_en ?? row.description_en ?? row.content_en ?? subject;
@@ -52,10 +64,14 @@ async function runAutoSeo(supabaseClient: any, apiKey: string, opts: { table?: S
         const parsed = JSON.parse(clean);
         const patch: Record<string, string> = {};
         if (!row[titleCol] && parsed.title) patch[titleCol] = String(parsed.title).slice(0, 60);
-        if (!row[descCol] && parsed.description) patch[descCol] = String(parsed.description).slice(0, 155);
+        if (!row[descCol] && parsed.description)
+          patch[descCol] = String(parsed.description).slice(0, 155);
         if (Object.keys(patch).length) {
           const { error: upErr } = await supabaseClient.from(table).update(patch).eq("id", row.id);
-          if (upErr) { details.push({ table, id: row.id, ok: false, error: upErr.message }); continue; }
+          if (upErr) {
+            details.push({ table, id: row.id, ok: false, error: upErr.message });
+            continue;
+          }
         }
         processed++;
         details.push({ table, id: row.id, ok: true });
@@ -71,10 +87,12 @@ async function runAutoSeo(supabaseClient: any, apiKey: string, opts: { table?: S
 export const aiAutoSeoRun = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({
-      table: z.enum(TABLES).optional(),
-      limit: z.number().int().min(1).max(50).default(10),
-    }).parse(input),
+    z
+      .object({
+        table: z.enum(TABLES).optional(),
+        limit: z.number().int().min(1).max(50).default(10),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { data: allowed } = await context.supabase.rpc("has_permission", {

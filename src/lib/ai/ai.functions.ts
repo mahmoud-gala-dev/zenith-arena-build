@@ -118,7 +118,14 @@ Write clean prose (or Markdown when structure helps). Approx ${data.maxWords} wo
 
     const started = Date.now();
     try {
-      const { text, usage } = await runModel(key, model, system, data.brief, settings, data.advanced);
+      const { text, usage } = await runModel(
+        key,
+        model,
+        system,
+        data.brief,
+        settings,
+        data.advanced,
+      );
       await logUsage(
         context.supabase,
         context.userId,
@@ -178,10 +185,27 @@ Do not add commentary. Return only the translated text.${glossaryText(settings)}
     const model = settings.default_model;
     try {
       const { text, usage } = await runModel(key, model, system, data.text, settings);
-      await logUsage(context.supabase, context.userId, `translate:${data.to}`, model, usage, Date.now() - started, true);
+      await logUsage(
+        context.supabase,
+        context.userId,
+        `translate:${data.to}`,
+        model,
+        usage,
+        Date.now() - started,
+        true,
+      );
       return { text, model };
     } catch (e: any) {
-      await logUsage(context.supabase, context.userId, `translate:${data.to}`, model, undefined, Date.now() - started, false, e?.message);
+      await logUsage(
+        context.supabase,
+        context.userId,
+        `translate:${data.to}`,
+        model,
+        undefined,
+        Date.now() - started,
+        false,
+        e?.message,
+      );
       throw e;
     }
   });
@@ -224,10 +248,27 @@ Preserve Markdown/HTML formatting. Return only the rewritten text — no preface
     const model = settings.default_model;
     try {
       const { text, usage } = await runModel(key, model, system, data.text, settings);
-      await logUsage(context.supabase, context.userId, `improve:${data.mode}`, model, usage, Date.now() - started, true);
+      await logUsage(
+        context.supabase,
+        context.userId,
+        `improve:${data.mode}`,
+        model,
+        usage,
+        Date.now() - started,
+        true,
+      );
       return { text, model };
     } catch (e: any) {
-      await logUsage(context.supabase, context.userId, `improve:${data.mode}`, model, undefined, Date.now() - started, false, e?.message);
+      await logUsage(
+        context.supabase,
+        context.userId,
+        `improve:${data.mode}`,
+        model,
+        undefined,
+        Date.now() - started,
+        false,
+        e?.message,
+      );
       throw e;
     }
   });
@@ -263,18 +304,42 @@ No markdown, no code fences, no commentary. Just JSON.${glossaryText(settings)}`
     const model = settings.default_model;
     try {
       const { text, usage } = await runModel(key, model, system, prompt, settings);
-      await logUsage(context.supabase, context.userId, "seo", model, usage, Date.now() - started, true);
+      await logUsage(
+        context.supabase,
+        context.userId,
+        "seo",
+        model,
+        usage,
+        Date.now() - started,
+        true,
+      );
       // strip code fences if any
       const clean = text.replace(/^```(?:json)?\s*|\s*```$/g, "").trim();
       let parsed: any = {};
       try {
         parsed = JSON.parse(clean);
       } catch {
-        parsed = { title: "", description: "", keywords: [], og_title: "", og_description: "", raw: text };
+        parsed = {
+          title: "",
+          description: "",
+          keywords: [],
+          og_title: "",
+          og_description: "",
+          raw: text,
+        };
       }
       return { seo: parsed, model };
     } catch (e: any) {
-      await logUsage(context.supabase, context.userId, "seo", model, undefined, Date.now() - started, false, e?.message);
+      await logUsage(
+        context.supabase,
+        context.userId,
+        "seo",
+        model,
+        undefined,
+        Date.now() - started,
+        false,
+        e?.message,
+      );
       throw e;
     }
   });
@@ -284,9 +349,7 @@ No markdown, no code fences, no commentary. Just JSON.${glossaryText(settings)}`
 /* ------------------------------------------------------------------ */
 export const aiSummarizeLead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
-    z.object({ leadId: z.string().uuid() }).parse(input),
-  )
+  .inputValidator((input: unknown) => z.object({ leadId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     await assertPermission(context);
     const key = process.env.LOVABLE_API_KEY ?? "";
@@ -315,10 +378,20 @@ Only JSON. No fences.${glossaryText(settings)}`;
     const model = settings.default_model;
     try {
       const { text, usage } = await runModel(key, model, system, prompt, settings);
-      await logUsage(context.supabase, context.userId, "lead_summary", model, usage, Date.now() - started, true, undefined, {
-        table: "leads",
-        id: data.leadId,
-      });
+      await logUsage(
+        context.supabase,
+        context.userId,
+        "lead_summary",
+        model,
+        usage,
+        Date.now() - started,
+        true,
+        undefined,
+        {
+          table: "leads",
+          id: data.leadId,
+        },
+      );
       const clean = text.replace(/^```(?:json)?\s*|\s*```$/g, "").trim();
       let parsed: any = {};
       try {
@@ -328,7 +401,16 @@ Only JSON. No fences.${glossaryText(settings)}`;
       }
       return { result: parsed, model };
     } catch (e: any) {
-      await logUsage(context.supabase, context.userId, "lead_summary", model, undefined, Date.now() - started, false, e?.message);
+      await logUsage(
+        context.supabase,
+        context.userId,
+        "lead_summary",
+        model,
+        undefined,
+        Date.now() - started,
+        false,
+        e?.message,
+      );
       throw e;
     }
   });
