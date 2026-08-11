@@ -40,8 +40,10 @@ export function AIImageEnhanceButton({ imageUrl, onEnhanced, disabled, size = "s
     if (!imageUrl) return toast.error("Add or upload an image first.");
     setBusy(true);
     try {
+      // CDN/storage paths can be relative ("/__l5e/..."), but the server needs an absolute URL.
+      const absoluteUrl = new URL(imageUrl, window.location.origin).href;
       const { dataUrl } = await enhance({
-        data: { imageUrl, instructions: instructions.trim() || undefined },
+        data: { imageUrl: absoluteUrl, instructions: instructions.trim() || undefined },
       });
       const blob = await dataUrlToBlob(dataUrl);
       await onEnhanced(blob);
