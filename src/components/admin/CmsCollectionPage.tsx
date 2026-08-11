@@ -27,6 +27,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { AIAssistButton, AITranslateSync, AIContentDialog } from "@/components/admin/ai";
+import { StepForm, groupFieldName, stepGroupLabels, stepGroupOrder } from "@/components/admin/StepForm";
 
 type TableName = keyof Database["public"]["Tables"];
 type AnyRow = Record<string, unknown> & { id?: string; status?: string; featured?: boolean; updated_at?: string; created_at?: string };
@@ -142,8 +143,8 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
     setEditing({ ...config.initialValues });
   }
 
-  function validate(values: AnyRow) {
-    for (const field of config.fields) {
+  function validate(values: AnyRow, fields: CmsField[] = config.fields) {
+    for (const field of fields) {
       const raw = values[field.name];
       const text = typeof raw === "string" ? raw.trim() : raw == null ? "" : String(raw);
       if (field.required && !text) return `${field.label} is required`;
@@ -429,17 +430,30 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
                 editing={editing}
                 onChange={(patch) => setEditing({ ...editing, ...patch })}
               />
-              <div className="grid gap-4 sm:grid-cols-2">
-                {config.fields.map((field) => (
-                  <FieldEditor key={field.name} field={field} values={editing} onChange={(value) => setEditing({ ...editing, [field.name]: value })} />
-                ))}
-              </div>
+              <StepForm
+                resetKey={String(editing.id ?? "new")}
+                saving={saving}
+                onSave={save}
+                onCancel={() => setEditing(null)}
+                onStepError={(message) => toast.error(message)}
+                steps={stepGroupOrder
+                  .map((group) => ({ group, fields: config.fields.filter((f) => groupFieldName(f.name) === group) }))
+                  .filter((entry) => entry.fields.length > 0)
+                  .map(({ group, fields }) => ({
+                    key: group,
+                    label: stepGroupLabels[group],
+                    validate: () => validate(editing, fields),
+                    content: (
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        {fields.map((field) => (
+                          <FieldEditor key={field.name} field={field} values={editing} onChange={(value) => setEditing({ ...editing, [field.name]: value })} />
+                        ))}
+                      </div>
+                    ),
+                  }))}
+              />
             </>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
-            <Button onClick={save} disabled={saving}>{saving && <Loader2 className="h-4 w-4 animate-spin" />} Save</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 

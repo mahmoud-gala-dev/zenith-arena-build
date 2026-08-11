@@ -14,7 +14,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { StepTabs as Tabs, StepTabsContent as TabsContent, StepTabsList as TabsList, StepTabsTrigger as TabsTrigger } from "@/components/admin/StepTabs";
 import { toast } from "sonner";
 import {
   Plus, Pencil, Trash2, Loader2, Search, ExternalLink, Upload, X, Languages, Star, ImageIcon, Link2 as Link2Icon, Eye, Calendar as CalendarIcon,

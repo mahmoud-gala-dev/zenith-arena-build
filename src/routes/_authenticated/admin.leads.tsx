@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { StepForm } from "@/components/admin/StepForm";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -810,13 +811,34 @@ function LeadFormDialog({
         <DialogHeader>
           <DialogTitle>{lead ? "Edit Lead" : "New Lead"}</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <StepForm
+          resetKey={String(lead?.id ?? "new")}
+          saving={saving}
+          saveLabel={lead ? "Save changes" : "Create lead"}
+          onSave={save}
+          onCancel={() => onOpenChange(false)}
+          onStepError={(m: string) => toast.error(m)}
+          steps={[
+            {
+              key: "contact",
+              label: "بيانات العميل",
+              validate: () => (!form.name.trim() ? "الاسم مطلوب" : !form.email.trim() ? "البريد مطلوب" : null),
+              content: (
+                <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Name *" error={errors.name}><Input value={form.name} onChange={(e) => set("name", e.target.value)} aria-invalid={!!errors.name} /></Field>
           <Field label="Email *" error={errors.email}><Input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} aria-invalid={!!errors.email} /></Field>
           <Field label="Phone" error={errors.phone}><Input value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="+20 100 000 0000" aria-invalid={!!errors.phone} /></Field>
           <Field label="Company" error={errors.company}><Input value={form.company} onChange={(e) => set("company", e.target.value)} /></Field>
           <Field label="Country" error={errors.country}><Input value={form.country} onChange={(e) => set("country", e.target.value)} /></Field>
           <Field label="City" error={errors.city}><Input value={form.city} onChange={(e) => set("city", e.target.value)} /></Field>
+                </div>
+              ),
+            },
+            {
+              key: "classification",
+              label: "التصنيف",
+              content: (
+                <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Type">
             <Select value={form.type} onValueChange={(v) => set("type", v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -840,6 +862,14 @@ function LeadFormDialog({
           <Field label="Project type" error={errors.project_type}><Input value={form.project_type} onChange={(e) => set("project_type", e.target.value)} /></Field>
           <Field label="Sport type" error={errors.sport_type}><Input value={form.sport_type} onChange={(e) => set("sport_type", e.target.value)} /></Field>
           <Field label="Project area" error={errors.project_area}><Input value={form.project_area} onChange={(e) => set("project_area", e.target.value)} /></Field>
+                </div>
+              ),
+            },
+            {
+              key: "deal",
+              label: "الصفقة",
+              content: (
+                <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Preferred contact">
             <Select value={form.preferred_contact || "none"} onValueChange={(v) => set("preferred_contact", v === "none" ? "" : v)}>
               <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
@@ -856,7 +886,14 @@ function LeadFormDialog({
           <Field label="Expected close date" error={errors.expected_close_date}><Input type="date" value={form.expected_close_date} onChange={(e) => set("expected_close_date", e.target.value)} aria-invalid={!!errors.expected_close_date} /></Field>
           <Field label="Lost reason" error={errors.lost_reason}><Input value={form.lost_reason} onChange={(e) => set("lost_reason", e.target.value)} placeholder="Price / timeline / no response…" /></Field>
           <div className="sm:col-span-2"><Field label="Attachment URL" error={errors.attachment_url}><Input value={form.attachment_url} onChange={(e) => set("attachment_url", e.target.value)} placeholder="https://…" aria-invalid={!!errors.attachment_url} /></Field></div>
-
+                </div>
+              ),
+            },
+            {
+              key: "notes",
+              label: "الرسائل والملاحظات",
+              content: (
+                <div className="grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <Field label={`Message (${form.message.length}/4000)`} error={errors.message}>
               <textarea rows={3} maxLength={4000} className="w-full rounded-md border border-border bg-background p-2 text-sm" value={form.message} onChange={(e) => set("message", e.target.value)} />
@@ -867,11 +904,11 @@ function LeadFormDialog({
               <textarea rows={3} maxLength={4000} className="w-full rounded-md border border-border bg-background p-2 text-sm" value={form.internal_notes} onChange={(e) => set("internal_notes", e.target.value)} />
             </Field>
           </div>
-        </div>
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={saving}>Cancel</Button>
-          <Button onClick={save} disabled={saving}>{saving ? "Saving…" : lead ? "Save changes" : "Create lead"}</Button>
-        </DialogFooter>
+                </div>
+              ),
+            },
+          ]}
+        />
       </DialogContent>
     </Dialog>
   );

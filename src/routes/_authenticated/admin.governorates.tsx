@@ -13,6 +13,7 @@ import { useInvalidateTables } from "@/lib/invalidate";
 import { AITranslateSync } from "@/components/admin/ai";
 import { TableRowsSkeleton } from "@/components/site/Skeletons";
 import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
+import { StepForm } from "@/components/admin/StepForm";
 
 
 export const Route = createFileRoute("/_authenticated/admin/governorates")({
@@ -123,43 +124,68 @@ function GovernoratesPage() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editing?.id ? "Edit governorate" : "New governorate"}</DialogTitle></DialogHeader>
           {editing && (
-            <div className="grid gap-4 sm:grid-cols-2">
-              <F label="Slug *"><Input value={editing.slug ?? ""} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} placeholder="cairo" /></F>
-              <F label="Sort order"><Input type="number" value={editing.sort_order ?? 0} onChange={(e) => setEditing({ ...editing, sort_order: Number(e.target.value) })} /></F>
-              <F label="Name (EN) *"><Input value={editing.name_en ?? ""} onChange={(e) => setEditing({ ...editing, name_en: e.target.value })} /></F>
-              <F label="Name (AR) *"><Input dir="rtl" value={editing.name_ar ?? ""} onChange={(e) => setEditing({ ...editing, name_ar: e.target.value })} /></F>
-              <div className="sm:col-span-2">
-                <AITranslateSync
-                  enValue={editing.name_en ?? ""}
-                  arValue={editing.name_ar ?? ""}
-                  onSetEn={(v) => setEditing({ ...editing, name_en: v })}
-                  onSetAr={(v) => setEditing({ ...editing, name_ar: v })}
-                  label="Name:"
-                />
-              </div>
-              <F label="Region (EN)"><Input value={editing.region_en ?? ""} onChange={(e) => setEditing({ ...editing, region_en: e.target.value })} /></F>
-              <F label="Region (AR)"><Input dir="rtl" value={editing.region_ar ?? ""} onChange={(e) => setEditing({ ...editing, region_ar: e.target.value })} /></F>
-              <div className="sm:col-span-2">
-                <AITranslateSync
-                  enValue={editing.region_en ?? ""}
-                  arValue={editing.region_ar ?? ""}
-                  onSetEn={(v) => setEditing({ ...editing, region_en: v })}
-                  onSetAr={(v) => setEditing({ ...editing, region_ar: v })}
-                  label="Region:"
-                />
-              </div>
-              <div className="sm:col-span-2"><F label="Logo URL (SVG preferred)"><Input value={editing.logo_url ?? ""} onChange={(e) => setEditing({ ...editing, logo_url: e.target.value })} placeholder="/__l5e/assets-v1/…/cairo.svg" /></F></div>
-              {editing.logo_url && <div className="sm:col-span-2"><img src={editing.logo_url} alt="preview" className="h-24 rounded bg-secondary object-contain p-2" /></div>}
-              <div className="flex items-center gap-3">
-                <Switch checked={!!editing.active} onCheckedChange={(v) => setEditing({ ...editing, active: v })} />
-                <Label>Active</Label>
-              </div>
-            </div>
+            <StepForm
+              resetKey={String(editing.id ?? "new")}
+              onSave={save}
+              onCancel={() => setEditing(null)}
+              onStepError={(m) => toast.error(m)}
+              steps={[
+                {
+                  key: "basic",
+                  label: "الأساسيات",
+                  validate: () => (!editing.slug?.trim() ? "Slug مطلوب" : !editing.name_en?.trim() || !editing.name_ar?.trim() ? "الاسم بالعربية والإنجليزية مطلوب" : null),
+                  content: (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <F label="Slug *"><Input value={editing.slug ?? ""} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} placeholder="cairo" /></F>
+                      <F label="Sort order"><Input type="number" value={editing.sort_order ?? 0} onChange={(e) => setEditing({ ...editing, sort_order: Number(e.target.value) })} /></F>
+                      <F label="Name (EN) *"><Input value={editing.name_en ?? ""} onChange={(e) => setEditing({ ...editing, name_en: e.target.value })} /></F>
+                      <F label="Name (AR) *"><Input dir="rtl" value={editing.name_ar ?? ""} onChange={(e) => setEditing({ ...editing, name_ar: e.target.value })} /></F>
+                      <div className="sm:col-span-2">
+                        <AITranslateSync
+                          enValue={editing.name_en ?? ""}
+                          arValue={editing.name_ar ?? ""}
+                          onSetEn={(v) => setEditing({ ...editing, name_en: v })}
+                          onSetAr={(v) => setEditing({ ...editing, name_ar: v })}
+                          label="Name:"
+                        />
+                      </div>
+                      <F label="Region (EN)"><Input value={editing.region_en ?? ""} onChange={(e) => setEditing({ ...editing, region_en: e.target.value })} /></F>
+                      <F label="Region (AR)"><Input dir="rtl" value={editing.region_ar ?? ""} onChange={(e) => setEditing({ ...editing, region_ar: e.target.value })} /></F>
+                      <div className="sm:col-span-2">
+                        <AITranslateSync
+                          enValue={editing.region_en ?? ""}
+                          arValue={editing.region_ar ?? ""}
+                          onSetEn={(v) => setEditing({ ...editing, region_en: v })}
+                          onSetAr={(v) => setEditing({ ...editing, region_ar: v })}
+                          label="Region:"
+                        />
+                      </div>
+                    </div>
+                  ),
+                },
+                {
+                  key: "media",
+                  label: "الشعار",
+                  content: (
+                    <div className="grid gap-4">
+                      <F label="Logo URL (SVG preferred)"><Input value={editing.logo_url ?? ""} onChange={(e) => setEditing({ ...editing, logo_url: e.target.value })} placeholder="/__l5e/assets-v1/…/cairo.svg" /></F>
+                      {editing.logo_url && <img src={editing.logo_url} alt="preview" className="h-24 w-fit rounded bg-secondary object-contain p-2" />}
+                    </div>
+                  ),
+                },
+                {
+                  key: "settings",
+                  label: "الإعدادات",
+                  content: (
+                    <div className="flex items-center gap-3">
+                      <Switch checked={!!editing.active} onCheckedChange={(v) => setEditing({ ...editing, active: v })} />
+                      <Label>Active</Label>
+                    </div>
+                  ),
+                },
+              ]}
+            />
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
-            <Button onClick={save}>Save</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </AdminShell>
