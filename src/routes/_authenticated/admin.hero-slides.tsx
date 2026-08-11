@@ -618,6 +618,7 @@ function AdminHeroSlides() {
                 },
               ]}
             />
+          )}
         </DialogContent>
       </Dialog>
 
