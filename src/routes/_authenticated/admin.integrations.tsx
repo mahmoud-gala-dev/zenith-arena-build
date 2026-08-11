@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { getN8nConfig, saveN8nConfig, sendN8nOutbound, type N8nConfig } from "@/lib/integrations/n8n.functions";
+import { CdnPanel } from "@/components/admin/CdnPanel";
+
 
 export const Route = createFileRoute("/_authenticated/admin/integrations")({
   component: IntegrationsPage,
@@ -73,12 +75,15 @@ function IntegrationsPage() {
     <div className="mx-auto max-w-4xl space-y-8 p-6">
       <header>
         <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-          <Webhook className="h-7 w-7 text-primary" /> Integrations · n8n
+          <Webhook className="h-7 w-7 text-primary" /> Integrations · n8n & CDN
         </h1>
         <p className="mt-1 text-muted-foreground">
-          مزامنة تلقائية بين الموقع وصفحات السوشيال ميديا عبر n8n.
+          مزامنة تلقائية بين الموقع وصفحات السوشيال ميديا عبر n8n، وإعدادات الـCDN.
         </p>
       </header>
+
+      <CdnPanel />
+
 
       {/* Steps */}
       <section className="rounded-lg border bg-card p-5">
