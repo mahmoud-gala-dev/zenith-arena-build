@@ -74,14 +74,59 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_api_keys: {
+        Row: {
+          active: boolean
+          api_key: string
+          created_at: string
+          id: string
+          label: string
+          last_error: string | null
+          last_status: string | null
+          last_tested_at: string | null
+          priority: number
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          api_key: string
+          created_at?: string
+          id?: string
+          label: string
+          last_error?: string | null
+          last_status?: string | null
+          last_tested_at?: string | null
+          priority?: number
+          provider?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          api_key?: string
+          created_at?: string
+          id?: string
+          label?: string
+          last_error?: string | null
+          last_status?: string | null
+          last_tested_at?: string | null
+          priority?: number
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ai_settings: {
         Row: {
           advanced_model: string
           daily_user_limit: number
           default_model: string
           enabled: boolean
+          gemini_model: string
+          gemini_rotate_keys: boolean
           glossary: Json
           id: string
+          provider: string
           tone: string
           updated_at: string
           updated_by: string | null
@@ -91,8 +136,11 @@ export type Database = {
           daily_user_limit?: number
           default_model?: string
           enabled?: boolean
+          gemini_model?: string
+          gemini_rotate_keys?: boolean
           glossary?: Json
           id?: string
+          provider?: string
           tone?: string
           updated_at?: string
           updated_by?: string | null
@@ -102,8 +150,11 @@ export type Database = {
           daily_user_limit?: number
           default_model?: string
           enabled?: boolean
+          gemini_model?: string
+          gemini_rotate_keys?: boolean
           glossary?: Json
           id?: string
+          provider?: string
           tone?: string
           updated_at?: string
           updated_by?: string | null

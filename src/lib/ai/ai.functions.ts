@@ -1,36 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
-import { generateText } from "ai";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
+import { loadAiSettings, runAiText, type AiRuntimeSettings } from "@/lib/ai/provider.server";
 
 const DEFAULT_MODEL = "google/gemini-3-flash-preview";
 
-type AISettings = {
-  default_model: string;
-  advanced_model: string;
-  tone: string;
-  glossary: Array<{ term: string; translation: string; note?: string }>;
-  daily_user_limit: number;
-  enabled: boolean;
-};
+type AISettings = AiRuntimeSettings;
 
-async function loadSettings(supabase: any): Promise<AISettings> {
-  const { data } = await supabase
-    .from("ai_settings")
-    .select("*")
-    .order("updated_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  return {
-    default_model: data?.default_model ?? DEFAULT_MODEL,
-    advanced_model: data?.advanced_model ?? "google/gemini-3.1-pro-preview",
-    tone: data?.tone ?? "professional",
-    glossary: (data?.glossary as any) ?? [],
-    daily_user_limit: data?.daily_user_limit ?? 200,
-    enabled: data?.enabled ?? true,
-  };
-}
+const loadSettings = loadAiSettings;
 
 async function checkQuota(supabase: any, userId: string, limit: number) {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
@@ -79,25 +56,15 @@ function glossaryText(settings: AISettings) {
 }
 
 async function runModel(
-  apiKey: string,
-  model: string,
+  _apiKey: string,
+  _model: string,
   system: string,
   prompt: string,
+  settings: AISettings,
+  advanced = false,
 ) {
-  const gateway = createLovableAiGatewayProvider(apiKey);
-  const result = await generateText({
-    model: gateway(model),
-    system,
-    prompt,
-  });
-  return {
-    text: result.text,
-    usage: {
-      promptTokens: (result.usage as any)?.promptTokens ?? (result.usage as any)?.inputTokens,
-      completionTokens: (result.usage as any)?.completionTokens ?? (result.usage as any)?.outputTokens,
-      totalTokens: (result.usage as any)?.totalTokens,
-    },
-  };
+  const result = await runAiText({ settings, system, prompt, advanced });
+  return { text: result.text, usage: result.usage, model: result.model };
 }
 
 async function assertPermission(context: { supabase: any; userId: string }) {
@@ -138,8 +105,7 @@ export const aiGenerateContent = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertPermission(context);
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("Missing LOVABLE_API_KEY");
+    const key = process.env.LOVABLE_API_KEY ?? "";
     const settings = await loadSettings(context.supabase);
     if (!settings.enabled) throw new Error("AI assistant is disabled");
     await checkQuota(context.supabase, context.userId, settings.daily_user_limit);
@@ -152,7 +118,7 @@ Write clean prose (or Markdown when structure helps). Approx ${data.maxWords} wo
 
     const started = Date.now();
     try {
-      const { text, usage } = await runModel(key, model, system, data.brief);
+      const { text, usage } = await runModel(key, model, system, data.brief, settings, data.advanced);
       await logUsage(
         context.supabase,
         context.userId,
@@ -197,8 +163,7 @@ export const aiTranslate = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertPermission(context);
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("Missing LOVABLE_API_KEY");
+    const key = process.env.LOVABLE_API_KEY ?? "";
     const settings = await loadSettings(context.supabase);
     if (!settings.enabled) throw new Error("AI assistant is disabled");
     await checkQuota(context.supabase, context.userId, settings.daily_user_limit);
@@ -212,7 +177,7 @@ Do not add commentary. Return only the translated text.${glossaryText(settings)}
     const started = Date.now();
     const model = settings.default_model;
     try {
-      const { text, usage } = await runModel(key, model, system, data.text);
+      const { text, usage } = await runModel(key, model, system, data.text, settings);
       await logUsage(context.supabase, context.userId, `translate:${data.to}`, model, usage, Date.now() - started, true);
       return { text, model };
     } catch (e: any) {
@@ -237,8 +202,7 @@ export const aiImproveText = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertPermission(context);
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("Missing LOVABLE_API_KEY");
+    const key = process.env.LOVABLE_API_KEY ?? "";
     const settings = await loadSettings(context.supabase);
     if (!settings.enabled) throw new Error("AI assistant is disabled");
     await checkQuota(context.supabase, context.userId, settings.daily_user_limit);
@@ -259,7 +223,7 @@ Preserve Markdown/HTML formatting. Return only the rewritten text — no preface
     const started = Date.now();
     const model = settings.default_model;
     try {
-      const { text, usage } = await runModel(key, model, system, data.text);
+      const { text, usage } = await runModel(key, model, system, data.text, settings);
       await logUsage(context.supabase, context.userId, `improve:${data.mode}`, model, usage, Date.now() - started, true);
       return { text, model };
     } catch (e: any) {
@@ -284,8 +248,7 @@ export const aiGenerateSeo = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertPermission(context);
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("Missing LOVABLE_API_KEY");
+    const key = process.env.LOVABLE_API_KEY ?? "";
     const settings = await loadSettings(context.supabase);
     if (!settings.enabled) throw new Error("AI assistant is disabled");
     await checkQuota(context.supabase, context.userId, settings.daily_user_limit);
@@ -299,7 +262,7 @@ No markdown, no code fences, no commentary. Just JSON.${glossaryText(settings)}`
     const started = Date.now();
     const model = settings.default_model;
     try {
-      const { text, usage } = await runModel(key, model, system, prompt);
+      const { text, usage } = await runModel(key, model, system, prompt, settings);
       await logUsage(context.supabase, context.userId, "seo", model, usage, Date.now() - started, true);
       // strip code fences if any
       const clean = text.replace(/^```(?:json)?\s*|\s*```$/g, "").trim();
@@ -326,8 +289,7 @@ export const aiSummarizeLead = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertPermission(context);
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("Missing LOVABLE_API_KEY");
+    const key = process.env.LOVABLE_API_KEY ?? "";
     const settings = await loadSettings(context.supabase);
     if (!settings.enabled) throw new Error("AI assistant is disabled");
     await checkQuota(context.supabase, context.userId, settings.daily_user_limit);
@@ -352,7 +314,7 @@ Only JSON. No fences.${glossaryText(settings)}`;
     const started = Date.now();
     const model = settings.default_model;
     try {
-      const { text, usage } = await runModel(key, model, system, prompt);
+      const { text, usage } = await runModel(key, model, system, prompt, settings);
       await logUsage(context.supabase, context.userId, "lead_summary", model, usage, Date.now() - started, true, undefined, {
         table: "leads",
         id: data.leadId,

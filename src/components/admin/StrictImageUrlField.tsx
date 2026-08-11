@@ -11,6 +11,7 @@ import { ImageCropDialog } from "@/components/admin/ImageCropDialog";
 import { uploadImageWithVariants, type UploadProgress } from "@/lib/imagePipeline";
 import type { ImageVariantsManifest } from "@/hooks/useSignedImage";
 import { refreshIfExpiring, DEFAULT_SIGNED_TTL } from "@/lib/signedUrl";
+import { AIImageEnhanceButton } from "@/components/admin/ai/AIImageEnhanceButton";
 
 export type FieldStatus = "empty" | "uploading" | "ok" | "error";
 
@@ -28,6 +29,8 @@ type Props = {
   folder?: string;
   /** Emitted whenever the field's status changes — used for tab dots. */
   onStatusChange?: (s: FieldStatus) => void;
+  /** Show the "Enhance with AI" action (defaults to true). */
+  enableAiEnhance?: boolean;
 };
 
 const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
@@ -45,6 +48,7 @@ export function StrictImageUrlField({
   bucket = "service-media",
   folder = "",
   onStatusChange,
+  enableAiEnhance = true,
 }: Props) {
   const [draft, setDraft] = useState(value);
   const [status, setStatus] = useState<"idle" | "checking" | "ok" | "error">(value ? "ok" : "idle");
@@ -166,6 +170,15 @@ export function StrictImageUrlField({
           {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
           <span className="ml-1">Upload & Crop</span>
         </Button>
+        {enableAiEnhance && (
+          <AIImageEnhanceButton
+            imageUrl={value}
+            disabled={uploading}
+            onEnhanced={(blob) =>
+              setPendingFile(new File([blob], `ai-enhanced-${Date.now()}.png`, { type: blob.type || "image/png" }))
+            }
+          />
+        )}
         {value && !uploading && (
           <Button type="button" variant="ghost" size="sm" onClick={() => commit("")} aria-label="Clear">
             <X className="h-4 w-4" />
