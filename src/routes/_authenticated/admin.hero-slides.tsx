@@ -255,7 +255,18 @@ function AdminHeroSlides() {
 
 
       {loading ? (
-        <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Loading…</div>
+        <div className="grid gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex gap-4 rounded-xl border border-border bg-card p-4">
+              <SkeletonBox className="h-24 w-40 shrink-0" />
+              <div className="flex-1 space-y-3 py-1">
+                <SkeletonBox className="h-4 w-1/3" />
+                <SkeletonBox className="h-3 w-2/3" />
+                <SkeletonBox className="h-3 w-1/4" />
+              </div>
+            </div>
+          ))}
+        </div>
       ) : slides.length === 0 ? (
         <div className="rounded-lg border border-dashed p-10 text-center text-muted-foreground">No slides yet. Create the first one.</div>
       ) : (

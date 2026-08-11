@@ -154,6 +154,11 @@ function MediaPage() {
           ))}
         </div>
       )}
+      {!loading && total > 0 && (
+        <div className="rounded-2xl border border-border bg-card">
+          <AdminPagination page={page} pageCount={pageCount} total={total} onPageChange={setPage} label="ملف" />
+        </div>
+      )}
     </AdminShell>
   );
 }
