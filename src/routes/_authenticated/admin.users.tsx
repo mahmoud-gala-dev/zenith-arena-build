@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { useGuard } from "@/lib/rbac";
 import { logAdminAudit } from "@/lib/admin-audit";
 import { ResetPasswordDialog } from "@/components/admin/ResetPasswordDialog";
+import { TableRowsSkeleton } from "@/components/site/Skeletons";
+import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 
 
 export const Route = createFileRoute("/_authenticated/admin/users")({
@@ -167,6 +169,8 @@ function AdminUsersPage() {
     if (!normalized) return profiles;
     return profiles.filter((profile) => [profile.full_name, profile.email].some((value) => String(value ?? "").toLowerCase().includes(normalized)));
   }, [profiles, query]);
+
+  const { page, setPage, pageCount, pageItems, total } = usePaged(filtered, 25);
 
   const filteredPerms = useMemo(() => {
     const q = permQuery.trim().toLowerCase();
@@ -409,6 +413,7 @@ function AdminUsersPage() {
               })}
             </tbody>
           </table>
+          <AdminPagination page={page} pageCount={pageCount} total={total} onPageChange={setPage} label="مستخدم" />
         </div>
       </div>
     </AdminShell>
