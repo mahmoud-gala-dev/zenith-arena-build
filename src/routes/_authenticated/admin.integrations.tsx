@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { getN8nConfig, saveN8nConfig, sendN8nOutbound, type N8nConfig } from "@/lib/integrations/n8n.functions";
+import { CdnPanel } from "@/components/admin/CdnPanel";
+
 
 export const Route = createFileRoute("/_authenticated/admin/integrations")({
   component: IntegrationsPage,
