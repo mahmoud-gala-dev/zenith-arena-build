@@ -177,101 +177,134 @@ function ProjectsPage() {
             <DialogTitle>{editing?.id ? "Edit project" : "New project"}</DialogTitle>
           </DialogHeader>
           {editing && (
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-2 flex items-center justify-between gap-2 flex-wrap rounded-md border bg-muted/30 p-2">
-                <span className="text-xs text-muted-foreground">✨ AI helpers</span>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <AIContentDialog
-                    triggerLabel="Draft project story"
-                    defaultKind="project_story"
-                    defaultLanguage="en"
-                    onInsert={(text) => setEditing({ ...editing, description_en: (editing.description_en ? editing.description_en + "\n\n" : "") + text })}
-                    targetTable="projects"
-                    targetId={editing.id}
-                  />
-                  <AITranslateSync
-                    enValue={editing.description_en ?? ""}
-                    arValue={editing.description_ar ?? ""}
-                    onSetEn={(t) => setEditing({ ...editing, description_en: t })}
-                    onSetAr={(t) => setEditing({ ...editing, description_ar: t })}
-                    label="Sync EN↔AR"
-                  />
-                </div>
-              </div>
-              <Field label="Slug (EN) *"><Input value={editing.slug_en ?? ""} onChange={(e) => setEditing({ ...editing, slug_en: e.target.value })} /></Field>
-              <Field label="Year"><Input type="number" value={editing.year ?? ""} onChange={(e) => setEditing({ ...editing, year: Number(e.target.value) })} /></Field>
-              <Field label="Title (EN) *">
-                <div className="flex gap-2">
-                  <Input value={editing.title_en ?? ""} onChange={(e) => setEditing({ ...editing, title_en: e.target.value })} />
-                  <AIAssistButton value={editing.title_en ?? ""} onChange={(t) => setEditing({ ...editing, title_en: t })} language="en" />
-                </div>
-              </Field>
-              <Field label="Title (AR)">
-                <div className="flex gap-2">
-                  <Input value={editing.title_ar ?? ""} onChange={(e) => setEditing({ ...editing, title_ar: e.target.value })} dir="rtl" />
-                  <AIAssistButton value={editing.title_ar ?? ""} onChange={(t) => setEditing({ ...editing, title_ar: t })} language="ar" />
-                </div>
-              </Field>
-              <Field label="Client"><Input value={editing.client ?? ""} onChange={(e) => setEditing({ ...editing, client: e.target.value })} /></Field>
-              <Field label="Sport type"><Input value={editing.sport_type ?? ""} onChange={(e) => setEditing({ ...editing, sport_type: e.target.value })} /></Field>
-              <Field label="Country"><Input value={editing.country ?? ""} onChange={(e) => setEditing({ ...editing, country: e.target.value })} /></Field>
-              <Field label="City"><Input value={editing.city ?? ""} onChange={(e) => setEditing({ ...editing, city: e.target.value })} /></Field>
-              <Field label="Location (display)"><Input value={editing.location ?? ""} onChange={(e) => setEditing({ ...editing, location: e.target.value })} /></Field>
-              <Field label="Governorate">
-                <select value={editing.governorate_id ?? ""} onChange={(e) => setEditing({ ...editing, governorate_id: e.target.value || null })} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
-                  <option value="">— None —</option>
-                  {govs.map((g) => (<option key={g.id} value={g.id}>{g.name_en} — {g.name_ar}</option>))}
-                </select>
-              </Field>
-              <div className="sm:col-span-2">
-                <StrictImageUrlField
-                  label="Cover image"
-                  value={editing.cover_image ?? ""}
-                  onChange={(v) => setEditing({ ...editing, cover_image: v })}
-                  bucket="media"
-                  folder="projects/covers"
-                  aspect="aspect-[16/9]"
-                  aspectRatio={16 / 9}
-                  help="Upload & crop, or paste a URL. Recommended 1600×900."
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <GalleryOrderEditor
-                  label="Project gallery"
-                  value={Array.isArray(editing.gallery) ? editing.gallery : []}
-                  onChange={(next) => setEditing({ ...editing, gallery: next })}
-                  bucket="media"
-                  folder="projects/gallery"
-                />
-
-              </div>
-              <div className="sm:col-span-2">
-                <Field label={<span className="flex items-center justify-between">Description (EN) <AIAssistButton value={editing.description_en ?? ""} onChange={(t) => setEditing({ ...editing, description_en: t })} language="en" size="sm" /></span>}>
-                  <Textarea rows={3} value={editing.description_en ?? ""} onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} />
-                </Field>
-              </div>
-              <div className="sm:col-span-2">
-                <Field label={<span className="flex items-center justify-between">Description (AR) <AIAssistButton value={editing.description_ar ?? ""} onChange={(t) => setEditing({ ...editing, description_ar: t })} language="ar" size="sm" /></span>}>
-                  <Textarea rows={3} dir="rtl" value={editing.description_ar ?? ""} onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} />
-                </Field>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Switch checked={!!editing.featured} onCheckedChange={(v) => setEditing({ ...editing, featured: v })} />
-                <Label>Featured</Label>
-              </div>
-              <Field label="Status">
-                <select value={editing.status ?? "published"} onChange={(e) => setEditing({ ...editing, status: e.target.value })} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
-                  <option value="published">Published</option>
-                  <option value="draft">Draft</option>
-                </select>
-              </Field>
-            </div>
+            <StepForm
+              resetKey={String(editing.id ?? "new")}
+              onSave={save}
+              onCancel={() => setEditing(null)}
+              onStepError={(m) => toast.error(m)}
+              steps={[
+                {
+                  key: "basic",
+                  label: "البيانات الأساسية",
+                  validate: () => (!editing.slug_en?.trim() ? "Slug (EN) مطلوب" : !editing.title_en?.trim() ? "Title (EN) مطلوب" : null),
+                  content: (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="sm:col-span-2 flex items-center justify-between gap-2 flex-wrap rounded-md border bg-muted/30 p-2">
+                        <span className="text-xs text-muted-foreground">✨ AI helpers</span>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <AIContentDialog
+                            triggerLabel="Draft project story"
+                            defaultKind="project_story"
+                            defaultLanguage="en"
+                            onInsert={(text) => setEditing({ ...editing, description_en: (editing.description_en ? editing.description_en + "\n\n" : "") + text })}
+                            targetTable="projects"
+                            targetId={editing.id}
+                          />
+                          <AITranslateSync
+                            enValue={editing.description_en ?? ""}
+                            arValue={editing.description_ar ?? ""}
+                            onSetEn={(t) => setEditing({ ...editing, description_en: t })}
+                            onSetAr={(t) => setEditing({ ...editing, description_ar: t })}
+                            label="Sync EN↔AR"
+                          />
+                        </div>
+                      </div>
+                      <Field label="Slug (EN) *"><Input value={editing.slug_en ?? ""} onChange={(e) => setEditing({ ...editing, slug_en: e.target.value })} /></Field>
+                      <Field label="Year"><Input type="number" value={editing.year ?? ""} onChange={(e) => setEditing({ ...editing, year: Number(e.target.value) })} /></Field>
+                      <Field label="Title (EN) *">
+                        <div className="flex gap-2">
+                          <Input value={editing.title_en ?? ""} onChange={(e) => setEditing({ ...editing, title_en: e.target.value })} />
+                          <AIAssistButton value={editing.title_en ?? ""} onChange={(t) => setEditing({ ...editing, title_en: t })} language="en" />
+                        </div>
+                      </Field>
+                      <Field label="Title (AR)">
+                        <div className="flex gap-2">
+                          <Input value={editing.title_ar ?? ""} onChange={(e) => setEditing({ ...editing, title_ar: e.target.value })} dir="rtl" />
+                          <AIAssistButton value={editing.title_ar ?? ""} onChange={(t) => setEditing({ ...editing, title_ar: t })} language="ar" />
+                        </div>
+                      </Field>
+                    </div>
+                  ),
+                },
+                {
+                  key: "location",
+                  label: "الموقع والعميل",
+                  content: (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Field label="Client"><Input value={editing.client ?? ""} onChange={(e) => setEditing({ ...editing, client: e.target.value })} /></Field>
+                      <Field label="Sport type"><Input value={editing.sport_type ?? ""} onChange={(e) => setEditing({ ...editing, sport_type: e.target.value })} /></Field>
+                      <Field label="Country"><Input value={editing.country ?? ""} onChange={(e) => setEditing({ ...editing, country: e.target.value })} /></Field>
+                      <Field label="City"><Input value={editing.city ?? ""} onChange={(e) => setEditing({ ...editing, city: e.target.value })} /></Field>
+                      <Field label="Location (display)"><Input value={editing.location ?? ""} onChange={(e) => setEditing({ ...editing, location: e.target.value })} /></Field>
+                      <Field label="Governorate">
+                        <select value={editing.governorate_id ?? ""} onChange={(e) => setEditing({ ...editing, governorate_id: e.target.value || null })} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+                          <option value="">— None —</option>
+                          {govs.map((g) => (<option key={g.id} value={g.id}>{g.name_en} — {g.name_ar}</option>))}
+                        </select>
+                      </Field>
+                    </div>
+                  ),
+                },
+                {
+                  key: "media",
+                  label: "الوسائط",
+                  content: (
+                    <div className="grid gap-4">
+                      <StrictImageUrlField
+                        label="Cover image"
+                        value={editing.cover_image ?? ""}
+                        onChange={(v) => setEditing({ ...editing, cover_image: v })}
+                        bucket="media"
+                        folder="projects/covers"
+                        aspect="aspect-[16/9]"
+                        aspectRatio={16 / 9}
+                        help="Upload & crop, or paste a URL. Recommended 1600×900."
+                      />
+                      <GalleryOrderEditor
+                        label="Project gallery"
+                        value={Array.isArray(editing.gallery) ? editing.gallery : []}
+                        onChange={(next) => setEditing({ ...editing, gallery: next })}
+                        bucket="media"
+                        folder="projects/gallery"
+                      />
+                    </div>
+                  ),
+                },
+                {
+                  key: "content",
+                  label: "الوصف",
+                  content: (
+                    <div className="grid gap-4">
+                      <Field label={<span className="flex items-center justify-between">Description (EN) <AIAssistButton value={editing.description_en ?? ""} onChange={(t) => setEditing({ ...editing, description_en: t })} language="en" size="sm" /></span>}>
+                        <Textarea rows={4} value={editing.description_en ?? ""} onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} />
+                      </Field>
+                      <Field label={<span className="flex items-center justify-between">Description (AR) <AIAssistButton value={editing.description_ar ?? ""} onChange={(t) => setEditing({ ...editing, description_ar: t })} language="ar" size="sm" /></span>}>
+                        <Textarea rows={4} dir="rtl" value={editing.description_ar ?? ""} onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} />
+                      </Field>
+                    </div>
+                  ),
+                },
+                {
+                  key: "settings",
+                  label: "الإعدادات والنشر",
+                  content: (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="flex items-center gap-3">
+                        <Switch checked={!!editing.featured} onCheckedChange={(v) => setEditing({ ...editing, featured: v })} />
+                        <Label>Featured</Label>
+                      </div>
+                      <Field label="Status">
+                        <select value={editing.status ?? "published"} onChange={(e) => setEditing({ ...editing, status: e.target.value })} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+                          <option value="published">Published</option>
+                          <option value="draft">Draft</option>
+                        </select>
+                      </Field>
+                    </div>
+                  ),
+                },
+              ]}
+            />
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
-            <Button onClick={save}>Save</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </AdminShell>
