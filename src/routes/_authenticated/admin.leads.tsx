@@ -389,10 +389,10 @@ function LeadsPage() {
           </thead>
           <tbody className="divide-y divide-border">
             {loading ? (
-              <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">Loading…</td></tr>
+              <TableRowsSkeleton rows={8} columns={9} />
             ) : filtered.length === 0 ? (
               <tr><td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">No leads found.</td></tr>
-            ) : filtered.map((l) => (
+            ) : pageItems.map((l) => (
               <tr key={l.id} className="cursor-pointer hover:bg-secondary/40" onClick={() => setSelected(l)}>
                 <td className="px-4 py-3">
                   <div className="font-medium text-foreground">{l.name}</div>

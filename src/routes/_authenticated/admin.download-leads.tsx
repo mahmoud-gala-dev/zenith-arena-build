@@ -228,10 +228,10 @@ function DownloadLeadsPage() {
           </thead>
           <tbody className="divide-y divide-border">
             {loading ? (
-              <tr><td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">Loading…</td></tr>
+              <TableRowsSkeleton rows={8} columns={8} />
             ) : filtered.length === 0 ? (
               <tr><td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">No download leads found.</td></tr>
-            ) : filtered.map((l) => {
+            ) : pageItems.map((l) => {
               const cat = extractCatalog(l.service).title;
               return (
                 <tr key={l.id} className="hover:bg-secondary/40">

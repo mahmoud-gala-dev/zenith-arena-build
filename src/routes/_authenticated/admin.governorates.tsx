@@ -90,10 +90,10 @@ function GovernoratesPage() {
           </thead>
           <tbody className="divide-y divide-border">
             {loading ? (
-              <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">Loading…</td></tr>
+              <TableRowsSkeleton rows={8} columns={7} />
             ) : rows.length === 0 ? (
               <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">No governorates yet.</td></tr>
-            ) : rows.map((g) => (
+            ) : pageItems.map((g) => (
               <tr key={g.id}>
                 <td className="px-4 py-3">
                   {g.logo_url ? <img src={g.logo_url} alt={g.name_en} className="h-10 w-10 rounded bg-secondary object-contain p-1" /> : <div className="h-10 w-10 rounded bg-secondary" />}
