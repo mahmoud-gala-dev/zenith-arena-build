@@ -185,6 +185,7 @@ function GovernoratesPage() {
               ]}
             />
           )}
+        </DialogContent>
       </Dialog>
     </AdminShell>
   );
