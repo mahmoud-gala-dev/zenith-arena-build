@@ -27,6 +27,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { AIAssistButton, AITranslateSync, AIContentDialog } from "@/components/admin/ai";
+import { StepForm, groupFieldName, stepGroupLabels, stepGroupOrder } from "@/components/admin/StepForm";
 
 type TableName = keyof Database["public"]["Tables"];
 type AnyRow = Record<string, unknown> & { id?: string; status?: string; featured?: boolean; updated_at?: string; created_at?: string };
@@ -142,8 +143,8 @@ export function CmsCollectionPage({ config }: { config: CmsCollectionConfig }) {
     setEditing({ ...config.initialValues });
   }
 
-  function validate(values: AnyRow) {
-    for (const field of config.fields) {
+  function validate(values: AnyRow, fields: CmsField[] = config.fields) {
+    for (const field of fields) {
       const raw = values[field.name];
       const text = typeof raw === "string" ? raw.trim() : raw == null ? "" : String(raw);
       if (field.required && !text) return `${field.label} is required`;
