@@ -68,7 +68,7 @@ export const exportDatabaseSql = createServerFn({ method: "POST" })
       const rows: any[] = [];
       const pageSize = 1000;
       for (let from = 0; ; from += pageSize) {
-        const { data: page, error } = await supabaseAdmin
+        const { data: page, error } = await (supabaseAdmin as any)
           .from(table)
           .select("*")
           .range(from, from + pageSize - 1);
