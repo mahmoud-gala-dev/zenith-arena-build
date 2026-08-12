@@ -10,6 +10,7 @@ import {
   BookOpen,
   Building2,
   ClipboardList,
+  Database,
   Download,
   ExternalLink,
   FileText,
@@ -77,6 +78,7 @@ const nav: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exac
   { to: "/admin/settings", label: "Settings", icon: Settings },
   { to: "/admin/settings-keys", label: "Settings Keys (JSON)", icon: Settings },
   { to: "/admin/users", label: "Users & Roles", icon: Users },
+  { to: "/admin/backup", label: "Backup & Restore (SQL)", icon: Database },
 
 ];
 
