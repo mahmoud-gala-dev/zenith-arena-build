@@ -110,7 +110,8 @@ function ProjectsPage() {
 
   return (
     <AdminShell title="Projects">
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex flex-wrap justify-end gap-2">
+        <BulkFolderImport govs={govs} onDone={() => { invalidate(); load(); }} />
         <Button onClick={() => setEditing({ ...emptyProject })}><Plus className="mr-2 h-4 w-4" /> New project</Button>
       </div>
 
