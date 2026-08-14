@@ -48,6 +48,15 @@ export function BulkFolderImport({ govs, onDone }: { govs: GovOption[]; onDone: 
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState("");
 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    // Keep folder structure: the File System Access API flattens dropped dirs.
+    useFsAccessApi: false,
+    noClick: true,
+    accept: { "image/*": [] },
+    onDrop: (accepted) => pick(accepted),
+  });
+
+
   function pick(files: FileList | File[] | null) {
     if (!files || files.length === 0) return;
     const map = new Map<string, File[]>();
