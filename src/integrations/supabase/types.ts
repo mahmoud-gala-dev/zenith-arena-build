@@ -2369,6 +2369,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_dump_schema: { Args: never; Returns: string }
       admin_exec_sql: { Args: { _sql: string }; Returns: undefined }
       admin_list_tables: { Args: never; Returns: string[] }
       get_my_permissions: { Args: never; Returns: string[] }

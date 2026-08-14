@@ -38,6 +38,8 @@ function BackupPage() {
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
   const [counts, setCounts] = useState<Record<string, number> | null>(null);
+  const [includeSchema, setIncludeSchema] = useState(true);
+
   const [file, setFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -62,8 +64,9 @@ function BackupPage() {
     setExporting(true);
     try {
       const res = (await doExport({
-        data: { tables: Array.from(selected) },
+        data: { tables: Array.from(selected), includeSchema },
       } as never)) as { sql: string; counts: Record<string, number> };
+
       setCounts(res.counts);
       const blob = new Blob([res.sql], { type: "application/sql;charset=utf-8" });
       const url = URL.createObjectURL(blob);
@@ -144,10 +147,19 @@ function BackupPage() {
               <span className="text-sm text-muted-foreground">جارٍ التحميل…</span>
             )}
           </div>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={includeSchema}
+              onChange={(e) => setIncludeSchema(e.target.checked)}
+            />
+            تضمين هيكل قاعدة البيانات (الجداول والصلاحيات والسياسات) — include full schema
+          </label>
           <Button onClick={handleExport} disabled={exporting || selected.size === 0}>
             {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Database className="h-4 w-4" />}
             تنزيل ملف SQL
           </Button>
+
         </section>
 
         <section className="rounded-lg border bg-card p-6 space-y-4">
