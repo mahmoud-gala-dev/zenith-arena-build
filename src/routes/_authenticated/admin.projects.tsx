@@ -17,6 +17,7 @@ import { AIAssistButton, AITranslateSync, AIContentDialog } from "@/components/a
 import { TableRowsSkeleton } from "@/components/site/Skeletons";
 import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 import { StepForm } from "@/components/admin/StepForm";
+import { BulkFolderImport } from "@/components/admin/BulkFolderImport";
 
 
 export const Route = createFileRoute("/_authenticated/admin/projects")({
@@ -110,7 +111,8 @@ function ProjectsPage() {
 
   return (
     <AdminShell title="Projects">
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex flex-wrap justify-end gap-2">
+        <BulkFolderImport govs={govs} onDone={() => { invalidate(); load(); }} />
         <Button onClick={() => setEditing({ ...emptyProject })}><Plus className="mr-2 h-4 w-4" /> New project</Button>
       </div>
 
