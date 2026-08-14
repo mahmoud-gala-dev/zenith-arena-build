@@ -18,13 +18,9 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { ResponsiveImage } from "@/components/site/ResponsiveImage";
 
-const SITE_URL = "https://zenith-arena-build.lovable.app";
-const DEFAULT_PAGE_SIZE = 9;
+import { SITE_URL, DEFAULT_PAGE_SIZE, SORT_KEYS, type SortKey } from "./-services-index-constants";
 
-type SortKey = "featured" | "newest" | "oldest" | "az" | "za";
 type Search = { q?: string; category?: string; page?: number; lang?: "en" | "ar"; sort?: SortKey };
-
-const SORT_KEYS: readonly SortKey[] = ["featured", "newest", "oldest", "az", "za"] as const;
 
 export const Route = createFileRoute("/services/")({
   validateSearch: (raw: Record<string, unknown>): Search => {
