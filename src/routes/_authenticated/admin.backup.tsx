@@ -8,8 +8,8 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import {
 import { confirmDialog } from "@/lib/confirm";
+import {
   exportDatabaseSql,
   importDatabaseSql,
   listBackupTables,
