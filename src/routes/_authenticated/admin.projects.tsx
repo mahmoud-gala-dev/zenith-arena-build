@@ -17,6 +17,7 @@ import { AIAssistButton, AITranslateSync, AIContentDialog } from "@/components/a
 import { TableRowsSkeleton } from "@/components/site/Skeletons";
 import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 import { StepForm } from "@/components/admin/StepForm";
+import { BulkFolderImport } from "@/components/admin/BulkFolderImport";
 
 
 export const Route = createFileRoute("/_authenticated/admin/projects")({
