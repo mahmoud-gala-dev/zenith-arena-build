@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trash2, Plus, Download, Upload, Save } from "lucide-react";
+import { confirmDelete } from "@/lib/confirm";
 
 type Draft = Record<string, { en: string; ar: string; namespace: string }>;
 
@@ -94,7 +95,7 @@ export function TranslationsPanel() {
   };
 
   const deleteKey = async (key: string) => {
-    if (!confirm(`Delete translation "${key}"?`)) return;
+    if (!(await confirmDelete(`Delete translation "${key}"?`))) return;
     const { error } = await db.from("translations").delete().eq("key", key);
     if (error) {
       toast.error(String((error as { message?: string }).message ?? error));

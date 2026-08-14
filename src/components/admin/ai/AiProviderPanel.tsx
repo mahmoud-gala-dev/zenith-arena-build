@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { aiKeysList, aiKeySave, aiKeyDelete, aiKeyTest } from "@/lib/ai/keys.functions";
+import { confirmDelete } from "@/lib/confirm";
 
 type KeyRow = {
   id: string;
@@ -161,7 +162,7 @@ export function AiProviderPanel() {
   }
 
   async function removeKey(row: KeyRow) {
-    if (!confirm(`Delete key "${row.label}"?`)) return;
+    if (!(await confirmDelete(`Delete key "${row.label}"?`))) return;
     setBusyId(row.id);
     try {
       await deleteKey({ data: { id: row.id } });

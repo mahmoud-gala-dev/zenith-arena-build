@@ -19,6 +19,7 @@ import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 import { useGuard } from "@/lib/rbac";
 import { LeadScoreBadge, LeadScorePanel } from "@/components/admin/LeadScoreBadge";
 import { scoreLead } from "@/lib/lead-score";
+import { confirmDelete } from "@/lib/confirm";
 
 
 
@@ -210,7 +211,7 @@ function LeadsPage() {
   });
 
   const deleteLead = guard(async (id: string) => {
-    if (!confirm("Delete this lead?")) return;
+    if (!(await confirmDelete("Delete this lead?"))) return;
     const { error } = await supabase.from("leads").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted");

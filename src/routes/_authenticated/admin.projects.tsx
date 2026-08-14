@@ -18,6 +18,7 @@ import { TableRowsSkeleton } from "@/components/site/Skeletons";
 import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 import { StepForm } from "@/components/admin/StepForm";
 import { BulkFolderImport } from "@/components/admin/BulkFolderImport";
+import { confirmDelete } from "@/lib/confirm";
 
 
 export const Route = createFileRoute("/_authenticated/admin/projects")({
@@ -100,7 +101,7 @@ function ProjectsPage() {
   }
 
   async function remove(id: string) {
-    if (!confirm("Delete this project?")) return;
+    if (!(await confirmDelete("Delete this project?"))) return;
     const { error } = await supabase.from("projects").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted");

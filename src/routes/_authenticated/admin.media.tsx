@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useAdminPageGuard } from "@/lib/rbac";
 import { SkeletonBox } from "@/components/site/Skeletons";
 import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
+import { confirmDelete } from "@/lib/confirm";
 
 
 export const Route = createFileRoute("/_authenticated/admin/media")({
@@ -71,7 +72,7 @@ function MediaPage() {
   }
 
   async function remove(f: MediaFile) {
-    if (!confirm("Delete this file?")) return;
+    if (!(await confirmDelete("Delete this file?"))) return;
     await supabase.storage.from("media").remove([f.file_path]);
     const { error } = await supabase.from("media_files").delete().eq("id", f.id);
     if (error) return toast.error(error.message);
