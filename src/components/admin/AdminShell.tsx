@@ -174,7 +174,10 @@ export function AdminShell({ children, title }: { children: React.ReactNode; tit
         </div>
         <nav className="flex-1 space-y-1 overflow-y-auto p-4">
           {visibleNav.map((item) => {
-            const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
+            const active =
+              item.exact
+                ? pathname === item.to
+                : pathname === item.to || pathname.startsWith(`${item.to}/`);
             return (
               <Link
                 key={item.to}
