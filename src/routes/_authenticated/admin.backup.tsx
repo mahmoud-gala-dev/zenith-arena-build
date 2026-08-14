@@ -62,8 +62,9 @@ function BackupPage() {
     setExporting(true);
     try {
       const res = (await doExport({
-        data: { tables: Array.from(selected) },
+        data: { tables: Array.from(selected), includeSchema },
       } as never)) as { sql: string; counts: Record<string, number> };
+
       setCounts(res.counts);
       const blob = new Blob([res.sql], { type: "application/sql;charset=utf-8" });
       const url = URL.createObjectURL(blob);
