@@ -39,7 +39,10 @@ export const exportDatabaseSql = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z
-      .object({ tables: z.array(z.string().regex(/^[a-z0-9_]+$/)).optional() })
+      .object({
+        tables: z.array(z.string().regex(/^[a-z0-9_]+$/)).optional(),
+        includeSchema: z.boolean().optional(),
+      })
       .parse(input ?? {}),
   )
   .handler(async ({ data, context }) => {
@@ -55,13 +58,24 @@ export const exportDatabaseSql = createServerFn({ method: "POST" })
     tables = tables.filter((t) => !EXCLUDED.has(t));
 
     const lines: string[] = [
-      "-- Egytic Sports — full data backup",
+      "-- Egytic Sports — full database backup",
       `-- Generated: ${new Date().toISOString()}`,
       "-- Restore with the Backup & Restore page in /admin/backup",
       "BEGIN;",
       "SET session_replication_role = replica;",
       "",
     ];
+
+    if (data.includeSchema) {
+      const { data: schemaSql, error: schemaError } = await (context as any).supabase.rpc(
+        "admin_dump_schema",
+      );
+      if (schemaError) throw new Error(schemaError.message);
+      lines.push("-- ########## SCHEMA (structure) ##########", String(schemaSql ?? ""), "");
+    }
+
+    lines.push("-- ########## DATA ##########", "");
+
     const counts: Record<string, number> = {};
 
     for (const table of tables) {
