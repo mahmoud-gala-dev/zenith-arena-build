@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { toast } from "sonner";
 import { TableRowsSkeleton } from "@/components/site/Skeletons";
 import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
+import { confirmDelete } from "@/lib/confirm";
 
 export const Route = createFileRoute("/_authenticated/admin/download-leads")({
   component: DownloadLeadsPage,
@@ -112,7 +113,7 @@ function DownloadLeadsPage() {
   }
 
   async function deleteLead(id: string) {
-    if (!confirm("Delete this lead?")) return;
+    if (!(await confirmDelete("Delete this lead?"))) return;
     const { error } = await supabase.from("leads").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted");
@@ -122,7 +123,7 @@ function DownloadLeadsPage() {
 
   async function deleteSelected() {
     if (selectedIds.size === 0) return;
-    if (!confirm(`Delete ${selectedIds.size} lead(s)?`)) return;
+    if (!(await confirmDelete(`Delete ${selectedIds.size} lead(s)?`))) return;
     const ids = Array.from(selectedIds);
     const { error } = await supabase.from("leads").delete().in("id", ids);
     if (error) return toast.error(error.message);

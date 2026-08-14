@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import {
+import { confirmDialog } from "@/lib/confirm";
   exportDatabaseSql,
   importDatabaseSql,
   listBackupTables,
@@ -86,9 +87,11 @@ function BackupPage() {
   async function handleImport() {
     if (!file) return;
     if (
-      !window.confirm(
-        "سيتم استبدال البيانات الحالية بالكامل بمحتوى الملف. هل تريد المتابعة؟\nThis replaces current data with the file contents. Continue?",
-      )
+      !(await confirmDialog({
+        title: "استعادة قاعدة البيانات / Restore database",
+        text: "سيتم استبدال البيانات الحالية بالكامل بمحتوى الملف. هل تريد المتابعة؟ This replaces current data with the file contents.",
+        confirmText: "استعادة / Restore",
+      }))
     )
       return;
     setImporting(true);

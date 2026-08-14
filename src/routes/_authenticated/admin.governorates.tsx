@@ -14,6 +14,7 @@ import { AITranslateSync } from "@/components/admin/ai";
 import { TableRowsSkeleton } from "@/components/site/Skeletons";
 import { usePaged, AdminPagination } from "@/components/admin/AdminPagination";
 import { StepForm } from "@/components/admin/StepForm";
+import { confirmDelete } from "@/lib/confirm";
 
 
 export const Route = createFileRoute("/_authenticated/admin/governorates")({
@@ -67,7 +68,7 @@ function GovernoratesPage() {
   }
 
   async function remove(id: string) {
-    if (!confirm("Delete this governorate? Assigned projects will be unlinked.")) return;
+    if (!(await confirmDelete("Delete this governorate? Assigned projects will be unlinked."))) return;
     const { error } = await supabase.from("governorates").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted"); invalidate(); load();

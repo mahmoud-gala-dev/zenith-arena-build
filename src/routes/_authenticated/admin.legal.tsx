@@ -15,6 +15,7 @@ import { useMyRoles } from "@/hooks/useMyRoles";
 import { PreviewLinksCard } from "@/components/admin/PreviewLinksCard";
 import { PreviewLinksExportCard } from "@/components/admin/PreviewLinksExportCard";
 import type { Section } from "@/lib/types";
+import { confirmDialog } from "@/lib/confirm";
 
 export const Route = createFileRoute("/_authenticated/admin/legal")({
   component: AdminLegalPage,
@@ -676,7 +677,7 @@ function VersionHistory({ pageId, slug }: { pageId?: string; slug: string }) {
 
   async function restore(row: VersionRow) {
     if (!pageId) return;
-    if (!confirm(`Restore version #${row.version_number}? Current content will be saved as a new version first.`)) return;
+    if (!(await confirmDialog({ title: "Restore version", text: `Restore version #${row.version_number}? Current content will be saved as a new version first.`, confirmText: "Restore", danger: false }))) return;
     setRestoringId(row.id);
     try {
       const snap = row.snapshot;
