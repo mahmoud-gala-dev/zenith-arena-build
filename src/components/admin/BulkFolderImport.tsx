@@ -48,14 +48,14 @@ export function BulkFolderImport({ govs, onDone }: { govs: GovOption[]; onDone: 
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState("");
 
-  function pick(files: FileList | null) {
+  function pick(files: FileList | File[] | null) {
     if (!files || files.length === 0) return;
     const map = new Map<string, File[]>();
     let root = "";
-    for (const file of Array.from(files)) {
+    for (const file of Array.from(files as ArrayLike<File>)) {
       if (!IMAGE_RE.test(file.name)) continue;
-      const rel = (file as any).webkitRelativePath || file.name;
-      const parts = rel.split("/").filter(Boolean);
+      const rel = (file as any).webkitRelativePath || (file as any).path || file.name;
+      const parts = String(rel).split("/").filter(Boolean);
       if (!root && parts.length > 1) root = parts[0];
       // governorate folder / project folder / [...] / image
       const folder = parts.length >= 3 ? parts[1] : parts.length === 2 ? parts[0] : "Untitled";
