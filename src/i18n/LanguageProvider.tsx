@@ -15,11 +15,21 @@ interface LanguageContextValue {
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 const STORAGE_KEY = "apex-lang";
 
-/** Deep-clone the static dict and override leaves whose dot-path is present in the DB overrides map. */
+/** Deep-clone the static dict (preserving function leaves) and override leaves whose dot-path is present in the DB overrides map. */
+function deepCloneDict(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(deepCloneDict);
+  if (typeof value === "object" && value !== null) {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) out[k] = deepCloneDict(v);
+    return out;
+  }
+  // primitives and functions are copied by reference/value
+  return value;
+}
+
 function mergeOverrides(base: Dict, overrides: Record<string, string> | undefined): Dict {
   if (!overrides || Object.keys(overrides).length === 0) return base;
-  // Structured clone keeps nested objects intact
-  const clone = JSON.parse(JSON.stringify(base)) as Record<string, unknown>;
+  const clone = deepCloneDict(base) as Record<string, unknown>;
   for (const [key, value] of Object.entries(overrides)) {
     if (typeof value !== "string" || value.length === 0) continue;
     const parts = key.split(".");

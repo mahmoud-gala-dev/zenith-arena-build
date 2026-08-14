@@ -166,7 +166,9 @@ function DownloadsPage() {
           </div>
 
           <p className="mt-4 text-sm text-muted-foreground" aria-live="polite">
-            {T.pages.downloads.resultsOf(filtered.length, items.length)}
+            {typeof T.pages.downloads.resultsOf === "function"
+              ? T.pages.downloads.resultsOf(filtered.length, items.length)
+              : `${filtered.length} / ${items.length}`}
           </p>
         </div>
       </section>
