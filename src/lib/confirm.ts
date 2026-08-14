@@ -19,9 +19,6 @@ export async function confirmDialog(options: {
     danger = true,
   } = options;
 
-  const isRtl =
-    typeof document !== "undefined" && document.documentElement.getAttribute("dir") === "rtl";
-
   const result = await Swal.fire({
     title,
     text,
@@ -31,7 +28,6 @@ export async function confirmDialog(options: {
     cancelButtonText: cancelText,
     reverseButtons: true,
     focusCancel: true,
-    ...(isRtl ? { customClass: { popup: "swal2-rtl" } } : {}),
     buttonsStyling: false,
     customClass: {
       popup: "rounded-xl bg-background text-foreground border border-border",
