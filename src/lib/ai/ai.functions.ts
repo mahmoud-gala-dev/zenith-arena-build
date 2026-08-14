@@ -414,3 +414,75 @@ Only JSON. No fences.${glossaryText(settings)}`;
       throw e;
     }
   });
+
+/* ------------------------------------------------------------------ */
+/* Name project folders (bulk folder import, stage 2)                  */
+/* ------------------------------------------------------------------ */
+export const aiNameProjectFolders = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        folders: z.array(z.string().min(1).max(200)).min(1).max(60),
+        governorate: z.string().max(120).optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertPermission(context);
+    const key = process.env.LOVABLE_API_KEY ?? "";
+    const settings = await loadSettings(context.supabase);
+    if (!settings.enabled) throw new Error("AI assistant is disabled");
+    await checkQuota(context.supabase, context.userId, settings.daily_user_limit);
+
+    const model = settings.default_model;
+    const system = `You name sports-facility construction projects for "Egytic Sports" in Egypt${
+      data.governorate ? ` (governorate: ${data.governorate})` : ""
+    }.
+Input: raw folder names (often messy Arabic or transliterated).
+For each folder return a clean project title in English and Arabic, plus a URL slug (lowercase english, hyphens).
+Return ONLY a JSON array: [{"folder":"<exact input>","title_en":"...","title_ar":"...","slug":"..."}]
+No markdown fences, no commentary.${glossaryText(settings)}`;
+
+    const started = Date.now();
+    try {
+      const { text, usage } = await runModel(
+        key,
+        model,
+        system,
+        JSON.stringify(data.folders),
+        settings,
+      );
+      await logUsage(
+        context.supabase,
+        context.userId,
+        "name:project_folders",
+        model,
+        usage,
+        Date.now() - started,
+        true,
+      );
+      const cleaned = text.trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+      let parsed: Array<{ folder: string; title_en: string; title_ar: string; slug?: string }> = [];
+      try {
+        parsed = JSON.parse(cleaned);
+      } catch {
+        const m = cleaned.match(/\[[\s\S]*\]/);
+        if (m) parsed = JSON.parse(m[0]);
+      }
+      if (!Array.isArray(parsed)) throw new Error("AI returned an unexpected format");
+      return { items: parsed, model };
+    } catch (e: any) {
+      await logUsage(
+        context.supabase,
+        context.userId,
+        "name:project_folders",
+        model,
+        undefined,
+        Date.now() - started,
+        false,
+        e?.message,
+      );
+      throw e;
+    }
+  });
