@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { FolderUp, Sparkles, Loader2, CheckCircle2 } from "lucide-react";
+import { useDropzone } from "react-dropzone";
+import { FolderUp, Sparkles, Loader2, CheckCircle2, Folder, Images, X } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,14 +48,23 @@ export function BulkFolderImport({ govs, onDone }: { govs: GovOption[]; onDone: 
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState("");
 
-  function pick(files: FileList | null) {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    // Keep folder structure: the File System Access API flattens dropped dirs.
+    useFsAccessApi: false,
+    noClick: true,
+    accept: { "image/*": [] },
+    onDrop: (accepted) => pick(accepted),
+  });
+
+
+  function pick(files: FileList | File[] | null) {
     if (!files || files.length === 0) return;
     const map = new Map<string, File[]>();
     let root = "";
-    for (const file of Array.from(files)) {
+    for (const file of Array.from(files as ArrayLike<File>)) {
       if (!IMAGE_RE.test(file.name)) continue;
-      const rel = (file as any).webkitRelativePath || file.name;
-      const parts = rel.split("/").filter(Boolean);
+      const rel = (file as any).webkitRelativePath || (file as any).path || file.name;
+      const parts = String(rel).split("/").filter(Boolean);
       if (!root && parts.length > 1) root = parts[0];
       // governorate folder / project folder / [...] / image
       const folder = parts.length >= 3 ? parts[1] : parts.length === 2 ? parts[0] : "Untitled";
@@ -201,20 +211,71 @@ export function BulkFolderImport({ govs, onDone }: { govs: GovOption[]; onDone: 
             المرحلة 2: توليد أسماء المشاريع عربي/إنجليزي بالذكاء الاصطناعي.
           </p>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label>مجلد المحافظة</Label>
-              <input
-                ref={inputRef}
-                type="file"
-                multiple
-                // @ts-expect-error non-standard directory attributes
-                webkitdirectory="true"
-                directory="true"
-                onChange={(e) => pick(e.target.files)}
-                className="block w-full text-sm"
-              />
+          <div
+            {...getRootProps()}
+            className={`rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
+              isDragActive ? "border-primary bg-primary/5" : "border-border bg-secondary/20"
+            }`}
+          >
+            <input {...getInputProps()} />
+            <FolderUp className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
+            <p className="text-sm font-medium">اسحب وأفلت مجلد المحافظة هنا</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {rootName ? `المجلد: ${rootName}` : "مجلد المحافظة ← مجلدات المشاريع ← الصور"}
+            </p>
+            <div className="mt-3 flex items-center justify-center gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => inputRef.current?.click()}>
+                اختيار مجلد
+              </Button>
+              {groups.length > 0 && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={!!busy}
+                  onClick={() => {
+                    setGroups([]);
+                    setRootName("");
+                    setProgress(0);
+                  }}
+                >
+                  <X className="mr-1 h-3.5 w-3.5" /> تفريغ
+                </Button>
+              )}
             </div>
+            <input
+              ref={inputRef}
+              type="file"
+              multiple
+              hidden
+              // @ts-expect-error non-standard directory attributes
+              webkitdirectory="true"
+              directory="true"
+              onChange={(e) => pick(e.target.files)}
+            />
+          </div>
+
+          {groups.length > 0 && (
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {groups.map((g) => (
+                <div key={g.folder} className="flex items-center gap-2 rounded-lg border border-border p-2.5">
+                  <Folder className="h-4 w-4 shrink-0 text-primary" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-medium" title={g.folder}>
+                      {g.title_ar || g.folder}
+                    </p>
+                    <p className="truncate text-[11px] text-muted-foreground">{g.folder}</p>
+                  </div>
+                  <span className="flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground">
+                    <Images className="h-3.5 w-3.5" />
+                    {g.urls.length}/{g.files.length}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label>المحافظة</Label>
               <select
